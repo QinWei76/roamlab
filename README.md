@@ -1,5 +1,2 @@
-# RoamLab Brand MVP
-
-Outdoor gear research platform.
-
-Deploy with Vercel.
+# RoamLab v2
+Minimal outdoor gear research platform homepage.
