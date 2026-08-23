@@ -1,1 +1,1 @@
-RoamLab A1 Final - Fullscreen Hero Version
+RoamLab hero package. Put hero.jpg into your project's public folder.
