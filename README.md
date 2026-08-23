@@ -1,3 +1,1 @@
-# RoamLab Fullscreen Hero Version
-
-Place hero.jpg in public folder.
+RoamLab A1 Final - Fullscreen Hero Version

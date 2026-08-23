@@ -1,14 +1,15 @@
-*{box-sizing:border-box}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
+*{box-sizing:border-box}
 body{
  margin:0;
- font-family:Arial,Helvetica,sans-serif;
+ font-family:Inter,Arial,sans-serif;
  color:#111;
 }
 
 .hero{
  height:100vh;
- min-height:700px;
+ min-height:720px;
  background:
  linear-gradient(90deg,rgba(0,0,0,.65),rgba(0,0,0,.15)),
  url('/hero.jpg');
@@ -19,48 +20,33 @@ body{
 }
 
 .hero-content{
- color:white;
- max-width:650px;
+ color:#f7f7f2;
+ max-width:620px;
  margin-left:8%;
 }
 
 .hero h1{
  font-size:72px;
- line-height:1.05;
- margin:20px 0;
+ line-height:1.02;
+ letter-spacing:-3px;
 }
 
 .hero p{
- font-size:22px;
+ font-size:20px;
  line-height:1.5;
 }
 
 .btn{
- background:white;
+ background:#fff;
  color:#111;
  border:0;
  padding:16px 32px;
- border-radius:30px;
- font-size:16px;
+ border-radius:999px;
 }
 
-section:not(.hero){
- padding:80px 8%;
-}
-
-.cards{
- display:grid;
- grid-template-columns:repeat(3,1fr);
- gap:24px;
-}
-
+section:not(.hero){padding:80px 8%}
 .card{
- padding:30px;
- border-radius:24px;
+ padding:32px;
  border:1px solid #ddd;
-}
-
-@media(max-width:800px){
- .hero h1{font-size:42px}
- .cards{grid-template-columns:1fr}
+ border-radius:24px;
 }
