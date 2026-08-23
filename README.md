@@ -1,1 +1,1 @@
-RoamLab FINAL FULL package with hero image and Next Image implementation.
+RoamLab final hero package.
