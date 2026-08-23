@@ -4,5 +4,5 @@ import GearLab from "@/components/GearLab";
 import VehicleSetup from "@/components/VehicleSetup";
 
 export default function Home(){
- return <main><Hero/><StartHere/><GearLab/><VehicleSetup/></main>
+return <main><Hero/><StartHere/><GearLab/><VehicleSetup/></main>
 }
