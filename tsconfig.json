@@ -1,7 +1,3 @@
 {
- "compilerOptions":{
-  "paths":{"@/*":["./src/*"]},
-  "jsx":"preserve",
-  "strict":true
- }
+ "compilerOptions":{"paths":{"@/*":["./src/*"]},"jsx":"preserve","strict":true}
 }

@@ -1,3 +1,1 @@
-export default function StartHere(){
- return <section><h2>Start Your Setup</h2><div className="card">First Setup · Upgrade Gear · Complete System</div></section>
-}
+export default function StartHere(){return <section><h2>Start Your Setup</h2><div className="card">First Setup · Upgrade Gear · Complete System</div></section>}

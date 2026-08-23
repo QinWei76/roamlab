@@ -1,1 +1,1 @@
-RoamLab hero package. Put hero.jpg into your project's public folder.
+RoamLab FINAL FULL package with hero image and Next Image implementation.
