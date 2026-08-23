@@ -1,3 +1,1 @@
-export default function FieldGuides(){
- return <section><h2>Field Guides</h2></section>
-}
+export default function FieldGuides(){return <section><h2>Field Guides</h2></section>}

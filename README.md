@@ -1,2 +1,1 @@
-# RoamLab v2
-Minimal outdoor gear research platform homepage.
+# RoamLab v2 complete
