@@ -1,9 +1,1 @@
-*{box-sizing:border-box}
-body{margin:0;font-family:Inter,Arial,sans-serif}
-.hero{position:relative;height:100vh;overflow:hidden}
-.hero img{object-fit:cover}
-.overlay{position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.18),rgba(0,0,0,.05))}
-.content{position:absolute;z-index:2;left:7%;top:50%;transform:translateY(-50%);max-width:560px;color:#111}
-.title{font-size:68px;line-height:1.05;letter-spacing:-2px;font-weight:700}
-.sub{font-size:18px;color:#333;line-height:1.5}
-.btn{background:#1f3a2a;color:white;border:0;border-radius:999px;padding:16px 30px;font-size:16px}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,sans-serif}.hero{position:relative;height:100vh;overflow:hidden}.heroImage{object-fit:cover}.header{position:absolute;z-index:2;top:0;left:0;right:0;padding:42px 7%;display:flex;justify-content:space-between}.logo{font-size:24px;letter-spacing:.18em;font-weight:600}.content{position:absolute;z-index:2;left:7%;top:50%;transform:translateY(-45%);color:#111}h1{font-size:68px;line-height:1.05;letter-spacing:-2px}.desc{color:#333;font-size:19px}button{background:#1f3a2a;color:white;border:0;border-radius:999px;padding:16px 34px}

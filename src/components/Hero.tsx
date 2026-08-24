@@ -1,13 +1,2 @@
 import Image from "next/image";
-export default function Hero(){
-return <section className="hero">
-<Image src="/hero.jpg" alt="RoamLab car camping system" fill priority/>
-<div className="overlay"/>
-<div className="content">
-<p>RESEARCH-DRIVEN GEAR GUIDES</p>
-<h1 className="title">Build Your Dream<br/>Car Camping<br/>System</h1>
-<p className="sub">Research-driven gear guides for smarter outdoor systems.</p>
-<button className="btn">Build Your Setup →</button>
-</div>
-</section>
-}
+export default function Hero(){return <main className="hero"><Image src="/hero.jpg" alt="RoamLab car camping system" fill priority className="heroImage"/><header className="header"><div className="logo">ROAMLAB</div><nav>Start Here　 Gear Lab　 Vehicles</nav></header><section className="content"><p>RESEARCH-DRIVEN GEAR GUIDES</p><h1>Build Your Dream<br/>Car Camping<br/>System</h1><p className="desc">Research-driven gear guides for smarter outdoor systems.</p><button>Build Your Setup →</button></section></main>}
