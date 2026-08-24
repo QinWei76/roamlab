@@ -171,3 +171,50 @@ button{
  cursor:pointer;
 
 }
+.startHero{
+ position:relative;
+ height:100vh;
+ overflow:hidden;
+}
+
+
+.startImage{
+ object-fit:cover;
+}
+
+
+.startOverlay{
+ position:absolute;
+ inset:0;
+ background:
+ linear-gradient(
+ 90deg,
+ rgba(0,0,0,.65),
+ rgba(0,0,0,.15)
+ );
+}
+
+
+.startContent{
+ position:absolute;
+ z-index:2;
+ left:7%;
+ top:50%;
+ transform:translateY(-50%);
+ color:white;
+ max-width:600px;
+}
+
+
+.startContent h1{
+ font-size:60px;
+ line-height:1.1;
+ letter-spacing:-1px;
+}
+
+
+.startContent .desc{
+ color:rgba(255,255,255,.8);
+ font-size:19px;
+ margin-top:35px;
+}
