@@ -1,1 +1,173 @@
-*{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,sans-serif}.hero{position:relative;height:100vh;overflow:hidden}.heroImage{object-fit:cover}.header{position:absolute;z-index:2;top:0;left:0;right:0;padding:42px 7%;display:flex;justify-content:space-between}.logo{font-size:24px;letter-spacing:.18em;font-weight:600}.content{position:absolute;z-index:2;left:7%;top:50%;transform:translateY(-45%);color:#111}h1{font-size:68px;line-height:1.05;letter-spacing:-2px}.desc{color:#333;font-size:19px}button{background:#1f3a2a;color:white;border:0;border-radius:999px;padding:16px 34px}
+*{
+ box-sizing:border-box;
+}
+
+
+html,
+body{
+ margin:0;
+ padding:0;
+}
+
+
+body{
+ font-family:Inter,Arial,sans-serif;
+}
+
+
+.hero{
+ position:relative;
+ height:100vh;
+ min-height:720px;
+ overflow:hidden;
+}
+
+
+.heroImage{
+ object-fit:cover;
+}
+
+
+/* 图片轻微压暗，让文字稳定 */
+
+.overlay{
+ position:absolute;
+ inset:0;
+ background:
+ linear-gradient(
+  90deg,
+  rgba(255,255,255,0.18),
+  rgba(0,0,0,0.05)
+ );
+}
+
+
+/* 顶部 */
+
+.header{
+
+ position:absolute;
+ top:0;
+ left:0;
+ right:0;
+
+ padding:40px 7%;
+
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+
+ z-index:3;
+
+}
+
+
+.logo{
+
+ color:#111;
+
+ font-size:24px;
+
+ font-weight:600;
+
+ letter-spacing:.18em;
+
+}
+
+
+
+nav{
+
+ display:flex;
+
+ gap:36px;
+
+ color:white;
+
+ font-size:15px;
+
+}
+
+
+
+/* Hero文字 */
+
+.content{
+
+ position:absolute;
+
+ z-index:2;
+
+ left:7%;
+
+ top:52%;
+
+ transform:translateY(-50%);
+
+ color:#111;
+
+ max-width:600px;
+
+}
+
+
+
+.eyebrow{
+
+ font-size:15px;
+
+ letter-spacing:.08em;
+
+ margin-bottom:38px;
+
+}
+
+
+
+h1{
+
+ margin:0;
+
+ font-size:68px;
+
+ line-height:1.05;
+
+ letter-spacing:-2px;
+
+ font-weight:700;
+
+}
+
+
+
+.desc{
+
+ margin-top:45px;
+
+ font-size:19px;
+
+ color:#333;
+
+}
+
+
+
+button{
+
+ margin-top:25px;
+
+ padding:16px 34px;
+
+ border:none;
+
+ border-radius:999px;
+
+ background:#1f3a2a;
+
+ color:white;
+
+ font-size:16px;
+
+ cursor:pointer;
+
+}
