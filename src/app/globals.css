@@ -8,65 +8,83 @@
 
 html,
 body {
-  margin: 0;
-  padding: 0;
-  font-family: "Inter", Arial, sans-serif;
-  background: #ffffff;
-  color: #111111;
+
+  margin:0;
+
+  padding:0;
+
+  font-family:"Inter", Arial, sans-serif;
+
+  background:#ffffff;
+
+  color:#111111;
+
 }
 
 
 main {
-  width: 100%;
+
+  width:100%;
+
 }
 
 
-/* =====================
+
+/* =========================
    START HERE HERO
-===================== */
+========================= */
 
 
 .startHero {
 
-  position: relative;
+  position:relative;
 
-  width: 100%;
+  width:100%;
 
-  height: 100vh;
+  height:100vh;
 
-  overflow: hidden;
+  overflow:hidden;
 
 }
+
 
 
 .startImage {
 
-  object-fit: cover;
+  object-fit:cover;
+
+  z-index:1;
 
 }
+
 
 
 .startOverlay {
 
-  position: absolute;
+  position:absolute;
 
-  inset: 0;
+  inset:0;
 
-  background: rgba(0,0,0,0.35);
+  background:rgba(0,0,0,0.35);
+
+  z-index:2;
 
 }
 
 
 
+/* HEADER */
+
+
 .header {
 
-  position: absolute;
+  position:absolute;
 
-  top: 30px;
+  top:30px;
 
-  left: 7%;
+  left:7%;
 
-  right: 7%;
+  right:7%;
 
   display:flex;
 
@@ -74,7 +92,7 @@ main {
 
   align-items:center;
 
-  z-index:10;
+  z-index:20;
 
 }
 
@@ -82,7 +100,7 @@ main {
 
 .logo {
 
-  color:white;
+  color:#ffffff;
 
   font-size:26px;
 
@@ -106,7 +124,7 @@ nav {
 
 nav span {
 
-  color:white;
+  color:#ffffff;
 
   font-size:16px;
 
@@ -114,19 +132,22 @@ nav span {
 
 
 
+/* HERO CONTENT */
+
+
 .startContent {
 
   position:absolute;
 
-  z-index:5;
+  left:7%;
 
   top:50%;
 
-  left:7%;
-
   transform:translateY(-50%);
 
-  color:white;
+  z-index:20;
+
+  color:#ffffff;
 
   max-width:650px;
 
@@ -138,9 +159,9 @@ nav span {
 
   font-size:16px;
 
-  letter-spacing:2px;
-
   font-weight:600;
+
+  letter-spacing:3px;
 
 }
 
@@ -152,9 +173,9 @@ nav span {
 
   line-height:1.05;
 
-  margin:25px 0;
-
   letter-spacing:-2px;
+
+  margin:25px 0;
 
 }
 
@@ -176,27 +197,113 @@ button {
 
   margin-top:35px;
 
-  background:#164b35;
-
-  color:white;
+  padding:18px 35px;
 
   border:none;
 
-  padding:18px 35px;
-
   border-radius:40px;
+
+  background:#164b35;
+
+  color:#ffffff;
 
   font-size:16px;
 
   font-weight:600;
 
+  cursor:pointer;
+
 }
 
 
 
-/* =====================
+/* =========================
+   SCROLL INDICATOR
+========================= */
+
+
+.scrollHint {
+
+  position:absolute;
+
+  bottom:40px;
+
+  left:50%;
+
+  transform:translateX(-50%);
+
+  z-index:20;
+
+  color:#ffffff;
+
+  text-align:center;
+
+  font-size:12px;
+
+  font-weight:500;
+
+  letter-spacing:3px;
+
+  text-shadow:0 2px 8px rgba(0,0,0,0.6);
+
+  opacity:0.9;
+
+}
+
+
+
+.arrow {
+
+  margin-top:12px;
+
+  font-size:24px;
+
+  color:#ffffff;
+
+  text-shadow:0 2px 8px rgba(0,0,0,0.6);
+
+  animation:scrollMove 1.8s infinite;
+
+}
+
+
+
+@keyframes scrollMove {
+
+
+  0% {
+
+    transform:translateY(0);
+
+    opacity:.5;
+
+  }
+
+
+  50% {
+
+    transform:translateY(8px);
+
+    opacity:1;
+
+  }
+
+
+  100% {
+
+    transform:translateY(0);
+
+    opacity:.5;
+
+  }
+
+}
+
+
+
+/* =========================
    JOURNEY SECTIONS
-===================== */
+========================= */
 
 
 .journeySection {
@@ -211,7 +318,7 @@ button {
 
   padding:120px 7%;
 
-  background:white;
+  background:#ffffff;
 
 }
 
@@ -239,7 +346,7 @@ button {
 
   letter-spacing:4px;
 
-  color:#777;
+  color:#777777;
 
 }
 
@@ -263,7 +370,7 @@ button {
 
   font-size:22px;
 
-  color:#555;
+  color:#555555;
 
   line-height:1.5;
 
@@ -287,15 +394,15 @@ button {
 
   font-size:15px;
 
-  color:#333;
+  color:#333333;
 
 }
 
 
 
-/* =====================
+/* =========================
    IMAGE
-===================== */
+========================= */
 
 
 .journeyImage {
@@ -320,9 +427,32 @@ button {
 
 
 
-/* =====================
+/* =========================
+   COMPLETE SYSTEM
+========================= */
+
+
+.completeSection {
+
+  padding:120px 7%;
+
+  text-align:center;
+
+}
+
+
+
+.completeSection h2 {
+
+  font-size:60px;
+
+}
+
+
+
+/* =========================
    MOBILE
-===================== */
+========================= */
 
 
 @media(max-width:900px){
@@ -331,6 +461,22 @@ button {
   .startContent h1 {
 
     font-size:48px;
+
+  }
+
+
+  .header {
+
+    left:5%;
+
+    right:5%;
+
+  }
+
+
+  nav {
+
+    gap:15px;
 
   }
 
