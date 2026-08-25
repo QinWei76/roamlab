@@ -59,7 +59,7 @@ export default function StartHere() {
 
         <h1>
           Build Your First
-          <br/>
+          <br />
           Car Camping System
         </h1>
 
@@ -76,6 +76,23 @@ export default function StartHere() {
 
 
       </section>
+
+
+
+
+      <div className="scrollHint">
+
+        <span>
+          EXPLORE SYSTEM
+        </span>
+
+
+        <div className="arrow">
+          ↓
+        </div>
+
+
+      </div>
 
 
 
