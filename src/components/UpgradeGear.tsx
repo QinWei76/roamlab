@@ -10,21 +10,35 @@ export default function UpgradeGear() {
           02
         </p>
 
+
         <h2>
           UPGRADE GEAR
         </h2>
+
 
         <p className="subtitle">
           Improve comfort and capability.
         </p>
 
+
         <div className="features">
-          <span>Organization</span>
-          <span>Efficiency</span>
-          <span>Protection</span>
+
+          <span>
+            Organization
+          </span>
+
+          <span>
+            Efficiency
+          </span>
+
+          <span>
+            Protection
+          </span>
+
         </div>
 
       </div>
+
 
 
       <div className="journeyImage">
@@ -33,6 +47,7 @@ export default function UpgradeGear() {
           src="/upgrade-gear.jpg"
           alt="Upgrade gear system"
           fill
+          priority
         />
 
       </div>
