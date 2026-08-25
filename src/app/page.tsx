@@ -1,15 +1,17 @@
-import Hero from "@/components/Hero";
+import StartHere from "@/components/StartHere";
 import FirstSetup from "@/components/FirstSetup";
+import UpgradeGear from "@/components/UpgradeGear";
 
 
-export default function Home() {
-
+export default function StartHerePage() {
   return (
     <main>
 
-      <Hero />
+      <StartHere />
 
       <FirstSetup />
+
+      <UpgradeGear />
 
     </main>
   );
