@@ -1,102 +1,28 @@
-import Image from "next/image";
+import StartHere from "@/components/StartHere";
+import FirstSetup from "@/components/FirstSetup";
+import UpgradeGear from "@/components/UpgradeGear";
+import CompleteSystem from "@/components/CompleteSystem";
 
 
-export default function StartHere() {
+export default function StartHerePage() {
 
   return (
 
-    <section className="startHero">
+    <main>
+
+      <StartHere />
 
 
-      <Image
-        src="/start-here-hero.jpg"
-        alt="RoamLab garage setup"
-        fill
-        priority
-        className="startImage"
-      />
+      <FirstSetup />
 
 
-      <div className="startOverlay"></div>
+      <UpgradeGear />
 
 
-
-      <header className="header">
-
-        <div className="logo">
-          ROAMLAB
-        </div>
+      <CompleteSystem />
 
 
-        <nav>
-
-          <span>
-            Home
-          </span>
-
-          <span>
-            Gear Lab
-          </span>
-
-          <span>
-            Vehicles
-          </span>
-
-        </nav>
-
-      </header>
-
-
-
-
-      <section className="startContent">
-
-
-        <p className="eyebrow">
-          START HERE
-        </p>
-
-
-        <h1>
-          Build Your First
-          <br />
-          Car Camping System
-        </h1>
-
-
-        <p className="desc">
-          Start simple. Build smart.
-          Create your complete vehicle system.
-        </p>
-
-
-        <button>
-          Start Building →
-        </button>
-
-
-      </section>
-
-
-
-
-      <div className="scrollHint">
-
-        <span>
-          SCROLL TO EXPLORE
-        </span>
-
-
-        <div className="arrow">
-          ↓
-        </div>
-
-
-      </div>
-
-
-
-    </section>
+    </main>
 
   );
 
