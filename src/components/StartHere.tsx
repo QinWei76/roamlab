@@ -83,7 +83,7 @@ export default function StartHere() {
       <div className="scrollHint">
 
         <span>
-          EXPLORE SYSTEM
+          SCROLL TO EXPLORE
         </span>
 
 
