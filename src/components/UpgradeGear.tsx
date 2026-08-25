@@ -1,0 +1,43 @@
+import Image from "next/image";
+
+export default function UpgradeGear() {
+  return (
+    <section className="journeySection reverse">
+
+      <div className="journeyText">
+
+        <p className="number">
+          02
+        </p>
+
+        <h2>
+          UPGRADE GEAR
+        </h2>
+
+        <p className="subtitle">
+          Improve comfort and capability.
+        </p>
+
+        <div className="features">
+          <span>Organization</span>
+          <span>Efficiency</span>
+          <span>Protection</span>
+        </div>
+
+      </div>
+
+
+      <div className="journeyImage">
+
+        <Image
+          src="/upgrade-gear.jpg"
+          alt="Upgrade gear system"
+          fill
+        />
+
+      </div>
+
+
+    </section>
+  );
+}
