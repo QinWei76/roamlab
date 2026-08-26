@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 
@@ -29,29 +30,52 @@ export default function GearBuilderPage() {
     <main className="builderPage">
 
 
+      {/* HERO */}
+
       <section className="builderHero">
 
 
-        <p className="builderEyebrow">
-          GEAR BUILDER
-        </p>
+        <Image
+          src="/gear-builder-hero.jpg"
+          alt="Camping gear setup"
+          fill
+          priority
+          className="builderImage"
+        />
 
 
-        <h1>
-          Build Your
-          <br />
-          Camping System
-        </h1>
+        <div className="builderOverlay"></div>
 
 
-        <p className="builderDesc">
-          Start with your vehicle.
-          We will help create your setup.
-        </p>
+        <div className="builderContent">
+
+
+          <p className="builderEyebrow">
+            GEAR BUILDER
+          </p>
+
+
+          <h1>
+            Build Your
+            <br />
+            Camping System
+          </h1>
+
+
+          <p className="builderDesc">
+            Start with your vehicle.
+            We will help create your setup.
+          </p>
+
+
+        </div>
 
 
       </section>
 
+
+
+      {/* VEHICLE SELECT */}
 
 
       <section className="vehicleSection">
@@ -62,17 +86,22 @@ export default function GearBuilderPage() {
         </h2>
 
 
-
         <div className="vehicleGrid">
 
 
           {vehicles.map((vehicle)=>(
-            
+
+
             <Link
-              href="/gear-builder/setup"
+
               key={vehicle.name}
+
+              href={`/gear-builder/setup?vehicle=${vehicle.name}`}
+
               className="vehicleCard"
+
             >
+
 
               <h3>
                 {vehicle.name}
@@ -84,7 +113,13 @@ export default function GearBuilderPage() {
               </p>
 
 
+              <span>
+                Choose →
+              </span>
+
+
             </Link>
+
 
           ))}
 
