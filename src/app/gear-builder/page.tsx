@@ -30,7 +30,7 @@ export default function GearBuilderPage() {
     <main className="builderPage">
 
 
-      {/* HERO */}
+      {/* HERO SECTION */}
 
       <section className="builderHero">
 
@@ -50,9 +50,9 @@ export default function GearBuilderPage() {
         <div className="builderContent">
 
 
-          <p className="builderEyebrow">
+          <div className="builderEyebrow">
             GEAR BUILDER
-          </p>
+          </div>
 
 
           <h1>
@@ -64,6 +64,7 @@ export default function GearBuilderPage() {
 
           <p className="builderDesc">
             Start with your vehicle.
+            <br />
             We will help create your setup.
           </p>
 
@@ -75,7 +76,7 @@ export default function GearBuilderPage() {
 
 
 
-      {/* VEHICLE SELECT */}
+      {/* VEHICLE SELECTION */}
 
 
       <section className="vehicleSection">
@@ -101,7 +102,6 @@ export default function GearBuilderPage() {
               className="vehicleCard"
 
             >
-
 
               <h3>
                 {vehicle.name}
