@@ -1,4 +1,8 @@
-.vehicleSection {
+body {
+
+  overflow-x:hidden;
+
+}.vehicleSection {
 
   padding:100px 7%;
 
