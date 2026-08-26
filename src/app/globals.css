@@ -1,121 +1,964 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+
+/* =========================
+   RESET
+========================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
 body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow-x: hidden;
 
-  overflow-x:hidden;
+  font-family: "Inter", Arial, sans-serif;
 
-}.vehicleSection {
+  background: #f5f4f1;
+  color: #1d2329;
+}
 
-  padding:100px 7%;
+body {
+  overflow-x: hidden;
+}
 
-  overflow:hidden;
+a {
+  color: inherit;
+  text-decoration: none;
+}
 
+img {
+  max-width: 100%;
+}
+
+main {
+  width: 100%;
 }
 
 
+/* =========================
+   HEADER
+========================= */
+
+.header {
+  position: absolute;
+
+  top: 32px;
+  left: 7%;
+  right: 7%;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  z-index: 50;
+}
+
+.logo {
+  color: #ffffff;
+
+  font-size: 26px;
+  font-weight: 800;
+
+  letter-spacing: 5px;
+}
+
+.header nav {
+  display: flex;
+  align-items: center;
+  gap: 38px;
+}
+
+.header nav a {
+  color: #ffffff;
+
+  font-size: 15px;
+  font-weight: 500;
+
+  opacity: 0.9;
+
+  transition: opacity 0.2s ease;
+}
+
+.header nav a:hover {
+  opacity: 1;
+}
+
+
+/* =========================
+   START HERE HERO
+========================= */
+
+.startHero {
+  position: relative;
+
+  width: 100%;
+  min-height: 100vh;
+
+  overflow: hidden;
+}
+
+.startImage {
+  object-fit: cover;
+}
+
+.startOverlay {
+  position: absolute;
+  inset: 0;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.68) 0%,
+      rgba(0, 0, 0, 0.42) 45%,
+      rgba(0, 0, 0, 0.15) 100%
+    );
+
+  z-index: 2;
+}
+
+.startContent {
+  position: absolute;
+
+  top: 50%;
+  left: 7%;
+
+  transform: translateY(-50%);
+
+  max-width: 700px;
+
+  color: #ffffff;
+
+  z-index: 5;
+}
+
+.eyebrow {
+  margin: 0 0 28px;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  letter-spacing: 4px;
+}
+
+.startContent h1 {
+  margin: 0 0 25px;
+
+  font-size: clamp(50px, 6vw, 82px);
+  line-height: 1.05;
+
+  font-weight: 800;
+}
+
+.startContent p {
+  margin: 0;
+
+  max-width: 540px;
+
+  font-size: 19px;
+  line-height: 1.6;
+
+  color: rgba(255, 255, 255, 0.9);
+}
+
+
+/* =========================
+   BUTTONS
+========================= */
+
+.primaryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-top: 35px;
+  padding: 17px 32px;
+
+  border-radius: 999px;
+
+  background: #214437;
+  color: #ffffff;
+
+  font-size: 16px;
+  font-weight: 700;
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
+}
+
+.primaryButton:hover {
+  transform: translateY(-2px);
+
+  background: #2c5b49;
+}
+
+
+/* =========================
+   JOURNEY SECTION
+========================= */
+
+.journeySection {
+  display: flex;
+  align-items: center;
+  gap: 80px;
+
+  padding: 120px 7%;
+
+  background: #f5f4f1;
+}
+
+.journeyText {
+  width: 40%;
+}
+
+.journeyText h2 {
+  margin: 0 0 25px;
+
+  font-size: clamp(38px, 4vw, 58px);
+  line-height: 1.1;
+}
+
+.journeyText p {
+  font-size: 18px;
+  line-height: 1.7;
+
+  color: #666b70;
+}
+
+.journeyImage {
+  position: relative;
+
+  width: 60%;
+  height: 520px;
+
+  overflow: hidden;
+
+  border-radius: 20px;
+}
+
+.journeyImage img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+}
+
+
+/* =========================
+   FIRST SETUP
+========================= */
+
+.firstSetupSection {
+  padding: 120px 7%;
+
+  background: #ffffff;
+}
+
+.firstSetupGrid {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 70px;
+
+  align-items: center;
+}
+
+.firstSetupImage {
+  position: relative;
+
+  min-height: 520px;
+
+  overflow: hidden;
+
+  border-radius: 22px;
+}
+
+.firstSetupImage img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+}
+
+.firstSetupContent h2 {
+  margin: 0 0 20px;
+
+  font-size: clamp(42px, 4vw, 62px);
+}
+
+.firstSetupContent p {
+  max-width: 520px;
+
+  font-size: 18px;
+  line-height: 1.7;
+
+  color: #666b70;
+}
+
+
+/* =========================
+   UPGRADE GEAR
+========================= */
+
+.upgradeSection {
+  padding: 120px 7%;
+
+  background: #ecebe8;
+}
+
+.upgradeGrid {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 70px;
+
+  align-items: center;
+}
+
+.upgradeImage {
+  position: relative;
+
+  min-height: 520px;
+
+  overflow: hidden;
+
+  border-radius: 22px;
+}
+
+.upgradeImage img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+}
+
+.upgradeContent h2 {
+  margin: 0 0 20px;
+
+  font-size: clamp(42px, 4vw, 62px);
+}
+
+.upgradeContent p {
+  max-width: 520px;
+
+  font-size: 18px;
+  line-height: 1.7;
+
+  color: #666b70;
+}
+
+
+/* =========================
+   COMPLETE SYSTEM
+========================= */
+
+.completeSection {
+  padding: 120px 7%;
+
+  background: #ffffff;
+}
+
+.completeGrid {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 70px;
+
+  align-items: center;
+}
+
+.completeImage {
+  position: relative;
+
+  min-height: 520px;
+
+  overflow: hidden;
+
+  border-radius: 22px;
+}
+
+.completeImage img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+}
+
+.completeContent h2 {
+  margin: 0 0 20px;
+
+  font-size: clamp(42px, 4vw, 62px);
+}
+
+.completeContent p {
+  max-width: 520px;
+
+  font-size: 18px;
+  line-height: 1.7;
+
+  color: #666b70;
+}
+
+
+/* =========================
+   CTA
+========================= */
+
+.ctaSection {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 650px;
+
+  padding: 100px 7%;
+
+  background: #1c2421;
+
+  color: #ffffff;
+}
+
+.ctaContent {
+  max-width: 720px;
+
+  text-align: center;
+}
+
+.ctaEyebrow {
+  margin-bottom: 20px;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  letter-spacing: 4px;
+
+  color: #aab7ae;
+}
+
+.ctaContent h2 {
+  margin: 0 0 25px;
+
+  font-size: clamp(48px, 6vw, 76px);
+  line-height: 1.05;
+}
+
+.ctaContent p {
+  margin: 0 auto;
+
+  max-width: 600px;
+
+  font-size: 18px;
+  line-height: 1.7;
+
+  color: #c9d0cc;
+}
+
+
+/* =========================
+   GEAR BUILDER PAGE
+========================= */
+
+.builderPage {
+  width: 100%;
+  min-height: 100vh;
+
+  background: #f5f4f1;
+}
+
+
+/* HERO */
+
+.builderHero {
+  position: relative;
+
+  width: 100%;
+  height: 75vh;
+  min-height: 650px;
+
+  overflow: hidden;
+
+  display: flex;
+  align-items: center;
+
+  padding-left: 7%;
+}
+
+.builderImage {
+  object-fit: cover;
+
+  z-index: 1;
+}
+
+.builderOverlay {
+  position: absolute;
+  inset: 0;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.68) 0%,
+      rgba(0, 0, 0, 0.42) 45%,
+      rgba(0, 0, 0, 0.15) 100%
+    );
+
+  z-index: 2;
+}
+
+.builderContent {
+  position: relative;
+
+  z-index: 5;
+
+  max-width: 700px;
+
+  color: #ffffff;
+}
+
+.builderEyebrow {
+  margin: 0 0 28px;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  letter-spacing: 5px;
+
+  color: #ffffff;
+}
+
+.builderContent h1 {
+  margin: 0 0 28px;
+
+  font-size: clamp(52px, 6vw, 82px);
+  line-height: 1.04;
+
+  font-weight: 800;
+
+  color: #ffffff;
+}
+
+.builderDesc {
+  margin: 0;
+
+  font-size: 20px;
+  line-height: 1.6;
+
+  color: rgba(255, 255, 255, 0.92);
+}
+
+
+/* =========================
+   VEHICLE SELECT
+========================= */
+
+.vehicleSection {
+  width: 100%;
+
+  padding: 110px 7%;
+
+  background: #f5f4f1;
+}
+
+.vehicleSectionHeader {
+  max-width: 700px;
+
+  margin-bottom: 55px;
+}
+
+.vehicleEyebrow {
+  margin: 0 0 18px;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  letter-spacing: 4px;
+
+  color: #777d80;
+}
 
 .vehicleSection h2 {
+  margin: 0 0 18px;
 
-  font-size:42px;
+  font-size: clamp(40px, 4vw, 56px);
+  line-height: 1.1;
 
-  margin-bottom:50px;
+  color: #1d2329;
+}
 
+.vehicleIntro {
+  margin: 0;
+
+  font-size: 18px;
+  line-height: 1.6;
+
+  color: #6b7075;
 }
 
 
+/* VEHICLE GRID */
 
 .vehicleGrid {
+  width: 100%;
 
-  display:grid;
+  display: grid;
 
-  grid-template-columns:repeat(4,1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 
-  gap:30px;
-
+  gap: 24px;
 }
 
 
+/* VEHICLE CARD */
 
 .vehicleCard {
+  display: block;
 
-  display:block;
+  min-width: 0;
 
-  overflow:hidden;
+  overflow: hidden;
 
-  border-radius:22px;
+  background: #ffffff;
 
-  border:1px solid #ddd;
+  border: 1px solid #dedede;
+  border-radius: 20px;
 
-  background:#fff;
+  text-decoration: none;
 
-  text-decoration:none;
+  color: #1d2329;
 
-  color:#111;
-
-  transition:.3s;
-
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
 }
-
-
 
 .vehicleCard:hover {
+  transform: translateY(-7px);
 
-  transform:translateY(-8px);
+  border-color: #c9ccc9;
 
+  box-shadow:
+    0 20px 45px rgba(0, 0, 0, 0.12);
 }
 
 
+/* VEHICLE IMAGE */
 
 .vehicleCardImage {
+  position: relative;
 
-  width:100%;
+  width: 100%;
+  height: 240px;
 
-  height:240px;
+  overflow: hidden;
 
-  background-size:cover;
+  background: #d9d9d9;
+}
 
-  background-position:center;
+.vehicleCardImage img {
+  display: block;
 
-  background-repeat:no-repeat;
+  width: 100%;
+  height: 100%;
 
+  object-fit: cover;
+
+  transition: transform 0.5s ease;
+}
+
+.vehicleCard:hover .vehicleCardImage img {
+  transform: scale(1.05);
 }
 
 
+/* VEHICLE CONTENT */
 
 .vehicleCardContent {
-
-  padding:30px;
-
+  padding: 28px;
 }
-
-
 
 .vehicleCardContent h3 {
+  margin: 0 0 12px;
 
-  font-size:32px;
+  font-size: 30px;
+  line-height: 1.1;
 
-  margin:0 0 15px;
-
+  color: #20252b;
 }
-
-
 
 .vehicleCardContent p {
+  margin: 0;
 
-  font-size:16px;
+  min-height: 52px;
 
-  line-height:1.6;
+  font-size: 16px;
+  line-height: 1.6;
 
-  color:#666;
+  color: #70757a;
+}
+
+.vehicleCardContent span {
+  display: inline-block;
+
+  margin-top: 25px;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  color: #214437;
+}
+
+.vehicleCardContent strong {
+  margin-left: 5px;
+}
+
+
+/* =========================
+   SETUP PAGE
+========================= */
+
+.setupPage {
+  min-height: 100vh;
+
+  background: #f5f4f1;
+}
+
+.setupHero {
+  padding: 130px 7% 90px;
+
+  background: #1d2329;
+
+  color: #ffffff;
+}
+
+.setupStep {
+  margin-bottom: 25px;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  letter-spacing: 5px;
+
+  color: #aab7ae;
+}
+
+.setupHero h1 {
+  margin: 0 0 25px;
+
+  max-width: 800px;
+
+  font-size: clamp(52px, 6vw, 82px);
+  line-height: 1.05;
+}
+
+.setupHero p {
+  margin: 0;
+
+  max-width: 600px;
+
+  font-size: 19px;
+  line-height: 1.7;
+
+  color: #d0d5d2;
+}
+
+.styleSection {
+  padding: 110px 7%;
+}
+
+.styleGrid {
+  display: grid;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 30px;
+}
+
+.styleCard {
+  display: block;
+
+  padding: 50px;
+
+  border: 1px solid #dedede;
+  border-radius: 24px;
+
+  background: #ffffff;
+
+  color: #1d2329;
+
+  text-decoration: none;
+
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.styleCard:hover {
+  transform: translateY(-6px);
+
+  box-shadow:
+    0 18px 45px rgba(0, 0, 0, 0.1);
+}
+
+.styleCard h2 {
+  margin: 0 0 18px;
+
+  font-size: 36px;
+}
+
+.styleCard p {
+  margin: 0;
+
+  font-size: 17px;
+  line-height: 1.7;
+
+  color: #70757a;
+}
+
+.styleCard span {
+  display: inline-block;
+
+  margin-top: 30px;
+
+  font-weight: 700;
+
+  color: #214437;
+}
+
+
+/* =========================
+   TABLET
+========================= */
+
+@media (max-width: 1100px) {
+
+  .vehicleGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .journeySection,
+  .firstSetupGrid,
+  .upgradeGrid,
+  .completeGrid {
+    gap: 45px;
+  }
 
 }
 
 
+/* =========================
+   MOBILE
+========================= */
 
-.vehicleCardContent span {
+@media (max-width: 800px) {
 
-  display:block;
+  .header {
+    top: 24px;
 
-  margin-top:25px;
+    left: 5%;
+    right: 5%;
+  }
 
-  font-weight:600;
+  .logo {
+    font-size: 20px;
+
+    letter-spacing: 4px;
+  }
+
+  .header nav {
+    gap: 18px;
+  }
+
+  .header nav a {
+    font-size: 13px;
+  }
+
+
+  .startContent {
+    left: 5%;
+    right: 5%;
+
+    max-width: none;
+  }
+
+
+  .builderHero {
+    min-height: 620px;
+
+    padding-left: 5%;
+  }
+
+  .builderContent {
+    max-width: 90%;
+  }
+
+
+  .journeySection,
+  .firstSetupGrid,
+  .upgradeGrid,
+  .completeGrid {
+    display: flex;
+
+    flex-direction: column;
+
+    padding: 80px 5%;
+  }
+
+  .journeyText,
+  .journeyImage {
+    width: 100%;
+  }
+
+  .journeyImage,
+  .firstSetupImage,
+  .upgradeImage,
+  .completeImage {
+    min-height: 360px;
+    height: 360px;
+  }
+
+
+  .vehicleSection {
+    padding: 80px 5%;
+  }
+
+  .vehicleGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .vehicleCardImage {
+    height: 260px;
+  }
+
+
+  .styleSection {
+    padding: 80px 5%;
+  }
+
+  .styleGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .styleCard {
+    padding: 35px;
+  }
+
+
+  .setupHero {
+    padding: 110px 5% 75px;
+  }
+
+  .ctaSection {
+    min-height: 520px;
+
+    padding: 80px 5%;
+  }
 
 }
