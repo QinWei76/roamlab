@@ -9,21 +9,23 @@
 html,
 body {
 
-  margin: 0;
+  margin:0;
 
-  padding: 0;
+  padding:0;
 
-  font-family: "Inter", Arial, sans-serif;
+  font-family:"Inter", Arial, sans-serif;
 
-  background: #ffffff;
+  background:#ffffff;
 
-  color: #111;
+  color:#111;
 
 }
 
 
 main {
+
   width:100%;
+
 }
 
 
@@ -63,7 +65,7 @@ main {
 
   inset:0;
 
-  background:rgba(0,0,0,0.38);
+  background:rgba(0,0,0,.38);
 
   z-index:2;
 
@@ -100,7 +102,7 @@ main {
 
 .logo {
 
-  color:#ffffff;
+  color:white;
 
   font-size:26px;
 
@@ -124,7 +126,7 @@ nav {
 
 nav span {
 
-  color:#ffffff;
+  color:white;
 
   font-size:16px;
 
@@ -133,7 +135,7 @@ nav span {
 
 
 /* =========================
-   HERO CONTENT
+ HERO CONTENT
 ========================= */
 
 
@@ -149,7 +151,7 @@ nav span {
 
   max-width:650px;
 
-  color:#ffffff;
+  color:white;
 
   z-index:10;
 
@@ -191,8 +193,6 @@ nav span {
 
   color:#e5e5e5;
 
-  max-width:520px;
-
 }
 
 
@@ -222,7 +222,7 @@ button {
 
 
 /* =========================
- SCROLL
+ SCROLL HINT
 ========================= */
 
 
@@ -238,17 +238,13 @@ button {
 
   z-index:20;
 
-  color:#ffffff;
+  color:white;
 
   text-align:center;
 
   font-size:12px;
 
-  font-weight:500;
-
   letter-spacing:3px;
-
-  text-shadow:0 2px 8px rgba(0,0,0,.7);
 
 }
 
@@ -259,40 +255,6 @@ button {
   margin-top:12px;
 
   font-size:24px;
-
-  animation:scrollMove 1.8s infinite;
-
-}
-
-
-
-@keyframes scrollMove {
-
-  0% {
-
-    transform:translateY(0);
-
-    opacity:.5;
-
-  }
-
-
-  50% {
-
-    transform:translateY(8px);
-
-    opacity:1;
-
-  }
-
-
-  100% {
-
-    transform:translateY(0);
-
-    opacity:.5;
-
-  }
 
 }
 
@@ -307,23 +269,15 @@ button {
 
   display:flex;
 
-  align-items:center;
-
   justify-content:space-between;
+
+  align-items:center;
 
   gap:80px;
 
   padding:120px 7%;
 
-  background:#ffffff;
-
-}
-
-
-
-.journeySection.reverse {
-
-  flex-direction:row-reverse;
+  background:white;
 
 }
 
@@ -383,14 +337,12 @@ button {
 
   font-size:18px;
 
-  line-height:1.7;
-
 }
 
 
 
 /* =========================
- IMAGE
+ IMAGES
 ========================= */
 
 
@@ -427,23 +379,115 @@ button {
 
 
 /* =========================
- COMPLETE CTA SPACE
+ CTA
 ========================= */
 
 
-.completeSection {
+.ctaSection {
 
-  padding:120px 7%;
+  min-height:650px;
+
+  width:100%;
+
+  display:flex;
+
+  justify-content:center;
+
+  align-items:center;
 
   text-align:center;
+
+  background:#111;
+
+  color:white;
+
+  padding:120px 20px;
 
 }
 
 
 
-.completeSection h2 {
+.ctaContent {
 
-  font-size:60px;
+  width:100%;
+
+  max-width:700px;
+
+  margin:0 auto;
+
+}
+
+
+
+.ctaEyebrow {
+
+  font-size:14px;
+
+  letter-spacing:5px;
+
+  font-weight:600;
+
+  color:#999;
+
+  margin-bottom:35px;
+
+}
+
+
+
+.ctaContent h2 {
+
+  margin:0 0 30px;
+
+  font-size:64px;
+
+  line-height:1.1;
+
+  letter-spacing:-2px;
+
+  font-weight:700;
+
+}
+
+
+
+.ctaContent p {
+
+  max-width:520px;
+
+  margin:0 auto;
+
+  font-size:20px;
+
+  line-height:1.7;
+
+  color:#ccc;
+
+}
+
+
+
+.ctaContent button {
+
+  margin-top:45px;
+
+  padding:18px 42px;
+
+  border:none;
+
+  border-radius:50px;
+
+  background:#1d5a3d;
+
+  color:white;
+
+}
+
+
+
+.ctaContent button:hover {
+
+  background:#246b48;
 
 }
 
@@ -501,11 +545,11 @@ nav {
 
 
 
-.journeySection,
-
-.journeySection.reverse {
+.journeySection {
 
   flex-direction:column;
+
+  padding:80px 5%;
 
 }
 
@@ -527,6 +571,31 @@ nav {
 
 }
 
+
+
+.ctaSection {
+
+  min-height:520px;
+
+  padding:80px 20px;
+
+}
+
+
+
+.ctaContent h2 {
+
+  font-size:42px;
+
+}
+
+
+
+.ctaContent p {
+
+  font-size:17px;
+
+}
 
 
 }
