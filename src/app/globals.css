@@ -2,7 +2,7 @@
 
 
 * {
-  box-sizing: border-box;
+  box-sizing:border-box;
 }
 
 
@@ -31,7 +31,7 @@ main {
 
 
 /* =========================
-   HERO
+   START HERE HERO
 ========================= */
 
 
@@ -73,9 +73,7 @@ main {
 
 
 
-/* =========================
-   HEADER
-========================= */
+/* HEADER */
 
 
 .header {
@@ -128,15 +126,11 @@ nav span {
 
   color:white;
 
-  font-size:16px;
-
 }
 
 
 
-/* =========================
- HERO CONTENT
-========================= */
+/* HERO TEXT */
 
 
 .startContent {
@@ -165,21 +159,17 @@ nav span {
 
   letter-spacing:3px;
 
-  font-weight:600;
-
 }
 
 
 
 .startContent h1 {
 
-  margin:25px 0;
-
   font-size:72px;
 
   line-height:1.05;
 
-  letter-spacing:-2px;
+  margin:25px 0;
 
 }
 
@@ -190,8 +180,6 @@ nav span {
   font-size:20px;
 
   line-height:1.5;
-
-  color:#e5e5e5;
 
 }
 
@@ -211,19 +199,13 @@ button {
 
   color:white;
 
-  font-size:16px;
-
   font-weight:600;
-
-  cursor:pointer;
 
 }
 
 
 
-/* =========================
- SCROLL HINT
-========================= */
+/* SCROLL */
 
 
 .scrollHint {
@@ -236,32 +218,20 @@ button {
 
   transform:translateX(-50%);
 
-  z-index:20;
-
   color:white;
 
-  text-align:center;
-
-  font-size:12px;
+  z-index:20;
 
   letter-spacing:3px;
 
-}
-
-
-
-.arrow {
-
-  margin-top:12px;
-
-  font-size:24px;
+  font-size:12px;
 
 }
 
 
 
 /* =========================
- JOURNEY SECTIONS
+   JOURNEY SECTIONS
 ========================= */
 
 
@@ -269,15 +239,21 @@ button {
 
   display:flex;
 
-  justify-content:space-between;
-
   align-items:center;
+
+  justify-content:space-between;
 
   gap:80px;
 
   padding:120px 7%;
 
-  background:white;
+}
+
+
+
+.journeySection.reverse {
+
+  flex-direction:row-reverse;
 
 }
 
@@ -293,13 +269,9 @@ button {
 
 .number {
 
-  font-size:18px;
-
-  letter-spacing:4px;
-
   color:#777;
 
-  font-weight:600;
+  letter-spacing:4px;
 
 }
 
@@ -311,10 +283,6 @@ button {
 
   line-height:1.1;
 
-  margin:20px 0;
-
-  letter-spacing:-1px;
-
 }
 
 
@@ -323,27 +291,8 @@ button {
 
   font-size:24px;
 
-  margin-bottom:25px;
-
-  color:#333;
-
 }
 
-
-
-.journeyText .desc {
-
-  color:#555;
-
-  font-size:18px;
-
-}
-
-
-
-/* =========================
- IMAGES
-========================= */
 
 
 .journeyImage {
@@ -368,16 +317,6 @@ button {
 
 
 
-.systemImage {
-
-  object-fit:cover;
-
-  border-radius:20px;
-
-}
-
-
-
 /* =========================
  CTA
 ========================= */
@@ -386,8 +325,6 @@ button {
 .ctaSection {
 
   min-height:650px;
-
-  width:100%;
 
   display:flex;
 
@@ -409,11 +346,7 @@ button {
 
 .ctaContent {
 
-  width:100%;
-
   max-width:700px;
-
-  margin:0 auto;
 
 }
 
@@ -421,15 +354,9 @@ button {
 
 .ctaEyebrow {
 
-  font-size:14px;
-
   letter-spacing:5px;
 
-  font-weight:600;
-
   color:#999;
-
-  margin-bottom:35px;
 
 }
 
@@ -437,15 +364,9 @@ button {
 
 .ctaContent h2 {
 
-  margin:0 0 30px;
-
   font-size:64px;
 
   line-height:1.1;
-
-  letter-spacing:-2px;
-
-  font-weight:700;
 
 }
 
@@ -453,13 +374,7 @@ button {
 
 .ctaContent p {
 
-  max-width:520px;
-
-  margin:0 auto;
-
   font-size:20px;
-
-  line-height:1.7;
 
   color:#ccc;
 
@@ -471,13 +386,30 @@ button {
 
   margin-top:45px;
 
-  padding:18px 42px;
+}
 
-  border:none;
 
-  border-radius:50px;
 
-  background:#1d5a3d;
+/* =========================
+ GEAR BUILDER
+========================= */
+
+
+.builderPage {
+
+  min-height:100vh;
+
+  background:white;
+
+}
+
+
+
+.builderHero {
+
+  padding:120px 7% 90px;
+
+  background:#111;
 
   color:white;
 
@@ -485,9 +417,111 @@ button {
 
 
 
-.ctaContent button:hover {
+.builderEyebrow {
 
-  background:#246b48;
+  font-size:14px;
+
+  letter-spacing:5px;
+
+  color:#aaa;
+
+}
+
+
+
+.builderHero h1 {
+
+  font-size:72px;
+
+  line-height:1.05;
+
+  margin:30px 0;
+
+}
+
+
+
+.builderDesc {
+
+  font-size:20px;
+
+  color:#ccc;
+
+}
+
+
+
+.vehicleSection {
+
+  padding:100px 7%;
+
+}
+
+
+
+.vehicleSection h2 {
+
+  font-size:42px;
+
+  margin-bottom:50px;
+
+}
+
+
+
+.vehicleGrid {
+
+  display:grid;
+
+  grid-template-columns:repeat(4,1fr);
+
+  gap:30px;
+
+}
+
+
+
+.vehicleCard {
+
+  padding:40px;
+
+  border:1px solid #ddd;
+
+  border-radius:20px;
+
+  text-decoration:none;
+
+  color:#111;
+
+  transition:.3s;
+
+}
+
+
+
+.vehicleCard:hover {
+
+  transform:translateY(-8px);
+
+  background:#f5f5f5;
+
+}
+
+
+
+.vehicleCard h3 {
+
+  font-size:32px;
+
+}
+
+
+
+.vehicleCard p {
+
+  color:#666;
+
+  line-height:1.5;
 
 }
 
@@ -501,42 +535,6 @@ button {
 @media(max-width:900px){
 
 
-.header {
-
-  left:5%;
-
-  right:5%;
-
-}
-
-
-
-.logo {
-
-  font-size:22px;
-
-}
-
-
-
-nav {
-
-  gap:15px;
-
-}
-
-
-
-.startContent {
-
-  left:5%;
-
-  right:5%;
-
-}
-
-
-
 .startContent h1 {
 
   font-size:46px;
@@ -545,11 +543,11 @@ nav {
 
 
 
-.journeySection {
+.journeySection,
+
+.journeySection.reverse {
 
   flex-direction:column;
-
-  padding:80px 5%;
 
 }
 
@@ -573,11 +571,17 @@ nav {
 
 
 
-.ctaSection {
+.builderHero h1 {
 
-  min-height:520px;
+  font-size:48px;
 
-  padding:80px 20px;
+}
+
+
+
+.vehicleGrid {
+
+  grid-template-columns:1fr;
 
 }
 
@@ -586,14 +590,6 @@ nav {
 .ctaContent h2 {
 
   font-size:42px;
-
-}
-
-
-
-.ctaContent p {
-
-  font-size:17px;
 
 }
 
