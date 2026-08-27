@@ -5,7 +5,78 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 
+const systems = [
+
+  {
+    title: "Sleeping System",
+    image: "/sleeping.jpg",
+    description:
+      "Create a comfortable sleeping setup inside your vehicle.",
+    items:[
+      "Sleeping platform",
+      "Comfort mattress",
+      "Compact bedding"
+    ]
+  },
+
+
+  {
+    title: "Power System",
+    image: "/power.jpg",
+    description:
+      "Keep your devices powered wherever you travel.",
+    items:[
+      "Portable power station",
+      "Solar charging",
+      "Power accessories"
+    ]
+  },
+
+
+  {
+    title: "Cooking System",
+    image: "/cooking.jpg",
+    description:
+      "Build a simple outdoor kitchen.",
+    items:[
+      "Camp stove",
+      "Cooking box",
+      "Cooler setup"
+    ]
+  },
+
+
+  {
+    title: "Storage System",
+    image: "/storage.jpg",
+    description:
+      "Organize your vehicle for faster adventures.",
+    items:[
+      "Storage boxes",
+      "Cargo organization",
+      "Modular setup"
+    ]
+  },
+
+
+  {
+    title: "Lighting System",
+    image: "/lighting.jpg",
+    description:
+      "Light up your campsite after sunset.",
+    items:[
+      "Camp lantern",
+      "Rechargeable lights",
+      "Headlamp"
+    ]
+  }
+
+];
+
+
+
 function ResultContent(){
+
 
   const searchParams = useSearchParams();
 
@@ -23,101 +94,67 @@ function ResultContent(){
 
 
 
-  const systems = [
-
-    {
-      title:"Sleeping System",
-      items:[
-        "Comfortable sleeping platform",
-        "Compact sleeping gear",
-      ]
-    },
-
-
-    {
-      title:"Power System",
-      items:[
-        "Portable power station",
-        "Solar charging option",
-      ]
-    },
-
-
-    {
-      title:"Cooking System",
-      items:[
-        "Compact camp kitchen",
-        "Outdoor cooking essentials",
-      ]
-    },
-
-
-    {
-      title:"Storage System",
-      items:[
-        "Modular storage boxes",
-        "Easy access organization",
-      ]
-    },
-
-
-    {
-      title:"Lighting System",
-      items:[
-        "Rechargeable camp lights",
-        "Night campsite setup",
-      ]
-    },
-
-  ];
-
-
-
   return (
 
-    <main className="setupPage">
+    <main className="resultPage">
+
+
+      {/* HERO */}
+
+      <section className="resultHero">
+
+
+        <div className="resultHeroContent">
+
+
+          <div className="setupStep">
+
+            YOUR CAMPING SYSTEM
+
+          </div>
 
 
 
-      <section className="setupHero">
+          <p className="setupVehicle">
+
+            {vehicle.toUpperCase()}
+            {" · "}
+            {style.toUpperCase()}
+            {" · "}
+            {budget.toUpperCase()}
+
+          </p>
 
 
-        <div className="setupStep">
-          YOUR CAMPING SYSTEM
+
+          <h1>
+
+            Your adventure
+            <br/>
+            starts here.
+
+          </h1>
+
+
+
+          <div className="budgetBox">
+
+
+            <span>
+              Estimated Setup
+            </span>
+
+
+            <strong>
+              $2,800
+            </strong>
+
+
+          </div>
+
+
+
         </div>
-
-
-
-        <p className="setupVehicle">
-
-          {vehicle.toUpperCase()}
-          {" · "}
-          {style.toUpperCase()}
-          {" · "}
-          {budget.toUpperCase()}
-
-        </p>
-
-
-
-
-        <h1>
-
-          Your adventure
-          <br/>
-          starts here.
-
-        </h1>
-
-
-
-
-        <p>
-
-          A personalized camping system built around
-          your vehicle, travel style and budget.
-
-        </p>
 
 
       </section>
@@ -126,11 +163,13 @@ function ResultContent(){
 
 
 
+      {/* SYSTEM CARDS */}
 
-      <section className="styleSection">
+
+      <section className="systemSection">
 
 
-        <div className="styleGrid">
+        <div className="systemGrid">
 
 
           {systems.map((system)=>(
@@ -140,12 +179,30 @@ function ResultContent(){
 
               key={system.title}
 
-              className="styleCard"
+              className="systemCard"
 
             >
 
 
-              <div className="styleCardContent">
+              <div className="systemImage">
+
+
+                <img
+
+                  src={system.image}
+
+                  alt={system.title}
+
+                />
+
+
+              </div>
+
+
+
+
+
+              <div className="systemContent">
 
 
                 <h2>
@@ -155,21 +212,44 @@ function ResultContent(){
                 </h2>
 
 
-                {system.items.map((item)=>(
+
+                <p>
+
+                  {system.description}
+
+                </p>
 
 
-                  <p key={item}>
-
-                    ✓ {item}
-
-                  </p>
 
 
-                ))}
+                <ul>
 
+                  {system.items.map((item)=>(
+
+                    <li key={item}>
+
+                      ✓ {item}
+
+                    </li>
+
+                  ))}
+
+
+                </ul>
+
+
+
+
+
+                <button>
+
+                  View Gear →
+
+                </button>
 
 
               </div>
+
 
 
             </div>
@@ -189,48 +269,58 @@ function ResultContent(){
 
 
 
+      {/* SAVE CTA */}
 
-      <section className="ctaSection">
+
+      <section className="saveSection">
 
 
-        <div className="ctaContent">
+        <div>
 
 
           <h2>
 
-            Ready to build
-            your setup?
+            Save your camping system
 
           </h2>
 
 
-
           <p>
 
-            Explore recommended gear and create
-            your complete camping system.
+            Get your personalized gear list and
+            future upgrades.
 
           </p>
 
 
 
-          <Link
+          <div className="emailBox">
 
-            href="/gear-builder"
 
-            className="primaryButton"
+            <input
 
-          >
+              placeholder="Your email address"
 
-            Start Again →
+            />
 
-          </Link>
+
+            <button>
+
+              Save My Setup
+
+            </button>
+
+
+          </div>
+
 
 
         </div>
 
 
+
       </section>
+
 
 
 
@@ -253,7 +343,7 @@ export default function ResultPage(){
 
       fallback={
 
-        <main className="setupPage">
+        <main>
 
           Loading...
 
@@ -263,10 +353,11 @@ export default function ResultPage(){
 
     >
 
-      <ResultContent/>
+      <ResultContent />
 
     </Suspense>
 
   );
+
 
 }
