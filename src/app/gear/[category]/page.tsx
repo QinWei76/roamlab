@@ -2,13 +2,12 @@
 
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 
 import { gearData } from "@/data/gearData";
 
 
 
-export default function GearCategoryPage(){
+export default function GearCategoryPage() {
 
 
   const params = useParams();
@@ -26,16 +25,21 @@ export default function GearCategoryPage(){
 
 
 
-  if(!categoryData){
+  if (!categoryData) {
+
 
     return (
 
-      <main className="setupPage">
+      <main className="gearPage">
 
-        <section className="setupHero">
+
+        <section className="gearHero">
+
 
           <h1>
+
             Gear Not Found
+
           </h1>
 
 
@@ -46,7 +50,9 @@ export default function GearCategoryPage(){
 
     );
 
+
   }
+
 
 
 
@@ -58,8 +64,9 @@ export default function GearCategoryPage(){
 
 
 
-      {/* HEADER */}
 
+
+      {/* HERO */}
 
       <section className="gearHero">
 
@@ -67,14 +74,19 @@ export default function GearCategoryPage(){
         <div className="gearHeroContent">
 
 
+
           <Link
+
             href="/gear-builder/result"
+
             className="backButton"
+
           >
 
             ← Back to System
 
           </Link>
+
 
 
 
@@ -88,11 +100,15 @@ export default function GearCategoryPage(){
 
 
 
+
+
           <h1>
 
             {categoryData.title}
 
           </h1>
+
+
 
 
 
@@ -105,10 +121,14 @@ export default function GearCategoryPage(){
 
 
 
+
+
         </div>
 
 
+
       </section>
+
 
 
 
@@ -128,40 +148,22 @@ export default function GearCategoryPage(){
 
 
 
-        {
-
-        categoryData.products.map((product)=>(
 
 
-          <article
+          {
 
-            key={product.name}
-
-            className="gearCard"
-
-          >
+          categoryData.products.map((product)=>(
 
 
 
 
+            <article
 
-            <div className="gearImage">
+              key={product.name}
 
+              className="gearCard"
 
-              <Image
-
-                src={product.image}
-
-                alt={product.name}
-
-                width={900}
-
-                height={600}
-
-              />
-
-
-            </div>
+            >
 
 
 
@@ -169,24 +171,19 @@ export default function GearCategoryPage(){
 
 
 
-
-            <div className="gearContent">
-
-
-
-              <h2>
-
-                {product.name}
-
-              </h2>
+              <div className="gearImage">
 
 
 
+                <img
+
+                  src={product.image}
+
+                  alt={product.name}
+
+                />
 
 
-              <div className="gearPrice">
-
-                {product.price}
 
               </div>
 
@@ -194,74 +191,124 @@ export default function GearCategoryPage(){
 
 
 
-              <p>
-
-                {product.description}
-
-              </p>
 
 
 
 
-
-              <ul>
-
-
-              {
-
-              product.features.map((feature)=>(
-
-
-                <li key={feature}>
-
-                  ✓ {feature}
-
-                </li>
-
-
-              ))
-
-              }
-
-
-              </ul>
+              <div className="gearContent">
 
 
 
 
 
-              <a
+                <h2>
 
-                href={product.link}
+                  {product.name}
 
-                className="gearButton"
-
-              >
-
-                View Gear →
-
-              </a>
-
-
-
-
-            </div>
+                </h2>
 
 
 
 
 
-          </article>
+
+                <div className="gearPrice">
+
+                  {product.price}
+
+                </div>
 
 
-        ))
 
 
 
-        }
+
+                <p>
+
+                  {product.description}
+
+                </p>
+
+
+
+
+
+
+
+
+                <ul>
+
+
+                {
+
+                  product.features.map((feature)=>(
+
+
+                    <li key={feature}>
+
+                      ✓ {feature}
+
+                    </li>
+
+
+
+                  ))
+
+                }
+
+
+                </ul>
+
+
+
+
+
+
+
+
+
+                <a
+
+                  href={product.link}
+
+                  className="gearButton"
+
+                >
+
+                  View Gear →
+
+                </a>
+
+
+
+
+
+              </div>
+
+
+
+
+
+
+
+            </article>
+
+
+
+
+
+          ))
+
+
+
+          }
+
+
+
 
 
         </div>
+
 
 
       </section>
