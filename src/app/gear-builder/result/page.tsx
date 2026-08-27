@@ -3,72 +3,108 @@
 import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
+
 
 
 const systems = [
 
   {
-    title: "Sleeping System",
-    image: "/sleeping.jpg",
+    id:"sleeping",
+
+    title:"Sleeping System",
+
+    image:"/sleeping.jpg",
+
     description:
-      "Create a comfortable sleeping setup inside your vehicle.",
+    "Create a comfortable sleeping setup inside your vehicle.",
+
     items:[
       "Sleeping platform",
       "Comfort mattress",
       "Compact bedding"
     ]
+
   },
 
 
+
   {
-    title: "Power System",
-    image: "/power.jpg",
+    id:"power",
+
+    title:"Power System",
+
+    image:"/power.jpg",
+
     description:
-      "Keep your devices powered wherever you travel.",
+    "Keep your devices powered wherever you travel.",
+
     items:[
       "Portable power station",
       "Solar charging",
       "Power accessories"
     ]
+
   },
 
 
+
   {
-    title: "Cooking System",
-    image: "/cooking.jpg",
+    id:"cooking",
+
+    title:"Cooking System",
+
+    image:"/cooking.jpg",
+
     description:
-      "Build a simple outdoor kitchen.",
+    "Build a simple outdoor kitchen.",
+
     items:[
       "Camp stove",
       "Cooking box",
       "Cooler setup"
     ]
+
   },
 
 
+
   {
-    title: "Storage System",
-    image: "/storage.jpg",
+    id:"storage",
+
+    title:"Storage System",
+
+    image:"/storage.jpg",
+
     description:
-      "Organize your vehicle for faster adventures.",
+    "Organize your vehicle for faster adventures.",
+
     items:[
       "Storage boxes",
       "Cargo organization",
       "Modular setup"
     ]
+
   },
 
 
+
   {
-    title: "Lighting System",
-    image: "/lighting.jpg",
+    id:"lighting",
+
+    title:"Lighting System",
+
+    image:"/lighting.jpg",
+
     description:
-      "Light up your campsite after sunset.",
+    "Light up your campsite after sunset.",
+
     items:[
       "Camp lantern",
       "Rechargeable lights",
       "Headlamp"
     ]
+
   }
 
 ];
@@ -77,34 +113,52 @@ const systems = [
 
 
 
+
+
 function calculateBudget(
+
   vehicle:string,
+
   style:string,
+
   budget:string
+
 ){
 
 
-  let total = 0;
+  let total = 3200;
 
 
 
-  // Budget base
+  const v = vehicle.toLowerCase();
 
-  if(budget === "essential"){
+  const s = style.toLowerCase();
+
+  const b = budget.toLowerCase();
+
+
+
+
+  // Budget
+
+
+  if(b.includes("essential")){
 
     total = 1200;
 
   }
 
 
-  if(budget === "explorer"){
+
+  if(b.includes("explorer")){
 
     total = 3200;
 
   }
 
 
-  if(budget === "complete"){
+
+  if(b.includes("complete")){
 
     total = 6500;
 
@@ -113,28 +167,30 @@ function calculateBudget(
 
 
 
-  // Vehicle adjustment
 
 
-  if(vehicle === "truck"){
-
-    total += 300;
-
-  }
+  // Vehicle
 
 
+  if(v.includes("truck")){
 
-  if(vehicle === "van"){
-
-    total += 800;
+    total +=300;
 
   }
 
 
 
-  if(vehicle === "ev"){
+  if(v.includes("van")){
 
-    total += 500;
+    total +=800;
+
+  }
+
+
+
+  if(v.includes("ev")){
+
+    total +=500;
 
   }
 
@@ -142,28 +198,30 @@ function calculateBudget(
 
 
 
-  // Camping style adjustment
 
 
-  if(style === "off-grid"){
-
-    total += 700;
-
-  }
+  // Style
 
 
+  if(s.includes("off")){
 
-  if(style === "road-trip"){
-
-    total += 900;
+    total +=700;
 
   }
 
 
 
-  if(style === "basecamp"){
+  if(s.includes("road")){
 
-    total += 1200;
+    total +=900;
+
+  }
+
+
+
+  if(s.includes("base")){
+
+    total +=1200;
 
   }
 
@@ -181,6 +239,8 @@ function calculateBudget(
 
 
 
+
+
 function ResultContent(){
 
 
@@ -189,353 +249,380 @@ function ResultContent(){
 
 
 
+
   const vehicle =
-    searchParams.get("vehicle") || "suv";
+
+  searchParams.get("vehicle") || "suv";
+
 
 
 
   const style =
-    searchParams.get("style") || "weekend";
+
+  searchParams.get("style") || "weekend";
+
 
 
 
   const budget =
-    searchParams.get("budget") || "explorer";
 
+  searchParams.get("budget") || "explorer";
 
 
 
-  const estimatedBudget =
-    calculateBudget(
-      vehicle,
-      style,
-      budget
-    );
 
 
+  const price = calculateBudget(
 
+    vehicle,
 
+    style,
 
-
-
-  return (
-
-    <main className="resultPage">
-
-
-
-
-
-
-      {/* HERO */}
-
-
-      <section className="resultHero">
-
-
-        <div className="resultHeroContent">
-
-
-
-          <div className="setupStep">
-
-            YOUR CAMPING SYSTEM
-
-          </div>
-
-
-
-
-
-          <p className="setupVehicle">
-
-
-            {vehicle.toUpperCase()}
-
-            {" · "}
-
-            {style.toUpperCase()}
-
-            {" · "}
-
-            {budget.toUpperCase()}
-
-
-
-          </p>
-
-
-
-
-
-          <h1>
-
-            Your adventure
-            <br/>
-            starts here.
-
-
-          </h1>
-
-
-
-
-
-
-
-          <div className="budgetBox">
-
-
-            <span>
-
-              Estimated Setup
-
-            </span>
-
-
-
-            <strong>
-
-              ${estimatedBudget}
-
-            </strong>
-
-
-
-          </div>
-
-
-
-
-
-        </div>
-
-
-
-      </section>
-
-
-
-
-
-
-
-
-
-      {/* SYSTEM CARDS */}
-
-
-
-      <section className="systemSection">
-
-
-
-        <div className="systemGrid">
-
-
-
-          {
-
-          systems.map((system)=>(
-
-
-
-            <div
-
-              key={system.title}
-
-              className="systemCard"
-
-            >
-
-
-
-
-              <div className="systemImage">
-
-
-                <Image
-
-                  src={system.image}
-
-                  alt={system.title}
-
-                  width={900}
-
-                  height={600}
-
-                  className="systemImg"
-
-                />
-
-
-
-              </div>
-
-
-
-
-
-
-
-              <div className="systemContent">
-
-
-
-                <h2>
-
-                  {system.title}
-
-                </h2>
-
-
-
-
-                <p>
-
-                  {system.description}
-
-                </p>
-
-
-
-
-
-                <ul>
-
-
-                {
-
-                system.items.map((item)=>(
-
-
-                  <li key={item}>
-
-                    ✓ {item}
-
-                  </li>
-
-
-                ))
-
-
-                }
-
-
-
-                </ul>
-
-
-
-
-
-
-
-                <button>
-
-                  View Gear →
-
-                </button>
-
-
-
-
-              </div>
-
-
-
-
-
-
-            </div>
-
-
-
-
-          ))
-
-
-
-          }
-
-
-
-        </div>
-
-
-
-      </section>
-
-
-
-
-
-
-
-
-
-      {/* SAVE */}
-
-
-
-      <section className="saveSection">
-
-
-
-        <h2>
-
-          Save your camping system
-
-        </h2>
-
-
-
-        <p>
-
-          Get your personalized gear list and future upgrades.
-
-        </p>
-
-
-
-
-
-        <div className="emailBox">
-
-
-          <input
-
-            placeholder="Your email address"
-
-          />
-
-
-
-          <button>
-
-            Save My Setup
-
-          </button>
-
-
-
-        </div>
-
-
-
-      </section>
-
-
-
-
-
-    </main>
-
+    budget
 
   );
 
 
+
+
+
+
+
+return (
+
+
+
+<main className="resultPage">
+
+
+
+
+
+<section className="resultHero">
+
+
+
+<div className="resultHeroContent">
+
+
+
+<div className="setupStep">
+
+YOUR CAMPING SYSTEM
+
+</div>
+
+
+
+
+
+<p className="setupVehicle">
+
+
+{vehicle.toUpperCase()}
+
+{" · "}
+
+{style.toUpperCase()}
+
+{" · "}
+
+{budget.toUpperCase()}
+
+
+
+</p>
+
+
+
+
+
+
+<h1>
+
+Your adventure
+
+<br/>
+
+starts here.
+
+
+</h1>
+
+
+
+
+
+
+
+<div className="budgetBox">
+
+
+<span>
+
+Estimated Setup
+
+</span>
+
+
+
+
+<strong>
+
+${price}
+
+</strong>
+
+
+
+</div>
+
+
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+<section className="systemSection">
+
+
+
+<div className="systemGrid">
+
+
+
+
+
+{
+
+systems.map((system)=>(
+
+
+<div
+
+key={system.id}
+
+className="systemCard"
+
+>
+
+
+
+<div className="systemImage">
+
+
+<Image
+
+src={system.image}
+
+alt={system.title}
+
+width={900}
+
+height={600}
+
+className="systemImg"
+
+/>
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<div className="systemContent">
+
+
+
+<h2>
+
+{system.title}
+
+</h2>
+
+
+
+
+
+<p>
+
+{system.description}
+
+</p>
+
+
+
+
+
+
+
+<ul>
+
+
+{
+
+system.items.map((item)=>(
+
+
+<li key={item}>
+
+✓ {item}
+
+</li>
+
+
+))
+
+
 }
+
+
+
+</ul>
+
+
+
+
+
+
+
+
+
+<Link
+
+href={`/gear/${system.id}`}
+
+className="gearButton"
+
+>
+
+
+View Gear →
+
+</Link>
+
+
+
+
+
+</div>
+
+
+
+
+
+
+
+</div>
+
+
+
+))
+
+
+}
+
+
+
+
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+<section className="saveSection">
+
+
+<h2>
+
+Save your camping system
+
+</h2>
+
+
+
+
+<p>
+
+Get your personalized gear list and future upgrades.
+
+</p>
+
+
+
+
+
+
+<div className="emailBox">
+
+
+<input
+
+placeholder="Your email address"
+
+/>
+
+
+
+
+<button>
+
+Save My Setup
+
+</button>
+
+
+
+</div>
+
+
+
+
+</section>
+
+
+
+
+
+</main>
+
+
+
+);
+
+
+}
+
+
 
 
 
@@ -549,7 +636,9 @@ export default function ResultPage(){
 
 return (
 
+
 <Suspense
+
 
 fallback={
 
@@ -560,6 +649,7 @@ Loading...
 </main>
 
 }
+
 
 >
 
