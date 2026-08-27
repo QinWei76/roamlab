@@ -1,4 +1,11 @@
+/* =================================
+   ROAMLAB GLOBAL CSS
+   PART 1 / 3
+================================= */
+
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
 
 
 /* ================================
@@ -7,7 +14,9 @@
 
 
 * {
+
   box-sizing:border-box;
+
 }
 
 
@@ -20,25 +29,25 @@ body {
 
   width:100%;
 
-  overflow-x:hidden;
+  min-height:100%;
+
 
   font-family:
+
   "Inter",
+
   Arial,
+
   sans-serif;
+
 
   background:#f5f4f1;
 
   color:#1d2329;
 
-}
-
-
-body {
-
-  min-height:100vh;
 
 }
+
 
 
 a {
@@ -70,28 +79,40 @@ input {
 
 
 
+
 /* ================================
    HEADER
 ================================ */
 
 
+
 .header {
+
 
   position:absolute;
 
+
   top:32px;
+
 
   left:7%;
 
+
   right:7%;
+
 
   display:flex;
 
+
   justify-content:space-between;
+
 
   align-items:center;
 
-  z-index:50;
+
+  z-index:20;
+
+
 
 }
 
@@ -99,13 +120,18 @@ input {
 
 .logo {
 
+
   color:white;
+
 
   font-size:26px;
 
+
   font-weight:800;
 
+
   letter-spacing:5px;
+
 
 }
 
@@ -113,9 +139,12 @@ input {
 
 .header nav {
 
+
   display:flex;
 
-  gap:38px;
+
+  gap:40px;
+
 
 }
 
@@ -123,19 +152,27 @@ input {
 
 .header nav a {
 
+
   color:white;
+
 
   font-size:15px;
 
+
   font-weight:500;
+
 
 }
 
 
 
+
+
+
 /* ================================
-   BUTTON
+   COMMON BUTTON
 ================================ */
+
 
 
 .primaryButton {
@@ -143,48 +180,65 @@ input {
 
   display:inline-flex;
 
-  justify-content:center;
 
   align-items:center;
 
 
-  padding:17px 34px;
+  justify-content:center;
+
+
+
+  padding:17px 35px;
+
 
 
   margin-top:30px;
 
 
+
   background:#214437;
+
 
 
   color:white;
 
 
+
   border-radius:999px;
 
 
-  font-size:16px;
-
 
   font-weight:700;
+
 
 
 }
 
 
 
+
+
+
 /* ================================
-   START HERE
+   START HERE PAGE
 ================================ */
+
 
 
 .startHero {
 
+
   position:relative;
 
-  min-height:100vh;
+
+  width:100%;
+
+
+  height:100vh;
+
 
   overflow:hidden;
+
 
 }
 
@@ -192,11 +246,15 @@ input {
 
 .startHero img {
 
+
   width:100%;
 
-  height:100vh;
+
+  height:100%;
+
 
   object-fit:cover;
+
 
 }
 
@@ -204,11 +262,16 @@ input {
 
 .startOverlay {
 
+
   position:absolute;
+
 
   inset:0;
 
+
+
   background:
+
 
   linear-gradient(
 
@@ -219,6 +282,8 @@ input {
     rgba(0,0,0,.2)
 
   );
+
+
 
 }
 
@@ -239,7 +304,9 @@ input {
   transform:translateY(-50%);
 
 
-  max-width:700px;
+
+  max-width:720px;
+
 
 
   color:white;
@@ -249,6 +316,7 @@ input {
 
 
 }
+
 
 
 
@@ -276,13 +344,17 @@ input {
 
   font-size:
 
+
   clamp(52px,6vw,82px);
+
 
 
   line-height:1.05;
 
 
+
   font-weight:800;
+
 
 
 }
@@ -303,9 +375,13 @@ input {
 
 
 
+
+
+
 /* ================================
    GEAR BUILDER HERO
 ================================ */
+
 
 
 .builderHero {
@@ -320,16 +396,20 @@ input {
   min-height:650px;
 
 
+
   display:flex;
 
 
   align-items:center;
 
 
+
   padding-left:7%;
 
 
+
   overflow:hidden;
+
 
 
 }
@@ -345,10 +425,12 @@ input {
   inset:0;
 
 
+
   width:100%;
 
 
   height:100%;
+
 
 
   object-fit:cover;
@@ -367,19 +449,24 @@ input {
   inset:0;
 
 
+
   background:
+
 
   linear-gradient(
 
-    90deg,
+  90deg,
 
-    rgba(0,0,0,.7),
+  rgba(0,0,0,.75),
 
-    rgba(0,0,0,.2)
+  rgba(0,0,0,.25)
 
   );
 
+
+
 }
+
 
 
 
@@ -392,7 +479,9 @@ input {
   z-index:2;
 
 
+
   color:white;
+
 
 
 }
@@ -423,7 +512,9 @@ input {
 
   font-size:
 
+
   clamp(52px,6vw,82px);
+
 
 
   line-height:1.05;
@@ -446,16 +537,14 @@ input {
 
 
 }
-/* ================================
-   VEHICLE SELECT
-================================ */
+/* =================================
+   VEHICLE SELECT PAGE
+================================= */
 
 
 .vehicleSection {
 
-
   padding:110px 7%;
-
 
 }
 
@@ -463,9 +552,7 @@ input {
 
 .vehicleSectionHeader {
 
-
   margin-bottom:55px;
-
 
 }
 
@@ -473,18 +560,13 @@ input {
 
 .vehicleEyebrow {
 
-
   font-size:13px;
-
 
   letter-spacing:4px;
 
-
   font-weight:700;
 
-
   color:#7b817d;
-
 
 }
 
@@ -492,14 +574,11 @@ input {
 
 .vehicleSection h2 {
 
-
   margin:15px 0;
-
 
   font-size:
 
   clamp(40px,4vw,56px);
-
 
 }
 
@@ -507,12 +586,9 @@ input {
 
 .vehicleIntro {
 
-
   color:#6b7276;
 
-
   font-size:18px;
-
 
 }
 
@@ -521,39 +597,27 @@ input {
 
 .vehicleGrid {
 
-
   display:grid;
-
 
   grid-template-columns:repeat(4,1fr);
 
-
-  gap:24px;
-
+  gap:25px;
 
 }
 
 
 
-
-
 .vehicleCard {
-
 
   background:white;
 
-
   border-radius:22px;
-
 
   overflow:hidden;
 
-
   border:1px solid #dededb;
 
-
   transition:.35s;
-
 
 }
 
@@ -561,14 +625,11 @@ input {
 
 .vehicleCard:hover {
 
-
   transform:translateY(-8px);
-
 
   box-shadow:
 
   0 20px 45px rgba(0,0,0,.12);
-
 
 }
 
@@ -576,12 +637,9 @@ input {
 
 .vehicleCardImage {
 
-
   height:240px;
 
-
   overflow:hidden;
-
 
 }
 
@@ -589,15 +647,11 @@ input {
 
 .vehicleCardImage img {
 
-
   width:100%;
-
 
   height:100%;
 
-
   object-fit:cover;
-
 
 }
 
@@ -605,9 +659,7 @@ input {
 
 .vehicleCardContent {
 
-
   padding:28px;
-
 
 }
 
@@ -615,12 +667,9 @@ input {
 
 .vehicleCardContent h3 {
 
-
   margin:0 0 12px;
 
-
   font-size:30px;
-
 
 }
 
@@ -628,15 +677,9 @@ input {
 
 .vehicleCardContent p {
 
-
-  margin:0;
-
-
   color:#6b7276;
 
-
   line-height:1.6;
-
 
 }
 
@@ -644,18 +687,13 @@ input {
 
 .vehicleCardContent span {
 
-
   display:block;
-
 
   margin-top:25px;
 
-
   color:#214437;
 
-
   font-weight:700;
-
 
 }
 
@@ -664,49 +702,42 @@ input {
 
 
 
-/* ================================
-   SETUP PAGE TOP
-================================ */
+
+/* =================================
+   SETUP COMMON PAGE
+================================= */
 
 
 
 .setupPage {
 
-
   width:100%;
-
 
   min-height:100vh;
 
-
   background:#f5f4f1;
 
-
 }
+
 
 
 
 
 .setupTopbar {
 
-
   height:80px;
-
 
   padding:0 7%;
 
 
   display:flex;
 
+  justify-content:space-between;
 
   align-items:center;
 
 
-  justify-content:space-between;
-
-
   border-bottom:1px solid #dededb;
-
 
 }
 
@@ -714,12 +745,7 @@ input {
 
 .backButton {
 
-
-  font-size:15px;
-
-
   font-weight:600;
-
 
 }
 
@@ -727,21 +753,15 @@ input {
 
 .setupProgress {
 
-
   display:flex;
-
 
   align-items:center;
 
-
   gap:14px;
-
-
-  color:#969b9d;
-
 
   font-size:13px;
 
+  color:#969b9d;
 
 }
 
@@ -749,12 +769,9 @@ input {
 
 .setupProgress .active {
 
-
   color:#214437;
 
-
   font-weight:700;
-
 
 }
 
@@ -762,15 +779,11 @@ input {
 
 .progressLine {
 
-
   width:40px;
-
 
   height:1px;
 
-
   background:#cfd1ce;
-
 
 }
 
@@ -778,23 +791,20 @@ input {
 
 
 
-/* ================================
+
+/* =================================
    SETUP HERO
-================================ */
+================================= */
 
 
 
 .setupHero {
 
-
   padding:100px 7% 85px;
-
 
   background:#1d2329;
 
-
   color:white;
-
 
 }
 
@@ -802,21 +812,15 @@ input {
 
 .setupStep {
 
-
   font-size:13px;
-
 
   letter-spacing:4px;
 
-
   font-weight:700;
-
 
   color:#aeb8b2;
 
-
   margin-bottom:20px;
-
 
 }
 
@@ -824,28 +828,21 @@ input {
 
 .setupVehicle {
 
-
   font-size:13px;
-
 
   letter-spacing:2px;
 
-
   font-weight:700;
-
 
   color:#9da7a1;
 
-
   margin-bottom:25px;
-
 
 }
 
 
 
 .setupHero h1 {
-
 
   margin:0 0 25px;
 
@@ -857,25 +854,19 @@ input {
 
   line-height:1.05;
 
-
 }
 
 
 
 .setupHero p:last-child {
 
-
   max-width:600px;
-
 
   font-size:19px;
 
-
   line-height:1.7;
 
-
   color:#c9cfcb;
-
 
 }
 
@@ -884,17 +875,15 @@ input {
 
 
 
-/* ================================
+/* =================================
    STYLE CARDS
-================================ */
+================================= */
 
 
 
 .styleSection {
 
-
   padding:90px 7% 120px;
-
 
 }
 
@@ -902,15 +891,11 @@ input {
 
 .styleGrid {
 
-
   display:grid;
-
 
   grid-template-columns:repeat(2,1fr);
 
-
   gap:28px;
-
 
 }
 
@@ -918,24 +903,17 @@ input {
 
 .styleCard {
 
-
   display:block;
-
 
   background:white;
 
-
   border-radius:22px;
-
 
   overflow:hidden;
 
-
   border:1px solid #dededb;
 
-
   transition:.35s;
-
 
 }
 
@@ -943,14 +921,11 @@ input {
 
 .styleCard:hover {
 
-
   transform:translateY(-8px);
-
 
   box-shadow:
 
   0 20px 45px rgba(0,0,0,.12);
-
 
 }
 
@@ -958,15 +933,11 @@ input {
 
 .styleImage {
 
-
   width:100%;
-
 
   height:280px;
 
-
   overflow:hidden;
-
 
 }
 
@@ -974,18 +945,13 @@ input {
 
 .styleImage img {
 
-
   width:100%;
-
 
   height:100%;
 
-
   object-fit:cover;
 
-
   transition:.5s;
-
 
 }
 
@@ -993,20 +959,15 @@ input {
 
 .styleCard:hover .styleImage img {
 
-
   transform:scale(1.06);
-
 
 }
 
 
 
-
 .styleCardContent {
 
-
   padding:32px;
-
 
 }
 
@@ -1014,21 +975,15 @@ input {
 
 .styleNumber {
 
-
   font-size:13px;
-
 
   letter-spacing:3px;
 
-
   color:#214437;
-
 
   font-weight:700;
 
-
   margin-bottom:25px;
-
 
 }
 
@@ -1036,12 +991,9 @@ input {
 
 .styleCard h2 {
 
-
   margin:0 0 15px;
 
-
   font-size:32px;
-
 
 }
 
@@ -1049,12 +1001,9 @@ input {
 
 .styleCard p {
 
-
   color:#6b7276;
 
-
   line-height:1.7;
-
 
 }
 
@@ -1062,15 +1011,11 @@ input {
 
 .styleChoose {
 
-
   margin-top:30px;
-
 
   color:#214437;
 
-
   font-weight:700;
-
 
 }
 
@@ -1079,28 +1024,24 @@ input {
 
 
 
-/* ================================
+/* =================================
    BUDGET PAGE
-================================ */
+================================= */
 
 
 
 .styleCard h3 {
 
-
   margin:10px 0 20px;
-
 
   font-size:24px;
 
-
   color:#214437;
 
-
 }
-/* ================================
+/* =================================
    RESULT PAGE
-================================ */
+================================= */
 
 
 .resultPage {
@@ -1114,9 +1055,7 @@ input {
 
 
 
-
 /* RESULT HERO */
-
 
 .resultHero {
 
@@ -1136,6 +1075,7 @@ input {
   color:white;
 
 
+
   background:
 
 
@@ -1152,6 +1092,7 @@ input {
   url("/start-here-hero.jpg");
 
 
+
   background-size:cover;
 
 
@@ -1164,9 +1105,7 @@ input {
 
 .resultHeroContent {
 
-
   max-width:800px;
-
 
 }
 
@@ -1180,6 +1119,7 @@ input {
 
   font-size:
 
+
   clamp(52px,6vw,82px);
 
 
@@ -1190,6 +1130,8 @@ input {
 
 
 }
+
+
 
 
 
@@ -1208,9 +1150,11 @@ input {
   border-radius:18px;
 
 
+
   background:
 
   rgba(255,255,255,.12);
+
 
 
   backdrop-filter:blur(10px);
@@ -1254,9 +1198,11 @@ input {
 
 
 
-/* ================================
+
+
+/* =================================
    SYSTEM CARDS
-================================ */
+================================= */
 
 
 
@@ -1267,6 +1213,7 @@ input {
 
 
 }
+
 
 
 
@@ -1317,6 +1264,7 @@ input {
 
   box-shadow:
 
+
   0 20px 45px rgba(0,0,0,.12);
 
 
@@ -1329,10 +1277,10 @@ input {
 .systemImage {
 
 
-  height:280px;
-
-
   width:100%;
+
+
+  height:280px;
 
 
   overflow:hidden;
@@ -1342,13 +1290,13 @@ input {
 
 
 
-.systemImage img {
+.systemImg {
 
 
   width:100%;
 
 
-  height:100%;
+  height:280px;
 
 
   object-fit:cover;
@@ -1425,6 +1373,8 @@ input {
 
 
 
+
+
 .systemContent button {
 
 
@@ -1452,6 +1402,9 @@ input {
   font-weight:700;
 
 
+  cursor:pointer;
+
+
 }
 
 
@@ -1460,9 +1413,9 @@ input {
 
 
 
-/* ================================
-   SAVE SETUP CTA
-================================ */
+/* =================================
+   SAVE MY SETUP CTA
+================================= */
 
 
 
@@ -1492,6 +1445,7 @@ input {
 
 
   font-size:
+
 
   clamp(38px,5vw,56px);
 
@@ -1583,25 +1537,26 @@ input {
 
 
 
-/* ================================
+/* =================================
    MOBILE RESPONSIVE
-================================ */
+================================= */
 
 
 
 @media(max-width:1100px){
 
 
-.vehicleGrid {
+  .vehicleGrid {
 
 
-  grid-template-columns:repeat(2,1fr);
+    grid-template-columns:repeat(2,1fr);
+
+
+  }
 
 
 }
 
-
-}
 
 
 
@@ -1636,6 +1591,7 @@ input {
 
 
 
+
 .startContent {
 
 
@@ -1649,6 +1605,7 @@ input {
 
 
 
+
 .builderHero {
 
 
@@ -1656,6 +1613,7 @@ input {
 
 
 }
+
 
 
 
@@ -1669,6 +1627,7 @@ input {
 
 
 
+
 .vehicleGrid {
 
 
@@ -1676,6 +1635,8 @@ input {
 
 
 }
+
+
 
 
 
@@ -1701,6 +1662,7 @@ input {
 
 
 
+
 .setupHero {
 
 
@@ -1708,6 +1670,7 @@ input {
 
 
 }
+
 
 
 
@@ -1721,6 +1684,7 @@ input {
 
 
 
+
 .styleGrid {
 
 
@@ -1728,6 +1692,7 @@ input {
 
 
 }
+
 
 
 
@@ -1741,6 +1706,7 @@ input {
 
 
 
+
 .systemGrid {
 
 
@@ -1748,6 +1714,7 @@ input {
 
 
 }
+
 
 
 
@@ -1761,6 +1728,7 @@ input {
 
 
 
+
 .saveSection {
 
 
@@ -1768,6 +1736,7 @@ input {
 
 
 }
+
 
 
 
