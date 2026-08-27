@@ -77,7 +77,112 @@ const systems = [
 
 
 
+function calculateBudget(
+  vehicle:string,
+  style:string,
+  budget:string
+){
+
+
+  let total = 0;
+
+
+
+  // Budget base
+
+  if(budget === "essential"){
+
+    total = 1200;
+
+  }
+
+
+  if(budget === "explorer"){
+
+    total = 3200;
+
+  }
+
+
+  if(budget === "complete"){
+
+    total = 6500;
+
+  }
+
+
+
+
+  // Vehicle adjustment
+
+
+  if(vehicle === "truck"){
+
+    total += 300;
+
+  }
+
+
+
+  if(vehicle === "van"){
+
+    total += 800;
+
+  }
+
+
+
+  if(vehicle === "ev"){
+
+    total += 500;
+
+  }
+
+
+
+
+
+  // Camping style adjustment
+
+
+  if(style === "off-grid"){
+
+    total += 700;
+
+  }
+
+
+
+  if(style === "road-trip"){
+
+    total += 900;
+
+  }
+
+
+
+  if(style === "basecamp"){
+
+    total += 1200;
+
+  }
+
+
+
+
+  return total.toLocaleString();
+
+
+}
+
+
+
+
+
+
+
 function ResultContent(){
+
 
 
   const searchParams = useSearchParams();
@@ -85,15 +190,29 @@ function ResultContent(){
 
 
   const vehicle =
-    searchParams.get("vehicle") || "SUV";
+    searchParams.get("vehicle") || "suv";
+
 
 
   const style =
     searchParams.get("style") || "weekend";
 
 
+
   const budget =
     searchParams.get("budget") || "explorer";
+
+
+
+
+  const estimatedBudget =
+    calculateBudget(
+      vehicle,
+      style,
+      budget
+    );
+
+
 
 
 
@@ -105,12 +224,17 @@ function ResultContent(){
 
 
 
+
+
+
       {/* HERO */}
+
 
       <section className="resultHero">
 
 
         <div className="resultHeroContent">
+
 
 
           <div className="setupStep">
@@ -121,15 +245,25 @@ function ResultContent(){
 
 
 
+
+
           <p className="setupVehicle">
 
+
             {vehicle.toUpperCase()}
+
             {" · "}
+
             {style.toUpperCase()}
+
             {" · "}
+
             {budget.toUpperCase()}
 
+
+
           </p>
+
 
 
 
@@ -140,7 +274,11 @@ function ResultContent(){
             <br/>
             starts here.
 
+
           </h1>
+
+
+
 
 
 
@@ -149,24 +287,34 @@ function ResultContent(){
 
 
             <span>
+
               Estimated Setup
+
             </span>
 
 
 
             <strong>
-              $2,800
+
+              ${estimatedBudget}
+
             </strong>
+
 
 
           </div>
 
 
 
+
+
         </div>
 
 
+
       </section>
+
+
 
 
 
@@ -177,42 +325,126 @@ function ResultContent(){
       {/* SYSTEM CARDS */}
 
 
+
       <section className="systemSection">
+
 
 
         <div className="systemGrid">
 
 
-        {systems.map((system)=>(
 
+          {
 
-          <div
-
-            key={system.title}
-
-            className="systemCard"
-
-
-          >
+          systems.map((system)=>(
 
 
 
-            <div className="systemImage">
+            <div
+
+              key={system.title}
+
+              className="systemCard"
+
+            >
 
 
-              <Image
 
-                src={system.image}
 
-                alt={system.title}
+              <div className="systemImage">
 
-                width={900}
 
-                height={600}
+                <Image
 
-                className="systemImg"
+                  src={system.image}
 
-              />
+                  alt={system.title}
+
+                  width={900}
+
+                  height={600}
+
+                  className="systemImg"
+
+                />
+
+
+
+              </div>
+
+
+
+
+
+
+
+              <div className="systemContent">
+
+
+
+                <h2>
+
+                  {system.title}
+
+                </h2>
+
+
+
+
+                <p>
+
+                  {system.description}
+
+                </p>
+
+
+
+
+
+                <ul>
+
+
+                {
+
+                system.items.map((item)=>(
+
+
+                  <li key={item}>
+
+                    ✓ {item}
+
+                  </li>
+
+
+                ))
+
+
+                }
+
+
+
+                </ul>
+
+
+
+
+
+
+
+                <button>
+
+                  View Gear →
+
+                </button>
+
+
+
+
+              </div>
+
+
+
+
 
 
             </div>
@@ -220,79 +452,21 @@ function ResultContent(){
 
 
 
+          ))
 
 
 
-            <div className="systemContent">
-
-
-
-              <h2>
-
-                {system.title}
-
-              </h2>
-
-
-
-              <p>
-
-                {system.description}
-
-              </p>
-
-
-
-
-
-              <ul>
-
-
-              {system.items.map((item)=>(
-
-
-                <li key={item}>
-
-                  ✓ {item}
-
-                </li>
-
-
-              ))}
-
-
-              </ul>
-
-
-
-
-
-
-              <button>
-
-                View Gear →
-
-              </button>
-
-
-
-
-            </div>
-
-
-
-
-          </div>
-
-
-        ))}
+          }
 
 
 
         </div>
 
 
+
       </section>
+
+
 
 
 
@@ -307,11 +481,13 @@ function ResultContent(){
       <section className="saveSection">
 
 
+
         <h2>
 
           Save your camping system
 
         </h2>
+
 
 
         <p>
@@ -358,7 +534,10 @@ function ResultContent(){
 
   );
 
+
 }
+
+
 
 
 
@@ -367,28 +546,31 @@ function ResultContent(){
 export default function ResultPage(){
 
 
-  return (
 
-    <Suspense
+return (
 
-      fallback={
+<Suspense
 
-        <main>
+fallback={
 
-          Loading...
+<main>
 
-        </main>
+Loading...
 
-      }
+</main>
+
+}
+
+>
 
 
-    >
+<ResultContent />
 
-      <ResultContent />
 
-    </Suspense>
+</Suspense>
 
-  );
+
+);
 
 
 }
