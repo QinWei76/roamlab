@@ -2,7 +2,7 @@
 
 import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
+import Image from "next/image";
 
 
 const systems = [
@@ -75,10 +75,13 @@ const systems = [
 
 
 
+
+
 function ResultContent(){
 
 
   const searchParams = useSearchParams();
+
 
 
   const vehicle =
@@ -94,9 +97,12 @@ function ResultContent(){
 
 
 
+
+
   return (
 
     <main className="resultPage">
+
 
 
       {/* HERO */}
@@ -127,6 +133,7 @@ function ResultContent(){
 
 
 
+
           <h1>
 
             Your adventure
@@ -137,12 +144,14 @@ function ResultContent(){
 
 
 
+
           <div className="budgetBox">
 
 
             <span>
               Estimated Setup
             </span>
+
 
 
             <strong>
@@ -163,6 +172,8 @@ function ResultContent(){
 
 
 
+
+
       {/* SYSTEM CARDS */}
 
 
@@ -172,90 +183,109 @@ function ResultContent(){
         <div className="systemGrid">
 
 
-          {systems.map((system)=>(
+        {systems.map((system)=>(
 
 
-            <div
+          <div
 
-              key={system.title}
+            key={system.title}
 
-              className="systemCard"
-
-            >
+            className="systemCard"
 
 
-              <div className="systemImage">
-
-
-                <img
-
-                  src={system.image}
-
-                  alt={system.title}
-
-                />
-
-
-              </div>
+          >
 
 
 
+            <div className="systemImage">
 
 
-              <div className="systemContent">
+              <Image
+
+                src={system.image}
+
+                alt={system.title}
+
+                width={900}
+
+                height={600}
+
+                className="systemImg"
+
+              />
 
 
-                <h2>
-
-                  {system.title}
-
-                </h2>
-
-
-
-                <p>
-
-                  {system.description}
-
-                </p>
-
-
-
-
-                <ul>
-
-                  {system.items.map((item)=>(
-
-                    <li key={item}>
-
-                      ✓ {item}
-
-                    </li>
-
-                  ))}
-
-
-                </ul>
+            </div>
 
 
 
 
 
-                <button>
-
-                  View Gear →
-
-                </button>
 
 
-              </div>
+            <div className="systemContent">
+
+
+
+              <h2>
+
+                {system.title}
+
+              </h2>
+
+
+
+              <p>
+
+                {system.description}
+
+              </p>
+
+
+
+
+
+              <ul>
+
+
+              {system.items.map((item)=>(
+
+
+                <li key={item}>
+
+                  ✓ {item}
+
+                </li>
+
+
+              ))}
+
+
+              </ul>
+
+
+
+
+
+
+              <button>
+
+                View Gear →
+
+              </button>
+
 
 
 
             </div>
 
 
-          ))}
+
+
+          </div>
+
+
+        ))}
 
 
 
@@ -269,49 +299,47 @@ function ResultContent(){
 
 
 
-      {/* SAVE CTA */}
+
+      {/* SAVE */}
+
 
 
       <section className="saveSection">
 
 
-        <div>
+        <h2>
+
+          Save your camping system
+
+        </h2>
 
 
-          <h2>
+        <p>
 
-            Save your camping system
+          Get your personalized gear list and future upgrades.
 
-          </h2>
-
-
-          <p>
-
-            Get your personalized gear list and
-            future upgrades.
-
-          </p>
+        </p>
 
 
 
-          <div className="emailBox">
 
 
-            <input
-
-              placeholder="Your email address"
-
-            />
+        <div className="emailBox">
 
 
-            <button>
+          <input
 
-              Save My Setup
+            placeholder="Your email address"
 
-            </button>
+          />
 
 
-          </div>
+
+          <button>
+
+            Save My Setup
+
+          </button>
 
 
 
@@ -327,9 +355,11 @@ function ResultContent(){
 
     </main>
 
+
   );
 
 }
+
 
 
 
@@ -350,6 +380,7 @@ export default function ResultPage(){
         </main>
 
       }
+
 
     >
 
