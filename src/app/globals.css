@@ -1,12 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 
-/* =================================
+/* ================================
    RESET
-================================= */
+================================ */
+
 
 * {
-  box-sizing: border-box;
+  box-sizing:border-box;
 }
 
 
@@ -14,6 +15,7 @@ html,
 body {
 
   margin:0;
+
   padding:0;
 
   width:100%;
@@ -21,9 +23,9 @@ body {
   overflow-x:hidden;
 
   font-family:
-    "Inter",
-    Arial,
-    sans-serif;
+  "Inter",
+  Arial,
+  sans-serif;
 
   background:#f5f4f1;
 
@@ -41,11 +43,12 @@ body {
 
 a {
 
-  color:inherit;
-
   text-decoration:none;
 
+  color:inherit;
+
 }
+
 
 
 img {
@@ -58,18 +61,18 @@ img {
 
 
 
-main {
+button,
+input {
 
-  width:100%;
+  font-family:inherit;
 
 }
 
 
 
-
-/* =================================
+/* ================================
    HEADER
-================================= */
+================================ */
 
 
 .header {
@@ -82,13 +85,11 @@ main {
 
   right:7%;
 
-
   display:flex;
-
-  align-items:center;
 
   justify-content:space-between;
 
+  align-items:center;
 
   z-index:50;
 
@@ -132,10 +133,9 @@ main {
 
 
 
-
-/* =================================
+/* ================================
    BUTTON
-================================= */
+================================ */
 
 
 .primaryButton {
@@ -143,18 +143,15 @@ main {
 
   display:inline-flex;
 
-  align-items:center;
-
   justify-content:center;
 
-
-  margin-top:35px;
-
-
-  padding:17px 32px;
+  align-items:center;
 
 
-  border-radius:999px;
+  padding:17px 34px;
+
+
+  margin-top:30px;
 
 
   background:#214437;
@@ -163,7 +160,11 @@ main {
   color:white;
 
 
+  border-radius:999px;
+
+
   font-size:16px;
+
 
   font-weight:700;
 
@@ -172,29 +173,28 @@ main {
 
 
 
-/* =================================
-   START HERE HERO
-================================= */
+/* ================================
+   START HERE
+================================ */
 
 
 .startHero {
 
-
   position:relative;
-
 
   min-height:100vh;
 
-
   overflow:hidden;
-
 
 }
 
 
 
-.startImage {
+.startHero img {
 
+  width:100%;
+
+  height:100vh;
 
   object-fit:cover;
 
@@ -204,24 +204,23 @@ main {
 
 .startOverlay {
 
-
   position:absolute;
 
   inset:0;
 
-
   background:
+
   linear-gradient(
+
     90deg,
-    rgba(0,0,0,.68),
-    rgba(0,0,0,.18)
+
+    rgba(0,0,0,.65),
+
+    rgba(0,0,0,.2)
+
   );
 
-
-  z-index:2;
-
 }
-
 
 
 
@@ -232,6 +231,7 @@ main {
 
 
   left:7%;
+
 
   top:50%;
 
@@ -245,7 +245,7 @@ main {
   color:white;
 
 
-  z-index:5;
+  z-index:2;
 
 
 }
@@ -255,13 +255,17 @@ main {
 .eyebrow {
 
 
-  font-size:14px;
+  font-size:13px;
 
-  letter-spacing:4px;
+
+  letter-spacing:5px;
+
 
   font-weight:700;
 
+
 }
+
 
 
 .startContent h1 {
@@ -270,7 +274,9 @@ main {
   margin:25px 0;
 
 
-  font-size:clamp(50px,6vw,82px);
+  font-size:
+
+  clamp(52px,6vw,82px);
 
 
   line-height:1.05;
@@ -289,7 +295,7 @@ main {
   font-size:19px;
 
 
-  line-height:1.6;
+  line-height:1.7;
 
 
 }
@@ -297,22 +303,9 @@ main {
 
 
 
-/* =================================
-   GEAR BUILDER PAGE
-================================= */
-
-
-.builderPage {
-
-
-  width:100%;
-
-
-  background:#f5f4f1;
-
-
-}
-
+/* ================================
+   GEAR BUILDER HERO
+================================ */
 
 
 .builderHero {
@@ -343,7 +336,19 @@ main {
 
 
 
-.builderImage {
+.builderHero img {
+
+
+  position:absolute;
+
+
+  inset:0;
+
+
+  width:100%;
+
+
+  height:100%;
 
 
   object-fit:cover;
@@ -358,16 +363,21 @@ main {
 
   position:absolute;
 
+
   inset:0;
 
 
   background:
-  linear-gradient(
-    90deg,
-    rgba(0,0,0,.68),
-    rgba(0,0,0,.15)
-  );
 
+  linear-gradient(
+
+    90deg,
+
+    rgba(0,0,0,.7),
+
+    rgba(0,0,0,.2)
+
+  );
 
 }
 
@@ -379,7 +389,7 @@ main {
   position:relative;
 
 
-  z-index:5;
+  z-index:2;
 
 
   color:white;
@@ -392,7 +402,7 @@ main {
 .builderEyebrow {
 
 
-  font-size:14px;
+  font-size:13px;
 
 
   letter-spacing:5px;
@@ -411,7 +421,9 @@ main {
   margin:25px 0;
 
 
-  font-size:clamp(52px,6vw,82px);
+  font-size:
+
+  clamp(52px,6vw,82px);
 
 
   line-height:1.05;
@@ -424,21 +436,19 @@ main {
 .builderDesc {
 
 
-  font-size:20px;
+  max-width:600px;
 
 
-  line-height:1.6;
+  font-size:19px;
+
+
+  line-height:1.7;
 
 
 }
-
-
-
-
-
-/* =================================
+/* ================================
    VEHICLE SELECT
-================================= */
+================================ */
 
 
 .vehicleSection {
@@ -473,7 +483,7 @@ main {
   font-weight:700;
 
 
-  color:#777;
+  color:#7b817d;
 
 
 }
@@ -486,7 +496,9 @@ main {
   margin:15px 0;
 
 
-  font-size:clamp(40px,4vw,56px);
+  font-size:
+
+  clamp(40px,4vw,56px);
 
 
 }
@@ -496,10 +508,10 @@ main {
 .vehicleIntro {
 
 
+  color:#6b7276;
+
+
   font-size:18px;
-
-
-  color:#6b7075;
 
 
 }
@@ -524,22 +536,23 @@ main {
 
 
 
+
 .vehicleCard {
-
-
-  overflow:hidden;
 
 
   background:white;
 
 
-  border-radius:20px;
+  border-radius:22px;
 
 
-  border:1px solid #ddd;
+  overflow:hidden;
 
 
-  transition:.3s;
+  border:1px solid #dededb;
+
+
+  transition:.35s;
 
 
 }
@@ -549,7 +562,12 @@ main {
 .vehicleCard:hover {
 
 
-  transform:translateY(-7px);
+  transform:translateY(-8px);
+
+
+  box-shadow:
+
+  0 20px 45px rgba(0,0,0,.12);
 
 
 }
@@ -611,7 +629,10 @@ main {
 .vehicleCardContent p {
 
 
-  color:#70757a;
+  margin:0;
+
+
+  color:#6b7276;
 
 
   line-height:1.6;
@@ -637,24 +658,34 @@ main {
 
 
 }
-/* =================================
-   GEAR BUILDER STEP 02
-================================= */
+
+
+
+
+
+
+/* ================================
+   SETUP PAGE TOP
+================================ */
+
 
 
 .setupPage {
 
+
   width:100%;
+
 
   min-height:100vh;
 
+
   background:#f5f4f1;
+
 
 }
 
 
 
-/* TOP BAR */
 
 .setupTopbar {
 
@@ -674,9 +705,6 @@ main {
   justify-content:space-between;
 
 
-  background:#f5f4f1;
-
-
   border-bottom:1px solid #dededb;
 
 
@@ -691,9 +719,6 @@ main {
 
 
   font-weight:600;
-
-
-  color:#1d2329;
 
 
 }
@@ -712,10 +737,10 @@ main {
   gap:14px;
 
 
-  font-size:13px;
-
-
   color:#969b9d;
+
+
+  font-size:13px;
 
 
 }
@@ -753,13 +778,16 @@ main {
 
 
 
-/* STEP 02 HERO */
+/* ================================
+   SETUP HERO
+================================ */
+
 
 
 .setupHero {
 
 
-  padding:100px 7% 80px;
+  padding:100px 7% 85px;
 
 
   background:#1d2329;
@@ -775,19 +803,19 @@ main {
 .setupStep {
 
 
-  margin-bottom:20px;
-
-
   font-size:13px;
-
-
-  font-weight:700;
 
 
   letter-spacing:4px;
 
 
-  color:#aab7ae;
+  font-weight:700;
+
+
+  color:#aeb8b2;
+
+
+  margin-bottom:20px;
 
 
 }
@@ -795,9 +823,6 @@ main {
 
 
 .setupVehicle {
-
-
-  margin-bottom:22px;
 
 
   font-size:13px;
@@ -809,7 +834,10 @@ main {
   font-weight:700;
 
 
-  color:#9ca6a0;
+  color:#9da7a1;
+
+
+  margin-bottom:25px;
 
 
 }
@@ -822,13 +850,12 @@ main {
   margin:0 0 25px;
 
 
-  font-size:clamp(52px,6vw,80px);
+  font-size:
+
+  clamp(52px,6vw,80px);
 
 
   line-height:1.05;
-
-
-  font-weight:800;
 
 
 }
@@ -847,7 +874,7 @@ main {
   line-height:1.7;
 
 
-  color:#c8cfca;
+  color:#c9cfcb;
 
 
 }
@@ -855,7 +882,12 @@ main {
 
 
 
-/* STYLE SECTION */
+
+
+/* ================================
+   STYLE CARDS
+================================ */
+
 
 
 .styleSection {
@@ -880,22 +912,14 @@ main {
   gap:28px;
 
 
-  max-width:1200px;
-
-
 }
 
-
-
-
-
-/* STYLE CARD */
 
 
 .styleCard {
 
 
-  overflow:hidden;
+  display:block;
 
 
   background:white;
@@ -904,7 +928,10 @@ main {
   border-radius:22px;
 
 
-  border:1px solid #dedede;
+  overflow:hidden;
+
+
+  border:1px solid #dededb;
 
 
   transition:.35s;
@@ -921,16 +948,12 @@ main {
 
 
   box-shadow:
+
   0 20px 45px rgba(0,0,0,.12);
 
 
 }
 
-
-
-
-
-/* IMAGE */
 
 
 .styleImage {
@@ -979,9 +1002,6 @@ main {
 
 
 
-/* CONTENT */
-
-
 .styleCardContent {
 
 
@@ -995,19 +1015,19 @@ main {
 .styleNumber {
 
 
-  margin-bottom:30px;
-
-
   font-size:13px;
 
 
   letter-spacing:3px;
 
 
+  color:#214437;
+
+
   font-weight:700;
 
 
-  color:#214437;
+  margin-bottom:25px;
 
 
 }
@@ -1023,9 +1043,6 @@ main {
   font-size:32px;
 
 
-  line-height:1.15;
-
-
 }
 
 
@@ -1033,16 +1050,10 @@ main {
 .styleCard p {
 
 
-  margin:0;
-
-
-  font-size:16px;
+  color:#6b7276;
 
 
   line-height:1.7;
-
-
-  color:#6c7276;
 
 
 }
@@ -1055,24 +1066,48 @@ main {
   margin-top:30px;
 
 
-  font-size:15px;
+  color:#214437;
 
 
   font-weight:700;
+
+
+}
+
+
+
+
+
+
+/* ================================
+   BUDGET PAGE
+================================ */
+
+
+
+.styleCard h3 {
+
+
+  margin:10px 0 20px;
+
+
+  font-size:24px;
 
 
   color:#214437;
 
 
 }
+/* ================================
+   RESULT PAGE
+================================ */
 
 
+.resultPage {
 
-.styleChoose span {
+  width:100%;
 
-
-  margin-left:6px;
-
+  background:#f5f4f1;
 
 }
 
@@ -1080,15 +1115,13 @@ main {
 
 
 
-/* =================================
-   CTA
-================================= */
+/* RESULT HERO */
 
 
-.ctaSection {
+.resultHero {
 
 
-  min-height:600px;
+  min-height:650px;
 
 
   display:flex;
@@ -1097,26 +1130,352 @@ main {
   align-items:center;
 
 
-  justify-content:center;
-
-
-  padding:100px 7%;
-
-
-  background:#1c2421;
+  padding:120px 7%;
 
 
   color:white;
+
+
+  background:
+
+
+  linear-gradient(
+
+    90deg,
+
+    rgba(20,25,22,.92),
+
+    rgba(20,25,22,.55)
+
+  ),
+
+  url("/start-here-hero.jpg");
+
+
+  background-size:cover;
+
+
+  background-position:center;
 
 
 }
 
 
 
-.ctaContent {
+.resultHeroContent {
 
 
-  max-width:700px;
+  max-width:800px;
+
+
+}
+
+
+
+.resultHero h1 {
+
+
+  margin:25px 0;
+
+
+  font-size:
+
+  clamp(52px,6vw,82px);
+
+
+  line-height:1.05;
+
+
+  font-weight:800;
+
+
+}
+
+
+
+.budgetBox {
+
+
+  margin-top:40px;
+
+
+  width:230px;
+
+
+  padding:25px;
+
+
+  border-radius:18px;
+
+
+  background:
+
+  rgba(255,255,255,.12);
+
+
+  backdrop-filter:blur(10px);
+
+
+}
+
+
+
+.budgetBox span {
+
+
+  display:block;
+
+
+  color:#c9d0cc;
+
+
+  font-size:14px;
+
+
+}
+
+
+
+.budgetBox strong {
+
+
+  display:block;
+
+
+  margin-top:8px;
+
+
+  font-size:38px;
+
+
+}
+
+
+
+
+
+/* ================================
+   SYSTEM CARDS
+================================ */
+
+
+
+.systemSection {
+
+
+  padding:100px 7%;
+
+
+}
+
+
+
+.systemGrid {
+
+
+  display:grid;
+
+
+  grid-template-columns:repeat(2,1fr);
+
+
+  gap:32px;
+
+
+}
+
+
+
+
+.systemCard {
+
+
+  background:white;
+
+
+  border-radius:24px;
+
+
+  overflow:hidden;
+
+
+  border:1px solid #dededb;
+
+
+  transition:.35s;
+
+
+}
+
+
+
+.systemCard:hover {
+
+
+  transform:translateY(-8px);
+
+
+  box-shadow:
+
+  0 20px 45px rgba(0,0,0,.12);
+
+
+}
+
+
+
+
+
+.systemImage {
+
+
+  height:280px;
+
+
+  width:100%;
+
+
+  overflow:hidden;
+
+
+}
+
+
+
+.systemImage img {
+
+
+  width:100%;
+
+
+  height:100%;
+
+
+  object-fit:cover;
+
+
+}
+
+
+
+
+
+.systemContent {
+
+
+  padding:35px;
+
+
+}
+
+
+
+.systemContent h2 {
+
+
+  margin:0 0 18px;
+
+
+  font-size:32px;
+
+
+}
+
+
+
+.systemContent p {
+
+
+  color:#6b7276;
+
+
+  line-height:1.7;
+
+
+}
+
+
+
+.systemContent ul {
+
+
+  list-style:none;
+
+
+  padding:0;
+
+
+  margin:25px 0;
+
+
+}
+
+
+
+.systemContent li {
+
+
+  margin-bottom:12px;
+
+
+  color:#36413c;
+
+
+}
+
+
+
+.systemContent button {
+
+
+  width:100%;
+
+
+  padding:16px;
+
+
+  border:none;
+
+
+  border-radius:999px;
+
+
+  background:#214437;
+
+
+  color:white;
+
+
+  font-size:16px;
+
+
+  font-weight:700;
+
+
+}
+
+
+
+
+
+
+
+/* ================================
+   SAVE SETUP CTA
+================================ */
+
+
+
+.saveSection {
+
+
+  padding:120px 7%;
+
+
+  background:#1d2329;
+
+
+  color:white;
 
 
   text-align:center;
@@ -1126,29 +1485,94 @@ main {
 
 
 
-.ctaContent h2 {
+.saveSection h2 {
 
 
-  font-size:clamp(45px,6vw,75px);
+  margin:0 0 20px;
 
 
-  line-height:1.05;
+  font-size:
+
+  clamp(38px,5vw,56px);
 
 
 }
 
 
 
-.ctaContent p {
+.saveSection p {
+
+
+  color:#c8cfca;
 
 
   font-size:18px;
 
 
-  line-height:1.7;
+}
 
 
-  color:#c9d0cc;
+
+.emailBox {
+
+
+  max-width:520px;
+
+
+  margin:40px auto 0;
+
+
+  display:flex;
+
+
+  gap:12px;
+
+
+}
+
+
+
+.emailBox input {
+
+
+  flex:1;
+
+
+  padding:17px 22px;
+
+
+  border-radius:999px;
+
+
+  border:none;
+
+
+  font-size:15px;
+
+
+}
+
+
+
+.emailBox button {
+
+
+  padding:17px 28px;
+
+
+  border:none;
+
+
+  border-radius:999px;
+
+
+  background:white;
+
+
+  color:#1d2329;
+
+
+  font-weight:700;
 
 
 }
@@ -1159,9 +1583,10 @@ main {
 
 
 
-/* =================================
-   MOBILE
-================================= */
+/* ================================
+   MOBILE RESPONSIVE
+================================ */
+
 
 
 @media(max-width:1100px){
@@ -1170,7 +1595,7 @@ main {
 .vehicleGrid {
 
 
-grid-template-columns:repeat(2,1fr);
+  grid-template-columns:repeat(2,1fr);
 
 
 }
@@ -1188,11 +1613,13 @@ grid-template-columns:repeat(2,1fr);
 .header {
 
 
-top:24px;
+  left:5%;
 
-left:5%;
 
-right:5%;
+  right:5%;
+
+
+  top:24px;
 
 
 }
@@ -1202,19 +1629,7 @@ right:5%;
 .header nav {
 
 
-gap:15px;
-
-
-}
-
-
-
-.builderHero {
-
-
-height:650px;
-
-padding-left:5%;
+  gap:15px;
 
 
 }
@@ -1224,9 +1639,20 @@ padding-left:5%;
 .startContent {
 
 
-left:5%;
+  left:5%;
 
-right:5%;
+
+  right:5%;
+
+
+}
+
+
+
+.builderHero {
+
+
+  padding-left:5%;
 
 
 }
@@ -1236,7 +1662,7 @@ right:5%;
 .vehicleSection {
 
 
-padding:80px 5%;
+  padding:80px 5%;
 
 
 }
@@ -1246,7 +1672,7 @@ padding:80px 5%;
 .vehicleGrid {
 
 
-grid-template-columns:1fr;
+  grid-template-columns:1fr;
 
 
 }
@@ -1256,39 +1682,19 @@ grid-template-columns:1fr;
 .setupTopbar {
 
 
-height:auto;
+  height:auto;
 
 
-padding:22px 5%;
+  padding:22px 5%;
 
 
-flex-direction:column;
+  flex-direction:column;
 
 
-align-items:flex-start;
+  align-items:flex-start;
 
 
-gap:20px;
-
-
-}
-
-
-
-.setupProgress {
-
-
-font-size:11px;
-
-
-}
-
-
-
-.progressLine {
-
-
-width:20px;
+  gap:20px;
 
 
 }
@@ -1298,7 +1704,7 @@ width:20px;
 .setupHero {
 
 
-padding:75px 5%;
+  padding:75px 5%;
 
 
 }
@@ -1308,7 +1714,7 @@ padding:75px 5%;
 .styleSection {
 
 
-padding:60px 5% 80px;
+  padding:60px 5% 80px;
 
 
 }
@@ -1318,83 +1724,61 @@ padding:60px 5% 80px;
 .styleGrid {
 
 
-grid-template-columns:1fr;
+  grid-template-columns:1fr;
 
 
 }
 
 
 
-.styleCardContent {
+.systemSection {
 
 
-padding:25px;
-
-
-}
-
-
-
-.styleImage {
-
-
-height:230px;
+  padding:70px 5%;
 
 
 }
 
 
 
-}
-/* FIX STEP 02 IMAGE DISPLAY */
-
-.styleGrid {
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:28px;
-}
+.systemGrid {
 
 
-.styleCard {
-  overflow:hidden;
-  background:#ffffff;
-  border-radius:22px;
-  border:1px solid #ddd;
-}
+  grid-template-columns:1fr;
 
-
-.styleImage {
-
-  display:block;
-
-  width:100%;
-
-  height:280px;
-
-  overflow:hidden;
-
-  background:#ddd;
-
-}
-
-
-.styleImage img {
-
-  display:block;
-
-  width:100%;
-
-  height:100%;
-
-  object-fit:cover;
 
 }
 
 
 
+.systemContent {
 
-.styleCardContent {
 
-  padding:32px;
+  padding:25px;
+
+
+}
+
+
+
+.saveSection {
+
+
+  padding:80px 5%;
+
+
+}
+
+
+
+.emailBox {
+
+
+  flex-direction:column;
+
+
+}
+
+
 
 }
