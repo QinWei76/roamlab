@@ -1,9 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 
-/* =========================
+/* ========================================
    RESET
-========================= */
+======================================== */
 
 * {
   box-sizing: border-box;
@@ -11,9 +11,10 @@
 
 html,
 body {
+  width: 100%;
   margin: 0;
   padding: 0;
-  width: 100%;
+
   overflow-x: hidden;
 
   font-family: "Inter", Arial, sans-serif;
@@ -23,7 +24,7 @@ body {
 }
 
 body {
-  overflow-x: hidden;
+  min-height: 100vh;
 }
 
 a {
@@ -32,6 +33,7 @@ a {
 }
 
 img {
+  display: block;
   max-width: 100%;
 }
 
@@ -40,9 +42,9 @@ main {
 }
 
 
-/* =========================
+/* ========================================
    HEADER
-========================= */
+======================================== */
 
 .header {
   position: absolute;
@@ -89,9 +91,41 @@ main {
 }
 
 
-/* =========================
+/* ========================================
+   BUTTONS
+======================================== */
+
+.primaryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-top: 35px;
+  padding: 17px 32px;
+
+  border-radius: 999px;
+
+  background: #214437;
+  color: #ffffff;
+
+  font-size: 16px;
+  font-weight: 700;
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
+}
+
+.primaryButton:hover {
+  transform: translateY(-2px);
+
+  background: #2c5b49;
+}
+
+
+/* ========================================
    START HERE HERO
-========================= */
+======================================== */
 
 .startHero {
   position: relative;
@@ -166,41 +200,9 @@ main {
 }
 
 
-/* =========================
-   BUTTONS
-========================= */
-
-.primaryButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  margin-top: 35px;
-  padding: 17px 32px;
-
-  border-radius: 999px;
-
-  background: #214437;
-  color: #ffffff;
-
-  font-size: 16px;
-  font-weight: 700;
-
-  transition:
-    transform 0.2s ease,
-    background 0.2s ease;
-}
-
-.primaryButton:hover {
-  transform: translateY(-2px);
-
-  background: #2c5b49;
-}
-
-
-/* =========================
+/* ========================================
    JOURNEY SECTION
-========================= */
+======================================== */
 
 .journeySection {
   display: flex;
@@ -249,9 +251,9 @@ main {
 }
 
 
-/* =========================
+/* ========================================
    FIRST SETUP
-========================= */
+======================================== */
 
 .firstSetupSection {
   padding: 120px 7%;
@@ -302,9 +304,9 @@ main {
 }
 
 
-/* =========================
+/* ========================================
    UPGRADE GEAR
-========================= */
+======================================== */
 
 .upgradeSection {
   padding: 120px 7%;
@@ -355,9 +357,9 @@ main {
 }
 
 
-/* =========================
+/* ========================================
    COMPLETE SYSTEM
-========================= */
+======================================== */
 
 .completeSection {
   padding: 120px 7%;
@@ -408,9 +410,9 @@ main {
 }
 
 
-/* =========================
+/* ========================================
    CTA
-========================= */
+======================================== */
 
 .ctaSection {
   display: flex;
@@ -462,9 +464,9 @@ main {
 }
 
 
-/* =========================
-   GEAR BUILDER PAGE
-========================= */
+/* ========================================
+   GEAR BUILDER — STEP 01
+======================================== */
 
 .builderPage {
   width: 100%;
@@ -554,9 +556,9 @@ main {
 }
 
 
-/* =========================
+/* ========================================
    VEHICLE SELECT
-========================= */
+======================================== */
 
 .vehicleSection {
   width: 100%;
@@ -720,18 +722,80 @@ main {
 }
 
 
-/* =========================
-   SETUP PAGE
-========================= */
+/* ========================================
+   GEAR BUILDER — STEP 02
+======================================== */
 
 .setupPage {
+  width: 100%;
   min-height: 100vh;
 
   background: #f5f4f1;
 }
 
+
+/* TOP BAR */
+
+.setupTopbar {
+  width: 100%;
+  height: 80px;
+
+  padding: 0 7%;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  background: #f5f4f1;
+
+  border-bottom: 1px solid #dededb;
+}
+
+.backButton {
+  font-size: 15px;
+  font-weight: 600;
+
+  color: #1d2329;
+
+  transition: opacity 0.2s ease;
+}
+
+.backButton:hover {
+  opacity: 0.65;
+}
+
+
+/* PROGRESS */
+
+.setupProgress {
+  display: flex;
+  align-items: center;
+
+  gap: 14px;
+
+  font-size: 13px;
+
+  color: #969b9d;
+}
+
+.setupProgress .active {
+  color: #214437;
+
+  font-weight: 700;
+}
+
+.progressLine {
+  width: 40px;
+  height: 1px;
+
+  background: #cfd1ce;
+}
+
+
+/* STEP 02 HERO */
+
 .setupHero {
-  padding: 130px 7% 90px;
+  padding: 100px 7% 80px;
 
   background: #1d2329;
 
@@ -739,38 +803,58 @@ main {
 }
 
 .setupStep {
-  margin-bottom: 25px;
+  margin-bottom: 20px;
 
   font-size: 13px;
   font-weight: 700;
 
-  letter-spacing: 5px;
+  letter-spacing: 4px;
 
   color: #aab7ae;
+}
+
+.setupVehicle {
+  margin: 0 0 22px;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  letter-spacing: 2px;
+
+  color: #9ca6a0;
 }
 
 .setupHero h1 {
   margin: 0 0 25px;
 
-  max-width: 800px;
-
-  font-size: clamp(52px, 6vw, 82px);
+  font-size: clamp(52px, 6vw, 80px);
   line-height: 1.05;
+
+  font-weight: 800;
+
+  color: #ffffff;
 }
 
-.setupHero p {
-  margin: 0;
-
+.setupHero > p:last-child {
   max-width: 600px;
+
+  margin: 0;
 
   font-size: 19px;
   line-height: 1.7;
 
-  color: #d0d5d2;
+  color: #c8cfca;
 }
 
+
+/* CAMPING STYLE SECTION */
+
 .styleSection {
-  padding: 110px 7%;
+  width: 100%;
+
+  padding: 90px 7% 120px;
+
+  background: #f5f4f1;
 }
 
 .styleGrid {
@@ -778,64 +862,96 @@ main {
 
   grid-template-columns: repeat(2, minmax(0, 1fr));
 
-  gap: 30px;
+  gap: 24px;
+
+  max-width: 1200px;
 }
 
+
+/* STYLE CARD */
+
 .styleCard {
-  display: block;
+  display: flex;
+  flex-direction: column;
 
-  padding: 50px;
+  min-height: 340px;
 
-  border: 1px solid #dedede;
-  border-radius: 24px;
+  padding: 38px;
 
   background: #ffffff;
+
+  border: 1px solid #dedede;
+  border-radius: 20px;
 
   color: #1d2329;
 
   text-decoration: none;
 
   transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
 }
 
 .styleCard:hover {
   transform: translateY(-6px);
 
+  border-color: #bfc6c0;
+
   box-shadow:
     0 18px 45px rgba(0, 0, 0, 0.1);
 }
 
-.styleCard h2 {
-  margin: 0 0 18px;
+.styleNumber {
+  margin-bottom: 55px;
 
-  font-size: 36px;
+  font-size: 13px;
+  font-weight: 700;
+
+  letter-spacing: 3px;
+
+  color: #214437;
+}
+
+.styleCard h2 {
+  margin: 0 0 15px;
+
+  font-size: 32px;
+  line-height: 1.15;
+
+  color: #1d2329;
 }
 
 .styleCard p {
   margin: 0;
 
-  font-size: 17px;
+  max-width: 480px;
+
+  font-size: 16px;
   line-height: 1.7;
 
-  color: #70757a;
+  color: #6c7276;
 }
 
-.styleCard span {
-  display: inline-block;
+.styleChoose {
+  margin-top: auto;
 
-  margin-top: 30px;
+  padding-top: 30px;
 
+  font-size: 15px;
   font-weight: 700;
 
   color: #214437;
 }
 
+.styleChoose span {
+  margin-left: 6px;
+}
 
-/* =========================
+
+/* ========================================
    TABLET
-========================= */
+======================================== */
 
 @media (max-width: 1100px) {
 
@@ -853,11 +969,13 @@ main {
 }
 
 
-/* =========================
+/* ========================================
    MOBILE
-========================= */
+======================================== */
 
 @media (max-width: 800px) {
+
+  /* HEADER */
 
   .header {
     top: 24px;
@@ -881,6 +999,8 @@ main {
   }
 
 
+  /* START HERO */
+
   .startContent {
     left: 5%;
     right: 5%;
@@ -888,6 +1008,8 @@ main {
     max-width: none;
   }
 
+
+  /* BUILDER HERO */
 
   .builderHero {
     min-height: 620px;
@@ -899,6 +1021,8 @@ main {
     max-width: 90%;
   }
 
+
+  /* GENERAL CONTENT */
 
   .journeySection,
   .firstSetupGrid,
@@ -925,6 +1049,8 @@ main {
   }
 
 
+  /* VEHICLE */
+
   .vehicleSection {
     padding: 80px 5%;
   }
@@ -938,8 +1064,37 @@ main {
   }
 
 
+  /* STEP 02 */
+
+  .setupTopbar {
+    height: auto;
+
+    padding: 22px 5%;
+
+    flex-direction: column;
+    align-items: flex-start;
+
+    gap: 20px;
+  }
+
+  .setupProgress {
+    width: 100%;
+
+    gap: 10px;
+
+    font-size: 11px;
+  }
+
+  .progressLine {
+    width: 18px;
+  }
+
+  .setupHero {
+    padding: 75px 5%;
+  }
+
   .styleSection {
-    padding: 80px 5%;
+    padding: 60px 5% 80px;
   }
 
   .styleGrid {
@@ -947,13 +1102,17 @@ main {
   }
 
   .styleCard {
-    padding: 35px;
+    min-height: 300px;
+
+    padding: 32px;
+  }
+
+  .styleNumber {
+    margin-bottom: 40px;
   }
 
 
-  .setupHero {
-    padding: 110px 5% 75px;
-  }
+  /* CTA */
 
   .ctaSection {
     min-height: 520px;
