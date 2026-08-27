@@ -1,8 +1,8 @@
 "use client";
 
-import { Suspense } from "react";
-import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
 
 const budgets = [
@@ -10,21 +10,20 @@ const budgets = [
   {
     id: "essential",
     number: "01",
-    title: "Essential",
-    price: "$500 - $1,500",
+    title: "Essential Setup",
+    price: "$1,200+",
     description:
-      "Start simple. Build the basics for comfortable weekend adventures.",
+      "A simple starter setup for short trips and weekend adventures."
   },
 
 
   {
     id: "explorer",
     number: "02",
-    title: "Explorer",
-    price: "$1,500 - $5,000",
+    title: "Explorer Setup",
+    price: "$3,200+",
     description:
-      "A balanced system with the gear you actually need for real adventures.",
-    recommended: true,
+      "A balanced camping system with comfort and essential upgrades."
   },
 
 
@@ -32,26 +31,29 @@ const budgets = [
     id: "complete",
     number: "03",
     title: "Complete System",
-    price: "$5,000+",
+    price: "$6,500+",
     description:
-      "A full vehicle camping setup designed for longer journeys.",
-  },
+      "A full vehicle camping setup designed for longer journeys."
+  }
 
 ];
 
 
 
+
 function BudgetContent(){
+
 
   const searchParams = useSearchParams();
 
 
   const vehicle =
-    searchParams.get("vehicle") || "SUV";
+    searchParams.get("vehicle") || "suv";
 
 
   const style =
     searchParams.get("style") || "weekend";
+
 
 
 
@@ -61,7 +63,7 @@ function BudgetContent(){
 
 
 
-      {/* TOP BAR */}
+      {/* TOP */}
 
       <div className="setupTopbar">
 
@@ -70,7 +72,9 @@ function BudgetContent(){
           href={`/gear-builder/setup?vehicle=${vehicle}`}
           className="backButton"
         >
+
           ← Back
+
         </Link>
 
 
@@ -101,7 +105,10 @@ function BudgetContent(){
         </div>
 
 
+
       </div>
+
+
 
 
 
@@ -110,28 +117,35 @@ function BudgetContent(){
       {/* HERO */}
 
 
+
       <section className="setupHero">
 
 
         <div className="setupStep">
+
           STEP 03
+
         </div>
+
 
 
 
         <p className="setupVehicle">
 
-          {vehicle.toUpperCase()} · {style.toUpperCase()}
+          {vehicle.toUpperCase()}
+          {" · "}
+          {style.toUpperCase()}
 
         </p>
 
 
 
+
         <h1>
 
-          What's your
+          Choose your
           <br/>
-          budget?
+          camping budget.
 
         </h1>
 
@@ -139,10 +153,11 @@ function BudgetContent(){
 
         <p>
 
-          Choose your starting point and we will
-          build the right camping system for you.
+          Select a system level that matches
+          your adventure goals.
 
         </p>
+
 
 
       </section>
@@ -153,7 +168,10 @@ function BudgetContent(){
 
 
 
-      {/* BUDGET OPTIONS */}
+
+
+      {/* BUDGET CARDS */}
+
 
 
       <section className="styleSection">
@@ -163,7 +181,8 @@ function BudgetContent(){
 
 
 
-          {budgets.map((budget)=>(
+        {
+          budgets.map((budget)=>(
 
 
             <Link
@@ -176,6 +195,7 @@ function BudgetContent(){
 
 
               className="styleCard"
+
 
 
             >
@@ -228,12 +248,7 @@ function BudgetContent(){
 
                 <div className="styleChoose">
 
-
-                  {budget.recommended
-                    ? "Recommended →"
-                    : "Choose →"
-                  }
-
+                  Choose →
 
                 </div>
 
@@ -246,12 +261,14 @@ function BudgetContent(){
             </Link>
 
 
-          ))}
+
+          ))
+
+        }
 
 
 
         </div>
-
 
 
       </section>
@@ -259,7 +276,9 @@ function BudgetContent(){
 
 
 
+
     </main>
+
 
   );
 
@@ -278,7 +297,7 @@ export default function BudgetPage(){
 
       fallback={
 
-        <main className="setupPage">
+        <main>
 
           Loading...
 
@@ -288,7 +307,7 @@ export default function BudgetPage(){
 
     >
 
-      <BudgetContent/>
+      <BudgetContent />
 
     </Suspense>
 
