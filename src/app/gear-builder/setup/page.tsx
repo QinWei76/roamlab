@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
@@ -34,7 +35,7 @@ const styles = [
   },
 ];
 
-export default function SetupPage() {
+function SetupContent() {
   const searchParams = useSearchParams();
 
   const vehicle = searchParams.get("vehicle") || "SUV";
@@ -42,7 +43,6 @@ export default function SetupPage() {
   return (
     <main className="setupPage">
       {/* TOP BAR */}
-
       <div className="setupTopbar">
         <Link href="/gear-builder" className="backButton">
           ← Back
@@ -58,7 +58,6 @@ export default function SetupPage() {
       </div>
 
       {/* HERO */}
-
       <section className="setupHero">
         <div className="setupStep">STEP 02</div>
 
@@ -79,7 +78,6 @@ export default function SetupPage() {
       </section>
 
       {/* STYLE OPTIONS */}
-
       <section className="styleSection">
         <div className="styleGrid">
           {styles.map((style) => (
@@ -102,5 +100,30 @@ export default function SetupPage() {
         </div>
       </section>
     </main>
+  );
+}
+
+export default function SetupPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="setupPage">
+          <div
+            style={{
+              minHeight: "100vh",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "16px",
+              color: "#6c7276",
+            }}
+          >
+            Loading...
+          </div>
+        </main>
+      }
+    >
+      <SetupContent />
+    </Suspense>
   );
 }
