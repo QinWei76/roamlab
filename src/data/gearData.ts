@@ -6,48 +6,65 @@ export const gearData = {
     title: "Sleeping System",
 
     description:
-      "Build a comfortable sleeping setup inside your vehicle.",
+      "Create a comfortable sleeping setup inside your vehicle.",
 
 
-    products:[
+    products: [
 
       {
-        name:"Roofnest Sparrow XL",
 
-        price:"$3,395",
+        name: "Roofnest Sparrow XL",
 
-        image:"/gear/sleeping-roofnest.jpg",
+        price: "$3,395",
+
+        image: "/sleeping-roofnest.jpg",
 
         description:
-        "A premium rooftop sleeping system designed for SUV adventures.",
+          "A premium rooftop sleeping system designed for SUV adventures.",
 
-        features:[
+
+        features: [
+
           "Quick setup",
+
           "Weather protection",
+
           "Comfortable sleeping space"
+
         ],
 
-        link:"#"
+
+        link: "#"
+
       },
 
 
+
       {
-        name:"Exped MegaMat Duo",
 
-        price:"$349",
+        name: "Exped MegaMat Duo",
 
-        image:"/gear/sleeping-mattress.jpg",
+        price: "$349",
+
+        image: "/sleeping-mattress.jpg",
 
         description:
-        "A high comfort camping mattress for vehicle camping.",
+          "A high comfort camping mattress built for vehicle camping.",
 
-        features:[
+
+        features: [
+
           "Large sleeping area",
+
           "Insulated design",
+
           "Compact storage"
+
         ],
 
-        link:"#"
+
+        link: "#"
+
       }
 
 
@@ -59,45 +76,59 @@ export const gearData = {
 
 
 
-  power:{
 
 
-    title:"Power System",
+  power: {
+
+
+    title: "Power System",
 
 
     description:
-    "Keep your devices powered anywhere you travel.",
+      "Keep your devices powered wherever you travel.",
 
 
 
-    products:[
+    products: [
+
 
       {
 
-        name:"EcoFlow DELTA 2",
 
-        price:"$999",
+        name: "EcoFlow DELTA 2",
 
-        image:"/gear/power-ecoflow.jpg",
+
+        price: "$999",
+
+
+        image: "/power-ecoflow.jpg",
+
 
 
         description:
-        "Portable power station for camping and off-grid travel.",
+          "Portable power station for camping and off-grid travel.",
 
 
-        features:[
+
+        features: [
+
           "Fast charging",
+
           "Solar compatible",
+
           "Multiple outputs"
+
         ],
 
 
-        link:"#"
+        link: "#"
+
 
       }
 
 
     ]
+
 
   },
 
@@ -106,45 +137,61 @@ export const gearData = {
 
 
 
-  cooking:{
 
 
-    title:"Cooking System",
+
+  cooking: {
+
+
+    title: "Cooking System",
 
 
     description:
-    "Create a simple outdoor kitchen setup.",
+      "Create a simple outdoor kitchen setup.",
 
 
 
-    products:[
+    products: [
+
+
 
       {
 
-        name:"Jetboil Genesis Basecamp",
+        name: "Jetboil Genesis Basecamp",
 
-        price:"$399",
 
-        image:"/gear/cooking-stove.jpg",
+        price: "$399",
+
+
+        image: "/cooking-stove.jpg",
+
 
 
         description:
-        "Compact cooking system built for outdoor meals.",
+          "Compact cooking system built for outdoor meals.",
 
 
-        features:[
+
+        features: [
+
           "Portable stove",
+
           "Efficient fuel use",
+
           "Easy storage"
+
         ],
 
 
-        link:"#"
+
+        link: "#"
+
 
       }
 
 
     ]
+
 
   },
 
@@ -154,45 +201,60 @@ export const gearData = {
 
 
 
-  storage:{
 
 
-    title:"Storage System",
+  storage: {
+
+
+    title: "Storage System",
 
 
     description:
-    "Organize your vehicle gear efficiently.",
+      "Organize your vehicle gear efficiently.",
 
 
 
-    products:[
+    products: [
+
+
 
       {
 
-        name:"Front Runner Wolf Pack",
+        name: "Front Runner Wolf Pack",
 
-        price:"$79",
 
-        image:"/gear/storage-box.jpg",
+        price: "$79",
+
+
+        image: "/storage-box.jpg",
+
 
 
         description:
-        "Modular storage boxes for vehicle organization.",
+          "Modular storage boxes for vehicle organization.",
 
 
-        features:[
+
+        features: [
+
           "Stackable",
+
           "Durable",
+
           "Easy organization"
+
         ],
 
 
-        link:"#"
+
+        link: "#"
+
 
       }
 
 
     ]
+
 
   },
 
@@ -203,47 +265,62 @@ export const gearData = {
 
 
 
-  lighting:{
+
+  lighting: {
 
 
-    title:"Lighting System",
+    title: "Lighting System",
 
 
     description:
-    "Create a reliable campsite lighting setup.",
+      "Create a reliable campsite lighting setup.",
 
 
 
-    products:[
+    products: [
+
+
 
       {
 
-        name:"Goal Zero Light Kit",
+        name: "Goal Zero Light Kit",
 
-        price:"$99",
 
-        image:"/gear/lighting-kit.jpg",
+        price: "$99",
+
+
+        image: "/lighting-kit.jpg",
+
 
 
         description:
-        "Portable lighting system for evening adventures.",
+          "Portable lighting system for evening adventures.",
 
 
-        features:[
+
+        features: [
+
           "Rechargeable",
+
           "Portable",
+
           "Long runtime"
+
         ],
 
 
-        link:"#"
+
+        link: "#"
+
 
       }
 
 
     ]
+
 
   }
+
 
 
 };
