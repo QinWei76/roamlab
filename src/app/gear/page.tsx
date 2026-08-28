@@ -1,49 +1,44 @@
 import Image from "next/image";
 import Link from "next/link";
 
-const gearSystems = [
+const systems = [
   {
     number: "01",
     title: "Sleeping",
-    subtitle: "Build a better night outdoors.",
     description:
-      "Tents, mattresses and complete sleeping systems for comfortable vehicle camping.",
+      "Build a comfortable sleep system for better nights on the road.",
     image: "/sleeping.jpg",
     href: "/gear/sleeping",
   },
   {
     number: "02",
     title: "Power",
-    subtitle: "Stay powered wherever you camp.",
     description:
-      "Portable power stations, batteries and charging systems for life off-grid.",
+      "Keep your devices, lights and essentials running anywhere.",
     image: "/power.jpg",
     href: "/gear/power",
   },
   {
     number: "03",
     title: "Cooking",
-    subtitle: "Build a practical camp kitchen.",
     description:
-      "Stoves, cooking gear and simple systems for making better meals outdoors.",
+      "Create a simple and practical camp kitchen for every trip.",
     image: "/cooking.jpg",
     href: "/gear/cooking",
   },
   {
     number: "04",
     title: "Storage",
-    subtitle: "Keep your setup organized.",
     description:
-      "Smart storage systems that help you carry more without creating chaos.",
+      "Organize your gear so your vehicle works better as a system.",
     image: "/storage.jpg",
     href: "/gear/storage",
   },
   {
     number: "05",
     title: "Lighting",
-    subtitle: "Light your camp properly.",
     description:
-      "Lanterns, ambient lighting and practical systems for better nights outdoors.",
+      "Build a reliable lighting setup for camp, vehicle and night use.",
     image: "/lighting.jpg",
     href: "/gear/lighting",
   },
@@ -54,58 +49,83 @@ export default function GearLabPage() {
     <main className="gearLabPage">
       {/* HERO */}
       <section className="gearLabHero">
-        <div className="gearLabHeroInner">
-          <p className="gearLabEyebrow">ROAMLAB · GEAR LAB</p>
+        <Image
+          src="/complete-system.jpg"
+          alt="Complete vehicle camping system"
+          fill
+          priority
+          className="gearLabHeroImage"
+        />
+
+        <div className="gearLabOverlay" />
+
+        {/* HEADER */}
+        <header className="gearLabHeader">
+          <Link href="/" className="gearLabLogo">
+            ROAMLAB
+          </Link>
+
+          <nav className="gearLabNav">
+            <Link href="/">Home</Link>
+            <Link href="/start-here">Start Here</Link>
+            <Link href="/gear-builder">Gear Builder</Link>
+            <Link href="/gear">Gear Lab</Link>
+          </nav>
+        </header>
+
+        {/* HERO CONTENT */}
+        <div className="gearLabHeroContent">
+          <p className="gearLabEyebrow">
+            ROAMLAB · GEAR LAB
+          </p>
 
           <h1>
             Build Better
             <br />
-            Camping Systems.
+            Camping
+            <br />
+            Systems.
           </h1>
 
-          <p className="gearLabHeroText">
+          <p className="gearLabDescription">
             Explore the essential systems behind a comfortable,
             capable and well-organized vehicle camping setup.
           </p>
 
-          <div className="gearLabScroll">
-            <span>EXPLORE SYSTEMS</span>
-            <span className="gearLabArrow">↓</span>
-          </div>
-        </div>
-      </section>
-
-      {/* INTRO */}
-      <section className="gearLabIntro">
-        <div className="gearLabIntroLabel">
-          <span>THE SYSTEM APPROACH</span>
-        </div>
-
-        <div className="gearLabIntroContent">
-          <h2>
-            Great camping setups
-            <br />
-            are built in systems.
-          </h2>
-
-          <p>
-            Instead of buying random gear, build your setup one system
-            at a time. Start with what you actually need, understand how
-            each piece works together, and upgrade when your adventures
-            demand more.
-          </p>
+          <a
+            href="#systems"
+            className="gearLabExploreButton"
+          >
+            Explore Systems ↓
+          </a>
         </div>
       </section>
 
       {/* SYSTEMS */}
-      <section className="gearSystemsSection">
-        <div className="gearSystemsHeader">
-          <p>EXPLORE THE LAB</p>
-          <span>05 CORE SYSTEMS</span>
+      <section
+        id="systems"
+        className="gearSystemsSection"
+      >
+        <div className="gearSystemsIntro">
+          <p className="gearSystemsEyebrow">
+            THE SYSTEM
+          </p>
+
+          <h2>
+            Every great setup
+            <br />
+            starts with the essentials.
+          </h2>
+
+          <p>
+            Build your camping system one layer at a time.
+            Start with what matters most, then upgrade as
+            your adventures grow.
+          </p>
         </div>
 
-        <div className="gearSystemsList">
-          {gearSystems.map((system) => (
+        <div className="gearSystemsGrid">
+          {systems.map((system) => (
             <Link
               key={system.title}
               href={system.href}
@@ -116,377 +136,441 @@ export default function GearLabPage() {
                   src={system.image}
                   alt={system.title}
                   fill
-                  className="gearSystemImg"
+                  className="gearSystemImageContent"
                 />
+
+                <div className="gearSystemImageOverlay" />
+
+                <span className="gearSystemNumber">
+                  {system.number}
+                </span>
               </div>
 
-              <div className="gearSystemInfo">
-                <span className="gearSystemNumber">{system.number}</span>
+              <div className="gearSystemContent">
+                <h3>{system.title}</h3>
 
-                <div className="gearSystemText">
-                  <h3>{system.title}</h3>
+                <p>{system.description}</p>
 
-                  <h4>{system.subtitle}</h4>
-
-                  <p>{system.description}</p>
-                </div>
-
-                <div className="gearSystemAction">
-                  Explore
-                  <span>→</span>
-                </div>
+                <span className="gearSystemLink">
+                  Explore System →
+                </span>
               </div>
             </Link>
           ))}
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="gearLabCta">
+      {/* FINAL CTA */}
+      <section className="gearLabCTA">
         <div>
-          <p>NOT SURE WHERE TO START?</p>
+          <p className="gearLabCTAEyebrow">
+            READY TO BUILD?
+          </p>
 
           <h2>
-            Let RoamLab help build
+            Build Your
             <br />
-            your complete setup.
+            Complete System.
           </h2>
-        </div>
 
-        <Link href="/gear-builder" className="gearLabCtaButton">
-          Try Gear Builder
-          <span>→</span>
-        </Link>
+          <p>
+            Start with your vehicle. Choose your camping style.
+            Build the gear system that fits your adventures.
+          </p>
+
+          <Link
+            href="/gear-builder"
+            className="gearLabCTAButton"
+          >
+            Start Building →
+          </Link>
+        </div>
       </section>
 
       <style>{`
         .gearLabPage {
           width: 100%;
-          background: #f3f2ee;
-          color: #1b2924;
           overflow-x: hidden;
+          background: #f4f3ef;
+          color: #202a26;
         }
 
         /* HERO */
 
         .gearLabHero {
-          min-height: 650px;
-          padding: 150px 7% 100px;
-          display: flex;
-          align-items: center;
-          background:
-            radial-gradient(
-              circle at 80% 20%,
-              rgba(107, 131, 112, 0.18),
-              transparent 35%
-            ),
-            #17231f;
-          color: white;
+          position: relative;
+          min-height: 760px;
+          height: 100vh;
+          max-height: 950px;
+          overflow: hidden;
+          isolation: isolate;
         }
 
-        .gearLabHeroInner {
-          max-width: 900px;
+        .gearLabHeroImage {
+          object-fit: cover;
+          object-position: center;
+          z-index: -2;
+        }
+
+        .gearLabOverlay {
+          position: absolute;
+          inset: 0;
+          background:
+            linear-gradient(
+              90deg,
+              rgba(8, 17, 14, 0.88) 0%,
+              rgba(8, 17, 14, 0.65) 40%,
+              rgba(8, 17, 14, 0.22) 75%,
+              rgba(8, 17, 14, 0.08) 100%
+            );
+          z-index: -1;
+        }
+
+        /* HEADER */
+
+        .gearLabHeader {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          padding: 30px 68px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          box-sizing: border-box;
+          z-index: 10;
+        }
+
+        .gearLabLogo {
+          color: #ffffff;
+          text-decoration: none;
+          font-size: 24px;
+          font-weight: 800;
+          letter-spacing: 3px;
+        }
+
+        .gearLabNav {
+          display: flex;
+          align-items: center;
+          gap: 36px;
+        }
+
+        .gearLabNav a {
+          color: rgba(255, 255, 255, 0.88);
+          text-decoration: none;
+          font-size: 14px;
+          font-weight: 500;
+          transition: opacity 0.2s ease;
+        }
+
+        .gearLabNav a:hover {
+          opacity: 0.65;
+        }
+
+        /* HERO CONTENT */
+
+        .gearLabHeroContent {
+          position: relative;
+          z-index: 2;
+          width: min(680px, calc(100% - 120px));
+          margin-left: 68px;
+          padding-top: 220px;
+          color: #ffffff;
         }
 
         .gearLabEyebrow {
           margin: 0 0 28px;
           font-size: 11px;
           font-weight: 700;
-          letter-spacing: 3px;
-          color: rgba(255, 255, 255, 0.55);
+          letter-spacing: 4px;
+          color: rgba(255, 255, 255, 0.62);
         }
 
-        .gearLabHero h1 {
+        .gearLabHeroContent h1 {
           margin: 0;
-          font-size: clamp(58px, 8vw, 108px);
+          font-size: clamp(58px, 6vw, 92px);
           line-height: 0.98;
           letter-spacing: -4px;
-          font-weight: 700;
+          font-weight: 750;
+          color: #ffffff;
         }
 
-        .gearLabHeroText {
+        .gearLabDescription {
+          margin: 34px 0 0;
           max-width: 560px;
-          margin: 32px 0 0;
           font-size: 18px;
-          line-height: 1.7;
-          color: rgba(255, 255, 255, 0.68);
+          line-height: 1.65;
+          color: rgba(255, 255, 255, 0.78);
         }
 
-        .gearLabScroll {
-          margin-top: 70px;
-          display: flex;
+        .gearLabExploreButton {
+          display: inline-flex;
           align-items: center;
-          gap: 18px;
-          font-size: 10px;
+          margin-top: 38px;
+          padding: 15px 26px;
+          border-radius: 999px;
+          background: #ffffff;
+          color: #17221e;
+          text-decoration: none;
+          font-size: 14px;
           font-weight: 700;
-          letter-spacing: 2px;
-          color: rgba(255, 255, 255, 0.55);
+          transition:
+            transform 0.2s ease,
+            background 0.2s ease;
         }
 
-        .gearLabArrow {
-          font-size: 18px;
+        .gearLabExploreButton:hover {
+          transform: translateY(-2px);
+          background: #e8ece7;
         }
 
-        /* INTRO */
-
-        .gearLabIntro {
-          padding: 130px 7%;
-          display: grid;
-          grid-template-columns: 1fr 2fr;
-          gap: 100px;
-          max-width: 1500px;
-          margin: 0 auto;
-        }
-
-        .gearLabIntroLabel {
-          padding-top: 10px;
-          font-size: 10px;
-          font-weight: 700;
-          letter-spacing: 2px;
-          color: #6b7d73;
-        }
-
-        .gearLabIntroContent h2 {
-          margin: 0;
-          font-size: clamp(42px, 5vw, 70px);
-          line-height: 1.05;
-          letter-spacing: -2.5px;
-          font-weight: 600;
-        }
-
-        .gearLabIntroContent p {
-          max-width: 620px;
-          margin: 36px 0 0;
-          font-size: 18px;
-          line-height: 1.8;
-          color: #65706b;
-        }
-
-        /* SYSTEMS */
+        /* SYSTEM INTRO */
 
         .gearSystemsSection {
-          padding: 20px 7% 130px;
-          max-width: 1500px;
-          margin: 0 auto;
+          padding: 120px 68px;
+          background: #f4f3ef;
         }
 
-        .gearSystemsHeader {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding-bottom: 24px;
-          border-bottom: 1px solid #d5d8d3;
-          font-size: 10px;
+        .gearSystemsIntro {
+          max-width: 760px;
+          margin-bottom: 70px;
+        }
+
+        .gearSystemsEyebrow {
+          margin: 0 0 22px;
+          font-size: 11px;
           font-weight: 700;
-          letter-spacing: 2px;
-          color: #6c7771;
+          letter-spacing: 3px;
+          color: #65736c;
         }
 
-        .gearSystemsHeader p {
+        .gearSystemsIntro h2 {
           margin: 0;
+          font-size: clamp(42px, 5vw, 68px);
+          line-height: 1.05;
+          letter-spacing: -2px;
+          color: #202a26;
         }
 
-        .gearSystemsList {
-          display: flex;
-          flex-direction: column;
+        .gearSystemsIntro > p:last-child {
+          margin: 30px 0 0;
+          max-width: 620px;
+          font-size: 17px;
+          line-height: 1.7;
+          color: #65736c;
+        }
+
+        /* SYSTEM GRID */
+
+        .gearSystemsGrid {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 24px;
         }
 
         .gearSystemCard {
-          display: grid;
-          grid-template-columns: 42% 1fr;
-          min-height: 360px;
-          text-decoration: none;
+          display: block;
+          overflow: hidden;
+          border-radius: 4px;
+          background: #ffffff;
           color: inherit;
-          border-bottom: 1px solid #d5d8d3;
-          transition: background 0.25s ease;
+          text-decoration: none;
+          transition:
+            transform 0.25s ease,
+            box-shadow 0.25s ease;
         }
 
         .gearSystemCard:hover {
-          background: rgba(255, 255, 255, 0.45);
+          transform: translateY(-6px);
+          box-shadow: 0 18px 45px rgba(0, 0, 0, 0.1);
         }
 
         .gearSystemImage {
           position: relative;
-          min-height: 360px;
+          height: 280px;
           overflow: hidden;
+          background: #1b2621;
         }
 
-        .gearSystemImg {
+        .gearSystemImageContent {
           object-fit: cover;
-          transition: transform 0.6s ease;
+          transition: transform 0.5s ease;
         }
 
-        .gearSystemCard:hover .gearSystemImg {
+        .gearSystemCard:hover .gearSystemImageContent {
           transform: scale(1.05);
         }
 
-        .gearSystemInfo {
-          padding: 55px 55px;
-          display: grid;
-          grid-template-columns: 60px 1fr auto;
-          gap: 20px;
-          align-items: start;
+        .gearSystemImageOverlay {
+          position: absolute;
+          inset: 0;
+          background:
+            linear-gradient(
+              180deg,
+              rgba(0, 0, 0, 0.05),
+              rgba(0, 0, 0, 0.35)
+            );
         }
 
         .gearSystemNumber {
+          position: absolute;
+          top: 20px;
+          left: 20px;
           font-size: 11px;
-          letter-spacing: 2px;
-          color: #7b8781;
-          padding-top: 8px;
-        }
-
-        .gearSystemText h3 {
-          margin: 0;
-          font-size: clamp(38px, 4vw, 58px);
-          line-height: 1;
-          letter-spacing: -2px;
-          font-weight: 600;
-        }
-
-        .gearSystemText h4 {
-          margin: 14px 0 0;
-          font-size: 15px;
-          font-weight: 500;
-          color: #3d5148;
-        }
-
-        .gearSystemText p {
-          max-width: 500px;
-          margin: 22px 0 0;
-          font-size: 15px;
-          line-height: 1.7;
-          color: #737c77;
-        }
-
-        .gearSystemAction {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding-top: 10px;
-          font-size: 12px;
           font-weight: 700;
-          color: #365246;
-          white-space: nowrap;
+          letter-spacing: 3px;
+          color: #ffffff;
         }
 
-        .gearSystemAction span {
-          font-size: 18px;
-          transition: transform 0.2s ease;
+        .gearSystemContent {
+          padding: 30px;
         }
 
-        .gearSystemCard:hover .gearSystemAction span {
-          transform: translateX(5px);
+        .gearSystemContent h3 {
+          margin: 0;
+          font-size: 30px;
+          letter-spacing: -0.8px;
+          color: #202a26;
+        }
+
+        .gearSystemContent p {
+          margin: 16px 0 24px;
+          min-height: 54px;
+          font-size: 15px;
+          line-height: 1.6;
+          color: #65736c;
+        }
+
+        .gearSystemLink {
+          font-size: 14px;
+          font-weight: 700;
+          color: #28473c;
+        }
+
+        /* LAST TWO CARDS */
+
+        .gearSystemCard:nth-child(4) {
+          grid-column: span 1;
+        }
+
+        .gearSystemCard:nth-child(5) {
+          grid-column: span 1;
         }
 
         /* CTA */
 
-        .gearLabCta {
-          margin: 0 7% 100px;
-          padding: 80px;
-          display: flex;
-          justify-content: space-between;
-          align-items: end;
-          gap: 50px;
-          background: #20332b;
-          color: white;
+        .gearLabCTA {
+          padding: 130px 68px;
+          background: #15231e;
+          color: #ffffff;
         }
 
-        .gearLabCta p {
-          margin: 0 0 18px;
-          font-size: 10px;
+        .gearLabCTA > div {
+          max-width: 760px;
+        }
+
+        .gearLabCTAEyebrow {
+          margin: 0 0 24px;
+          font-size: 11px;
           font-weight: 700;
-          letter-spacing: 2px;
-          color: rgba(255,255,255,0.5);
+          letter-spacing: 3px;
+          color: rgba(255, 255, 255, 0.45);
         }
 
-        .gearLabCta h2 {
+        .gearLabCTA h2 {
           margin: 0;
-          font-size: clamp(32px, 4vw, 55px);
-          line-height: 1.1;
-          letter-spacing: -1.8px;
-          font-weight: 500;
+          font-size: clamp(48px, 6vw, 76px);
+          line-height: 1.03;
+          letter-spacing: -3px;
         }
 
-        .gearLabCtaButton {
+        .gearLabCTA p {
+          margin: 28px 0 0;
+          max-width: 620px;
+          font-size: 17px;
+          line-height: 1.7;
+          color: rgba(255, 255, 255, 0.65);
+        }
+
+        .gearLabCTAButton {
           display: inline-flex;
-          align-items: center;
-          gap: 18px;
-          padding: 17px 24px;
-          background: white;
-          color: #1c2c25;
+          margin-top: 36px;
+          padding: 16px 28px;
+          border-radius: 999px;
+          background: #ffffff;
+          color: #17221e;
           text-decoration: none;
-          font-size: 13px;
+          font-size: 15px;
           font-weight: 700;
-          white-space: nowrap;
           transition: transform 0.2s ease;
         }
 
-        .gearLabCtaButton:hover {
-          transform: translateY(-3px);
+        .gearLabCTAButton:hover {
+          transform: translateY(-2px);
         }
 
-        .gearLabCtaButton span {
-          font-size: 18px;
+        /* TABLET */
+
+        @media (max-width: 1000px) {
+          .gearSystemsGrid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
         }
 
         /* MOBILE */
 
-        @media (max-width: 900px) {
+        @media (max-width: 768px) {
           .gearLabHero {
-            min-height: 560px;
-            padding: 120px 24px 80px;
+            min-height: 700px;
           }
 
-          .gearLabHero h1 {
+          .gearLabHeader {
+            padding: 24px;
+          }
+
+          .gearLabNav {
+            gap: 16px;
+          }
+
+          .gearLabNav a {
+            font-size: 12px;
+          }
+
+          .gearLabHeroContent {
+            width: auto;
+            margin: 0 24px;
+            padding-top: 200px;
+          }
+
+          .gearLabHeroContent h1 {
+            font-size: 58px;
             letter-spacing: -2.5px;
           }
 
-          .gearLabIntro {
-            padding: 80px 24px;
-            grid-template-columns: 1fr;
-            gap: 28px;
+          .gearLabDescription {
+            font-size: 16px;
           }
 
           .gearSystemsSection {
-            padding: 20px 24px 80px;
+            padding: 80px 24px;
           }
 
-          .gearSystemCard {
+          .gearSystemsGrid {
             grid-template-columns: 1fr;
           }
 
-          .gearSystemImage {
-            min-height: 260px;
-          }
-
-          .gearSystemInfo {
-            padding: 35px 0 45px;
-            grid-template-columns: 45px 1fr;
-          }
-
-          .gearSystemAction {
-            grid-column: 2;
-          }
-
-          .gearLabCta {
-            margin: 0 24px 70px;
-            padding: 45px 30px;
-            flex-direction: column;
-            align-items: flex-start;
+          .gearLabCTA {
+            padding: 90px 24px;
           }
         }
 
         @media (max-width: 560px) {
-          .gearLabHero h1 {
-            font-size: 54px;
-          }
-
-          .gearSystemText h3 {
-            font-size: 42px;
-          }
-
-          .gearSystemsHeader span {
+          .gearLabNav {
             display: none;
+          }
+
+          .gearLabHeroContent h1 {
+            font-size: 50px;
           }
         }
       `}</style>
