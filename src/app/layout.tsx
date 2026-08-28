@@ -4,8 +4,7 @@ import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: "RoamLab",
-  description:
-    "Build smarter vehicle camping systems.",
+  description: "Build smarter vehicle camping systems.",
 };
 
 export default function RootLayout({
@@ -17,7 +16,6 @@ export default function RootLayout({
     <html lang="en">
       <body>
         {children}
-
         <Footer />
       </body>
     </html>
