@@ -3,7 +3,7 @@ export const gearData = {
     title: "Sleeping System",
 
     description:
-      "Create a comfortable sleeping setup inside your vehicle.",
+      "Build a comfortable sleeping setup for nights on the road.",
 
     products: [
       {
@@ -16,7 +16,7 @@ export const gearData = {
         image: "/sleeping-roofnest.jpg",
 
         description:
-          "A premium rooftop sleeping system designed for SUV adventures.",
+          "A premium rooftop sleeping system designed for SUV adventures and comfortable overnight camping.",
 
         features: [
           "Quick setup",
@@ -35,7 +35,7 @@ export const gearData = {
         image: "/sleeping-mattress.jpg",
 
         description:
-          "A high comfort camping mattress built for vehicle camping.",
+          "A high-comfort insulated camping mattress designed for vehicle camping and extended trips.",
 
         features: [
           "Large sleeping area",
@@ -50,7 +50,7 @@ export const gearData = {
     title: "Power System",
 
     description:
-      "Keep your devices powered wherever you travel.",
+      "Keep your devices, lights and camping equipment powered wherever you travel.",
 
     products: [
       {
@@ -63,12 +63,12 @@ export const gearData = {
         image: "/power-ecoflow.jpg",
 
         description:
-          "Portable power station for camping and off-grid travel.",
+          "A portable power station built for camping, road trips and off-grid adventures.",
 
         features: [
           "Fast charging",
           "Solar compatible",
-          "Multiple outputs",
+          "Multiple power outputs",
         ],
       },
     ],
@@ -78,7 +78,7 @@ export const gearData = {
     title: "Cooking System",
 
     description:
-      "Create a simple outdoor kitchen setup.",
+      "Create a simple and capable outdoor kitchen for your camping setup.",
 
     products: [
       {
@@ -91,10 +91,10 @@ export const gearData = {
         image: "/cooking-stove.jpg",
 
         description:
-          "Compact cooking system built for outdoor meals.",
+          "A compact cooking system designed for vehicle camping, road trips and outdoor meals.",
 
         features: [
-          "Portable stove",
+          "Portable stove system",
           "Efficient fuel use",
           "Easy storage",
         ],
@@ -106,7 +106,7 @@ export const gearData = {
     title: "Storage System",
 
     description:
-      "Organize your vehicle gear efficiently.",
+      "Organize your camping equipment and keep your vehicle setup efficient.",
 
     products: [
       {
@@ -119,11 +119,11 @@ export const gearData = {
         image: "/storage-box.jpg",
 
         description:
-          "Modular storage boxes for vehicle organization.",
+          "A modular storage solution designed to keep camping gear organized and easy to access.",
 
         features: [
-          "Stackable",
-          "Durable",
+          "Stackable design",
+          "Durable construction",
           "Easy organization",
         ],
       },
@@ -134,7 +134,7 @@ export const gearData = {
     title: "Lighting System",
 
     description:
-      "Create a reliable campsite lighting setup.",
+      "Create a reliable and comfortable lighting setup for evenings at camp.",
 
     products: [
       {
@@ -147,11 +147,11 @@ export const gearData = {
         image: "/lighting-kit.jpg",
 
         description:
-          "Portable lighting system for evening adventures.",
+          "A portable lighting system designed to make your campsite brighter, safer and more comfortable.",
 
         features: [
-          "Rechargeable",
-          "Portable",
+          "Rechargeable power",
+          "Portable design",
           "Long runtime",
         ],
       },
