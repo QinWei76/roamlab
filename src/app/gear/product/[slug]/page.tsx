@@ -321,18 +321,14 @@ export default function ProductPage(){
 
 
 
-
-            <a
-
-              href={product.link}
-
-              className="gearButton"
-
-            >
-
-              Check Latest Price →
-
-            </a>
+ <a
+  href={product.amazonLink}
+  className="gearButton"
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  Check Latest Price →
+</a>
 
 
 
