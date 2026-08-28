@@ -1,179 +1,176 @@
-"use client";
+export const products = {
+  "roofnest-sparrow-xl": {
+    name: "Roofnest Sparrow XL",
+    category: "Sleeping System",
+    price: "$3,395",
+    image: "/sleeping-roofnest.jpg",
 
-import { useParams } from "next/navigation";
-import Link from "next/link";
+    description:
+      "A premium rooftop tent designed for SUV camping and weekend adventures.",
 
-import { products } from "@/data/products";
+    recommendation:
+      "Best for campers who want a fast, comfortable sleeping setup without building a permanent interior system.",
 
-export default function ProductPage() {
-  const params = useParams();
+    features: [
+      "Quick setup rooftop design",
+      "Weather resistant construction",
+      "Comfortable sleeping space",
+      "Ideal for SUV adventures",
+    ],
 
-  const slug = params.slug as keyof typeof products;
+    pros: [
+      "Fast deployment",
+      "Premium build quality",
+      "Saves interior vehicle space",
+    ],
 
-  const product = products[slug];
+    amazonLink: "#",
+    brandLink: "#",
+    similarLink: "/gear/sleeping",
+  },
 
-  if (!product) {
-    return (
-      <main className="productPage">
-        <section className="productHero">
-          <div className="productHeroContent">
-            <Link
-              href="/gear-builder/result"
-              className="backButton"
-            >
-              ← Back to System
-            </Link>
+  "exped-megamat-duo": {
+    name: "Exped MegaMat Duo",
+    category: "Sleeping System",
+    price: "$349",
+    image: "/sleeping-mattress.jpg",
 
-            <p className="productCategory">
-              GEAR LAB
-            </p>
+    description:
+      "A high comfort insulated camping mattress designed for vehicle camping.",
 
-            <h1>Product Not Found</h1>
+    recommendation:
+      "Great choice for travelers who want home-level sleeping comfort inside their vehicle.",
 
-            <p className="productDescription">
-              The product you are looking for does not exist.
-            </p>
-          </div>
-        </section>
-      </main>
-    );
-  }
+    features: [
+      "Extra thick insulation",
+      "Large sleeping area",
+      "Compact storage",
+    ],
 
-  return (
-    <main className="productPage">
+    pros: [
+      "Very comfortable",
+      "Warm in cold conditions",
+      "Easy to pack",
+    ],
 
-      {/* HERO */}
+    amazonLink: "#",
+    brandLink: "#",
+    similarLink: "/gear/sleeping",
+  },
 
-      <section className="productHero">
-        <div className="productHeroContent">
+  "ecoflow-delta-2": {
+    name: "EcoFlow DELTA 2",
+    category: "Power System",
+    price: "$999",
+    image: "/power-ecoflow.jpg",
 
-          <Link
-            href="/gear-builder/result"
-            className="backButton"
-          >
-            ← Back to System
-          </Link>
+    description:
+      "A portable power station built for camping, travel and off-grid adventures.",
 
-          <p className="productCategory">
-            {product.category}
-          </p>
+    recommendation:
+      "A reliable power solution for charging devices, lights and camping equipment.",
 
-          <h1>
-            {product.name}
-          </h1>
+    features: [
+      "Fast charging",
+      "Solar compatible",
+      "Multiple power outputs",
+    ],
 
-          <p className="productDescription">
-            {product.description}
-          </p>
+    pros: [
+      "High capacity",
+      "Portable",
+      "Expandable battery",
+    ],
 
-        </div>
-      </section>
+    amazonLink: "#",
+    brandLink: "#",
+    similarLink: "/gear/power",
+  },
 
+  "jetboil-genesis": {
+    name: "Jetboil Genesis Basecamp",
+    category: "Cooking System",
+    price: "$399",
+    image: "/cooking-stove.jpg",
 
-      {/* PRODUCT DETAIL */}
+    description:
+      "A compact cooking system designed for outdoor meals and vehicle camping.",
 
-      <section className="productDetail">
+    recommendation:
+      "Perfect for campers who want a simple but capable outdoor kitchen.",
 
-        <div className="productGrid">
+    features: [
+      "Portable stove system",
+      "Efficient fuel usage",
+      "Easy storage",
+    ],
 
-          {/* IMAGE */}
+    pros: [
+      "Compact design",
+      "Fast cooking",
+      "Outdoor tested",
+    ],
 
-          <div className="productImage">
-            <img
-              src={product.image}
-              alt={product.name}
-            />
-          </div>
+    amazonLink: "#",
+    brandLink: "#",
+    similarLink: "/gear/cooking",
+  },
 
+  "front-runner-wolf-pack": {
+    name: "Front Runner Wolf Pack",
+    category: "Storage System",
+    price: "$79",
+    image: "/storage-box.jpg",
 
-          {/* INFO */}
+    description:
+      "A modular storage solution for organizing vehicle camping gear.",
 
-          <div className="productInfo">
+    recommendation:
+      "Ideal for building a clean and flexible vehicle storage system.",
 
-            <div className="productPrice">
-              {product.price}
-            </div>
+    features: [
+      "Stackable design",
+      "Durable construction",
+      "Modular organization",
+    ],
 
+    pros: [
+      "Affordable",
+      "Easy organization",
+      "Fits many vehicle setups",
+    ],
 
-            <h2>
-              Why We Recommend It
-            </h2>
+    amazonLink: "#",
+    brandLink: "#",
+    similarLink: "/gear/storage",
+  },
 
-            <p>
-              {product.recommendation}
-            </p>
+  "goal-zero-light-kit": {
+    name: "Goal Zero Light Kit",
+    category: "Lighting System",
+    price: "$99",
+    image: "/lighting-kit.jpg",
 
+    description:
+      "Portable lighting equipment for comfortable nights outdoors.",
 
-            <h2>
-              Key Features
-            </h2>
+    recommendation:
+      "A simple lighting upgrade for safer and more comfortable campsites.",
 
-            <ul>
-              {product.features.map((feature) => (
-                <li key={feature}>
-                  ✓ {feature}
-                </li>
-              ))}
-            </ul>
+    features: [
+      "Rechargeable battery",
+      "Portable design",
+      "Long runtime",
+    ],
 
+    pros: [
+      "Easy to carry",
+      "Reliable",
+      "Camping friendly",
+    ],
 
-            <h2>
-              Pros
-            </h2>
-
-            <ul>
-              {product.pros.map((pro) => (
-                <li key={pro}>
-                  ✓ {pro}
-                </li>
-              ))}
-            </ul>
-
-
-            {/* BUY OPTIONS */}
-
-            <div className="buySection">
-
-              <p className="buyLabel">
-                WHERE TO BUY
-              </p>
-
-
-              <a
-                href={product.amazonLink}
-                className="gearButton"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Check Amazon Price →
-              </a>
-
-
-              <a
-                href={product.brandLink}
-                className="brandButton"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Visit Brand Website →
-              </a>
-
-
-              <Link
-                href={product.similarLink}
-                className="similarButton"
-              >
-                Browse Similar Gear →
-              </Link>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </section>
-
-    </main>
-  );
-}
+    amazonLink: "#",
+    brandLink: "#",
+    similarLink: "/gear/lighting",
+  },
+};
