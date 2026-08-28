@@ -2501,3 +2501,169 @@ padding:30px;
     font-size: 26px;
   }
 }
+/* ============================= */
+/* SITE FOOTER */
+/* ============================= */
+
+.siteFooter {
+  background: #18211d;
+  color: white;
+  padding: 80px 7% 30px;
+  margin-top: 0;
+}
+
+.footerContainer {
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+/* TOP */
+
+.footerTop {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 70px;
+}
+
+/* BRAND */
+
+.footerBrand {
+  max-width: 360px;
+}
+
+.footerLogo {
+  display: inline-block;
+  margin-bottom: 20px;
+
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: 2px;
+
+  color: white;
+  text-decoration: none;
+}
+
+.footerBrand p {
+  margin: 0 0 14px;
+
+  font-size: 16px;
+  line-height: 1.7;
+
+  color: #c2cbc5;
+}
+
+.footerSmall {
+  font-size: 14px !important;
+  color: #8f9b94 !important;
+}
+
+/* COLUMNS */
+
+.footerColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.footerColumn h3 {
+  margin: 0 0 10px;
+
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+
+  color: #8f9b94;
+}
+
+.footerColumn a {
+  width: fit-content;
+
+  font-size: 15px;
+
+  color: #dce3de;
+  text-decoration: none;
+
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.footerColumn a:hover {
+  color: white;
+  transform: translateX(3px);
+}
+
+/* DIVIDER */
+
+.footerDivider {
+  height: 1px;
+
+  margin: 65px 0 25px;
+
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* BOTTOM */
+
+.footerBottom {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+}
+
+.footerBottom p {
+  margin: 0;
+
+  font-size: 13px;
+
+  color: #8f9b94;
+}
+
+.footerAffiliate {
+  text-align: right;
+}
+
+/* MOBILE */
+
+@media (max-width: 900px) {
+  .footerTop {
+    grid-template-columns: 1fr 1fr;
+    gap: 50px;
+  }
+
+  .footerBrand {
+    grid-column: 1 / -1;
+    max-width: 500px;
+  }
+}
+
+@media (max-width: 600px) {
+  .siteFooter {
+    padding: 60px 6% 25px;
+  }
+
+  .footerTop {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .footerBrand {
+    grid-column: auto;
+  }
+
+  .footerDivider {
+    margin: 50px 0 20px;
+  }
+
+  .footerBottom {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .footerAffiliate {
+    text-align: left;
+  }
+}
