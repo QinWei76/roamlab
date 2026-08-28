@@ -1,17 +1,13 @@
 export const gearData = {
-
-
   sleeping: {
-
     title: "Sleeping System",
 
     description:
       "Create a comfortable sleeping setup inside your vehicle.",
 
-
     products: [
-
       {
+        slug: "roofnest-sparrow-xl",
 
         name: "Roofnest Sparrow XL",
 
@@ -22,25 +18,15 @@ export const gearData = {
         description:
           "A premium rooftop sleeping system designed for SUV adventures.",
 
-
         features: [
-
           "Quick setup",
-
           "Weather protection",
-
-          "Comfortable sleeping space"
-
+          "Comfortable sleeping space",
         ],
-
-
-        link: "#"
-
       },
 
-
-
       {
+        slug: "exped-megamat-duo",
 
         name: "Exped MegaMat Duo",
 
@@ -51,276 +37,124 @@ export const gearData = {
         description:
           "A high comfort camping mattress built for vehicle camping.",
 
-
         features: [
-
           "Large sleeping area",
-
           "Insulated design",
-
-          "Compact storage"
-
+          "Compact storage",
         ],
-
-
-        link: "#"
-
-      }
-
-
-    ]
-
+      },
+    ],
   },
 
-
-
-
-
-
-
   power: {
-
-
     title: "Power System",
-
 
     description:
       "Keep your devices powered wherever you travel.",
 
-
-
     products: [
-
-
       {
-
+        slug: "ecoflow-delta-2",
 
         name: "EcoFlow DELTA 2",
 
-
         price: "$999",
 
-
         image: "/power-ecoflow.jpg",
-
-
 
         description:
           "Portable power station for camping and off-grid travel.",
 
-
-
         features: [
-
           "Fast charging",
-
           "Solar compatible",
-
-          "Multiple outputs"
-
+          "Multiple outputs",
         ],
-
-
-        link: "#"
-
-
-      }
-
-
-    ]
-
-
+      },
+    ],
   },
 
-
-
-
-
-
-
-
-
   cooking: {
-
-
     title: "Cooking System",
-
 
     description:
       "Create a simple outdoor kitchen setup.",
 
-
-
     products: [
-
-
-
       {
+        slug: "jetboil-genesis",
 
         name: "Jetboil Genesis Basecamp",
 
-
         price: "$399",
 
-
         image: "/cooking-stove.jpg",
-
-
 
         description:
           "Compact cooking system built for outdoor meals.",
 
-
-
         features: [
-
           "Portable stove",
-
           "Efficient fuel use",
-
-          "Easy storage"
-
+          "Easy storage",
         ],
-
-
-
-        link: "#"
-
-
-      }
-
-
-    ]
-
-
+      },
+    ],
   },
 
-
-
-
-
-
-
-
-
   storage: {
-
-
     title: "Storage System",
-
 
     description:
       "Organize your vehicle gear efficiently.",
 
-
-
     products: [
-
-
-
       {
+        slug: "front-runner-wolf-pack",
 
         name: "Front Runner Wolf Pack",
 
-
         price: "$79",
 
-
         image: "/storage-box.jpg",
-
-
 
         description:
           "Modular storage boxes for vehicle organization.",
 
-
-
         features: [
-
           "Stackable",
-
           "Durable",
-
-          "Easy organization"
-
+          "Easy organization",
         ],
-
-
-
-        link: "#"
-
-
-      }
-
-
-    ]
-
-
+      },
+    ],
   },
 
-
-
-
-
-
-
-
-
   lighting: {
-
-
     title: "Lighting System",
-
 
     description:
       "Create a reliable campsite lighting setup.",
 
-
-
     products: [
-
-
-
       {
+        slug: "goal-zero-light-kit",
 
         name: "Goal Zero Light Kit",
 
-
         price: "$99",
 
-
         image: "/lighting-kit.jpg",
-
-
 
         description:
           "Portable lighting system for evening adventures.",
 
-
-
         features: [
-
           "Rechargeable",
-
           "Portable",
-
-          "Long runtime"
-
+          "Long runtime",
         ],
-
-
-
-        link: "#"
-
-
-      }
-
-
-    ]
-
-
-  }
-
-
-
+      },
+    ],
+  },
 };
