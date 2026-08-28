@@ -1,3 +1,25 @@
+import type { Metadata } from "next";
 import "./globals.css";
-export const metadata={title:"RoamLab"};
-export default function RootLayout({children}:{children:React.ReactNode}){return <html lang="en"><body>{children}</body></html>}
+import Footer from "@/components/Footer";
+
+export const metadata: Metadata = {
+  title: "RoamLab",
+  description:
+    "Build smarter vehicle camping systems.",
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en">
+      <body>
+        {children}
+
+        <Footer />
+      </body>
+    </html>
+  );
+}
