@@ -2356,3 +2356,72 @@ padding:30px;
 
 
 }
+/* ============================= */
+/* PRODUCT BUY OPTIONS */
+/* ============================= */
+
+.buySection {
+  margin-top: 45px;
+  padding-top: 30px;
+  border-top: 1px solid #e2e5e2;
+}
+
+.buyLabel {
+  margin-bottom: 18px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #7b827e;
+}
+
+.buySection .gearButton,
+.brandButton,
+.similarButton {
+  display: flex;
+  width: 100%;
+  min-height: 54px;
+  padding: 16px 22px;
+  margin-top: 12px;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+
+  transition: transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.buySection .gearButton {
+  background: #214437;
+  color: white;
+}
+
+.brandButton {
+  background: white;
+  color: #214437;
+  border: 1px solid #214437;
+}
+
+.similarButton {
+  background: #f5f4f1;
+  color: #4d5552;
+  border: 1px solid #d9ddda;
+}
+
+.buySection .gearButton:hover,
+.brandButton:hover,
+.similarButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+@media (max-width: 800px) {
+  .buySection {
+    margin-top: 35px;
+  }
+}
