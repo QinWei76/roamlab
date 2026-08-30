@@ -4,70 +4,65 @@ export default function HomePage() {
   return (
     <main className="wildHome">
       <section className="wildHero">
-        {/* Final approved RoamLab Wild Desk visual */}
-        <div className="wildHeroImage" />
+        {/* Final RoamLab homepage image */}
+        <img
+          src="/wild-desk.jpg"
+          alt="RoamLab"
+          className="wildHeroImage"
+        />
 
         {/* =========================
-            MAIN VISUAL HOTSPOTS
+            INTERACTIVE HOTSPOTS
            ========================= */}
 
-        {/* ACHIEVEMENTS */}
         <Link
           href="/badges"
           className="hotspot hotspotBadges"
           aria-label="Achievements"
         />
 
-        {/* EXPLORE */}
         <Link
           href="/explore"
           className="hotspot hotspotExplore"
           aria-label="Explore"
         />
 
-        {/* WAYS IN / VEHICLE */}
         <Link
           href="/ways-in"
           className="hotspot hotspotWaysIn"
           aria-label="Ways In"
         />
 
-        {/* PLAN YOUR WILD */}
         <Link
           href="/plan"
           className="hotspot hotspotPlan"
           aria-label="Plan Your Wild"
         />
 
-        {/* PREPARE */}
         <Link
           href="/prepare"
           className="hotspot hotspotPrepare"
           aria-label="Prepare"
         />
 
-        {/* SAFETY */}
         <Link
           href="/safety"
           className="hotspot hotspotSafety"
           aria-label="Safety"
         />
 
-        {/* LEARN */}
         <Link
           href="/learn"
           className="hotspot hotspotLearn"
           aria-label="Learn"
         />
 
-        {/* MY WILD JOURNAL */}
         <Link
           href="/journal"
           className="hotspot hotspotJournal"
           aria-label="My Wild Journal"
         />
 
-        {/* THE WILD WALL */}
         <Link
           href="/stories"
           className="hotspot hotspotStories"
@@ -75,59 +70,71 @@ export default function HomePage() {
         />
 
         {/* =========================
-            HEADER HOTSPOTS
+            NAVIGATION HOTSPOTS
            ========================= */}
 
-        {/* EXPLORE NAV */}
         <Link
           href="/explore"
           className="navHotspot navExplore"
           aria-label="Explore"
         />
 
-        {/* PLAN NAV */}
         <Link
           href="/plan"
           className="navHotspot navPlan"
           aria-label="Plan"
         />
 
-        {/* PREPARE NAV */}
         <Link
           href="/prepare"
           className="navHotspot navPrepare"
           aria-label="Prepare"
         />
 
-        {/* LEARN NAV */}
+        <Link
+          href="/safety"
+          className="navHotspot navSafety"
+          aria-label="Safety"
+        />
+
         <Link
           href="/learn"
           className="navHotspot navLearn"
           aria-label="Learn"
         />
 
-        {/* STORIES NAV */}
+        <Link
+          href="/journal"
+          className="navHotspot navJournal"
+          aria-label="Journal"
+        />
+
         <Link
           href="/stories"
           className="navHotspot navStories"
           aria-label="Stories"
         />
 
-        {/* SIGN IN */}
+        <Link
+          href="/badges"
+          className="navHotspot navBadges"
+          aria-label="Badges"
+        />
+
         <Link
           href="/signin"
           className="navHotspot signInHotspot"
           aria-label="Sign In"
         />
 
-        {/* START YOUR WILD */}
         <Link
           href="/start-here"
           className="navHotspot startWildHotspot"
           aria-label="Start Your Wild"
         />
 
-        {/* CENTER CTA */}
+        {/* Center CTA */}
+
         <Link
           href="/start-here"
           className="navHotspot centerStartHotspot"
@@ -136,63 +143,57 @@ export default function HomePage() {
       </section>
 
       <style>{`
-        /* =========================
-           BASE
-           ========================= */
+        * {
+          box-sizing: border-box;
+        }
 
         .wildHome {
           width: 100%;
-          min-height: 100vh;
           margin: 0;
           padding: 0;
-          background: #0d0d0d;
+          background: #0b0b0b;
           overflow-x: hidden;
         }
 
         /*
-          IMPORTANT:
+          MASTER CANVAS
 
-          This is a 16:9 master canvas.
+          The image determines the height.
 
-          We use aspect-ratio instead of
-          background-size: cover.
-
-          This prevents the browser from
-          cutting off the badge, backpack,
-          journal, or bottom edge.
+          This means:
+          - no stretching
+          - no cropping
+          - no distortion
         */
 
         .wildHero {
           position: relative;
           width: 100%;
-          aspect-ratio: 16 / 9;
-          min-height: 0;
+          line-height: 0;
           overflow: hidden;
           background: #111;
         }
 
         .wildHeroImage {
-          position: absolute;
-          inset: 0;
+          display: block;
           width: 100%;
-          height: 100%;
-          background-image: url("/wild-desk.jpg");
+          height: auto;
+          margin: 0;
+          padding: 0;
 
           /*
-            Show the COMPLETE final image.
-            No cropping.
+            Critical:
+            preserve original image ratio
           */
 
-          background-size: 100% 100%;
-          background-position: center;
-          background-repeat: no-repeat;
-
-          z-index: 1;
+          object-fit: contain;
         }
 
-        /* =========================
-           HOTSPOT BASE
-           ========================= */
+        /*
+          =========================
+          HOTSPOT BASE
+          =========================
+        */
 
         .hotspot,
         .navHotspot {
@@ -200,47 +201,41 @@ export default function HomePage() {
           z-index: 10;
           display: block;
           cursor: pointer;
-          border-radius: 10px;
-          outline: none;
+          border-radius: 8px;
           -webkit-tap-highlight-color: transparent;
         }
 
         /*
-          Very subtle interaction.
+          Better interaction feedback
 
-          We don't add text.
-          We don't change the design.
-
-          Only a small orange glow
-          tells the user this area
-          is interactive.
+          Invisible normally.
+          Soft orange glow on hover.
         */
 
         .hotspot::after,
         .navHotspot::after {
           content: "";
           position: absolute;
-          inset: 0;
+          inset: -2px;
           border-radius: inherit;
           opacity: 0;
           pointer-events: none;
+
+          border: 1px solid rgba(241, 151, 57, 0.5);
+
+          box-shadow:
+            0 0 14px rgba(241, 151, 57, 0.18),
+            inset 0 0 14px rgba(241, 151, 57, 0.08);
+
           transition:
             opacity 0.2s ease,
-            box-shadow 0.2s ease,
             transform 0.2s ease;
         }
 
         .hotspot:hover::after,
         .navHotspot:hover::after {
           opacity: 1;
-          box-shadow:
-            inset 0 0 0 1px rgba(238, 145, 47, 0.45),
-            0 0 24px rgba(238, 145, 47, 0.18);
-        }
-
-        .hotspot:hover,
-        .navHotspot:hover {
-          transform: scale(1.01);
+          transform: scale(1.02);
         }
 
         .hotspot:active,
@@ -248,197 +243,203 @@ export default function HomePage() {
           transform: scale(0.98);
         }
 
-        /* =========================
-           DESKTOP HOTSPOTS
-           Based on the 16:9 canvas
-           ========================= */
+        /*
+          =========================
+          OBJECT HOTSPOTS
+          =========================
+        */
 
-        /* ACHIEVEMENTS / TOP LEFT */
+        /* Badge */
 
         .hotspotBadges {
-          left: 14%;
-          top: 12%;
-          width: 16%;
-          height: 12%;
-        }
-
-        /* EXPLORE */
-
-        .hotspotExplore {
-          left: 6%;
-          top: 25%;
-          width: 15%;
-          height: 16%;
-        }
-
-        /* WAYS IN / VEHICLE */
-
-        .hotspotWaysIn {
-          left: 15%;
-          top: 35%;
-          width: 22%;
-          height: 22%;
-        }
-
-        /* PLAN YOUR WILD */
-
-        .hotspotPlan {
-          left: 72%;
-          top: 30%;
+          left: 1%;
+          top: 8%;
           width: 18%;
           height: 18%;
         }
 
-        /* PREPARE / BACKPACK */
+        /* Explore */
 
-        .hotspotPrepare {
+        .hotspotExplore {
           left: 5%;
-          top: 53%;
-          width: 27%;
-          height: 38%;
+          top: 27%;
+          width: 16%;
+          height: 16%;
         }
 
-        /* SAFETY / FIRST AID */
+        /* Vehicle / Ways In */
 
-        .hotspotSafety {
-          left: 37%;
-          top: 68%;
+        .hotspotWaysIn {
+          left: 15%;
+          top: 32%;
           width: 20%;
-          height: 24%;
-        }
-
-        /* LEARN / FIELD GUIDE */
-
-        .hotspotLearn {
-          left: 58%;
-          top: 70%;
-          width: 20%;
-          height: 24%;
-        }
-
-        /* MY WILD JOURNAL */
-
-        .hotspotJournal {
-          left: 73%;
-          top: 52%;
-          width: 22%;
-          height: 42%;
-        }
-
-        /* THE WILD WALL / POLAROIDS */
-
-        .hotspotStories {
-          left: 63%;
-          top: 7%;
-          width: 27%;
           height: 23%;
         }
 
-        /* =========================
-           HEADER HOTSPOTS
-           ========================= */
+        /* Plan */
+
+        .hotspotPlan {
+          left: 71%;
+          top: 29%;
+          width: 18%;
+          height: 18%;
+        }
+
+        /* Backpack */
+
+        .hotspotPrepare {
+          left: 4%;
+          top: 52%;
+          width: 30%;
+          height: 42%;
+        }
+
+        /* First Aid */
+
+        .hotspotSafety {
+          left: 36%;
+          top: 67%;
+          width: 22%;
+          height: 26%;
+        }
+
+        /* Field Guide */
+
+        .hotspotLearn {
+          left: 57%;
+          top: 63%;
+          width: 18%;
+          height: 30%;
+        }
+
+        /* Journal */
+
+        .hotspotJournal {
+          left: 74%;
+          top: 48%;
+          width: 22%;
+          height: 45%;
+        }
+
+        /* Wild Wall */
+
+        .hotspotStories {
+          left: 62%;
+          top: 7%;
+          width: 25%;
+          height: 25%;
+        }
+
+        /*
+          =========================
+          TOP NAVIGATION
+          =========================
+        */
 
         .navExplore {
-          left: 32%;
-          top: 2%;
+          left: 18%;
+          top: 0;
           width: 6%;
-          height: 7%;
+          height: 8%;
         }
 
         .navPlan {
-          left: 39%;
-          top: 2%;
+          left: 25%;
+          top: 0;
           width: 5%;
-          height: 7%;
+          height: 8%;
         }
 
         .navPrepare {
-          left: 45%;
-          top: 2%;
-          width: 7%;
-          height: 7%;
-        }
-
-        .navLearn {
-          left: 53%;
-          top: 2%;
-          width: 6%;
-          height: 7%;
-        }
-
-        .navStories {
-          left: 60%;
-          top: 2%;
-          width: 7%;
-          height: 7%;
-        }
-
-        /* SIGN IN */
-
-        .signInHotspot {
-          left: 78%;
-          top: 1%;
+          left: 31%;
+          top: 0;
           width: 7%;
           height: 8%;
         }
 
-        /* TOP RIGHT START BUTTON */
+        .navSafety {
+          left: 39%;
+          top: 0;
+          width: 6%;
+          height: 8%;
+        }
+
+        .navLearn {
+          left: 46%;
+          top: 0;
+          width: 6%;
+          height: 8%;
+        }
+
+        .navJournal {
+          left: 53%;
+          top: 0;
+          width: 7%;
+          height: 8%;
+        }
+
+        .navStories {
+          left: 61%;
+          top: 0;
+          width: 6%;
+          height: 8%;
+        }
+
+        .navBadges {
+          left: 68%;
+          top: 0;
+          width: 7%;
+          height: 8%;
+        }
+
+        /* Sign In */
+
+        .signInHotspot {
+          left: 74%;
+          top: 0;
+          width: 9%;
+          height: 8%;
+        }
+
+        /* Top Start Your Wild */
 
         .startWildHotspot {
-          left: 85%;
-          top: 1%;
-          width: 14%;
-          height: 9%;
+          left: 84%;
+          top: 0;
+          width: 15%;
+          height: 8%;
           border-radius: 999px;
         }
 
-        /* CENTER START BUTTON */
+        /* Center CTA */
 
         .centerStartHotspot {
-          left: 39%;
-          top: 55%;
-          width: 22%;
-          height: 10%;
-          border-radius: 12px;
-        }
-
-        /* =========================
-           RESPONSIVE
-           ========================= */
-
-        /*
-          Desktop:
-          Preserve the complete 16:9 artwork.
-        */
-
-        @media (min-width: 769px) {
-          .wildHero {
-            max-height: 100vh;
-          }
+          left: 38%;
+          top: 54%;
+          width: 24%;
+          height: 11%;
+          border-radius: 10px;
         }
 
         /*
-          Mobile:
-          Keep the entire artwork visible.
-          The hero becomes taller naturally
-          according to the 16:9 ratio.
+          =========================
+          MOBILE
+          =========================
         */
 
         @media (max-width: 768px) {
 
           .wildHero {
-            width: 100%;
-            aspect-ratio: 16 / 9;
+            min-width: 900px;
           }
 
-          /*
-            Make hotspots easier to tap
-          */
+          .wildHome {
+            overflow-x: auto;
+          }
 
-          .hotspot,
-          .navHotspot {
-            min-width: 28px;
-            min-height: 28px;
+          .hotspot::after,
+          .navHotspot::after {
+            display: none;
           }
         }
       `}</style>
