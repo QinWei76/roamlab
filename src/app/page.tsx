@@ -3,243 +3,417 @@ import Link from "next/link";
 export default function HomePage() {
   return (
     <main className="wildHome">
-      <section className="wildHero">
+      <section className="wildCanvas">
         {/* =========================================
-            FINAL ROAMLAB MASTER IMAGE
+            MASTER IMAGE
             ========================================= */}
 
         <img
           src="/wild-desk.jpg"
-          alt="RoamLab - Go Wild. Show It."
-          className="wildHeroImage"
+          alt="RoamLab"
+          className="wildImage"
+          draggable={false}
         />
 
         {/* =========================================
-            OBJECT HOTSPOTS
-            These are intentionally precise.
-            They sit on top of the actual objects.
+            SVG INTERACTION LAYER
             ========================================= */}
 
-        {/* -----------------------------------------
-            BADGE
-            ----------------------------------------- */}
+        <svg
+          className="interactionLayer"
+          viewBox="0 0 1600 900"
+          preserveAspectRatio="xMidYMid meet"
+          aria-hidden="false"
+        >
+          {/* =======================================
+              BADGE
+              ======================================= */}
 
-        <Link
-          href="/badges"
-          aria-label="RoamLab Achievements"
-          className="objectHotspot badgeObject"
-        />
+          <Link href="/badges" aria-label="Achievements">
+            <circle
+              cx="145"
+              cy="125"
+              r="72"
+              className="hotspotCircle"
+            />
+          </Link>
 
-        {/* Badge label */}
-        <Link
-          href="/badges"
-          aria-label="Achievements"
-          className="labelHotspot badgeLabel"
-        />
+          {/* =======================================
+              EXPLORE LABEL
+              ======================================= */}
 
-        {/* -----------------------------------------
-            EXPLORE CARD
-            ----------------------------------------- */}
+          <Link href="/explore" aria-label="Explore">
+            <rect
+              x="105"
+              y="270"
+              width="190"
+              height="78"
+              rx="12"
+              className="hotspotRect"
+            />
+          </Link>
 
-        <Link
-          href="/explore"
-          aria-label="Explore"
-          className="labelHotspot exploreLabel"
-        />
+          {/* =======================================
+              VEHICLE
+              ======================================= */}
 
-        {/* -----------------------------------------
-            VEHICLE
-            ----------------------------------------- */}
+          <Link href="/ways-in" aria-label="Ways In">
+            <path
+              d="
+                M245 330
+                L310 315
+                L390 325
+                L445 355
+                L470 400
+                L455 435
+                L410 455
+                L335 458
+                L275 445
+                L235 415
+                L225 375
+                Z
+              "
+              className="hotspotPath"
+            />
+          </Link>
 
-        <Link
-          href="/ways-in"
-          aria-label="Ways In"
-          className="objectHotspot vehicleObject"
-        />
+          {/* =======================================
+              WAYS IN LABEL
+              ======================================= */}
 
-        {/* Vehicle label */}
-        <Link
-          href="/ways-in"
-          aria-label="Ways In"
-          className="labelHotspot vehicleLabel"
-        />
+          <Link href="/ways-in" aria-label="Ways In">
+            <rect
+              x="335"
+              y="400"
+              width="150"
+              height="75"
+              rx="12"
+              className="hotspotRect"
+            />
+          </Link>
 
-        {/* -----------------------------------------
-            POLAROID / WILD WALL
-            ----------------------------------------- */}
+          {/* =======================================
+              WILD WALL / POLAROID
+              ======================================= */}
 
-        <Link
-          href="/stories"
-          aria-label="The Wild Wall"
-          className="objectHotspot polaroidObject"
-        />
+          <Link href="/stories" aria-label="The Wild Wall">
+            <path
+              d="
+                M1040 75
+                L1265 65
+                L1325 110
+                L1310 285
+                L1250 315
+                L1055 295
+                L1015 240
+                L1020 120
+                Z
+              "
+              className="hotspotPath"
+            />
+          </Link>
 
-        <Link
-          href="/stories"
-          aria-label="The Wild Wall"
-          className="labelHotspot wildWallLabel"
-        />
+          {/* =======================================
+              PLAN / COMPASS
+              ======================================= */}
 
-        {/* -----------------------------------------
-            COMPASS / PLAN
-            ----------------------------------------- */}
+          <Link href="/plan" aria-label="Plan Your Wild">
+            <circle
+              cx="1080"
+              cy="340"
+              r="90"
+              className="hotspotCircle"
+            />
+          </Link>
 
-        <Link
-          href="/plan"
-          aria-label="Plan Your Wild"
-          className="objectHotspot compassObject"
-        />
+          {/* =======================================
+              PLAN LABEL
+              ======================================= */}
 
-        <Link
-          href="/plan"
-          aria-label="Plan Your Wild"
-          className="labelHotspot planLabel"
-        />
+          <Link href="/plan" aria-label="Plan Your Wild">
+            <rect
+              x="1160"
+              y="350"
+              width="190"
+              height="78"
+              rx="12"
+              className="hotspotRect"
+            />
+          </Link>
 
-        {/* -----------------------------------------
-            BACKPACK
-            ----------------------------------------- */}
+          {/* =======================================
+              BACKPACK
+              ======================================= */}
 
-        <Link
-          href="/prepare"
-          aria-label="Prepare"
-          className="objectHotspot backpackObject"
-        />
+          <Link href="/prepare" aria-label="Prepare">
+            <path
+              d="
+                M95 500
+                L150 470
+                L235 475
+                L300 505
+                L335 565
+                L340 665
+                L315 755
+                L265 815
+                L185 835
+                L115 805
+                L75 745
+                L65 630
+                L70 550
+                Z
+              "
+              className="hotspotPath"
+            />
+          </Link>
 
-        <Link
-          href="/prepare"
-          aria-label="Prepare"
-          className="labelHotspot prepareLabel"
-        />
+          {/* =======================================
+              PREPARE LABEL
+              ======================================= */}
 
-        {/* -----------------------------------------
-            FIRST AID
-            ----------------------------------------- */}
+          <Link href="/prepare" aria-label="Prepare">
+            <rect
+              x="255"
+              y="555"
+              width="185"
+              height="78"
+              rx="12"
+              className="hotspotRect"
+            />
+          </Link>
 
-        <Link
-          href="/safety"
-          aria-label="Safety"
-          className="objectHotspot firstAidObject"
-        />
+          {/* =======================================
+              FIRST AID
+              ======================================= */}
 
-        <Link
-          href="/safety"
-          aria-label="Safety"
-          className="labelHotspot safetyLabel"
-        />
+          <Link href="/safety" aria-label="Safety">
+            <path
+              d="
+                M570 630
+                L610 600
+                L735 600
+                L785 635
+                L800 745
+                L765 810
+                L620 820
+                L560 780
+                L545 690
+                Z
+              "
+              className="hotspotPath"
+            />
+          </Link>
 
-        {/* -----------------------------------------
-            FIELD GUIDE
-            ----------------------------------------- */}
+          {/* =======================================
+              SAFETY LABEL
+              ======================================= */}
 
-        <Link
-          href="/learn"
-          aria-label="Learn"
-          className="objectHotspot fieldGuideObject"
-        />
+          <Link href="/safety" aria-label="Safety">
+            <rect
+              x="600"
+              y="735"
+              width="175"
+              height="75"
+              rx="12"
+              className="hotspotRect"
+            />
+          </Link>
 
-        <Link
-          href="/learn"
-          aria-label="Learn"
-          className="labelHotspot learnLabel"
-        />
+          {/* =======================================
+              FIELD GUIDE
+              ======================================= */}
 
-        {/* -----------------------------------------
-            JOURNAL
-            ----------------------------------------- */}
+          <Link href="/learn" aria-label="Learn">
+            <path
+              d="
+                M850 555
+                L1000 545
+                L1050 585
+                L1035 805
+                L995 835
+                L855 820
+                L820 780
+                L825 600
+                Z
+              "
+              className="hotspotPath"
+            />
+          </Link>
 
-        <Link
-          href="/journal"
-          aria-label="My Wild Journal"
-          className="objectHotspot journalObject"
-        />
+          {/* =======================================
+              LEARN LABEL
+              ======================================= */}
 
-        <Link
-          href="/journal"
-          aria-label="My Wild Journal"
-          className="labelHotspot journalLabel"
-        />
+          <Link href="/learn" aria-label="Learn">
+            <rect
+              x="835"
+              y="735"
+              width="175"
+              height="75"
+              rx="12"
+              className="hotspotRect"
+            />
+          </Link>
 
-        {/* =========================================
-            CENTER CTA
-            ========================================= */}
+          {/* =======================================
+              JOURNAL
+              ======================================= */}
 
-        <Link
-          href="/start-here"
-          aria-label="Start Your Wild"
-          className="centerCtaHotspot"
-        />
+          <Link href="/journal" aria-label="My Wild Journal">
+            <path
+              d="
+                M1190 455
+                L1385 470
+                L1430 520
+                L1415 770
+                L1370 825
+                L1195 810
+                L1155 760
+                L1160 510
+                Z
+              "
+              className="hotspotPath"
+            />
+          </Link>
 
-        {/* =========================================
-            TOP NAVIGATION
-            ========================================= */}
+          {/* =======================================
+              JOURNAL LABEL
+              ======================================= */}
 
-        <Link
-          href="/explore"
-          aria-label="Explore"
-          className="navHotspot navExplore"
-        />
+          <Link href="/journal" aria-label="My Wild Journal">
+            <rect
+              x="1200"
+              y="735"
+              width="205"
+              height="78"
+              rx="12"
+              className="hotspotRect"
+            />
+          </Link>
 
-        <Link
-          href="/plan"
-          aria-label="Plan"
-          className="navHotspot navPlan"
-        />
+          {/* =======================================
+              CENTER CTA
+              ======================================= */}
 
-        <Link
-          href="/prepare"
-          aria-label="Prepare"
-          className="navHotspot navPrepare"
-        />
+          <Link href="/start-here" aria-label="Start Your Wild">
+            <rect
+              x="625"
+              y="465"
+              width="350"
+              height="95"
+              rx="18"
+              className="hotspotCta"
+            />
+          </Link>
 
-        <Link
-          href="/safety"
-          aria-label="Safety"
-          className="navHotspot navSafety"
-        />
+          {/* =======================================
+              TOP NAVIGATION
+              ======================================= */}
 
-        <Link
-          href="/learn"
-          aria-label="Learn"
-          className="navHotspot navLearn"
-        />
+          <Link href="/explore" aria-label="Explore">
+            <rect
+              x="290"
+              y="0"
+              width="100"
+              height="70"
+              className="navArea"
+            />
+          </Link>
 
-        <Link
-          href="/journal"
-          aria-label="Journal"
-          className="navHotspot navJournal"
-        />
+          <Link href="/plan" aria-label="Plan">
+            <rect
+              x="400"
+              y="0"
+              width="90"
+              height="70"
+              className="navArea"
+            />
+          </Link>
 
-        <Link
-          href="/stories"
-          aria-label="Stories"
-          className="navHotspot navStories"
-        />
+          <Link href="/prepare" aria-label="Prepare">
+            <rect
+              x="495"
+              y="0"
+              width="115"
+              height="70"
+              className="navArea"
+            />
+          </Link>
 
-        <Link
-          href="/badges"
-          aria-label="Badges"
-          className="navHotspot navBadges"
-        />
+          <Link href="/safety" aria-label="Safety">
+            <rect
+              x="615"
+              y="0"
+              width="100"
+              height="70"
+              className="navArea"
+            />
+          </Link>
 
-        <Link
-          href="/signin"
-          aria-label="Sign In"
-          className="navHotspot signInHotspot"
-        />
+          <Link href="/learn" aria-label="Learn">
+            <rect
+              x="720"
+              y="0"
+              width="100"
+              height="70"
+              className="navArea"
+            />
+          </Link>
 
-        <Link
-          href="/start-here"
-          aria-label="Start Your Wild"
-          className="navHotspot topStartHotspot"
-        />
+          <Link href="/journal" aria-label="Journal">
+            <rect
+              x="825"
+              y="0"
+              width="115"
+              height="70"
+              className="navArea"
+            />
+          </Link>
+
+          <Link href="/stories" aria-label="Stories">
+            <rect
+              x="945"
+              y="0"
+              width="105"
+              height="70"
+              className="navArea"
+            />
+          </Link>
+
+          <Link href="/badges" aria-label="Badges">
+            <rect
+              x="1055"
+              y="0"
+              width="110"
+              height="70"
+              className="navArea"
+            />
+          </Link>
+
+          <Link href="/signin" aria-label="Sign In">
+            <rect
+              x="1170"
+              y="0"
+              width="130"
+              height="70"
+              className="navArea"
+            />
+          </Link>
+
+          <Link href="/start-here" aria-label="Start Your Wild">
+            <rect
+              x="1310"
+              y="0"
+              width="260"
+              height="75"
+              rx="35"
+              className="navStartArea"
+            />
+          </Link>
+        </svg>
       </section>
 
       <style>{`
-        /* =====================================================
-           RESET
-           ===================================================== */
-
         * {
           box-sizing: border-box;
         }
@@ -250,479 +424,172 @@ export default function HomePage() {
           padding: 0;
         }
 
+        body {
+          background: #0b0b0b;
+        }
+
         .wildHome {
           width: 100%;
           min-height: 100vh;
           margin: 0;
           padding: 0;
           background: #0b0b0b;
-          overflow-x: hidden;
         }
 
-        /* =====================================================
-           MASTER CANVAS
-           
-           IMPORTANT:
-           Do NOT use background-size: cover.
-           Do NOT use 100% 100%.
-           
-           The image itself controls the height.
-           This preserves the original aspect ratio.
-           ===================================================== */
+        /*
+          =========================================
+          MASTER CANVAS
+          =========================================
 
-        .wildHero {
+          The image controls the canvas height.
+          Nothing is stretched or cropped.
+        */
+
+        .wildCanvas {
           position: relative;
           width: 100%;
+          max-width: 1600px;
+          margin: 0 auto;
           overflow: hidden;
           line-height: 0;
-          background: #111;
         }
 
-        .wildHeroImage {
+        .wildImage {
           display: block;
           width: 100%;
           height: auto;
-          max-width: 100%;
           margin: 0;
           padding: 0;
-          object-fit: contain;
           user-select: none;
-          -webkit-user-drag: none;
-        }
-
-        /* =====================================================
-           BASE INTERACTION
-           ===================================================== */
-
-        .objectHotspot,
-        .labelHotspot,
-        .navHotspot,
-        .centerCtaHotspot {
-          position: absolute;
-          z-index: 20;
-          display: block;
-          cursor: pointer;
-          -webkit-tap-highlight-color: transparent;
-          text-decoration: none;
+          pointer-events: none;
         }
 
         /*
-          Objects normally have NO visible border.
-          Hover gives a very subtle orange glow.
+          =========================================
+          SVG INTERACTION LAYER
+          =========================================
         */
 
-        .objectHotspot::after,
-        .labelHotspot::after,
-        .navHotspot::after,
-        .centerCtaHotspot::after {
-          content: "";
+        .interactionLayer {
           position: absolute;
           inset: 0;
-          pointer-events: none;
-          opacity: 0;
+          width: 100%;
+          height: 100%;
+          z-index: 20;
+          overflow: visible;
+        }
 
-          border: 1px solid rgba(244, 156, 52, 0.65);
+        /*
+          =========================================
+          OBJECT HOTSPOTS
+          =========================================
 
-          box-shadow:
-            0 0 14px rgba(244, 156, 52, 0.18),
-            inset 0 0 12px rgba(244, 156, 52, 0.06);
+          Invisible by default.
+        */
+
+        .hotspotPath,
+        .hotspotCircle,
+        .hotspotRect,
+        .hotspotCta {
+          fill: rgba(244, 156, 52, 0);
+          stroke: rgba(244, 156, 52, 0);
+          stroke-width: 2;
+          cursor: pointer;
 
           transition:
-            opacity 180ms ease,
-            box-shadow 180ms ease;
-        }
-
-        .objectHotspot:hover::after,
-        .labelHotspot:hover::after,
-        .navHotspot:hover::after,
-        .centerCtaHotspot:hover::after {
-          opacity: 1;
-        }
-
-        .objectHotspot:active,
-        .labelHotspot:active,
-        .navHotspot:active,
-        .centerCtaHotspot:active {
-          transform: scale(0.985);
-        }
-
-        /* =====================================================
-           01 — BADGE
-           
-           Actual badge is roughly circular.
-           ===================================================== */
-
-        .badgeObject {
-          left: 1.2%;
-          top: 7.5%;
-          width: 15.2%;
-          height: 20.5%;
-
-          border-radius: 50%;
-
-          /*
-            Makes the clickable area circular
-            instead of a rectangular block.
-          */
-          clip-path: circle(48% at 50% 50%);
-        }
-
-        .badgeObject::after {
-          border-radius: 50%;
+            fill 180ms ease,
+            stroke 180ms ease,
+            filter 180ms ease;
         }
 
         /*
-          Achievements black card
+          Hover:
+          extremely subtle.
         */
 
-        .badgeLabel {
-          left: 15.9%;
-          top: 11.4%;
-          width: 13.7%;
-          height: 7.8%;
-
-          border-radius: 6px;
-        }
-
-        /* =====================================================
-           02 — EXPLORE
-           ===================================================== */
-
-        .exploreLabel {
-          left: 6.8%;
-          top: 31.5%;
-          width: 13.2%;
-          height: 9.8%;
-
-          border-radius: 7px;
-        }
-
-        /* =====================================================
-           03 — VEHICLE
-           
-           Irregular polygon follows the SUV.
-           ===================================================== */
-
-        .vehicleObject {
-          left: 15.8%;
-          top: 34%;
-          width: 16.2%;
-          height: 18.2%;
-
-          clip-path: polygon(
-            4% 51%,
-            13% 31%,
-            31% 20%,
-            48% 5%,
-            73% 11%,
-            94% 37%,
-            99% 65%,
-            84% 82%,
-            58% 91%,
-            31% 88%,
-            11% 75%
-          );
+        .hotspotPath:hover,
+        .hotspotCircle:hover,
+        .hotspotRect:hover,
+        .hotspotCta:hover {
+          fill: rgba(244, 156, 52, 0.035);
+          stroke: rgba(244, 156, 52, 0.55);
+          filter:
+            drop-shadow(0 0 8px rgba(244, 156, 52, 0.28));
         }
 
         /*
-          Ways In card
+          CTA is slightly stronger.
         */
 
-        .vehicleLabel {
-          left: 24.6%;
-          top: 44%;
-          width: 11%;
-          height: 8.2%;
-
-          border-radius: 7px;
+        .hotspotCta:hover {
+          fill: rgba(244, 156, 52, 0.055);
+          stroke: rgba(244, 156, 52, 0.65);
         }
 
-        /* =====================================================
-           04 — POLAROID
-           ===================================================== */
+        /*
+          =========================================
+          NAVIGATION
+          =========================================
+        */
 
-        .polaroidObject {
-          left: 63.2%;
-          top: 6%;
-          width: 18.5%;
-          height: 24%;
+        .navArea,
+        .navStartArea {
+          fill: rgba(0, 0, 0, 0);
+          stroke: rgba(0, 0, 0, 0);
+          cursor: pointer;
 
-          clip-path: polygon(
-            13% 4%,
-            88% 0%,
-            100% 14%,
-            94% 92%,
-            78% 100%,
-            5% 89%,
-            0% 25%
-          );
+          transition:
+            fill 160ms ease,
+            stroke 160ms ease;
         }
 
-        .wildWallLabel {
-          left: 79.5%;
-          top: 16%;
-          width: 12%;
-          height: 8.5%;
-
-          border-radius: 7px;
+        .navArea:hover {
+          fill: rgba(244, 156, 52, 0.035);
         }
 
-        /* =====================================================
-           05 — COMPASS
-           ===================================================== */
-
-        .compassObject {
-          left: 60.2%;
-          top: 28%;
-          width: 13.8%;
-          height: 22%;
-
-          border-radius: 50%;
-          clip-path: circle(48% at 50% 50%);
+        .navStartArea:hover {
+          fill: rgba(244, 156, 52, 0.055);
+          stroke: rgba(244, 156, 52, 0.4);
+          stroke-width: 1.5;
         }
 
-        .planLabel {
-          left: 74.5%;
-          top: 38%;
-          width: 14%;
-          height: 8.8%;
+        /*
+          =========================================
+          ACTIVE CLICK
+          =========================================
+        */
 
-          border-radius: 7px;
+        .hotspotPath:active,
+        .hotspotCircle:active,
+        .hotspotRect:active,
+        .hotspotCta:active,
+        .navArea:active,
+        .navStartArea:active {
+          opacity: 0.75;
         }
 
-        /* =====================================================
-           06 — BACKPACK
-           
-           Large irregular area follows actual backpack.
-           ===================================================== */
-
-        .backpackObject {
-          left: 4.5%;
-          top: 51%;
-          width: 32%;
-          height: 43%;
-
-          clip-path: polygon(
-            18% 4%,
-            36% 0%,
-            57% 4%,
-            76% 15%,
-            90% 34%,
-            96% 61%,
-            89% 82%,
-            73% 95%,
-            43% 100%,
-            20% 94%,
-            7% 76%,
-            3% 52%,
-            6% 26%
-          );
-        }
-
-        .prepareLabel {
-          left: 23.5%;
-          top: 60.5%;
-          width: 12.7%;
-          height: 8.5%;
-
-          border-radius: 7px;
-        }
-
-        /* =====================================================
-           07 — FIRST AID
-           ===================================================== */
-
-        .firstAidObject {
-          left: 36.5%;
-          top: 66%;
-          width: 20%;
-          height: 25%;
-
-          clip-path: polygon(
-            8% 19%,
-            20% 8%,
-            79% 5%,
-            94% 18%,
-            98% 68%,
-            88% 91%,
-            68% 98%,
-            16% 91%,
-            3% 68%,
-            0% 36%
-          );
-        }
-
-        .safetyLabel {
-          left: 38%;
-          top: 81.5%;
-          width: 14%;
-          height: 8%;
-
-          border-radius: 7px;
-        }
-
-        /* =====================================================
-           08 — FIELD GUIDE
-           ===================================================== */
-
-        .fieldGuideObject {
-          left: 58%;
-          top: 58%;
-          width: 16%;
-          height: 34%;
-
-          clip-path: polygon(
-            8% 5%,
-            80% 0%,
-            100% 8%,
-            91% 92%,
-            75% 100%,
-            9% 95%,
-            0% 20%
-          );
-        }
-
-        .learnLabel {
-          left: 59%;
-          top: 81.5%;
-          width: 13%;
-          height: 8%;
-
-          border-radius: 7px;
-        }
-
-        /* =====================================================
-           09 — JOURNAL
-           ===================================================== */
-
-        .journalObject {
-          left: 74%;
-          top: 48%;
-          width: 21.5%;
-          height: 46%;
-
-          clip-path: polygon(
-            13% 0%,
-            88% 4%,
-            100% 18%,
-            95% 91%,
-            82% 100%,
-            9% 96%,
-            0% 82%,
-            4% 17%
-          );
-        }
-
-        .journalLabel {
-          left: 78%;
-          top: 81.5%;
-          width: 14.2%;
-          height: 8.5%;
-
-          border-radius: 7px;
-        }
-
-        /* =====================================================
-           CENTER CTA
-           ===================================================== */
-
-        .centerCtaHotspot {
-          left: 38.2%;
-          top: 55%;
-          width: 23%;
-          height: 9.8%;
-
-          border-radius: 8px;
-        }
-
-        /* =====================================================
-           TOP NAVIGATION
-           ===================================================== */
-
-        .navHotspot {
-          top: 0;
-          height: 7%;
-          border-radius: 4px;
-        }
-
-        .navExplore {
-          left: 18.2%;
-          width: 6.2%;
-        }
-
-        .navPlan {
-          left: 25.7%;
-          width: 5%;
-        }
-
-        .navPrepare {
-          left: 31.8%;
-          width: 7%;
-        }
-
-        .navSafety {
-          left: 39.4%;
-          width: 6%;
-        }
-
-        .navLearn {
-          left: 46.5%;
-          width: 6%;
-        }
-
-        .navJournal {
-          left: 53.1%;
-          width: 7%;
-        }
-
-        .navStories {
-          left: 61%;
-          width: 6.5%;
-        }
-
-        .navBadges {
-          left: 68.1%;
-          width: 7%;
-        }
-
-        .signInHotspot {
-          left: 74.5%;
-          width: 9%;
-        }
-
-        .topStartHotspot {
-          left: 84.3%;
-          width: 14.8%;
-          border-radius: 8px;
-        }
-
-        /* =====================================================
-           MOBILE
-           
-           Keep image ratio.
-           Don't distort the artwork.
-           ===================================================== */
+        /*
+          =========================================
+          MOBILE
+          =========================================
+        */
 
         @media (max-width: 768px) {
+          .wildCanvas {
+            min-width: 1000px;
+          }
+
           .wildHome {
             overflow-x: auto;
           }
 
-          .wildHero {
-            width: 100%;
-            min-width: 1000px;
-          }
-
-          /*
-            On touch devices, remove hover glow.
-            The actual object remains clickable.
-          */
-
-          .objectHotspot::after,
-          .labelHotspot::after,
-          .navHotspot::after,
-          .centerCtaHotspot::after {
-            display: none;
+          .hotspotPath:hover,
+          .hotspotCircle:hover,
+          .hotspotRect:hover,
+          .hotspotCta:hover {
+            fill: rgba(244, 156, 52, 0);
+            stroke: rgba(244, 156, 52, 0);
+            filter: none;
           }
         }
       `}</style>
