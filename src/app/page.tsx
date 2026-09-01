@@ -58,7 +58,7 @@ export default function HomePage() {
       L435 425
       L360 440
       L260 435
-      L205 425
+      L205 450
       Z
     "
   />
