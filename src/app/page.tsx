@@ -32,7 +32,7 @@ export default function HomePage() {
   <circle
   cx="128"
   cy="220"
-  r="95"
+  r="100"
   className="hot"
 />
 </Link>
