@@ -43,19 +43,26 @@ export default function HomePage() {
               测试区域
           ===================== */}
 
-          <Link href="/ways-in">
+         <Link href="/ways-in">
 
-            <rect
-              x="220"
-              y="300"
-              width="260"
-              height="160"
-              rx="20"
-              className="hot"
-            />
+  <path
+    className="hot"
+    d="
+      M155 395
+      L180 350
+      L255 315
+      L365 300
+      L445 335
+      L475 390
+      L460 440
+      L390 455
+      L285 450
+      L210 430
+      Z
+    "
+  />
 
-          </Link>
-
+</Link>
 
 
           {/* =====================
