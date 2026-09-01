@@ -1,74 +1,132 @@
-import DeskObject from "@/components/DeskObject";
+import Link from "next/link";
 
+export default function Home() {
+  return (
+    <main className="roam-page">
+      <div className="roam-desk">
 
-export default function Home(){
+        {/* 最终定稿首页 */}
+        <img
+          src="/wild-desk.jpg"
+          alt="RoamLab Wild Desk"
+          className="roam-background"
+          draggable={false}
+        />
 
+        {/* =========================
+            INVISIBLE CLICK ZONES
+            不显示边框，不改变原图
+        ========================== */}
 
-return (
+        {/* 徽章 */}
+        <Link
+          href="/badges"
+          className="desk-zone zone-badge"
+          aria-label="Achievements"
+        >
+          <span className="zone-tooltip">
+            ACHIEVEMENTS
+            <small>Earn badges. Track progress.</small>
+          </span>
+        </Link>
 
-<main className="roam-page">
+        {/* Explore */}
+        <Link
+          href="/explore"
+          className="desk-zone zone-explore"
+          aria-label="Explore"
+        >
+          <span className="zone-tooltip">
+            EXPLORE
+            <small>Find places. Discover wild.</small>
+          </span>
+        </Link>
 
+        {/* 越野车 */}
+        <Link
+          href="/ways-in"
+          className="desk-zone zone-vehicle"
+          aria-label="Ways In"
+        >
+          <span className="zone-tooltip">
+            WAYS IN
+            <small>How do you go wild?</small>
+          </span>
+        </Link>
 
-<div className="desk">
+        {/* 背包 */}
+        <Link
+          href="/prepare"
+          className="desk-zone zone-backpack"
+          aria-label="Prepare"
+        >
+          <span className="zone-tooltip">
+            PREPARE
+            <small>Pack smarter. Go lighter.</small>
+          </span>
+        </Link>
 
+        {/* 急救包 */}
+        <Link
+          href="/safety"
+          className="desk-zone zone-firstaid"
+          aria-label="Safety"
+        >
+          <span className="zone-tooltip">
+            SAFETY
+            <small>Be ready. Stay safe.</small>
+          </span>
+        </Link>
 
-<img
+        {/* Field Guide */}
+        <Link
+          href="/learn"
+          className="desk-zone zone-guide"
+          aria-label="Field Guide"
+        >
+          <span className="zone-tooltip">
+            FIELD GUIDE
+            <small>Skills, knowledge & guides.</small>
+          </span>
+        </Link>
 
-src="/wild-desk.jpg"
+        {/* My Wild Journal */}
+        <Link
+          href="/journal"
+          className="desk-zone zone-journal"
+          aria-label="My Wild Journal"
+        >
+          <span className="zone-tooltip">
+            MY WILD JOURNAL
+            <small>Your trips. Your story.</small>
+          </span>
+        </Link>
 
-className="background"
+        {/* Wild Wall / Stories */}
+        <Link
+          href="/stories"
+          className="desk-zone zone-stories"
+          aria-label="The Wild Wall"
+        >
+          <span className="zone-tooltip">
+            THE WILD WALL
+            <small>Real people. Real wild.</small>
+          </span>
+        </Link>
 
-/>
+        {/* Plan / Compass */}
+        <Link
+          href="/plan"
+          className="desk-zone zone-plan"
+          aria-label="Plan Your Wild"
+        >
+          <span className="zone-tooltip">
+            PLAN YOUR WILD
+            <small>Routes, weather, timing & more.</small>
+          </span>
+        </Link>
 
-
-
-<DeskObject
-
-href="/badges"
-
-image="/objects/badge.png"
-
-alt="Badge"
-
-className="badge"
-
-/>
-
-
-
-<DeskObject
-
-href="/ways-in"
-
-image="/objects/vehicle.png"
-
-alt="Vehicle"
-
-className="vehicle"
-
-/>
-
-
-
-<DeskObject
-
-href="/prepare"
-
-image="/objects/backpack.png"
-
-alt="Backpack"
-
-className="backpack"
-
-/>
-
-
-
-</div>
-
-
-</main>
-
-)
-
+      </div>
+    </main>
+  );
 }
