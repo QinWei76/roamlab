@@ -41,7 +41,17 @@ export default function Home() {
             <small>Find places. Discover wild.</small>
           </span>
         </Link>
-
+         {/* Adventure Checklist */}
+<Link
+  href="/prepare"
+  className="desk-zone zone-checklist"
+  aria-label="Adventure Checklist"
+>
+  <span className="zone-tooltip">
+    TRIP CHECKLIST
+    <small>Check before you go.</small>
+  </span>
+</Link>
         {/* 越野车 */}
         <Link
           href="/ways-in"
