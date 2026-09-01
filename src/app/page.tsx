@@ -45,27 +45,25 @@ export default function HomePage() {
 
          <Link href="/ways-in">
 
- <Link href="/ways-in">
 
   <path
     className="hot"
     d="
-      M155 395
-      L180 350
-      L255 315
-      L365 300
-      L445 335
-      L475 390
-      L460 440
-      L390 455
-      L285 450
-      L210 430
+      M175 405
+      L205 360
+      L285 325
+      L365 320
+      L435 350
+      L455 395
+      L435 425
+      L360 440
+      L260 435
+      L205 425
       Z
     "
   />
 
 </Link>
-
           {/* =====================
               BACKPACK 背包
           ===================== */}
