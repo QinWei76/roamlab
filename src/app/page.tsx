@@ -30,12 +30,11 @@ export default function HomePage() {
           <Link href="/badges">
 
   <circle
-    cx="120"
-    cy="190"
-    r="105"
-    className="hot"
-  />
-
+  cx="118"
+  cy="190"
+  r="82"
+  className="hot"
+/>
 </Link>
 
 
