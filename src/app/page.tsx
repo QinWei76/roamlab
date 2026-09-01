@@ -2,23 +2,30 @@ import Link from "next/link";
 
 export default function HomePage() {
   return (
-    <main className="page">
+    <main className="roam-page">
 
-      <div className="canvas">
+      <div className="roam-canvas">
 
+        {/* 主视觉图片 */}
         <img
           src="/wild-desk.jpg"
-          alt="RoamLab"
-          className="image"
+          alt="RoamLab Wild Desk"
+          className="roam-image"
         />
 
 
+        {/* SVG 交互层 */}
+
         <svg
-          className="layer"
+          className="roam-svg"
           viewBox="0 0 1412 1114"
+          preserveAspectRatio="xMidYMid meet"
         >
 
-          {/* 徽章测试区域 */}
+
+          {/* =====================
+              BADGE 徽章
+          ===================== */}
 
           <Link href="/badges">
 
@@ -32,7 +39,11 @@ export default function HomePage() {
           </Link>
 
 
-          {/* 越野车测试区域 */}
+
+          {/* =====================
+              VEHICLE 越野车
+              测试区域
+          ===================== */}
 
           <Link href="/ways-in">
 
@@ -41,6 +52,121 @@ export default function HomePage() {
               y="300"
               width="260"
               height="160"
+              rx="20"
+              className="hot"
+            />
+
+          </Link>
+
+
+
+          {/* =====================
+              BACKPACK 背包
+          ===================== */}
+
+          <Link href="/prepare">
+
+            <rect
+              x="60"
+              y="500"
+              width="280"
+              height="300"
+              rx="30"
+              className="hot"
+            />
+
+          </Link>
+
+
+
+          {/* =====================
+              FIRST AID 急救包
+          ===================== */}
+
+          <Link href="/safety">
+
+            <rect
+              x="470"
+              y="620"
+              width="260"
+              height="210"
+              rx="25"
+              className="hot"
+            />
+
+          </Link>
+
+
+
+          {/* =====================
+              FIELD GUIDE
+          ===================== */}
+
+          <Link href="/learn">
+
+            <rect
+              x="780"
+              y="540"
+              width="240"
+              height="280"
+              rx="20"
+              className="hot"
+            />
+
+          </Link>
+
+
+
+          {/* =====================
+              JOURNAL
+          ===================== */}
+
+          <Link href="/journal">
+
+            <rect
+              x="1120"
+              y="470"
+              width="220"
+              height="350"
+              rx="20"
+              className="hot"
+            />
+
+          </Link>
+
+
+
+          {/* =====================
+              POLAROID / STORIES
+          ===================== */}
+
+          <Link href="/stories">
+
+            <rect
+              x="1000"
+              y="70"
+              width="280"
+              height="230"
+              rx="20"
+              className="hot"
+            />
+
+          </Link>
+
+
+
+          {/* =====================
+              START YOUR WILD
+          ===================== */}
+
+          <Link href="/start-here">
+
+            <rect
+              x="530"
+              y="430"
+              width="350"
+              height="90"
+              rx="25"
               className="hot"
             />
 
@@ -49,74 +175,7 @@ export default function HomePage() {
 
         </svg>
 
-
       </div>
-
-
-      <style jsx>{`
-
-        .page{
-          width:100%;
-          background:#0b0b0b;
-        }
-
-
-        .canvas{
-
-          position:relative;
-          width:100%;
-          max-width:1412px;
-          margin:auto;
-
-        }
-
-
-        .image{
-
-          width:100%;
-          height:auto;
-          display:block;
-
-        }
-
-
-        .layer{
-
-          position:absolute;
-          inset:0;
-
-          width:100%;
-          height:100%;
-
-        }
-
-
-        .hot{
-
-          fill:transparent;
-
-          stroke:transparent;
-
-          cursor:pointer;
-
-          transition:.25s;
-
-        }
-
-
-        .hot:hover{
-
-          fill:rgba(220,140,50,.08);
-
-          stroke:#d88b32;
-
-          stroke-width:3;
-
-        }
-
-
-      `}</style>
-
 
     </main>
   );
