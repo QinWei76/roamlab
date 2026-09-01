@@ -49,7 +49,7 @@ export default function HomePage() {
   <path
     className="hot"
     d="
-      M175 405
+      M175 460
       L205 360
       L285 325
       L365 320
