@@ -45,6 +45,8 @@ export default function HomePage() {
 
          <Link href="/ways-in">
 
+ <Link href="/ways-in">
+
   <path
     className="hot"
     d="
@@ -63,7 +65,6 @@ export default function HomePage() {
   />
 
 </Link>
-
 
           {/* =====================
               BACKPACK 背包
