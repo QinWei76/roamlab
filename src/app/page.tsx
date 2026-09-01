@@ -31,8 +31,8 @@ export default function HomePage() {
 
   <circle
   cx="118"
-  cy="190"
-  r="82"
+  cy="230"
+  r="90"
   className="hot"
 />
 </Link>
