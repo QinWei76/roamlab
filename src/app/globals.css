@@ -1,235 +1,401 @@
 @import "tailwindcss";
 
 
-/* =====================================
-   GLOBAL RESET
-===================================== */
+/* =========================
+   RESET
+========================= */
 
 * {
-  box-sizing: border-box;
+
+  box-sizing:border-box;
+
 }
 
 
 html,
 body {
 
-  margin: 0;
-  padding: 0;
+  margin:0;
 
-  width: 100%;
-  min-height: 100%;
+  padding:0;
 
-  background: #0b0b0b;
+  width:100%;
+
+  min-height:100%;
+
+  background:#0b0b0b;
+
+  color:#111;
 
 }
 
 
 body {
 
-  overflow-x: hidden;
+  overflow-x:hidden;
 
 }
 
 
-/* =====================================
+
+/* =========================
    ROAMLAB HOME
-===================================== */
+========================= */
 
 
 .roam-page {
 
-  width: 100%;
+  width:100%;
 
-  min-height: 100vh;
+  min-height:100vh;
 
-  background:
-    #0b0b0b;
-
-}
-
-
-
-.roam-canvas {
-
-  position: relative;
-
-  width: 100%;
-
-  max-width: 1412px;
-
-  margin: 0 auto;
-
-  overflow: hidden;
+  background:#0b0b0b;
 
 }
 
 
 
-/* =====================================
+.desk {
+
+  position:relative;
+
+  width:100%;
+
+  max-width:1412px;
+
+  margin:0 auto;
+
+  overflow:hidden;
+
+}
+
+
+
+/* =========================
    BACKGROUND IMAGE
-
-   Original:
-   1412 × 1114
-
-===================================== */
+========================= */
 
 
-.roam-image {
+.background {
 
-  display: block;
+  display:block;
 
-  width: 100%;
+  width:100%;
 
-  height: auto;
+  height:auto;
 
-  user-select: none;
-
-  pointer-events: none;
+  user-select:none;
 
 }
 
 
 
-/* =====================================
-   SVG INTERACTION LAYER
-===================================== */
+/* =========================
+   DESK OBJECT BUTTON
+
+   所有装备入口
+========================= */
 
 
-.roam-svg {
+.desk-object {
 
-  position: absolute;
+  position:absolute;
 
-  inset: 0;
+  display:block;
 
-  width: 100%;
+  cursor:pointer;
 
-  height: 100%;
-
-  z-index: 10;
+  z-index:10;
 
 }
 
 
 
-/* =====================================
-   HOTSPOT BASE
+.desk-object img {
 
-   Invisible normally
+  display:block;
 
-===================================== */
+  width:100%;
 
-
-.hot {
-
-  fill: transparent;
-
-  stroke: transparent;
-
-  cursor: pointer;
+  height:auto;
 
   transition:
 
-    fill .25s ease,
+    transform .35s ease,
 
-    stroke .25s ease,
+    filter .35s ease;
 
-    filter .25s ease;
 
 }
 
 
 
-/* =====================================
+/* =========================
    HOVER EFFECT
 
-   Premium equipment highlight
-
-===================================== */
-
-
-.hot:hover {
+   物品被发现
+========================= */
 
 
-  fill:
-
-    rgba(
-      220,
-      140,
-      50,
-      0.05
-    );
+.desk-object:hover img {
 
 
-  stroke:
+  transform:
 
-    rgba(
-      220,
-      140,
-      50,
-      0.55
-    );
+    translateY(-8px)
 
+    scale(1.08);
 
-  stroke-width: 2;
 
 
   filter:
 
     drop-shadow(
-      0 0 10px
-      rgba(
-        220,
-        140,
-        50,
-        0.35
-      )
+
+      0 15px 25px
+
+      rgba(0,0,0,.35)
+
     );
 
+
 }
 
 
 
-/* =====================================
+/* =========================
    ACTIVE CLICK
-===================================== */
+========================= */
 
 
-.hot:active {
+.desk-object:active img {
 
-  opacity: .7;
+
+  transform:
+
+    scale(.96);
+
 
 }
 
 
 
-/* =====================================
-   LINKS
+/* =========================
+   OBJECT POSITIONS
 
-   Remove default styles
-===================================== */
+   后续只调整这里
+========================= */
 
 
-.roam-svg a {
 
-  cursor: pointer;
+/* 徽章 */
+
+.badge {
+
+
+  width:120px;
+
+  top:10%;
+
+  left:8%;
+
 
 }
 
 
 
-/* =====================================
+/* 越野车 */
+
+.vehicle {
+
+
+  width:300px;
+
+  top:34%;
+
+  left:18%;
+
+
+}
+
+
+
+/* 背包 */
+
+.backpack {
+
+
+  width:220px;
+
+  left:7%;
+
+  bottom:12%;
+
+
+}
+
+
+
+/* 急救包 */
+
+.first-aid {
+
+
+  width:180px;
+
+  left:38%;
+
+  bottom:15%;
+
+
+}
+
+
+
+/* Field Guide */
+
+.guide {
+
+
+  width:220px;
+
+  right:30%;
+
+  bottom:20%;
+
+
+}
+
+
+
+/* Journal */
+
+.journal {
+
+
+  width:240px;
+
+  right:8%;
+
+  bottom:15%;
+
+
+}
+
+
+
+/* Polaroid */
+
+.story {
+
+
+  width:230px;
+
+  right:12%;
+
+  top:8%;
+
+
+}
+
+
+
+/* =========================
+   TOOLTIP
+========================= */
+
+
+.desk-object::after {
+
+
+  content:"";
+
+
+  position:absolute;
+
+
+  left:50%;
+
+  bottom:-45px;
+
+
+  transform:
+
+    translateX(-50%)
+
+    translateY(10px);
+
+
+
+  padding:
+
+    8px 14px;
+
+
+
+  background:
+
+    rgba(20,20,20,.85);
+
+
+
+  color:white;
+
+
+  font-size:13px;
+
+
+  letter-spacing:.08em;
+
+
+  border-radius:20px;
+
+
+  opacity:0;
+
+
+  transition:.3s;
+
+
+  pointer-events:none;
+
+
+
+  white-space:nowrap;
+
+
+}
+
+
+
+.desk-object:hover::after {
+
+
+  opacity:1;
+
+
+  transform:
+
+    translateX(-50%)
+
+    translateY(0);
+
+
+}
+
+
+
+/* =========================
    MOBILE
-
-   Keep artwork ratio
-===================================== */
+========================= */
 
 
 @media(max-width:768px){
 
 
-  .roam-canvas {
+  .desk {
 
-    min-width: 900px;
+    min-width:900px;
 
   }
 
