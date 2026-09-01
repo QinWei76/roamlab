@@ -50,12 +50,12 @@ export default function HomePage() {
     className="hot"
     d="
       M175 460
-      L205 360
-      L285 325
-      L365 320
-      L435 350
-      L455 395
-      L435 425
+      L205 400
+      L285 365
+      L365 360
+      L435 390
+      L455 430
+      L435 465
       L360 460
       L260 480
       L205 500
