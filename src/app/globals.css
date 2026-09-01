@@ -1,8 +1,9 @@
 @import "tailwindcss";
 
-/* =========================================
-   RESET
-========================================= */
+
+/* ============================================================
+   GLOBAL RESET
+============================================================ */
 
 * {
   box-sizing: border-box;
@@ -12,132 +13,204 @@ html,
 body {
   margin: 0;
   padding: 0;
+
   width: 100%;
   min-height: 100%;
+
   background: #080808;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   overflow-x: hidden;
+
+  color: #f4efe6;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+img {
+  max-width: 100%;
 }
 
 
-/* =========================================
+/* ============================================================
    ROAMLAB HOME
-========================================= */
+============================================================ */
 
 .roam-page {
   width: 100%;
   min-height: 100vh;
+
+  margin: 0;
+  padding: 0;
+
   background: #080808;
+
+  overflow-x: hidden;
 }
+
+
+/* ============================================================
+   MASTER DESK
+
+   wild-desk.jpg
+   Original design: 1412 × 1114
+============================================================ */
 
 .roam-desk {
   position: relative;
+
   width: 100%;
   max-width: 1412px;
+
   margin: 0 auto;
+  padding: 0;
+
   overflow: hidden;
+
+  background: #080808;
 }
 
 
-/* =========================================
+/* ============================================================
    BACKGROUND
-========================================= */
+============================================================ */
 
 .roam-background {
+  position: relative;
+
+  z-index: 1;
+
   display: block;
+
   width: 100%;
   height: auto;
+
+  margin: 0;
+  padding: 0;
+
   user-select: none;
   pointer-events: none;
+
+  -webkit-user-drag: none;
 }
 
 
-/* =========================================
-   INVISIBLE INTERACTION ZONES
-========================================= */
+/* ============================================================
+   DESK HOTSPOTS
+
+   These are invisible clickable areas.
+============================================================ */
 
 .desk-zone {
   position: absolute;
+
   z-index: 20;
 
   display: block;
 
-  text-decoration: none;
+  margin: 0;
+  padding: 0;
+
   cursor: pointer;
 
   background: transparent;
-  border: 0;
+
+  border: none;
   outline: none;
 
-  border-radius: 22px;
+  text-decoration: none;
+
+  border-radius: 24px;
 
   -webkit-tap-highlight-color: transparent;
 
   transition:
-    transform 0.2s ease;
+    transform 0.22s ease;
 }
 
 
-/* =========================================
-   SOFT DISCOVERY GLOW
-========================================= */
+/* ============================================================
+   DESK GLOW
+
+   No orange border.
+   No visible rectangle.
+============================================================ */
 
 .desk-zone::before {
   content: "";
 
   position: absolute;
+
   inset: -4%;
+
+  z-index: 1;
 
   border-radius: inherit;
 
   background:
     radial-gradient(
       ellipse at center,
-      rgba(236, 157, 66, 0.16) 0%,
-      rgba(236, 157, 66, 0.08) 35%,
-      rgba(236, 157, 66, 0.025) 58%,
-      transparent 76%
+      rgba(255, 194, 105, 0.18) 0%,
+      rgba(255, 169, 72, 0.09) 38%,
+      rgba(255, 145, 42, 0.03) 62%,
+      transparent 78%
     );
 
-  filter: blur(8px);
+  filter: blur(9px);
 
   opacity: 0;
 
-  transform: scale(0.94);
+  transform: scale(0.95);
 
   transition:
-    opacity 0.3s ease,
-    transform 0.35s ease;
+    opacity 0.28s ease,
+    transform 0.32s ease;
 
   pointer-events: none;
 }
 
-.desk-zone:hover::before {
-  opacity: 1;
-  transform: scale(1.04);
-}
 
-
-/* =========================================
-   VERY SUBTLE SURFACE LIGHT
-========================================= */
+/* ============================================================
+   SECONDARY SURFACE LIGHT
+============================================================ */
 
 .desk-zone::after {
   content: "";
 
   position: absolute;
-  inset: 0;
+
+  inset: 1%;
+
+  z-index: 2;
 
   border-radius: inherit;
 
   background:
     radial-gradient(
-      circle at 50% 45%,
-      rgba(255, 214, 156, 0.09),
-      rgba(255, 214, 156, 0.035) 50%,
-      transparent 72%
+      circle at 50% 48%,
+      rgba(255, 226, 180, 0.10) 0%,
+      rgba(255, 200, 125, 0.035) 52%,
+      transparent 75%
     );
 
   opacity: 0;
@@ -148,18 +221,29 @@ body {
   pointer-events: none;
 }
 
+
+/* ============================================================
+   DESK HOVER
+============================================================ */
+
+.desk-zone:hover::before {
+  opacity: 1;
+
+  transform: scale(1.035);
+}
+
 .desk-zone:hover::after {
   opacity: 1;
 }
 
-
-/* =========================================
-   HOVER FEEL
-========================================= */
-
 .desk-zone:hover {
   transform: translateY(-2px);
 }
+
+
+/* ============================================================
+   DESK CLICK
+============================================================ */
 
 .desk-zone:active {
   transform:
@@ -168,132 +252,67 @@ body {
 }
 
 
-/* =========================================
-   TOOLTIP
-========================================= */
-
-.zone-tooltip {
-  position: absolute;
-
-  left: 50%;
-  bottom: -62px;
-
-  transform:
-    translateX(-50%)
-    translateY(8px);
-
-  min-width: 170px;
-
-  padding: 10px 14px;
-
-  background:
-    rgba(13, 13, 11, 0.93);
-
-  border:
-    1px solid rgba(255, 255, 255, 0.12);
-
-  border-radius: 8px;
-
-  color: #f2eadc;
-
-  font-size: 11px;
-  font-weight: 700;
-
-  line-height: 1.25;
-
-  letter-spacing: 0.08em;
-
-  text-align: center;
-
-  white-space: nowrap;
-
-  box-shadow:
-    0 12px 34px rgba(0, 0, 0, 0.35);
-
-  backdrop-filter: blur(10px);
-
-  opacity: 0;
-
-  pointer-events: none;
-
-  transition:
-    opacity 0.2s ease,
-    transform 0.2s ease;
-}
-
-.zone-tooltip small {
-  display: block;
-
-  margin-top: 5px;
-
-  color:
-    rgba(242, 234, 220, 0.62);
-
-  font-size: 10px;
-  font-weight: 400;
-
-  letter-spacing: 0.015em;
-}
-
-
-/*
-   如果你觉得原图里的黑色标签已经够清楚，
-   可以继续保持 Tooltip 隐藏。
-
-   如果你想让用户 Hover 时出现额外提示，
-   把下面这段注释取消。
-*/
-
-/*
-.desk-zone:hover .zone-tooltip {
-  opacity: 1;
-
-  transform:
-    translateX(-50%)
-    translateY(0);
-}
-*/
-
-
-/* =========================================
-   INTERACTION POSITIONS
-========================================= */
-
-
-/* BADGE */
+/* ============================================================
+   BADGE + ACHIEVEMENTS
+============================================================ */
 
 .zone-badge {
-  left: 2.3%;
-  top: 8.5%;
+  left: 2%;
+  top: 8%;
 
-  width: 14.5%;
-  height: 19%;
+  width: 29%;
+  height: 20%;
 
-  border-radius: 50%;
+  border-radius: 26px;
 }
 
 
-/* EXPLORE */
+/*
+   Two glow centers:
+   1. Badge
+   2. ACHIEVEMENTS card
+*/
+
+.zone-badge::before {
+  inset: -2%;
+
+  background:
+    radial-gradient(
+      circle at 24% 52%,
+      rgba(255, 176, 65, 0.24) 0%,
+      rgba(255, 150, 40, 0.10) 34%,
+      transparent 58%
+    ),
+
+    radial-gradient(
+      ellipse at 76% 47%,
+      rgba(255, 205, 130, 0.18) 0%,
+      rgba(255, 170, 75, 0.07) 45%,
+      transparent 72%
+    );
+
+  filter: blur(8px);
+}
+
+
+/* ============================================================
+   EXPLORE
+============================================================ */
 
 .zone-explore {
-  left: 7.3%;
+  left: 7%;
   top: 31%;
 
-  width: 12.5%;
+  width: 13%;
   height: 10%;
+
+  border-radius: 12px;
 }
 
 
-/* VEHICLE */
-
-.zone-vehicle {
-  left: 16.5%;
-  top: 34%;
-
-  width: 16.5%;
-  height: 16%;
-}
-/* ADVENTURE CHECKLIST */
+/* ============================================================
+   ADVENTURE CHECKLIST
+============================================================ */
 
 .zone-checklist {
   left: 0%;
@@ -305,135 +324,812 @@ body {
   border-radius: 18px;
 }
 
-
-/* Checklist 点亮效果 */
-
 .zone-checklist::before {
   inset: -4%;
 
   background:
     radial-gradient(
       ellipse at 45% 50%,
-      rgba(255, 190, 100, 0.20) 0%,
-      rgba(255, 160, 65, 0.09) 45%,
+      rgba(255, 200, 115, 0.22) 0%,
+      rgba(255, 170, 75, 0.09) 45%,
       transparent 76%
     );
 
   filter: blur(7px);
 }
 
-/* BACKPACK */
+
+/* ============================================================
+   VEHICLE + WAYS IN
+============================================================ */
+
+.zone-vehicle {
+  left: 15%;
+  top: 33%;
+
+  width: 23%;
+  height: 21%;
+
+  border-radius: 24px;
+}
+
+.zone-vehicle::before {
+  background:
+    radial-gradient(
+      ellipse at 42% 50%,
+      rgba(255, 188, 85, 0.21) 0%,
+      rgba(255, 155, 48, 0.08) 46%,
+      transparent 74%
+    ),
+
+    radial-gradient(
+      ellipse at 82% 70%,
+      rgba(255, 205, 130, 0.13) 0%,
+      rgba(255, 170, 75, 0.05) 42%,
+      transparent 70%
+    );
+}
+
+
+/* ============================================================
+   BACKPACK + PREPARE
+============================================================ */
 
 .zone-backpack {
   left: 4%;
-  top: 51%;
+  top: 50%;
 
-  width: 32%;
-  height: 40%;
+  width: 34%;
+  height: 42%;
+
+  border-radius: 30px;
+}
+
+.zone-backpack::before {
+  background:
+    radial-gradient(
+      ellipse at 42% 48%,
+      rgba(255, 194, 100, 0.19) 0%,
+      rgba(255, 160, 58, 0.07) 50%,
+      transparent 76%
+    ),
+
+    radial-gradient(
+      ellipse at 86% 18%,
+      rgba(255, 205, 130, 0.13) 0%,
+      rgba(255, 170, 75, 0.05) 40%,
+      transparent 68%
+    );
 }
 
 
-/* FIRST AID */
+/* ============================================================
+   FIRST AID + SAFETY
+============================================================ */
 
 .zone-firstaid {
-  left: 37%;
-  top: 64%;
+  left: 36%;
+  top: 63%;
 
-  width: 18%;
-  height: 18%;
+  width: 22%;
+  height: 24%;
+
+  border-radius: 24px;
+}
+
+.zone-firstaid::before {
+  background:
+    radial-gradient(
+      ellipse at 48% 48%,
+      rgba(255, 190, 92, 0.20) 0%,
+      rgba(255, 155, 50, 0.07) 50%,
+      transparent 75%
+    ),
+
+    radial-gradient(
+      ellipse at 78% 85%,
+      rgba(255, 205, 130, 0.11) 0%,
+      transparent 65%
+    );
 }
 
 
-/* FIELD GUIDE */
+/* ============================================================
+   FIELD GUIDE + LEARN
+============================================================ */
 
 .zone-guide {
-  left: 58%;
-  top: 57%;
+  left: 57%;
+  top: 56%;
 
-  width: 16%;
-  height: 26%;
+  width: 21%;
+  height: 31%;
+
+  border-radius: 24px;
+}
+
+.zone-guide::before {
+  background:
+    radial-gradient(
+      ellipse at 45% 48%,
+      rgba(255, 195, 105, 0.19) 0%,
+      rgba(255, 160, 58, 0.07) 50%,
+      transparent 76%
+    ),
+
+    radial-gradient(
+      ellipse at 80% 88%,
+      rgba(255, 205, 130, 0.12) 0%,
+      transparent 68%
+    );
 }
 
 
-/* JOURNAL */
+/* ============================================================
+   JOURNAL + MY WILD JOURNAL
+============================================================ */
 
 .zone-journal {
-  left: 75%;
-  top: 49%;
+  left: 73%;
+  top: 48%;
 
-  width: 19%;
-  height: 35%;
+  width: 24%;
+  height: 40%;
+
+  border-radius: 26px;
+}
+
+.zone-journal::before {
+  background:
+    radial-gradient(
+      ellipse at 52% 52%,
+      rgba(255, 190, 95, 0.19) 0%,
+      rgba(255, 155, 50, 0.07) 52%,
+      transparent 77%
+    ),
+
+    radial-gradient(
+      ellipse at 50% 88%,
+      rgba(255, 205, 130, 0.12) 0%,
+      transparent 66%
+    );
 }
 
 
-/* STORIES */
+/* ============================================================
+   THE WILD WALL
+   POLAROID + LABEL
+============================================================ */
 
 .zone-stories {
-  left: 64%;
-  top: 8%;
+  left: 63%;
+  top: 7%;
 
-  width: 17%;
-  height: 21%;
+  width: 29%;
+  height: 24%;
+
+  border-radius: 22px;
+}
+
+.zone-stories::before {
+  background:
+    radial-gradient(
+      ellipse at 35% 48%,
+      rgba(255, 198, 110, 0.20) 0%,
+      rgba(255, 160, 58, 0.07) 48%,
+      transparent 74%
+    ),
+
+    radial-gradient(
+      ellipse at 82% 60%,
+      rgba(255, 205, 130, 0.14) 0%,
+      rgba(255, 170, 75, 0.05) 45%,
+      transparent 70%
+    );
 }
 
 
-/* PLAN */
+/* ============================================================
+   PLAN YOUR WILD
+   COMPASS + LABEL
+============================================================ */
 
 .zone-plan {
-  left: 62%;
-  top: 31%;
+  left: 60%;
+  top: 29%;
 
-  width: 15%;
-  height: 22%;
+  width: 30%;
+  height: 25%;
+
+  border-radius: 24px;
+}
+
+.zone-plan::before {
+  background:
+    radial-gradient(
+      circle at 32% 58%,
+      rgba(255, 188, 80, 0.22) 0%,
+      rgba(255, 155, 48, 0.08) 42%,
+      transparent 66%
+    ),
+
+    radial-gradient(
+      ellipse at 77% 50%,
+      rgba(255, 205, 130, 0.15) 0%,
+      rgba(255, 170, 75, 0.05) 44%,
+      transparent 70%
+    );
 }
 
 
-/* =========================================
-   KEYBOARD ACCESSIBILITY
-========================================= */
+/* ============================================================
+   TOP NAVIGATION
+============================================================ */
 
-.desk-zone:focus-visible {
+.top-zone,
+.center-start-zone {
+  position: absolute;
+
+  z-index: 40;
+
+  display: block;
+
+  margin: 0;
+  padding: 0;
+
+  cursor: pointer;
+
+  text-decoration: none;
+
+  background: transparent;
+
+  border: none;
+  outline: none;
+
+  -webkit-tap-highlight-color: transparent;
+
+  transition:
+    transform 0.20s ease;
+}
+
+
+/* ============================================================
+   TOP NAV GLOW
+============================================================ */
+
+.top-zone::before,
+.center-start-zone::before {
+  content: "";
+
+  position: absolute;
+
+  inset: -12%;
+
+  border-radius: inherit;
+
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(255, 215, 145, 0.22) 0%,
+      rgba(255, 175, 85, 0.09) 48%,
+      transparent 78%
+    );
+
+  filter: blur(6px);
+
+  opacity: 0;
+
+  transform: scale(0.94);
+
+  transition:
+    opacity 0.20s ease,
+    transform 0.24s ease;
+
+  pointer-events: none;
+}
+
+.top-zone:hover::before,
+.center-start-zone:hover::before {
+  opacity: 1;
+
+  transform: scale(1.07);
+}
+
+
+/* ============================================================
+   TOP NAV HOVER
+============================================================ */
+
+.top-zone:hover {
+  transform: translateY(-2px);
+}
+
+
+/* ============================================================
+   TOP NAV CLICK
+============================================================ */
+
+.top-zone:active,
+.center-start-zone:active {
+  transform: scale(0.97);
+}
+
+
+/* ============================================================
+   TOP NAV
+   EXPLORE
+============================================================ */
+
+.top-explore {
+  left: 19.5%;
+  top: 0.2%;
+
+  width: 6.5%;
+  height: 5.5%;
+
+  border-radius: 8px;
+}
+
+
+/* ============================================================
+   TOP NAV
+   PLAN
+============================================================ */
+
+.top-plan {
+  left: 27.3%;
+  top: 0.2%;
+
+  width: 5%;
+  height: 5.5%;
+
+  border-radius: 8px;
+}
+
+
+/* ============================================================
+   TOP NAV
+   PREPARE
+============================================================ */
+
+.top-prepare {
+  left: 33%;
+  top: 0.2%;
+
+  width: 7%;
+  height: 5.5%;
+
+  border-radius: 8px;
+}
+
+
+/* ============================================================
+   TOP NAV
+   SAFETY
+============================================================ */
+
+.top-safety {
+  left: 40.2%;
+  top: 0.2%;
+
+  width: 6%;
+  height: 5.5%;
+
+  border-radius: 8px;
+}
+
+
+/* ============================================================
+   TOP NAV
+   LEARN
+============================================================ */
+
+.top-learn {
+  left: 47.2%;
+  top: 0.2%;
+
+  width: 6%;
+  height: 5.5%;
+
+  border-radius: 8px;
+}
+
+
+/* ============================================================
+   TOP NAV
+   JOURNAL
+============================================================ */
+
+.top-journal {
+  left: 53.8%;
+  top: 0.2%;
+
+  width: 7%;
+  height: 5.5%;
+
+  border-radius: 8px;
+}
+
+
+/* ============================================================
+   TOP NAV
+   STORIES
+============================================================ */
+
+.top-stories {
+  left: 61.4%;
+  top: 0.2%;
+
+  width: 6.5%;
+  height: 5.5%;
+
+  border-radius: 8px;
+}
+
+
+/* ============================================================
+   TOP NAV
+   BADGES
+============================================================ */
+
+.top-badges {
+  left: 68.2%;
+  top: 0.2%;
+
+  width: 6.5%;
+  height: 5.5%;
+
+  border-radius: 8px;
+}
+
+
+/* ============================================================
+   SIGN IN
+============================================================ */
+
+.top-signin {
+  left: 74.5%;
+  top: 0%;
+
+  width: 9.5%;
+  height: 6.5%;
+
+  border-radius: 8px;
+}
+
+
+/*
+   SIGN IN gets a slightly stronger white/warm response
+*/
+
+.top-signin::before {
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(255, 238, 205, 0.22) 0%,
+      rgba(255, 200, 130, 0.08) 52%,
+      transparent 80%
+    );
+}
+
+
+/* ============================================================
+   TOP START YOUR WILD
+============================================================ */
+
+.top-start {
+  left: 84.7%;
+  top: 0%;
+
+  width: 14.5%;
+  height: 6.5%;
+
+  border-radius: 8px;
+}
+
+.top-start::before {
+  inset: -10%;
+
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(255, 226, 155, 0.38) 0%,
+      rgba(255, 180, 70, 0.17) 46%,
+      rgba(255, 150, 40, 0.05) 66%,
+      transparent 82%
+    );
+
+  filter: blur(7px);
+}
+
+.top-start:hover {
+  transform:
+    translateY(-2px)
+    scale(1.015);
+}
+
+
+/* ============================================================
+   CENTER START YOUR WILD
+============================================================ */
+
+.center-start-zone {
+  left: 38.2%;
+  top: 52.5%;
+
+  width: 23%;
+  height: 8.5%;
+
+  border-radius: 9px;
+}
+
+.center-start-zone::before {
+  inset: -10%;
+
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(255, 226, 155, 0.40) 0%,
+      rgba(255, 180, 70, 0.18) 46%,
+      rgba(255, 150, 40, 0.05) 66%,
+      transparent 82%
+    );
+
+  filter: blur(8px);
+}
+
+.center-start-zone:hover {
+  transform:
+    translateY(-3px)
+    scale(1.018);
+}
+
+
+/* ============================================================
+   ACCESSIBILITY
+============================================================ */
+
+.desk-zone:focus-visible,
+.top-zone:focus-visible,
+.center-start-zone:focus-visible {
   outline:
     2px solid
-    rgba(238, 166, 78, 0.85);
+    rgba(241, 167, 77, 0.90);
 
   outline-offset: 3px;
 }
 
 
-/* =========================================
-   SMALL MOTION REFINEMENT
-========================================= */
+/* ============================================================
+   SYSTEM PAGES
+
+   Keeps the pages we created earlier working.
+============================================================ */
+
+.system-page {
+  min-height: 100vh;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 40px 24px;
+
+  background:
+    radial-gradient(
+      circle at top,
+      #27231d 0%,
+      #11100e 45%,
+      #080808 100%
+    );
+}
+
+.system-card {
+  width: 100%;
+  max-width: 1000px;
+
+  padding: 60px;
+
+  border-radius: 28px;
+
+  background: #f0eadf;
+
+  color: #151412;
+
+  text-align: center;
+
+  box-shadow:
+    0 30px 80px
+    rgba(0, 0, 0, 0.35);
+}
+
+.system-card h1 {
+  margin:
+    0
+    0
+    18px;
+
+  font-size:
+    clamp(
+      34px,
+      5vw,
+      58px
+    );
+
+  line-height: 1;
+
+  letter-spacing: 0.06em;
+}
+
+.system-card > p {
+  margin:
+    0
+    auto;
+
+  max-width: 620px;
+
+  font-size: 17px;
+  line-height: 1.6;
+
+  color:
+    rgba(21, 20, 18, 0.68);
+}
+
+
+/* ============================================================
+   OPTION / BADGE GRIDS
+============================================================ */
+
+.option-grid,
+.badge-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 18px;
+
+  margin-top: 42px;
+}
+
+.option-grid button,
+.badge-item {
+  min-height: 130px;
+
+  padding: 28px 22px;
+
+  border: none;
+  border-radius: 18px;
+
+  background: #181715;
+
+  color: #f5efe4;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.option-grid button {
+  cursor: pointer;
+
+  font-size: 18px;
+  font-weight: 700;
+
+  letter-spacing: 0.05em;
+}
+
+.option-grid button:hover,
+.badge-item:hover {
+  transform: translateY(-4px);
+
+  background: #24211d;
+
+  box-shadow:
+    0 14px 30px
+    rgba(0, 0, 0, 0.20);
+}
+
+.badge-item h2 {
+  margin:
+    0
+    0
+    10px;
+
+  font-size: 22px;
+
+  letter-spacing: 0.08em;
+}
+
+.badge-item p {
+  margin: 0;
+
+  color:
+    rgba(245, 239, 228, 0.68);
+
+  line-height: 1.5;
+}
+
+
+/* ============================================================
+   REDUCED MOTION
+============================================================ */
 
 @media (prefers-reduced-motion: reduce) {
+
+  html {
+    scroll-behavior: auto;
+  }
+
   .desk-zone,
   .desk-zone::before,
   .desk-zone::after,
-  .zone-tooltip {
+  .top-zone,
+  .top-zone::before,
+  .center-start-zone,
+  .center-start-zone::before,
+  .option-grid button,
+  .badge-item {
     transition: none;
   }
 }
 
 
-/* =========================================
-   MOBILE
-========================================= */
+/* ============================================================
+   TABLET / MOBILE
+============================================================ */
 
 @media (max-width: 768px) {
-  .roam-desk {
-    min-width: 900px;
-  }
+
+  /*
+     For now we preserve the desktop interactive desk.
+
+     We will design a dedicated mobile homepage later.
+  */
 
   .roam-page {
     overflow-x: auto;
   }
 
+  .roam-desk {
+    min-width: 900px;
+  }
+
+
+  /*
+     Touch devices do not need desktop hover glows.
+  */
+
   .desk-zone::before,
-  .desk-zone::after {
+  .desk-zone::after,
+  .top-zone::before,
+  .center-start-zone::before {
     display: none;
   }
 
-  .desk-zone:hover {
+  .desk-zone:hover,
+  .top-zone:hover,
+  .center-start-zone:hover {
     transform: none;
+  }
+
+
+  /* SYSTEM PAGES */
+
+  .system-page {
+    padding: 24px 16px;
+  }
+
+  .system-card {
+    padding: 38px 22px;
+
+    border-radius: 22px;
+  }
+
+  .option-grid,
+  .badge-grid {
+    grid-template-columns: 1fr;
   }
 }
