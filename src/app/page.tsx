@@ -1,142 +1,199 @@
 import Link from "next/link";
 
-export default function Home() {
+export default function HomePage() {
   return (
     <main className="roam-page">
-      <div className="roam-desk">
+      <section className="roam-desk">
 
-        {/* 最终定稿首页 */}
+        {/* =====================================================
+            FINAL ROAMLAB MASTER HERO
+        ===================================================== */}
+
         <img
           src="/wild-desk.jpg"
-          alt="RoamLab Wild Desk"
+          alt="RoamLab — Go Wild. Show It."
           className="roam-background"
           draggable={false}
         />
 
-        {/* =========================
-            INVISIBLE CLICK ZONES
-            不显示边框，不改变原图
-        ========================== */}
 
-        {/* 徽章 */}
+        {/* =====================================================
+            DESK SYSTEMS
+        ===================================================== */}
+
+
+        {/* BADGE + ACHIEVEMENTS */}
+
         <Link
           href="/badges"
           className="desk-zone zone-badge"
           aria-label="Achievements"
-        >
-          <span className="zone-tooltip">
-            ACHIEVEMENTS
-            <small>Earn badges. Track progress.</small>
-          </span>
-        </Link>
+        />
 
-        {/* Explore */}
+
+        {/* EXPLORE */}
+
         <Link
           href="/explore"
           className="desk-zone zone-explore"
           aria-label="Explore"
-        >
-          <span className="zone-tooltip">
-            EXPLORE
-            <small>Find places. Discover wild.</small>
-          </span>
-        </Link>
-         {/* Adventure Checklist */}
-<Link
-  href="/prepare"
-  className="desk-zone zone-checklist"
-  aria-label="Adventure Checklist"
->
-  <span className="zone-tooltip">
-    TRIP CHECKLIST
-    <small>Check before you go.</small>
-  </span>
-</Link>
-        {/* 越野车 */}
+        />
+
+
+        {/* ADVENTURE CHECKLIST */}
+
+        <Link
+          href="/prepare"
+          className="desk-zone zone-checklist"
+          aria-label="Adventure Checklist"
+        />
+
+
+        {/* VEHICLE + WAYS IN */}
+
         <Link
           href="/ways-in"
           className="desk-zone zone-vehicle"
           aria-label="Ways In"
-        >
-          <span className="zone-tooltip">
-            WAYS IN
-            <small>How do you go wild?</small>
-          </span>
-        </Link>
+        />
 
-        {/* 背包 */}
+
+        {/* BACKPACK + PREPARE */}
+
         <Link
           href="/prepare"
           className="desk-zone zone-backpack"
           aria-label="Prepare"
-        >
-          <span className="zone-tooltip">
-            PREPARE
-            <small>Pack smarter. Go lighter.</small>
-          </span>
-        </Link>
+        />
 
-        {/* 急救包 */}
+
+        {/* FIRST AID + SAFETY */}
+
         <Link
           href="/safety"
           className="desk-zone zone-firstaid"
           aria-label="Safety"
-        >
-          <span className="zone-tooltip">
-            SAFETY
-            <small>Be ready. Stay safe.</small>
-          </span>
-        </Link>
+        />
 
-        {/* Field Guide */}
+
+        {/* FIELD GUIDE + LEARN */}
+
         <Link
           href="/learn"
           className="desk-zone zone-guide"
-          aria-label="Field Guide"
-        >
-          <span className="zone-tooltip">
-            FIELD GUIDE
-            <small>Skills, knowledge & guides.</small>
-          </span>
-        </Link>
+          aria-label="Learn"
+        />
 
-        {/* My Wild Journal */}
+
+        {/* JOURNAL + MY WILD JOURNAL */}
+
         <Link
           href="/journal"
           className="desk-zone zone-journal"
           aria-label="My Wild Journal"
-        >
-          <span className="zone-tooltip">
-            MY WILD JOURNAL
-            <small>Your trips. Your story.</small>
-          </span>
-        </Link>
+        />
 
-        {/* Wild Wall / Stories */}
+
+        {/* POLAROID + THE WILD WALL */}
+
         <Link
           href="/stories"
           className="desk-zone zone-stories"
           aria-label="The Wild Wall"
-        >
-          <span className="zone-tooltip">
-            THE WILD WALL
-            <small>Real people. Real wild.</small>
-          </span>
-        </Link>
+        />
 
-        {/* Plan / Compass */}
+
+        {/* COMPASS + PLAN YOUR WILD */}
+
         <Link
           href="/plan"
           className="desk-zone zone-plan"
           aria-label="Plan Your Wild"
-        >
-          <span className="zone-tooltip">
-            PLAN YOUR WILD
-            <small>Routes, weather, timing & more.</small>
-          </span>
-        </Link>
+        />
 
-      </div>
+
+        {/* =====================================================
+            TOP NAVIGATION
+        ===================================================== */}
+
+        <Link
+          href="/explore"
+          className="top-zone top-explore"
+          aria-label="Explore"
+        />
+
+        <Link
+          href="/plan"
+          className="top-zone top-plan"
+          aria-label="Plan"
+        />
+
+        <Link
+          href="/prepare"
+          className="top-zone top-prepare"
+          aria-label="Prepare"
+        />
+
+        <Link
+          href="/safety"
+          className="top-zone top-safety"
+          aria-label="Safety"
+        />
+
+        <Link
+          href="/learn"
+          className="top-zone top-learn"
+          aria-label="Learn"
+        />
+
+        <Link
+          href="/journal"
+          className="top-zone top-journal"
+          aria-label="Journal"
+        />
+
+        <Link
+          href="/stories"
+          className="top-zone top-stories"
+          aria-label="Stories"
+        />
+
+        <Link
+          href="/badges"
+          className="top-zone top-badges"
+          aria-label="Badges"
+        />
+
+
+        {/* SIGN IN */}
+
+        <Link
+          href="/signin"
+          className="top-zone top-signin"
+          aria-label="Sign In"
+        />
+
+
+        {/* TOP RIGHT CTA */}
+
+        <Link
+          href="/start-here"
+          className="top-zone top-start"
+          aria-label="Start Your Wild"
+        />
+
+
+        {/* =====================================================
+            CENTER START YOUR WILD
+        ===================================================== */}
+
+        <Link
+          href="/start-here"
+          className="center-start-zone"
+          aria-label="Start Your Wild"
+        />
+
+      </section>
     </main>
   );
 }
