@@ -2030,3 +2030,769 @@ img {
   }
 
 }
+/* ============================================================
+   WAYS IN — VISUAL EXPERIENCE
+============================================================ */
+
+.ways-visual-page {
+  min-height: 100vh;
+
+  background: #101511;
+
+  color: #f3eee4;
+}
+
+
+/* ============================================================
+   HEADER
+============================================================ */
+
+.ways-visual-header {
+  width: 100%;
+  max-width: 1412px;
+
+  margin: 0 auto;
+
+  padding: 28px 48px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  border-bottom:
+    1px solid rgba(255, 255, 255, 0.08);
+}
+
+
+.ways-visual-logo {
+  color: #f3eee4;
+
+  font-size: 21px;
+  font-weight: 900;
+
+  letter-spacing: 0.18em;
+}
+
+
+.ways-visual-back {
+  color:
+    rgba(243, 238, 228, 0.55);
+
+  font-size: 10px;
+  font-weight: 800;
+
+  letter-spacing: 0.16em;
+
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+
+.ways-visual-back:hover {
+  color: #e99b3c;
+
+  transform: translateX(-4px);
+}
+
+
+/* ============================================================
+   HERO
+============================================================ */
+
+.ways-visual-hero {
+  width: 100%;
+  max-width: 1412px;
+
+  margin: 0 auto;
+
+  padding:
+    100px
+    48px
+    90px;
+
+  display: flex;
+
+  align-items: flex-end;
+  justify-content: space-between;
+
+  gap: 60px;
+}
+
+
+.ways-visual-hero-copy {
+  max-width: 980px;
+}
+
+
+.ways-visual-kicker {
+  margin:
+    0
+    0
+    24px;
+
+  color: #e39a3b;
+
+  font-size: 11px;
+  font-weight: 800;
+
+  letter-spacing: 0.25em;
+}
+
+
+.ways-visual-hero h1 {
+  margin: 0;
+
+  color: #f4efe5;
+
+  font-size:
+    clamp(70px, 8.5vw, 126px);
+
+  font-weight: 900;
+
+  line-height: 0.84;
+
+  letter-spacing: -0.06em;
+}
+
+
+.ways-visual-intro {
+  max-width: 590px;
+
+  margin:
+    42px
+    0
+    0;
+
+  color:
+    rgba(243, 238, 228, 0.57);
+
+  font-size: 17px;
+
+  line-height: 1.7;
+}
+
+
+.ways-visual-index {
+  flex-shrink: 0;
+
+  padding-bottom: 5px;
+
+  text-align: right;
+}
+
+
+.ways-visual-index span {
+  color: #e29a3d;
+
+  font-size: 28px;
+  font-weight: 800;
+}
+
+
+.ways-visual-index p {
+  margin:
+    7px
+    0
+    0;
+
+  color:
+    rgba(243, 238, 228, 0.35);
+
+  font-size: 9px;
+  font-weight: 800;
+
+  letter-spacing: 0.18em;
+}
+
+
+/* ============================================================
+   VISUAL GRID
+============================================================ */
+
+.ways-visual-grid {
+  width: 100%;
+  max-width: 1412px;
+
+  margin: 0 auto;
+
+  padding:
+    0
+    48px
+    48px;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 18px;
+}
+
+
+/* ============================================================
+   IMAGE CARD
+============================================================ */
+
+.ways-image-card {
+  position: relative;
+
+  min-height: 560px;
+
+  overflow: hidden;
+
+  border-radius: 5px;
+
+  background: #20251f;
+
+  color: #fff;
+
+  isolation: isolate;
+}
+
+
+/* IMAGE */
+
+.ways-image {
+  position: absolute;
+
+  inset: 0;
+
+  z-index: 0;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+
+  transform: scale(1.01);
+
+  filter:
+    saturate(0.78)
+    brightness(0.75);
+
+  transition:
+    transform 0.7s cubic-bezier(.2,.7,.2,1),
+    filter 0.45s ease;
+}
+
+
+/* DARK GRADIENT */
+
+.ways-image-shade {
+  position: absolute;
+
+  inset: 0;
+
+  z-index: 1;
+
+  background:
+    linear-gradient(
+      to top,
+      rgba(6, 9, 7, 0.92) 0%,
+      rgba(6, 9, 7, 0.50) 43%,
+      rgba(6, 9, 7, 0.12) 72%,
+      rgba(6, 9, 7, 0.28) 100%
+    );
+
+  transition:
+    background 0.4s ease;
+}
+
+
+/* NUMBER */
+
+.ways-card-number {
+  position: absolute;
+
+  z-index: 3;
+
+  top: 28px;
+  left: 30px;
+
+  color:
+    rgba(255, 255, 255, 0.68);
+
+  font-size: 10px;
+  font-weight: 800;
+
+  letter-spacing: 0.16em;
+}
+
+
+/* CARD COPY */
+
+.ways-card-content {
+  position: absolute;
+
+  z-index: 3;
+
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  padding: 34px;
+}
+
+
+.ways-card-eyebrow {
+  margin:
+    0
+    0
+    10px;
+
+  color: #efaa4e;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  letter-spacing: 0.19em;
+}
+
+
+.ways-card-content h2 {
+  margin: 0;
+
+  color: #f8f4eb;
+
+  font-size:
+    clamp(46px, 5vw, 76px);
+
+  font-weight: 900;
+
+  line-height: 0.9;
+
+  letter-spacing: -0.045em;
+}
+
+
+.ways-card-description {
+  max-width: 460px;
+
+  margin:
+    18px
+    0
+    0;
+
+  color:
+    rgba(255, 255, 255, 0.62);
+
+  font-size: 13px;
+
+  line-height: 1.6;
+}
+
+
+/* CARD ACTION */
+
+.ways-card-action {
+  margin-top: 26px;
+
+  padding-top: 17px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  border-top:
+    1px solid rgba(255, 255, 255, 0.20);
+
+  color:
+    rgba(255, 255, 255, 0.74);
+
+  font-size: 10px;
+  font-weight: 800;
+
+  letter-spacing: 0.14em;
+}
+
+
+.ways-card-action strong {
+  color: #efa33e;
+
+  font-size: 25px;
+  font-weight: 400;
+
+  transition:
+    transform 0.25s ease;
+}
+
+
+/* ============================================================
+   CARD HOVER
+============================================================ */
+
+.ways-image-card:hover .ways-image {
+  transform: scale(1.065);
+
+  filter:
+    saturate(0.95)
+    brightness(0.88);
+}
+
+
+.ways-image-card:hover .ways-card-action strong {
+  transform: translateX(7px);
+}
+
+
+.ways-image-card:hover .ways-card-action {
+  color: #fff;
+}
+
+
+/* ============================================================
+   NOT SURE
+============================================================ */
+
+.ways-unsure {
+  width: calc(100% - 96px);
+  max-width: 1316px;
+
+  min-height: 440px;
+
+  margin:
+    0
+    auto
+    120px;
+
+  padding: 62px;
+
+  display: grid;
+
+  grid-template-columns:
+    90px
+    minmax(0, 1fr)
+    auto;
+
+  align-items: end;
+
+  gap: 34px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #e9dfcf 0%,
+      #dcd0bd 100%
+    );
+
+  color: #161713;
+
+  border-radius: 5px;
+}
+
+
+.ways-unsure-number {
+  align-self: start;
+
+  color:
+    rgba(22, 23, 19, 0.38);
+
+  font-size: 11px;
+  font-weight: 800;
+
+  letter-spacing: 0.16em;
+}
+
+
+.ways-unsure-copy > p {
+  margin:
+    0
+    0
+    17px;
+
+  color: #9a672c;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  letter-spacing: 0.18em;
+}
+
+
+.ways-unsure-copy h2 {
+  margin: 0;
+
+  font-size:
+    clamp(44px, 5.7vw, 78px);
+
+  line-height: 0.91;
+
+  letter-spacing: -0.05em;
+}
+
+
+.ways-unsure-copy > span {
+  display: block;
+
+  max-width: 540px;
+
+  margin-top: 25px;
+
+  color:
+    rgba(22, 23, 19, 0.62);
+
+  font-size: 14px;
+
+  line-height: 1.65;
+}
+
+
+/* BUTTON */
+
+.ways-unsure-button {
+  min-width: 205px;
+  min-height: 56px;
+
+  padding:
+    0
+    22px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 30px;
+
+  background: #171914;
+
+  color: #f4eee4;
+
+  border-radius: 5px;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  letter-spacing: 0.12em;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+
+.ways-unsure-button strong {
+  color: #eca143;
+
+  font-size: 22px;
+
+  transition:
+    transform 0.2s ease;
+}
+
+
+.ways-unsure-button:hover {
+  background: #282a23;
+
+  transform: translateY(-3px);
+}
+
+
+.ways-unsure-button:hover strong {
+  transform: translateX(5px);
+}
+
+
+/* ============================================================
+   BOTTOM
+============================================================ */
+
+.ways-bottom {
+  padding:
+    130px
+    48px
+    140px;
+
+  text-align: center;
+
+  background: #090c09;
+}
+
+
+.ways-bottom > p {
+  margin:
+    0
+    0
+    22px;
+
+  color: #d89037;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  letter-spacing: 0.20em;
+}
+
+
+.ways-bottom h2 {
+  margin: 0;
+
+  color: #eee8dd;
+
+  font-size:
+    clamp(48px, 7vw, 94px);
+
+  line-height: 0.91;
+
+  letter-spacing: -0.055em;
+}
+
+
+.ways-bottom-link {
+  display: inline-block;
+
+  margin-top: 48px;
+
+  color:
+    rgba(238, 232, 221, 0.46);
+
+  font-size: 10px;
+  font-weight: 800;
+
+  letter-spacing: 0.14em;
+
+  transition:
+    color 0.2s ease;
+}
+
+
+.ways-bottom-link:hover {
+  color: #e99b3c;
+}
+
+
+/* ============================================================
+   TABLET
+============================================================ */
+
+@media (max-width: 900px) {
+
+  .ways-visual-hero {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+
+  .ways-visual-index {
+    text-align: left;
+  }
+
+
+  .ways-visual-grid {
+    grid-template-columns: 1fr;
+  }
+
+
+  .ways-unsure {
+    grid-template-columns:
+      50px
+      1fr;
+  }
+
+
+  .ways-unsure-button {
+    grid-column: 2;
+
+    justify-self: start;
+  }
+
+}
+
+
+/* ============================================================
+   MOBILE
+============================================================ */
+
+@media (max-width: 600px) {
+
+  .ways-visual-header {
+    padding:
+      22px
+      20px;
+  }
+
+
+  .ways-visual-logo {
+    font-size: 18px;
+  }
+
+
+  .ways-visual-hero {
+    padding:
+      75px
+      20px
+      60px;
+
+    gap: 40px;
+  }
+
+
+  .ways-visual-hero h1 {
+    font-size: 57px;
+  }
+
+
+  .ways-visual-intro {
+    font-size: 15px;
+  }
+
+
+  .ways-visual-grid {
+    padding:
+      0
+      20px
+      20px;
+
+    gap: 12px;
+  }
+
+
+  .ways-image-card {
+    min-height: 480px;
+  }
+
+
+  .ways-card-content {
+    padding: 26px;
+  }
+
+
+  .ways-card-content h2 {
+    font-size: 52px;
+  }
+
+
+  .ways-unsure {
+    width: calc(100% - 40px);
+
+    margin-bottom: 80px;
+
+    padding: 34px 26px;
+
+    grid-template-columns: 1fr;
+
+    gap: 22px;
+  }
+
+
+  .ways-unsure-number {
+    display: none;
+  }
+
+
+  .ways-unsure-button {
+    grid-column: auto;
+
+    width: 100%;
+  }
+
+
+  .ways-bottom {
+    padding:
+      90px
+      20px;
+  }
+
+}
