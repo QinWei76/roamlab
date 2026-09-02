@@ -1,203 +1,165 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
 
-const vehicleTypes = [
+const vehicles = [
   {
-    title: "SUV",
-    description:
-      "Flexible, practical and ideal for most first-time wild trips.",
+    id: "suv",
+    label: "SUV",
   },
   {
-    title: "TRUCK",
-    description:
-      "More payload, more gear and better flexibility for remote setups.",
+    id: "truck",
+    label: "Truck",
   },
   {
-    title: "VAN",
-    description:
-      "More interior space and comfort for longer stays outside.",
+    id: "van",
+    label: "Van",
   },
   {
-    title: "AWD / CROSSOVER",
-    description:
-      "Great for gravel roads, forest access and lighter adventure travel.",
+    id: "crossover",
+    label: "Crossover / AWD",
   },
   {
-    title: "2WD",
-    description:
-      "Still capable — with the right route, weather and preparation.",
+    id: "city",
+    label: "2WD / City Car",
   },
 ];
-
-const tripStyles = [
-  "Weekend Escape",
-  "Remote Camp",
-  "Multi-Day Wild",
-  "Road + Hike",
-];
-
-const crewSizes = ["Solo", "2 People", "3–4 People", "5+ People"];
-
-const durations = ["1 Day", "2–3 Days", "4–5 Days", "6+ Days"];
 
 export default function DrivePage() {
-  return (
-    <main className="drive-page">
-      <header className="drive-header">
-        <Link href="/" className="drive-logo">
-          ROAMLAB
-        </Link>
+  const [selectedVehicle, setSelectedVehicle] = useState<string | null>(null);
 
-        <Link href="/ways-in" className="drive-back">
+  return (
+    <main className="drive-desk-page">
+      <section className="drive-desk-stage">
+        <img
+          src="/drive-desk.jpg"
+          alt="RoamLab Drive vehicle selection desk"
+          className="drive-desk-image"
+          draggable={false}
+        />
+
+        {/* =====================================================
+            REAL TOP NAVIGATION
+        ====================================================== */}
+
+        <nav className="drive-real-nav">
+          <div className="drive-real-links">
+            <Link href="/explore">EXPLORE</Link>
+            <Link href="/plan">PLAN</Link>
+            <Link href="/prepare">PREPARE</Link>
+            <Link href="/safety">SAFETY</Link>
+            <Link href="/learn">LEARN</Link>
+            <Link href="/journal">JOURNAL</Link>
+            <Link href="/stories">STORIES</Link>
+            <Link href="/badges">BADGES</Link>
+          </div>
+
+          <Link href="/signin" className="drive-real-signin">
+            SIGN IN
+          </Link>
+
+          <Link href="/start-here" className="drive-real-start">
+            START YOUR WILD →
+          </Link>
+        </nav>
+
+        {/* =====================================================
+            VEHICLE HOTSPOTS
+        ====================================================== */}
+
+        <button
+          type="button"
+          className={`drive-vehicle-zone drive-zone-suv ${
+            selectedVehicle === "suv" ? "is-selected" : ""
+          }`}
+          onClick={() => setSelectedVehicle("suv")}
+          aria-label="Select SUV"
+        />
+
+        <button
+          type="button"
+          className={`drive-vehicle-zone drive-zone-truck ${
+            selectedVehicle === "truck" ? "is-selected" : ""
+          }`}
+          onClick={() => setSelectedVehicle("truck")}
+          aria-label="Select Truck"
+        />
+
+        <button
+          type="button"
+          className={`drive-vehicle-zone drive-zone-van ${
+            selectedVehicle === "van" ? "is-selected" : ""
+          }`}
+          onClick={() => setSelectedVehicle("van")}
+          aria-label="Select Van"
+        />
+
+        <button
+          type="button"
+          className={`drive-vehicle-zone drive-zone-crossover ${
+            selectedVehicle === "crossover" ? "is-selected" : ""
+          }`}
+          onClick={() => setSelectedVehicle("crossover")}
+          aria-label="Select Crossover or AWD"
+        />
+
+        <button
+          type="button"
+          className={`drive-vehicle-zone drive-zone-city ${
+            selectedVehicle === "city" ? "is-selected" : ""
+          }`}
+          onClick={() => setSelectedVehicle("city")}
+          aria-label="Select 2WD or City Car"
+        />
+
+        {/* =====================================================
+            LOGO → HOME
+        ====================================================== */}
+
+        <Link
+          href="/"
+          className="drive-logo-hotspot"
+          aria-label="Back to RoamLab home"
+        />
+
+        {/* =====================================================
+            BACK TO WAYS IN
+        ====================================================== */}
+
+        <Link
+          href="/ways-in"
+          className="drive-back-button"
+        >
           ← WAYS IN
         </Link>
-      </header>
 
-      <section className="drive-hero">
-        <p className="drive-kicker">WAYS IN / DRIVE</p>
+        {/* =====================================================
+            SELECTION PANEL
+        ====================================================== */}
 
-        <h1>
-          BUILD AROUND
-          <br />
-          YOUR VEHICLE.
-        </h1>
-
-        <p className="drive-intro">
-          Your vehicle changes how far you can go, how much you can carry,
-          where you can sleep and what kind of backup you need.
-        </p>
-      </section>
-
-      <section className="drive-form">
-
-        {/* STEP 01 */}
-
-        <div className="drive-step">
-          <div className="drive-step-head">
-            <span>01</span>
-
+        {selectedVehicle && (
+          <div className="drive-selection-panel">
             <div>
-              <p>YOUR VEHICLE</p>
-              <h2>What are you driving?</h2>
+              <span>YOUR VEHICLE</span>
+
+              <strong>
+                {
+                  vehicles.find(
+                    (vehicle) => vehicle.id === selectedVehicle
+                  )?.label
+                }
+              </strong>
             </div>
+
+            <Link
+              href={`/ways-in/drive/setup?vehicle=${selectedVehicle}`}
+              className="drive-continue-button"
+            >
+              CONTINUE →
+            </Link>
           </div>
-
-          <div className="vehicle-choice-grid">
-            {vehicleTypes.map((vehicle) => (
-              <button key={vehicle.title} className="vehicle-choice">
-                <span className="vehicle-choice-title">
-                  {vehicle.title}
-                </span>
-
-                <span className="vehicle-choice-description">
-                  {vehicle.description}
-                </span>
-              </button>
-            ))}
-          </div>
-
-          <div className="vehicle-model">
-            <label htmlFor="vehicle-model">
-              VEHICLE MODEL
-            </label>
-
-            <input
-              id="vehicle-model"
-              name="vehicle-model"
-              type="text"
-              placeholder="Example: Toyota RAV4"
-            />
-
-            <p>
-              This helps RoamLab estimate space, range and practical gear fit.
-            </p>
-          </div>
-        </div>
-
-
-        {/* STEP 02 */}
-
-        <div className="drive-step">
-          <div className="drive-step-head">
-            <span>02</span>
-
-            <div>
-              <p>TRIP STYLE</p>
-              <h2>What kind of trip are you building?</h2>
-            </div>
-          </div>
-
-          <div className="simple-choice-grid">
-            {tripStyles.map((item) => (
-              <button key={item}>
-                {item}
-              </button>
-            ))}
-          </div>
-        </div>
-
-
-        {/* STEP 03 */}
-
-        <div className="drive-step">
-          <div className="drive-step-head">
-            <span>03</span>
-
-            <div>
-              <p>YOUR CREW</p>
-              <h2>Who's going?</h2>
-            </div>
-          </div>
-
-          <div className="simple-choice-grid">
-            {crewSizes.map((item) => (
-              <button key={item}>
-                {item}
-              </button>
-            ))}
-          </div>
-        </div>
-
-
-        {/* STEP 04 */}
-
-        <div className="drive-step">
-          <div className="drive-step-head">
-            <span>04</span>
-
-            <div>
-              <p>DURATION</p>
-              <h2>How long are you going out?</h2>
-            </div>
-          </div>
-
-          <div className="simple-choice-grid">
-            {durations.map((item) => (
-              <button key={item}>
-                {item}
-              </button>
-            ))}
-          </div>
-        </div>
-
-
-        {/* NEXT */}
-
-        <div className="drive-next">
-          <div>
-            <p>NEXT</p>
-
-            <h2>
-              LET'S BUILD
-              <br />
-              YOUR WILD SYSTEM.
-            </h2>
-          </div>
-
-          <Link href="/prepare" className="drive-next-button">
-            CONTINUE →
-          </Link>
-        </div>
-
+        )}
       </section>
     </main>
   );
