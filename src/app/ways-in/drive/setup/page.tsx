@@ -3,7 +3,56 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-const tripStyles = [
+type VehicleKey =
+  | "suv"
+  | "truck"
+  | "van"
+  | "crossover"
+  | "city";
+
+type TripKey =
+  | "weekend"
+  | "road-trip"
+  | "basecamp"
+  | "remote";
+
+const vehicleData: Record<
+  VehicleKey,
+  {
+    label: string;
+    image: string;
+  }
+> = {
+  suv: {
+    label: "SUV",
+    image: "/vehicle-model-suv.png",
+  },
+
+  truck: {
+    label: "TRUCK",
+    image: "/vehicle-model-truck.png",
+  },
+
+  van: {
+    label: "VAN",
+    image: "/vehicle-model-van.png",
+  },
+
+  crossover: {
+    label: "CROSSOVER / AWD",
+    image: "/vehicle-model-crossover.png",
+  },
+
+  city: {
+    label: "2WD / CITY CAR",
+    image: "/vehicle-model-city.png",
+  },
+};
+
+const tripStyles: {
+  id: TripKey;
+  label: string;
+}[] = [
   {
     id: "weekend",
     label: "Weekend Escape",
@@ -13,35 +62,39 @@ const tripStyles = [
     label: "Road Trip",
   },
   {
+    id: "basecamp",
+    label: "Basecamp",
+  },
+  {
     id: "remote",
     label: "Remote / Off-Grid",
   },
-  {
-    id: "road-hike",
-    label: "Road + Hike",
-  },
 ];
 
-const vehicleLabels: Record<string, string> = {
-  suv: "SUV",
-  truck: "TRUCK",
-  van: "VAN",
-  crossover: "CROSSOVER / AWD",
-  city: "2WD / CITY CAR",
-};
-
 export default function TripStylePage() {
-  const [vehicle, setVehicle] = useState("suv");
-  const [selectedTrip, setSelectedTrip] = useState<string | null>(null);
+  const [vehicle, setVehicle] = useState<VehicleKey>("suv");
+  const [selectedTrip, setSelectedTrip] = useState<TripKey | null>(null);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+
     const vehicleParam = params.get("vehicle");
 
-    if (vehicleParam && vehicleLabels[vehicleParam]) {
+    if (
+      vehicleParam === "suv" ||
+      vehicleParam === "truck" ||
+      vehicleParam === "van" ||
+      vehicleParam === "crossover" ||
+      vehicleParam === "city"
+    ) {
       setVehicle(vehicleParam);
     }
+
+    setReady(true);
   }, []);
+
+  const currentVehicle = vehicleData[vehicle];
 
   const selectedTripLabel =
     tripStyles.find((trip) => trip.id === selectedTrip)?.label ?? "";
@@ -49,18 +102,12 @@ export default function TripStylePage() {
   return (
     <main className="trip-desk-page">
       <section className="trip-desk-stage">
-        {/* MASTER IMAGE */}
-
         <img
-          src="/trip-style-desk.jpg"
+          src="/trip-style-desk-v2.jpg"
           alt="RoamLab Trip Style Planning Desk"
           className="trip-desk-image"
           draggable={false}
         />
-
-        {/* =====================================================
-            REAL NAVIGATION
-        ====================================================== */}
 
         <nav className="trip-real-nav">
           <div className="trip-real-links">
@@ -83,18 +130,22 @@ export default function TripStylePage() {
           </Link>
         </nav>
 
-        {/* =====================================================
-            CURRENT VEHICLE
-        ====================================================== */}
+        {ready && (
+          <div className="trip-selected-vehicle-wrap">
+            <img
+              key={currentVehicle.image}
+              src={currentVehicle.image}
+              alt={currentVehicle.label}
+              className="trip-selected-vehicle-image"
+              draggable={false}
+            />
 
-        <div className="trip-current-vehicle">
-          <span>VEHICLE</span>
-          <strong>{vehicleLabels[vehicle]} ✓</strong>
-        </div>
-
-        {/* =====================================================
-            TRIP STYLE HOTSPOTS
-        ====================================================== */}
+            <div className="trip-selected-vehicle-tag">
+              <span>VEHICLE</span>
+              <strong>{currentVehicle.label} ✓</strong>
+            </div>
+          </div>
+        )}
 
         <button
           type="button"
@@ -116,6 +167,15 @@ export default function TripStylePage() {
 
         <button
           type="button"
+          className={`trip-style-zone trip-zone-basecamp ${
+            selectedTrip === "basecamp" ? "is-selected" : ""
+          }`}
+          onClick={() => setSelectedTrip("basecamp")}
+          aria-label="Select Basecamp"
+        />
+
+        <button
+          type="button"
           className={`trip-style-zone trip-zone-remote ${
             selectedTrip === "remote" ? "is-selected" : ""
           }`}
@@ -123,39 +183,15 @@ export default function TripStylePage() {
           aria-label="Select Remote Off-Grid"
         />
 
-        <button
-          type="button"
-          className={`trip-style-zone trip-zone-hike ${
-            selectedTrip === "road-hike" ? "is-selected" : ""
-          }`}
-          onClick={() => setSelectedTrip("road-hike")}
-          aria-label="Select Road and Hike"
-        />
-
-        {/* =====================================================
-            LOGO → HOME
-        ====================================================== */}
-
         <Link
           href="/"
           className="trip-logo-hotspot"
           aria-label="Back to RoamLab home"
         />
 
-        {/* =====================================================
-            BACK
-        ====================================================== */}
-
-        <Link
-          href="/ways-in/drive"
-          className="trip-back-button"
-        >
+        <Link href="/ways-in/drive" className="trip-back-button">
           ← VEHICLE
         </Link>
-
-        {/* =====================================================
-            CONTINUE
-        ====================================================== */}
 
         {selectedTrip && (
           <div className="trip-selection-panel">
@@ -165,7 +201,7 @@ export default function TripStylePage() {
               <strong>{selectedTripLabel}</strong>
 
               <small>
-                {vehicleLabels[vehicle]} · STEP 2 OF 5
+                {currentVehicle.label} · STEP 2 OF 5
               </small>
             </div>
 
