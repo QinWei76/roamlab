@@ -5199,3 +5199,839 @@ img {
   }
 
 }
+/* ============================================================
+   ROAMLAB DRIVE + TRIP STYLE FINAL OVERRIDES
+============================================================ */
+
+
+/* ============================================================
+   DRIVE VEHICLE HOTSPOTS
+============================================================ */
+
+.drive-vehicle-zone {
+  position: absolute;
+  z-index: 80;
+
+  display: block;
+
+  padding: 0;
+  margin: 0;
+
+  border: 0;
+  outline: 0;
+
+  background: transparent;
+
+  cursor: pointer;
+
+  border-radius: 28px;
+
+  -webkit-appearance: none;
+  appearance: none;
+
+  transition:
+    transform 0.2s ease;
+}
+
+
+.drive-vehicle-zone::before {
+  content: "";
+
+  position: absolute;
+
+  inset: -5%;
+
+  border-radius: inherit;
+
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(255, 196, 108, 0.25) 0%,
+      rgba(231, 147, 55, 0.11) 42%,
+      rgba(210, 115, 28, 0.035) 64%,
+      transparent 79%
+    );
+
+  filter: blur(10px);
+
+  opacity: 0;
+
+  transform: scale(0.95);
+
+  transition:
+    opacity 0.22s ease,
+    transform 0.26s ease;
+
+  pointer-events: none;
+}
+
+
+.drive-vehicle-zone:hover::before,
+.drive-vehicle-zone.is-selected::before {
+  opacity: 1;
+
+  transform: scale(1.035);
+}
+
+
+.drive-vehicle-zone:hover,
+.drive-vehicle-zone.is-selected {
+  transform: translateY(-2px);
+}
+
+
+/* SUV */
+
+.drive-zone-suv {
+  left: 6%;
+  top: 7%;
+
+  width: 29%;
+  height: 37%;
+}
+
+
+/* TRUCK */
+
+.drive-zone-truck {
+  left: 36%;
+  top: 5%;
+
+  width: 29%;
+  height: 35%;
+}
+
+
+/* VAN */
+
+.drive-zone-van {
+  left: 63%;
+  top: 4%;
+
+  width: 29%;
+  height: 40%;
+}
+
+
+/* CROSSOVER */
+
+.drive-zone-crossover {
+  left: 4%;
+  top: 42%;
+
+  width: 31%;
+  height: 36%;
+}
+
+
+/* CITY */
+
+.drive-zone-city {
+  left: 69%;
+  top: 42%;
+
+  width: 27%;
+  height: 36%;
+}
+
+
+/* ============================================================
+   TRIP PAGE
+============================================================ */
+
+.trip-desk-page {
+  width: 100%;
+
+  min-height: 100vh;
+
+  margin: 0;
+  padding: 0;
+
+  background: #070807;
+
+  overflow-x: hidden;
+}
+
+
+.trip-desk-stage {
+  position: relative;
+
+  width: 100%;
+
+  max-width: 1536px;
+
+  margin: 0 auto;
+
+  overflow: hidden;
+
+  background: #070807;
+}
+
+
+.trip-desk-image {
+  position: relative;
+
+  z-index: 1;
+
+  display: block;
+
+  width: 100%;
+  height: auto;
+
+  margin: 0;
+
+  pointer-events: none;
+
+  user-select: none;
+
+  -webkit-user-drag: none;
+}
+
+
+/* ============================================================
+   TRIP NAV
+============================================================ */
+
+.trip-real-nav {
+  position: absolute !important;
+
+  z-index: 9999 !important;
+
+  top: 0 !important;
+
+  left: 18% !important;
+  right: 1.5% !important;
+
+  height: 72px !important;
+
+  display: flex !important;
+
+  align-items: center !important;
+  justify-content: flex-end !important;
+
+  gap: 18px !important;
+
+  background: transparent !important;
+
+  pointer-events: auto !important;
+}
+
+
+.trip-real-links {
+  display: flex !important;
+
+  align-items: center !important;
+
+  gap: 19px !important;
+}
+
+
+.trip-real-links a,
+.trip-real-signin {
+  position: relative;
+
+  color:
+    rgba(248, 242, 230, 0.86) !important;
+
+  font-size: 10px !important;
+
+  font-weight: 800 !important;
+
+  line-height: 1 !important;
+
+  letter-spacing: 0.09em !important;
+
+  text-decoration: none !important;
+
+  white-space: nowrap;
+
+  text-shadow:
+    0 1px 5px rgba(0, 0, 0, 0.92),
+    0 2px 12px rgba(0, 0, 0, 0.6);
+}
+
+
+.trip-real-links a::after,
+.trip-real-signin::after {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  right: 0;
+
+  bottom: -8px;
+
+  height: 1px;
+
+  background: #e9a143;
+
+  transform: scaleX(0);
+
+  transition:
+    transform 0.2s ease;
+}
+
+
+.trip-real-links a:hover,
+.trip-real-signin:hover {
+  color: #ffffff !important;
+}
+
+
+.trip-real-links a:hover::after,
+.trip-real-signin:hover::after {
+  transform: scaleX(1);
+}
+
+
+.trip-real-signin {
+  padding: 10px 8px;
+}
+
+
+.trip-real-start {
+  min-height: 38px;
+
+  padding: 0 15px;
+
+  display: inline-flex !important;
+
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 5px;
+
+  background: #e8a33f !important;
+
+  color: #18130d !important;
+
+  font-size: 9px !important;
+
+  font-weight: 900 !important;
+
+  letter-spacing: 0.07em !important;
+
+  white-space: nowrap;
+
+  text-decoration: none !important;
+
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.28);
+}
+
+
+/* ============================================================
+   DYNAMIC VEHICLE
+============================================================ */
+
+.trip-selected-vehicle-wrap {
+  position: absolute;
+
+  z-index: 5000;
+
+  left: 2%;
+  top: 7.5%;
+
+  width: 29%;
+  height: 29%;
+
+  pointer-events: none;
+}
+
+
+.trip-selected-vehicle-image {
+  position: absolute;
+
+  z-index: 5001;
+
+  left: 0;
+  top: 0;
+
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: contain;
+  object-position: center;
+
+  user-select: none;
+
+  -webkit-user-drag: none;
+
+  filter:
+    drop-shadow(
+      0 16px 18px rgba(0, 0, 0, 0.52)
+    );
+}
+
+
+.trip-selected-vehicle-tag {
+  position: absolute;
+
+  z-index: 5002;
+
+  left: 50%;
+  bottom: -4%;
+
+  transform: translateX(-50%);
+
+  min-width: 145px;
+
+  padding:
+    8px
+    14px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  gap: 2px;
+
+  border-radius: 5px;
+
+  background:
+    rgba(14, 14, 11, 0.92);
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.08);
+
+  box-shadow:
+    0 7px 20px
+    rgba(0, 0, 0, 0.38);
+
+  backdrop-filter: blur(7px);
+}
+
+
+.trip-selected-vehicle-tag span {
+  color: #d8943d;
+
+  font-size: 7px;
+
+  font-weight: 900;
+
+  letter-spacing: 0.14em;
+}
+
+
+.trip-selected-vehicle-tag strong {
+  color: #f0e8db;
+
+  font-size: 11px;
+
+  font-weight: 900;
+
+  letter-spacing: 0.055em;
+
+  white-space: nowrap;
+}
+
+
+/* ============================================================
+   TRIP HOTSPOTS
+============================================================ */
+
+.trip-style-zone {
+  position: absolute;
+
+  z-index: 100;
+
+  display: block;
+
+  padding: 0;
+  margin: 0;
+
+  border: 0;
+  outline: 0;
+
+  background: transparent;
+
+  cursor: pointer;
+
+  border-radius: 20px;
+
+  -webkit-appearance: none;
+  appearance: none;
+
+  transition:
+    transform 0.22s ease;
+}
+
+
+.trip-style-zone::before {
+  content: "";
+
+  position: absolute;
+
+  inset: -5%;
+
+  border-radius: inherit;
+
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(255, 196, 110, 0.26) 0%,
+      rgba(229, 143, 51, 0.12) 42%,
+      rgba(210, 115, 28, 0.035) 63%,
+      transparent 80%
+    );
+
+  filter: blur(10px);
+
+  opacity: 0;
+
+  transform: scale(0.95);
+
+  transition:
+    opacity 0.25s ease,
+    transform 0.3s ease;
+
+  pointer-events: none;
+}
+
+
+.trip-style-zone::after {
+  content: "";
+
+  position: absolute;
+
+  inset: 2%;
+
+  border-radius: inherit;
+
+  background:
+    radial-gradient(
+      circle at center,
+      rgba(255, 227, 183, 0.1) 0%,
+      rgba(255, 195, 110, 0.04) 50%,
+      transparent 75%
+    );
+
+  opacity: 0;
+
+  transition:
+    opacity 0.2s ease;
+
+  pointer-events: none;
+}
+
+
+.trip-style-zone:hover::before,
+.trip-style-zone.is-selected::before {
+  opacity: 1;
+
+  transform: scale(1.035);
+}
+
+
+.trip-style-zone:hover::after,
+.trip-style-zone.is-selected::after {
+  opacity: 1;
+}
+
+
+.trip-style-zone:hover,
+.trip-style-zone.is-selected {
+  transform: translateY(-2px);
+}
+
+
+/* WEEKEND */
+
+.trip-zone-weekend {
+  left: 12%;
+  top: 40%;
+
+  width: 18%;
+  height: 37%;
+}
+
+
+/* ROAD TRIP */
+
+.trip-zone-road {
+  left: 31%;
+  top: 40%;
+
+  width: 18%;
+  height: 37%;
+}
+
+
+/* BASECAMP */
+
+.trip-zone-basecamp {
+  left: 49%;
+  top: 40%;
+
+  width: 18%;
+  height: 37%;
+}
+
+
+/* REMOTE */
+
+.trip-zone-remote {
+  left: 67%;
+  top: 40%;
+
+  width: 18%;
+  height: 37%;
+}
+
+
+/* ============================================================
+   LOGO
+============================================================ */
+
+.trip-logo-hotspot {
+  position: absolute;
+
+  z-index: 10000;
+
+  left: 1%;
+  top: 1%;
+
+  width: 14%;
+  height: 9%;
+
+  display: block;
+
+  background: transparent;
+
+  cursor: pointer;
+}
+
+
+/* ============================================================
+   BACK
+============================================================ */
+
+.trip-back-button {
+  position: absolute;
+
+  z-index: 6000;
+
+  left: 2%;
+  bottom: 2.5%;
+
+  padding:
+    10px
+    14px;
+
+  border-radius: 5px;
+
+  background:
+    rgba(8, 9, 8, 0.78);
+
+  color:
+    rgba(245, 239, 228, 0.75);
+
+  font-size: 9px;
+
+  font-weight: 800;
+
+  letter-spacing: 0.12em;
+
+  text-decoration: none;
+
+  backdrop-filter: blur(7px);
+
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+
+.trip-back-button:hover {
+  color: #f1a544;
+
+  transform: translateX(-2px);
+}
+
+
+/* ============================================================
+   SELECTED TRIP PANEL
+============================================================ */
+
+.trip-selection-panel {
+  position: absolute;
+
+  z-index: 7000;
+
+  left: 50%;
+  bottom: 2.5%;
+
+  transform: translateX(-50%);
+
+  width: min(540px, 70%);
+
+  min-height: 76px;
+
+  padding:
+    13px
+    14px
+    13px
+    20px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.1);
+
+  border-radius: 8px;
+
+  background:
+    rgba(10, 12, 9, 0.92);
+
+  box-shadow:
+    0 15px 45px
+    rgba(0, 0, 0, 0.4);
+
+  backdrop-filter: blur(12px);
+}
+
+
+.trip-selection-summary {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+
+.trip-selection-summary span {
+  color: #df983d;
+
+  font-size: 8px;
+
+  font-weight: 800;
+
+  letter-spacing: 0.18em;
+}
+
+
+.trip-selection-summary strong {
+  color: #f4eee3;
+
+  font-size: 18px;
+
+  font-weight: 850;
+}
+
+
+.trip-selection-summary small {
+  color:
+    rgba(244, 238, 227, 0.46);
+
+  font-size: 8px;
+
+  font-weight: 700;
+
+  letter-spacing: 0.1em;
+}
+
+
+.trip-continue-button {
+  min-height: 44px;
+
+  padding:
+    0
+    18px;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 5px;
+
+  background: #e8a23e;
+
+  color: #17130d;
+
+  font-size: 9px;
+
+  font-weight: 900;
+
+  letter-spacing: 0.08em;
+
+  text-decoration: none;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+
+.trip-continue-button:hover {
+  background: #f0b04a;
+
+  transform: translateY(-2px);
+}
+
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+
+@media (max-width: 1150px) {
+
+  .trip-real-nav {
+    left: 17% !important;
+
+    gap: 10px !important;
+  }
+
+  .trip-real-links {
+    gap: 11px !important;
+  }
+
+  .trip-real-links a,
+  .trip-real-signin {
+    font-size: 8px !important;
+  }
+
+  .trip-real-start {
+    padding: 0 10px;
+
+    font-size: 8px !important;
+  }
+}
+
+
+@media (max-width: 768px) {
+
+  .trip-desk-page {
+    overflow-x: auto;
+  }
+
+  .trip-desk-stage {
+    min-width: 900px;
+  }
+
+  .trip-real-nav {
+    min-width: 720px;
+  }
+
+  .trip-style-zone::before,
+  .trip-style-zone::after {
+    display: none;
+  }
+}
