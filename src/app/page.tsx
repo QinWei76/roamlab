@@ -1,56 +1,152 @@
 import Link from "next/link";
 
-export default function WaysInPage() {
+export default function HomePage() {
   return (
-    <main className="ways-desk-page">
-      <section className="ways-desk-stage">
+    <main className="roam-page">
+      <section className="roam-desk">
         <img
-          src="/ways-in-desk.jpg"
-          alt="RoamLab Ways In planning desk"
-          className="ways-desk-image"
+          src="/wild-desk.jpg"
+          alt="RoamLab — Go Wild. Show It."
+          className="roam-background"
           draggable={false}
         />
 
-        {/* DRIVE */}
+        {/* =====================================================
+            MAIN DESK OBJECT HOTSPOTS
+        ====================================================== */}
+
         <Link
-          href="/ways-in/drive"
-          className="ways-hotspot ways-hotspot-drive"
-          aria-label="Drive"
+          href="/badges"
+          className="desk-zone zone-badge"
+          aria-label="Achievements"
         />
 
-        {/* HIKE */}
         <Link
-          href="/ways-in/hike"
-          className="ways-hotspot ways-hotspot-hike"
-          aria-label="Hike"
+          href="/explore"
+          className="desk-zone zone-explore"
+          aria-label="Explore"
         />
 
-        {/* RIDE */}
         <Link
-          href="/ways-in/ride"
-          className="ways-hotspot ways-hotspot-ride"
-          aria-label="Ride"
+          href="/prepare"
+          className="desk-zone zone-checklist"
+          aria-label="Adventure Checklist"
         />
 
-        {/* PADDLE */}
         <Link
-          href="/ways-in/paddle"
-          className="ways-hotspot ways-hotspot-paddle"
-          aria-label="Paddle"
+          href="/ways-in"
+          className="desk-zone zone-vehicle"
+          aria-label="Ways In"
         />
 
-        {/* NOT SURE */}
+        <Link
+          href="/prepare"
+          className="desk-zone zone-backpack"
+          aria-label="Prepare"
+        />
+
+        <Link
+          href="/safety"
+          className="desk-zone zone-firstaid"
+          aria-label="Safety"
+        />
+
+        <Link
+          href="/learn"
+          className="desk-zone zone-guide"
+          aria-label="Learn"
+        />
+
+        <Link
+          href="/journal"
+          className="desk-zone zone-journal"
+          aria-label="My Wild Journal"
+        />
+
+        <Link
+          href="/stories"
+          className="desk-zone zone-stories"
+          aria-label="The Wild Wall"
+        />
+
         <Link
           href="/plan"
-          className="ways-hotspot ways-hotspot-unsure"
-          aria-label="Not sure? Start here"
+          className="desk-zone zone-plan"
+          aria-label="Plan Your Wild"
         />
 
-        {/* ROAMLAB LOGO / BACK HOME */}
+        {/* =====================================================
+            TOP NAV HOTSPOTS
+        ====================================================== */}
+
         <Link
-          href="/"
-          className="ways-home-hotspot"
-          aria-label="Back to RoamLab home"
+          href="/explore"
+          className="top-zone top-explore"
+          aria-label="Explore"
+        />
+
+        <Link
+          href="/plan"
+          className="top-zone top-plan"
+          aria-label="Plan"
+        />
+
+        <Link
+          href="/prepare"
+          className="top-zone top-prepare"
+          aria-label="Prepare"
+        />
+
+        <Link
+          href="/safety"
+          className="top-zone top-safety"
+          aria-label="Safety"
+        />
+
+        <Link
+          href="/learn"
+          className="top-zone top-learn"
+          aria-label="Learn"
+        />
+
+        <Link
+          href="/journal"
+          className="top-zone top-journal"
+          aria-label="Journal"
+        />
+
+        <Link
+          href="/stories"
+          className="top-zone top-stories"
+          aria-label="Stories"
+        />
+
+        <Link
+          href="/badges"
+          className="top-zone top-badges"
+          aria-label="Badges"
+        />
+
+        <Link
+          href="/signin"
+          className="top-zone top-signin"
+          aria-label="Sign In"
+        />
+
+        <Link
+          href="/start-here"
+          className="top-zone top-start"
+          aria-label="Start Your Wild"
+        />
+
+        {/* =====================================================
+            CENTER CTA
+        ====================================================== */}
+
+        <Link
+          href="/start-here"
+          className="center-start-zone"
+          aria-label="Start Your Wild"
         />
       </section>
     </main>
