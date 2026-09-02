@@ -4,6 +4,8 @@ export default function WaysInPage() {
   return (
     <main className="ways-desk-page">
       <section className="ways-desk-stage">
+
+        {/* MASTER IMAGE */}
         <img
           src="/ways-in-desk.jpg"
           alt="RoamLab Ways In planning desk"
@@ -12,15 +14,11 @@ export default function WaysInPage() {
         />
 
         {/* =====================================================
-            TOP NAV
+            REAL TOP NAVIGATION
         ====================================================== */}
 
-        <nav className="ways-top-nav">
-          <Link href="/" className="ways-nav-logo">
-            ROAMLAB
-          </Link>
-
-          <div className="ways-nav-links">
+        <nav className="ways-real-nav">
+          <div className="ways-real-links">
             <Link href="/explore">EXPLORE</Link>
             <Link href="/plan">PLAN</Link>
             <Link href="/prepare">PREPARE</Link>
@@ -31,19 +29,17 @@ export default function WaysInPage() {
             <Link href="/badges">BADGES</Link>
           </div>
 
-          <div className="ways-nav-actions">
-            <Link href="/signin" className="ways-signin">
-              SIGN IN
-            </Link>
+          <Link href="/signin" className="ways-real-signin">
+            SIGN IN
+          </Link>
 
-            <Link href="/start-here" className="ways-start">
-              START YOUR WILD →
-            </Link>
-          </div>
+          <Link href="/start-here" className="ways-real-start">
+            START YOUR WILD →
+          </Link>
         </nav>
 
         {/* =====================================================
-            HOTSPOTS
+            DRIVE
         ====================================================== */}
 
         <Link
@@ -52,11 +48,19 @@ export default function WaysInPage() {
           aria-label="Drive"
         />
 
+        {/* =====================================================
+            HIKE
+        ====================================================== */}
+
         <Link
           href="/ways-in/hike"
           className="ways-hotspot ways-hotspot-hike"
           aria-label="Hike"
         />
+
+        {/* =====================================================
+            RIDE
+        ====================================================== */}
 
         <Link
           href="/ways-in/ride"
@@ -64,17 +68,36 @@ export default function WaysInPage() {
           aria-label="Ride"
         />
 
+        {/* =====================================================
+            PADDLE
+        ====================================================== */}
+
         <Link
           href="/ways-in/paddle"
           className="ways-hotspot ways-hotspot-paddle"
           aria-label="Paddle"
         />
 
+        {/* =====================================================
+            NOT SURE
+        ====================================================== */}
+
         <Link
           href="/plan"
           className="ways-hotspot ways-hotspot-unsure"
           aria-label="Not sure? Start here"
         />
+
+        {/* =====================================================
+            IMAGE LOGO → HOME
+        ====================================================== */}
+
+        <Link
+          href="/"
+          className="ways-logo-hotspot"
+          aria-label="Back to RoamLab home"
+        />
+
       </section>
     </main>
   );
