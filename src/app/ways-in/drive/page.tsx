@@ -1,33 +1,20 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-const vehicles = [
-  {
-    id: "suv",
-    label: "SUV",
-  },
-  {
-    id: "truck",
-    label: "Truck",
-  },
-  {
-    id: "van",
-    label: "Van",
-  },
-  {
-    id: "crossover",
-    label: "Crossover / AWD",
-  },
-  {
-    id: "city",
-    label: "2WD / City Car",
-  },
-];
-
 export default function DrivePage() {
+  const router = useRouter();
   const [selectedVehicle, setSelectedVehicle] = useState<string | null>(null);
+
+  const chooseVehicle = (vehicle: string) => {
+    setSelectedVehicle(vehicle);
+
+    window.setTimeout(() => {
+      router.push(`/ways-in/drive/setup?vehicle=${vehicle}`);
+    }, 220);
+  };
 
   return (
     <main className="drive-desk-page">
@@ -38,10 +25,6 @@ export default function DrivePage() {
           className="drive-desk-image"
           draggable={false}
         />
-
-        {/* =====================================================
-            REAL TOP NAVIGATION
-        ====================================================== */}
 
         <nav className="drive-real-nav">
           <div className="drive-real-links">
@@ -64,17 +47,13 @@ export default function DrivePage() {
           </Link>
         </nav>
 
-        {/* =====================================================
-            VEHICLE HOTSPOTS
-        ====================================================== */}
-
         <button
           type="button"
           className={`drive-vehicle-zone drive-zone-suv ${
             selectedVehicle === "suv" ? "is-selected" : ""
           }`}
-          onClick={() => setSelectedVehicle("suv")}
-          aria-label="Select SUV"
+          onClick={() => chooseVehicle("suv")}
+          aria-label="Choose SUV"
         />
 
         <button
@@ -82,8 +61,8 @@ export default function DrivePage() {
           className={`drive-vehicle-zone drive-zone-truck ${
             selectedVehicle === "truck" ? "is-selected" : ""
           }`}
-          onClick={() => setSelectedVehicle("truck")}
-          aria-label="Select Truck"
+          onClick={() => chooseVehicle("truck")}
+          aria-label="Choose Truck"
         />
 
         <button
@@ -91,8 +70,8 @@ export default function DrivePage() {
           className={`drive-vehicle-zone drive-zone-van ${
             selectedVehicle === "van" ? "is-selected" : ""
           }`}
-          onClick={() => setSelectedVehicle("van")}
-          aria-label="Select Van"
+          onClick={() => chooseVehicle("van")}
+          aria-label="Choose Van"
         />
 
         <button
@@ -100,8 +79,8 @@ export default function DrivePage() {
           className={`drive-vehicle-zone drive-zone-crossover ${
             selectedVehicle === "crossover" ? "is-selected" : ""
           }`}
-          onClick={() => setSelectedVehicle("crossover")}
-          aria-label="Select Crossover or AWD"
+          onClick={() => chooseVehicle("crossover")}
+          aria-label="Choose Crossover or AWD"
         />
 
         <button
@@ -109,13 +88,9 @@ export default function DrivePage() {
           className={`drive-vehicle-zone drive-zone-city ${
             selectedVehicle === "city" ? "is-selected" : ""
           }`}
-          onClick={() => setSelectedVehicle("city")}
-          aria-label="Select 2WD or City Car"
+          onClick={() => chooseVehicle("city")}
+          aria-label="Choose 2WD or City Car"
         />
-
-        {/* =====================================================
-            LOGO → HOME
-        ====================================================== */}
 
         <Link
           href="/"
@@ -123,43 +98,9 @@ export default function DrivePage() {
           aria-label="Back to RoamLab home"
         />
 
-        {/* =====================================================
-            BACK TO WAYS IN
-        ====================================================== */}
-
-        <Link
-          href="/ways-in"
-          className="drive-back-button"
-        >
+        <Link href="/ways-in" className="drive-back-button">
           ← WAYS IN
         </Link>
-
-        {/* =====================================================
-            SELECTION PANEL
-        ====================================================== */}
-
-        {selectedVehicle && (
-          <div className="drive-selection-panel">
-            <div>
-              <span>YOUR VEHICLE</span>
-
-              <strong>
-                {
-                  vehicles.find(
-                    (vehicle) => vehicle.id === selectedVehicle
-                  )?.label
-                }
-              </strong>
-            </div>
-
-            <Link
-              href={`/ways-in/drive/setup?vehicle=${selectedVehicle}`}
-              className="drive-continue-button"
-            >
-              CONTINUE →
-            </Link>
-          </div>
-        )}
       </section>
     </main>
   );
