@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: "RoamLab",
-  description: "Build smarter vehicle camping systems.",
+  description:
+    "Plan smarter. Prepare better. Go further. Share cooler.",
 };
 
 export default function RootLayout({
@@ -14,10 +14,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>
-        {children}
-        <Footer />
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
