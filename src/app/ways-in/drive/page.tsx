@@ -1,93 +1,33 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-const vehicleData: Record<
-  string,
-  {
-    label: string;
-    image: string;
-  }
-> = {
-  suv: {
-    label: "SUV",
-    image: "/vehicle-model-suv.png",
-  },
+export default function DrivePage() {
+  const router = useRouter();
+  const [selectedVehicle, setSelectedVehicle] = useState<string | null>(null);
 
-  truck: {
-    label: "TRUCK",
-    image: "/vehicle-model-truck.png",
-  },
+  const chooseVehicle = (vehicle: string) => {
+    setSelectedVehicle(vehicle);
 
-  van: {
-    label: "VAN",
-    image: "/vehicle-model-van.png",
-  },
-
-  crossover: {
-    label: "CROSSOVER / AWD",
-    image: "/vehicle-model-crossover.png",
-  },
-
-  city: {
-    label: "2WD / CITY CAR",
-    image: "/vehicle-model-city.png",
-  },
-};
-
-const tripStyles = [
-  {
-    id: "weekend",
-    label: "Weekend Escape",
-  },
-
-  {
-    id: "road-trip",
-    label: "Road Trip",
-  },
-
-  {
-    id: "basecamp",
-    label: "Basecamp",
-  },
-
-  {
-    id: "remote",
-    label: "Remote / Off-Grid",
-  },
-];
-
-export default function TripStylePage() {
-  const [vehicle, setVehicle] = useState("suv");
-  const [selectedTrip, setSelectedTrip] = useState<string | null>(null);
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const selectedVehicle = params.get("vehicle");
-
-    if (selectedVehicle && vehicleData[selectedVehicle]) {
-      setVehicle(selectedVehicle);
-    }
-  }, []);
-
-  const currentVehicle = vehicleData[vehicle];
-
-  const selectedTripLabel =
-    tripStyles.find((trip) => trip.id === selectedTrip)?.label || "";
+    window.setTimeout(() => {
+      router.push(`/ways-in/drive/setup?vehicle=${vehicle}`);
+    }, 220);
+  };
 
   return (
-    <main className="trip-desk-page">
-      <section className="trip-desk-stage">
+    <main className="drive-desk-page">
+      <section className="drive-desk-stage">
         <img
-          src="/trip-style-desk.jpg"
-          alt="RoamLab Trip Style Planning Desk"
-          className="trip-desk-image"
+          src="/drive-desk.jpg"
+          alt="RoamLab Drive vehicle selection desk"
+          className="drive-desk-image"
           draggable={false}
         />
 
-        <nav className="trip-real-nav">
-          <div className="trip-real-links">
+        <nav className="drive-real-nav">
+          <div className="drive-real-links">
             <Link href="/explore">EXPLORE</Link>
             <Link href="/plan">PLAN</Link>
             <Link href="/prepare">PREPARE</Link>
@@ -98,98 +38,69 @@ export default function TripStylePage() {
             <Link href="/badges">BADGES</Link>
           </div>
 
-          <Link href="/signin" className="trip-real-signin">
+          <Link href="/signin" className="drive-real-signin">
             SIGN IN
           </Link>
 
-          <Link href="/start-here" className="trip-real-start">
+          <Link href="/start-here" className="drive-real-start">
             START YOUR WILD →
           </Link>
         </nav>
 
-        <div className="trip-selected-vehicle-wrap">
-          <img
-            src={currentVehicle.image}
-            alt={currentVehicle.label}
-            className="trip-selected-vehicle-image"
-            draggable={false}
-          />
-
-          <div className="trip-selected-vehicle-tag">
-            <span>VEHICLE</span>
-            <strong>{currentVehicle.label} ✓</strong>
-          </div>
-        </div>
-
         <button
           type="button"
-          className={`trip-style-zone trip-zone-weekend ${
-            selectedTrip === "weekend" ? "is-selected" : ""
+          className={`drive-vehicle-zone drive-zone-suv ${
+            selectedVehicle === "suv" ? "is-selected" : ""
           }`}
-          onClick={() => setSelectedTrip("weekend")}
-          aria-label="Select Weekend Escape"
+          onClick={() => chooseVehicle("suv")}
+          aria-label="Choose SUV"
         />
 
         <button
           type="button"
-          className={`trip-style-zone trip-zone-road ${
-            selectedTrip === "road-trip" ? "is-selected" : ""
+          className={`drive-vehicle-zone drive-zone-truck ${
+            selectedVehicle === "truck" ? "is-selected" : ""
           }`}
-          onClick={() => setSelectedTrip("road-trip")}
-          aria-label="Select Road Trip"
+          onClick={() => chooseVehicle("truck")}
+          aria-label="Choose Truck"
         />
 
         <button
           type="button"
-          className={`trip-style-zone trip-zone-basecamp ${
-            selectedTrip === "basecamp" ? "is-selected" : ""
+          className={`drive-vehicle-zone drive-zone-van ${
+            selectedVehicle === "van" ? "is-selected" : ""
           }`}
-          onClick={() => setSelectedTrip("basecamp")}
-          aria-label="Select Basecamp"
+          onClick={() => chooseVehicle("van")}
+          aria-label="Choose Van"
         />
 
         <button
           type="button"
-          className={`trip-style-zone trip-zone-remote ${
-            selectedTrip === "remote" ? "is-selected" : ""
+          className={`drive-vehicle-zone drive-zone-crossover ${
+            selectedVehicle === "crossover" ? "is-selected" : ""
           }`}
-          onClick={() => setSelectedTrip("remote")}
-          aria-label="Select Remote Off-Grid"
+          onClick={() => chooseVehicle("crossover")}
+          aria-label="Choose Crossover or AWD"
+        />
+
+        <button
+          type="button"
+          className={`drive-vehicle-zone drive-zone-city ${
+            selectedVehicle === "city" ? "is-selected" : ""
+          }`}
+          onClick={() => chooseVehicle("city")}
+          aria-label="Choose 2WD or City Car"
         />
 
         <Link
           href="/"
-          className="trip-logo-hotspot"
+          className="drive-logo-hotspot"
           aria-label="Back to RoamLab home"
         />
 
-        <Link
-          href="/ways-in/drive"
-          className="trip-back-button"
-        >
-          ← VEHICLE
+        <Link href="/ways-in" className="drive-back-button">
+          ← WAYS IN
         </Link>
-
-        {selectedTrip && (
-          <div className="trip-selection-panel">
-            <div className="trip-selection-summary">
-              <span>YOUR PLAN</span>
-
-              <strong>{selectedTripLabel}</strong>
-
-              <small>
-                {currentVehicle.label} · STEP 2 OF 5
-              </small>
-            </div>
-
-            <Link
-              href={`/ways-in/drive/crew?vehicle=${vehicle}&trip=${selectedTrip}`}
-              className="trip-continue-button"
-            >
-              CONTINUE →
-            </Link>
-          </div>
-        )}
       </section>
     </main>
   );
