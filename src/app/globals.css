@@ -3221,3 +3221,574 @@ img {
   }
 
 }
+/* ============================================================
+   DRIVE DESK
+============================================================ */
+
+.drive-desk-page {
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+
+  background: #080908;
+
+  overflow-x: hidden;
+}
+
+
+.drive-desk-stage {
+  position: relative;
+
+  width: 100%;
+  max-width: 1536px;
+
+  margin: 0 auto;
+
+  overflow: hidden;
+
+  background: #080908;
+}
+
+
+.drive-desk-image {
+  position: relative;
+  z-index: 1;
+
+  display: block;
+
+  width: 100%;
+  height: auto;
+
+  pointer-events: none;
+
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+
+/* ============================================================
+   REAL NAV
+============================================================ */
+
+.drive-real-nav {
+  position: absolute !important;
+
+  z-index: 9999 !important;
+
+  top: 0 !important;
+  left: 18% !important;
+  right: 1.5% !important;
+
+  height: 72px !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+
+  gap: 18px !important;
+
+  background: transparent !important;
+
+  pointer-events: auto !important;
+}
+
+
+.drive-real-links {
+  display: flex !important;
+  align-items: center !important;
+
+  gap: 19px !important;
+}
+
+
+.drive-real-links a,
+.drive-real-signin {
+  position: relative;
+
+  color: rgba(248, 242, 230, 0.86) !important;
+
+  font-size: 10px !important;
+  font-weight: 800 !important;
+
+  line-height: 1 !important;
+
+  letter-spacing: 0.09em !important;
+
+  text-decoration: none !important;
+
+  text-shadow:
+    0 1px 5px rgba(0, 0, 0, 0.9),
+    0 2px 12px rgba(0, 0, 0, 0.55);
+
+  white-space: nowrap;
+}
+
+
+.drive-real-links a::after,
+.drive-real-signin::after {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  right: 0;
+  bottom: -8px;
+
+  height: 1px;
+
+  background: #e9a143;
+
+  transform: scaleX(0);
+
+  transition: transform 0.2s ease;
+}
+
+
+.drive-real-links a:hover,
+.drive-real-signin:hover {
+  color: #ffffff !important;
+}
+
+
+.drive-real-links a:hover::after,
+.drive-real-signin:hover::after {
+  transform: scaleX(1);
+}
+
+
+.drive-real-signin {
+  padding: 10px 8px;
+}
+
+
+.drive-real-start {
+  min-height: 38px;
+
+  padding: 0 15px;
+
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 5px;
+
+  background: #e8a33f !important;
+
+  color: #18130d !important;
+
+  font-size: 9px !important;
+  font-weight: 900 !important;
+
+  letter-spacing: 0.07em !important;
+
+  white-space: nowrap;
+
+  text-decoration: none !important;
+
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.28);
+}
+
+
+/* ============================================================
+   VEHICLE HOTSPOTS
+============================================================ */
+
+.drive-vehicle-zone {
+  position: absolute;
+
+  z-index: 40;
+
+  display: block;
+
+  padding: 0;
+  margin: 0;
+
+  border: none;
+  outline: none;
+
+  background: transparent;
+
+  cursor: pointer;
+
+  border-radius: 28px;
+
+  transition:
+    transform 0.22s ease;
+}
+
+
+/* WARM GLOW */
+
+.drive-vehicle-zone::before {
+  content: "";
+
+  position: absolute;
+
+  inset: -5%;
+
+  border-radius: inherit;
+
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(255, 196, 110, 0.24) 0%,
+      rgba(229, 143, 51, 0.10) 42%,
+      rgba(215, 117, 28, 0.035) 64%,
+      transparent 79%
+    );
+
+  filter: blur(10px);
+
+  opacity: 0;
+
+  transform: scale(0.95);
+
+  transition:
+    opacity 0.25s ease,
+    transform 0.28s ease;
+
+  pointer-events: none;
+}
+
+
+.drive-vehicle-zone::after {
+  content: "";
+
+  position: absolute;
+
+  inset: 2%;
+
+  border-radius: inherit;
+
+  background:
+    radial-gradient(
+      circle at center,
+      rgba(255, 228, 184, 0.11) 0%,
+      rgba(255, 199, 116, 0.04) 48%,
+      transparent 74%
+    );
+
+  opacity: 0;
+
+  transition:
+    opacity 0.22s ease;
+
+  pointer-events: none;
+}
+
+
+.drive-vehicle-zone:hover::before,
+.drive-vehicle-zone.is-selected::before {
+  opacity: 1;
+
+  transform: scale(1.035);
+}
+
+
+.drive-vehicle-zone:hover::after,
+.drive-vehicle-zone.is-selected::after {
+  opacity: 1;
+}
+
+
+.drive-vehicle-zone:hover {
+  transform: translateY(-2px);
+}
+
+
+/* SELECTED VEHICLE */
+
+.drive-vehicle-zone.is-selected {
+  transform: translateY(-2px);
+}
+
+
+/* ============================================================
+   VEHICLE POSITIONS
+============================================================ */
+
+/* SUV */
+
+.drive-zone-suv {
+  left: 7%;
+  top: 9%;
+
+  width: 29%;
+  height: 32%;
+}
+
+
+/* TRUCK */
+
+.drive-zone-truck {
+  left: 36%;
+  top: 5%;
+
+  width: 29%;
+  height: 31%;
+}
+
+
+/* VAN */
+
+.drive-zone-van {
+  left: 63%;
+  top: 4%;
+
+  width: 27%;
+  height: 36%;
+}
+
+
+/* CROSSOVER / AWD */
+
+.drive-zone-crossover {
+  left: 5%;
+  top: 43%;
+
+  width: 31%;
+  height: 34%;
+}
+
+
+/* CITY CAR */
+
+.drive-zone-city {
+  left: 69%;
+  top: 43%;
+
+  width: 25%;
+  height: 34%;
+}
+
+
+/* ============================================================
+   LOGO
+============================================================ */
+
+.drive-logo-hotspot {
+  position: absolute;
+
+  z-index: 10000;
+
+  left: 1.3%;
+  top: 1%;
+
+  width: 13%;
+  height: 10%;
+
+  display: block;
+
+  background: transparent;
+
+  cursor: pointer;
+}
+
+
+/* ============================================================
+   BACK BUTTON
+============================================================ */
+
+.drive-back-button {
+  position: absolute;
+
+  z-index: 500;
+
+  left: 2%;
+  bottom: 2.5%;
+
+  padding:
+    10px
+    14px;
+
+  border-radius: 5px;
+
+  background:
+    rgba(8, 9, 8, 0.72);
+
+  color:
+    rgba(245, 239, 228, 0.72);
+
+  font-size: 9px;
+  font-weight: 800;
+
+  letter-spacing: 0.12em;
+
+  backdrop-filter: blur(7px);
+
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+
+.drive-back-button:hover {
+  color: #f1a544;
+
+  transform: translateX(-3px);
+}
+
+
+/* ============================================================
+   SELECTION PANEL
+============================================================ */
+
+.drive-selection-panel {
+  position: absolute;
+
+  z-index: 1000;
+
+  left: 50%;
+  bottom: 3%;
+
+  transform: translateX(-50%);
+
+  width: min(520px, 70%);
+
+  min-height: 74px;
+
+  padding:
+    13px
+    14px
+    13px
+    20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.10);
+
+  border-radius: 8px;
+
+  background:
+    rgba(10, 12, 9, 0.88);
+
+  box-shadow:
+    0 15px 45px rgba(0, 0, 0, 0.35);
+
+  backdrop-filter: blur(12px);
+}
+
+
+.drive-selection-panel > div {
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+}
+
+
+.drive-selection-panel span {
+  color: #df983d;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  letter-spacing: 0.18em;
+}
+
+
+.drive-selection-panel strong {
+  color: #f4eee3;
+
+  font-size: 18px;
+  font-weight: 850;
+
+  letter-spacing: 0.02em;
+}
+
+
+.drive-continue-button {
+  min-height: 44px;
+
+  padding:
+    0
+    18px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 5px;
+
+  background: #e8a23e;
+
+  color: #17130d;
+
+  font-size: 9px;
+  font-weight: 900;
+
+  letter-spacing: 0.08em;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+
+.drive-continue-button:hover {
+  background: #f0b04a;
+
+  transform: translateY(-2px);
+}
+
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+
+@media (max-width: 1150px) {
+
+  .drive-real-nav {
+    left: 17% !important;
+
+    gap: 10px !important;
+  }
+
+  .drive-real-links {
+    gap: 11px !important;
+  }
+
+  .drive-real-links a,
+  .drive-real-signin {
+    font-size: 8px !important;
+  }
+
+  .drive-real-start {
+    padding: 0 10px;
+
+    font-size: 8px !important;
+  }
+
+}
+
+
+@media (max-width: 768px) {
+
+  .drive-desk-page {
+    overflow-x: auto;
+  }
+
+  .drive-desk-stage {
+    min-width: 900px;
+  }
+
+  .drive-real-nav {
+    min-width: 720px;
+  }
+
+  .drive-vehicle-zone::before,
+  .drive-vehicle-zone::after {
+    display: none;
+  }
+
+}
