@@ -1133,3 +1133,374 @@ img {
     grid-template-columns: 1fr;
   }
 }
+/* ============================================================
+   WAYS IN PAGE
+============================================================ */
+
+.ways-page {
+  min-height: 100vh;
+  background: #111713;
+  color: #f2eee5;
+}
+
+.ways-header {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 30px 48px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ways-logo {
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  color: #f5f1e8;
+}
+
+.ways-back {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: rgba(245, 241, 232, 0.62);
+
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.ways-back:hover {
+  color: #f0a23c;
+  transform: translateX(-3px);
+}
+
+
+/* HERO */
+
+.ways-hero {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+
+  padding:
+    110px
+    48px
+    90px;
+}
+
+.ways-kicker {
+  margin: 0 0 24px;
+
+  font-size: 11px;
+  font-weight: 800;
+
+  letter-spacing: 0.25em;
+
+  color: #df9838;
+}
+
+.ways-hero h1 {
+  margin: 0;
+
+  max-width: 900px;
+
+  font-size:
+    clamp(64px, 8vw, 122px);
+
+  line-height: 0.86;
+
+  letter-spacing: -0.055em;
+
+  font-weight: 900;
+
+  color: #f4f0e7;
+}
+
+.ways-intro {
+  max-width: 580px;
+
+  margin: 42px 0 0;
+
+  font-size: 18px;
+  line-height: 1.7;
+
+  color: rgba(244, 240, 231, 0.62);
+}
+
+
+/* LIST */
+
+.ways-list {
+  width: 100%;
+  max-width: 1280px;
+
+  margin: 0 auto;
+
+  padding:
+    0
+    48px
+    120px;
+}
+
+.way-card {
+  position: relative;
+
+  display: grid;
+
+  grid-template-columns:
+    90px
+    minmax(0, 1fr)
+    60px;
+
+  gap: 28px;
+
+  align-items: center;
+
+  padding:
+    38px
+    20px;
+
+  border-top:
+    1px solid rgba(255, 255, 255, 0.12);
+
+  color: inherit;
+
+  transition:
+    background 0.25s ease,
+    transform 0.25s ease;
+}
+
+.way-card:last-child {
+  border-bottom:
+    1px solid rgba(255, 255, 255, 0.12);
+}
+
+.way-card:hover {
+  background:
+    rgba(255, 255, 255, 0.035);
+
+  transform:
+    translateX(8px);
+}
+
+.way-card:hover .way-arrow {
+  color: #efa13b;
+  transform: translateX(6px);
+}
+
+.way-number {
+  font-size: 11px;
+  font-weight: 800;
+
+  letter-spacing: 0.15em;
+
+  color:
+    rgba(244, 240, 231, 0.35);
+}
+
+.way-meta {
+  margin:
+    0
+    0
+    10px;
+
+  font-size: 10px;
+  font-weight: 700;
+
+  letter-spacing: 0.18em;
+
+  color: #d28b34;
+}
+
+.way-main h2 {
+  margin: 0;
+
+  font-size:
+    clamp(34px, 5vw, 64px);
+
+  line-height: 1;
+
+  letter-spacing: -0.035em;
+
+  font-weight: 850;
+}
+
+.way-description {
+  max-width: 680px;
+
+  margin:
+    14px
+    0
+    0;
+
+  font-size: 15px;
+  line-height: 1.65;
+
+  color:
+    rgba(244, 240, 231, 0.56);
+}
+
+.way-arrow {
+  justify-self: end;
+
+  font-size: 34px;
+
+  color:
+    rgba(244, 240, 231, 0.45);
+
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+
+/* FOOTER CTA */
+
+.ways-footer {
+  padding:
+    120px
+    48px
+    140px;
+
+  text-align: center;
+
+  background:
+    #ebe2d2;
+
+  color:
+    #171714;
+}
+
+.ways-footer > p {
+  margin:
+    0
+    0
+    20px;
+
+  font-size: 11px;
+  font-weight: 800;
+
+  letter-spacing: 0.18em;
+
+  color: #9a6b2f;
+}
+
+.ways-footer h2 {
+  margin: 0;
+
+  font-size:
+    clamp(48px, 7vw, 96px);
+
+  line-height: 0.92;
+
+  letter-spacing: -0.05em;
+}
+
+.ways-cta {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  margin-top: 46px;
+
+  min-height: 54px;
+
+  padding:
+    0
+    28px;
+
+  border-radius: 8px;
+
+  background:
+    #171714;
+
+  color:
+    #f5eee1;
+
+  font-size: 12px;
+  font-weight: 800;
+
+  letter-spacing: 0.08em;
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
+}
+
+.ways-cta:hover {
+  transform:
+    translateY(-3px);
+
+  background:
+    #d88d32;
+}
+
+
+/* MOBILE */
+
+@media (max-width: 768px) {
+
+  .ways-header {
+    padding:
+      22px
+      20px;
+  }
+
+  .ways-logo {
+    font-size: 18px;
+  }
+
+  .ways-hero {
+    padding:
+      80px
+      20px
+      65px;
+  }
+
+  .ways-hero h1 {
+    font-size: 58px;
+  }
+
+  .ways-intro {
+    font-size: 16px;
+  }
+
+  .ways-list {
+    padding:
+      0
+      20px
+      80px;
+  }
+
+  .way-card {
+    grid-template-columns:
+      42px
+      minmax(0, 1fr)
+      28px;
+
+    gap: 14px;
+
+    padding:
+      28px
+      0;
+  }
+
+  .way-description {
+    font-size: 14px;
+  }
+
+  .way-arrow {
+    font-size: 24px;
+  }
+
+  .ways-footer {
+    padding:
+      90px
+      20px;
+  }
+
+}
