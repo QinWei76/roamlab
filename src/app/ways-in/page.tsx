@@ -11,46 +11,69 @@ export default function WaysInPage() {
           draggable={false}
         />
 
-        {/* DRIVE */}
+        {/* =====================================================
+            TOP NAV
+        ====================================================== */}
+
+        <nav className="ways-top-nav">
+          <Link href="/" className="ways-nav-logo">
+            ROAMLAB
+          </Link>
+
+          <div className="ways-nav-links">
+            <Link href="/explore">EXPLORE</Link>
+            <Link href="/plan">PLAN</Link>
+            <Link href="/prepare">PREPARE</Link>
+            <Link href="/safety">SAFETY</Link>
+            <Link href="/learn">LEARN</Link>
+            <Link href="/journal">JOURNAL</Link>
+            <Link href="/stories">STORIES</Link>
+            <Link href="/badges">BADGES</Link>
+          </div>
+
+          <div className="ways-nav-actions">
+            <Link href="/signin" className="ways-signin">
+              SIGN IN
+            </Link>
+
+            <Link href="/start-here" className="ways-start">
+              START YOUR WILD →
+            </Link>
+          </div>
+        </nav>
+
+        {/* =====================================================
+            HOTSPOTS
+        ====================================================== */}
+
         <Link
           href="/ways-in/drive"
           className="ways-hotspot ways-hotspot-drive"
           aria-label="Drive"
         />
 
-        {/* HIKE */}
         <Link
           href="/ways-in/hike"
           className="ways-hotspot ways-hotspot-hike"
           aria-label="Hike"
         />
 
-        {/* RIDE */}
         <Link
           href="/ways-in/ride"
           className="ways-hotspot ways-hotspot-ride"
           aria-label="Ride"
         />
 
-        {/* PADDLE */}
         <Link
           href="/ways-in/paddle"
           className="ways-hotspot ways-hotspot-paddle"
           aria-label="Paddle"
         />
 
-        {/* NOT SURE */}
         <Link
           href="/plan"
           className="ways-hotspot ways-hotspot-unsure"
           aria-label="Not sure? Start here"
-        />
-
-        {/* ROAMLAB LOGO / BACK HOME */}
-        <Link
-          href="/"
-          className="ways-home-hotspot"
-          aria-label="Back to RoamLab home"
         />
       </section>
     </main>
