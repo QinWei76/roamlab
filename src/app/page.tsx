@@ -1,198 +1,161 @@
 import Link from "next/link";
 
-export default function HomePage() {
+const ways = [
+  {
+    number: "01",
+    title: "DRIVE",
+    eyebrow: "SUV · TRUCK · VAN",
+    description:
+      "Take the road deeper. Build your wild system around your vehicle, terrain and range.",
+    image: "/ways-drive.jpg",
+    href: "/ways-in/drive",
+    cta: "EXPLORE BY VEHICLE",
+  },
+  {
+    number: "02",
+    title: "HIKE",
+    eyebrow: "BACKPACKING · TREKKING",
+    description:
+      "Carry what matters. Go farther with a system built around weight, distance and terrain.",
+    image: "/ways-hike.jpg",
+    href: "/ways-in/hike",
+    cta: "WALK INTO THE WILD",
+  },
+  {
+    number: "03",
+    title: "RIDE",
+    eyebrow: "BIKEPACKING · GRAVEL",
+    description:
+      "Move light and cover ground. Prepare for distance, weather, repair and the unexpected.",
+    image: "/ways-ride.jpg",
+    href: "/ways-in/ride",
+    cta: "RIDE FURTHER",
+  },
+  {
+    number: "04",
+    title: "PADDLE",
+    eyebrow: "KAYAK · CANOE · WATER",
+    description:
+      "Reach places the road can't. Build around water, exposure, storage and changing conditions.",
+    image: "/ways-paddle.jpg",
+    href: "/ways-in/paddle",
+    cta: "FOLLOW THE WATER",
+  },
+];
+
+export default function WaysInPage() {
   return (
-    <main className="roam-page">
-      <section className="roam-desk">
+    <main className="ways-visual-page">
+      {/* HEADER */}
+      <header className="ways-visual-header">
+        <Link href="/" className="ways-visual-logo">
+          ROAMLAB
+        </Link>
 
-        {/* =====================================================
-            FINAL ROAMLAB MASTER HERO
-        ===================================================== */}
+        <Link href="/" className="ways-visual-back">
+          ← BACK TO DESK
+        </Link>
+      </header>
 
-        <img
-          src="/wild-desk.jpg"
-          alt="RoamLab — Go Wild. Show It."
-          className="roam-background"
-          draggable={false}
-        />
+      {/* HERO */}
+      <section className="ways-visual-hero">
+        <div className="ways-visual-hero-copy">
+          <p className="ways-visual-kicker">WAYS IN</p>
 
+          <h1>
+            HOW DO YOU
+            <br />
+            GO WILD?
+          </h1>
 
-        {/* =====================================================
-            DESK SYSTEMS
-        ===================================================== */}
+          <p className="ways-visual-intro">
+            Every adventure starts differently. Your way in changes what you
+            carry, how you prepare and how far you can go.
+          </p>
+        </div>
 
+        <div className="ways-visual-index">
+          <span>01 — 05</span>
+          <p>CHOOSE YOUR WAY IN</p>
+        </div>
+      </section>
 
-        {/* BADGE + ACHIEVEMENTS */}
+      {/* FOUR WAYS */}
+      <section className="ways-visual-grid">
+        {ways.map((way) => (
+          <Link
+            href={way.href}
+            className="ways-image-card"
+            key={way.title}
+          >
+            <img
+              src={way.image}
+              alt={`${way.title} — RoamLab`}
+              className="ways-image"
+            />
 
-        <Link
-          href="/badges"
-          className="desk-zone zone-badge"
-          aria-label="Achievements"
-        />
+            <div className="ways-image-shade" />
 
+            <span className="ways-card-number">{way.number}</span>
 
-        {/* EXPLORE */}
+            <div className="ways-card-content">
+              <p className="ways-card-eyebrow">{way.eyebrow}</p>
 
-        <Link
-          href="/explore"
-          className="desk-zone zone-explore"
-          aria-label="Explore"
-        />
+              <h2>{way.title}</h2>
 
+              <p className="ways-card-description">{way.description}</p>
 
-        {/* ADVENTURE CHECKLIST */}
+              <div className="ways-card-action">
+                <span>{way.cta}</span>
+                <strong>→</strong>
+              </div>
+            </div>
+          </Link>
+        ))}
+      </section>
 
-        <Link
-          href="/prepare"
-          className="desk-zone zone-checklist"
-          aria-label="Adventure Checklist"
-        />
+      {/* NOT SURE */}
+      <section className="ways-unsure">
+        <div className="ways-unsure-number">05</div>
 
+        <div className="ways-unsure-copy">
+          <p>NOT SURE WHERE TO START?</p>
 
-        {/* VEHICLE + WAYS IN */}
+          <h2>
+            TELL US WHAT
+            <br />
+            WILD LOOKS LIKE
+            <br />
+            TO YOU.
+          </h2>
 
-        <Link
-          href="/ways-in"
-          className="desk-zone zone-vehicle"
-          aria-label="Ways In"
-        />
+          <span>
+            You don't need to know the route yet. Start with the experience you
+            want and RoamLab will help you build the way in.
+          </span>
+        </div>
 
+        <Link href="/plan" className="ways-unsure-button">
+          HELP ME CHOOSE
+          <strong>→</strong>
+        </Link>
+      </section>
 
-        {/* BACKPACK + PREPARE */}
+      {/* BOTTOM */}
+      <section className="ways-bottom">
+        <p>THERE'S MORE THAN ONE WAY IN.</p>
 
-        <Link
-          href="/prepare"
-          className="desk-zone zone-backpack"
-          aria-label="Prepare"
-        />
+        <h2>
+          PICK YOUR WAY.
+          <br />
+          WE'LL HELP WITH
+          <br />
+          THE REST.
+        </h2>
 
-
-        {/* FIRST AID + SAFETY */}
-
-        <Link
-          href="/safety"
-          className="desk-zone zone-firstaid"
-          aria-label="Safety"
-        />
-
-
-        {/* FIELD GUIDE + LEARN */}
-
-        <Link
-          href="/learn"
-          className="desk-zone zone-guide"
-          aria-label="Learn"
-        />
-
-
-        {/* JOURNAL + MY WILD JOURNAL */}
-
-        <Link
-          href="/journal"
-          className="desk-zone zone-journal"
-          aria-label="My Wild Journal"
-        />
-
-
-        {/* POLAROID + THE WILD WALL */}
-
-        <Link
-          href="/stories"
-          className="desk-zone zone-stories"
-          aria-label="The Wild Wall"
-        />
-
-
-        {/* COMPASS + PLAN YOUR WILD */}
-
-        <Link
-          href="/plan"
-          className="desk-zone zone-plan"
-          aria-label="Plan Your Wild"
-        />
-
-
-        {/* =====================================================
-            TOP NAVIGATION
-        ===================================================== */}
-
-        <Link
-          href="/explore"
-          className="top-zone top-explore"
-          aria-label="Explore"
-        />
-
-        <Link
-          href="/plan"
-          className="top-zone top-plan"
-          aria-label="Plan"
-        />
-
-        <Link
-          href="/prepare"
-          className="top-zone top-prepare"
-          aria-label="Prepare"
-        />
-
-        <Link
-          href="/safety"
-          className="top-zone top-safety"
-          aria-label="Safety"
-        />
-
-        <Link
-          href="/learn"
-          className="top-zone top-learn"
-          aria-label="Learn"
-        />
-
-        <Link
-          href="/journal"
-          className="top-zone top-journal"
-          aria-label="Journal"
-        />
-
-        <Link
-          href="/stories"
-          className="top-zone top-stories"
-          aria-label="Stories"
-        />
-
-        <Link
-          href="/badges"
-          className="top-zone top-badges"
-          aria-label="Badges"
-        />
-
-
-        {/* SIGN IN */}
-
-        <Link
-          href="/signin"
-          className="top-zone top-signin"
-          aria-label="Sign In"
-        />
-
-
-        {/* TOP RIGHT CTA */}
-
-        <Link
-          href="/start-here"
-          className="top-zone top-start"
-          aria-label="Start Your Wild"
-        />
-
-
-        {/* =====================================================
-            CENTER START YOUR WILD
-        ===================================================== */}
-
-        <Link
-          href="/start-here"
-          className="center-start-zone"
-          aria-label="Start Your Wild"
-        />
-
+        <Link href="/" className="ways-bottom-link">
+          ← RETURN TO WILD DESK
+        </Link>
       </section>
     </main>
   );
