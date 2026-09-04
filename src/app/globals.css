@@ -1,2733 +1,50 @@
-@import "tailwindcss";
+/* ============================================================
+   ROAMLAB PLANNER V2
+   WAYS IN → DRIVE → TRIP STYLE
+============================================================ */
 
 
 /* ============================================================
-   GLOBAL RESET
+   SHARED
 ============================================================ */
 
-* {
-  box-sizing: border-box;
-}
-
-html,
-body {
-  margin: 0;
-  padding: 0;
-
-  width: 100%;
-  min-height: 100%;
-
-  background: #080808;
-}
-
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  overflow-x: hidden;
-
-  color: #f4efe6;
-
-  font-family:
-    Arial,
-    Helvetica,
-    sans-serif;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-button,
-input,
-textarea,
-select {
-  font: inherit;
-}
-
-img {
-  max-width: 100%;
-}
-
-
-/* ============================================================
-   ROAMLAB HOME
-============================================================ */
-
-.roam-page {
+.wv2-page,
+.drv2-page,
+.trip2-page {
   width: 100%;
   min-height: 100vh;
 
   margin: 0;
   padding: 0;
 
-  background: #080808;
+  background: #070807;
 
   overflow-x: hidden;
 }
 
 
-/* ============================================================
-   MASTER DESK
-
-   wild-desk.jpg
-   Original design: 1412 × 1114
-============================================================ */
-
-.roam-desk {
-  position: relative;
+.wv2-stage,
+.drv2-stage,
+.trip2-stage {
+  position: relative !important;
 
   width: 100%;
-  max-width: 1412px;
 
-  margin: 0 auto;
-  padding: 0;
-
-  overflow: hidden;
-
-  background: #080808;
-}
-
-
-/* ============================================================
-   BACKGROUND
-============================================================ */
-
-.roam-background {
-  position: relative;
-
-  z-index: 1;
-
-  display: block;
-
-  width: 100%;
-  height: auto;
-
-  margin: 0;
-  padding: 0;
-
-  user-select: none;
-  pointer-events: none;
-
-  -webkit-user-drag: none;
-}
-
-
-/* ============================================================
-   DESK HOTSPOTS
-
-   These are invisible clickable areas.
-============================================================ */
-
-.desk-zone {
-  position: absolute;
-
-  z-index: 20;
-
-  display: block;
-
-  margin: 0;
-  padding: 0;
-
-  cursor: pointer;
-
-  background: transparent;
-
-  border: none;
-  outline: none;
-
-  text-decoration: none;
-
-  border-radius: 24px;
-
-  -webkit-tap-highlight-color: transparent;
-
-  transition:
-    transform 0.22s ease;
-}
-
-
-/* ============================================================
-   DESK GLOW
-
-   No orange border.
-   No visible rectangle.
-============================================================ */
-
-.desk-zone::before {
-  content: "";
-
-  position: absolute;
-
-  inset: -4%;
-
-  z-index: 1;
-
-  border-radius: inherit;
-
-  background:
-    radial-gradient(
-      ellipse at center,
-      rgba(255, 194, 105, 0.18) 0%,
-      rgba(255, 169, 72, 0.09) 38%,
-      rgba(255, 145, 42, 0.03) 62%,
-      transparent 78%
-    );
-
-  filter: blur(9px);
-
-  opacity: 0;
-
-  transform: scale(0.95);
-
-  transition:
-    opacity 0.28s ease,
-    transform 0.32s ease;
-
-  pointer-events: none;
-}
-
-
-/* ============================================================
-   SECONDARY SURFACE LIGHT
-============================================================ */
-
-.desk-zone::after {
-  content: "";
-
-  position: absolute;
-
-  inset: 1%;
-
-  z-index: 2;
-
-  border-radius: inherit;
-
-  background:
-    radial-gradient(
-      circle at 50% 48%,
-      rgba(255, 226, 180, 0.10) 0%,
-      rgba(255, 200, 125, 0.035) 52%,
-      transparent 75%
-    );
-
-  opacity: 0;
-
-  transition:
-    opacity 0.25s ease;
-
-  pointer-events: none;
-}
-
-
-/* ============================================================
-   DESK HOVER
-============================================================ */
-
-.desk-zone:hover::before {
-  opacity: 1;
-
-  transform: scale(1.035);
-}
-
-.desk-zone:hover::after {
-  opacity: 1;
-}
-
-.desk-zone:hover {
-  transform: translateY(-2px);
-}
-
-
-/* ============================================================
-   DESK CLICK
-============================================================ */
-
-.desk-zone:active {
-  transform:
-    translateY(0)
-    scale(0.985);
-}
-
-
-/* ============================================================
-   BADGE + ACHIEVEMENTS
-============================================================ */
-
-.zone-badge {
-  left: 2%;
-  top: 8%;
-
-  width: 29%;
-  height: 20%;
-
-  border-radius: 26px;
-}
-
-
-/*
-   Two glow centers:
-   1. Badge
-   2. ACHIEVEMENTS card
-*/
-
-.zone-badge::before {
-  inset: -2%;
-
-  background:
-    radial-gradient(
-      circle at 24% 52%,
-      rgba(255, 176, 65, 0.24) 0%,
-      rgba(255, 150, 40, 0.10) 34%,
-      transparent 58%
-    ),
-
-    radial-gradient(
-      ellipse at 76% 47%,
-      rgba(255, 205, 130, 0.18) 0%,
-      rgba(255, 170, 75, 0.07) 45%,
-      transparent 72%
-    );
-
-  filter: blur(8px);
-}
-
-
-/* ============================================================
-   EXPLORE
-============================================================ */
-
-.zone-explore {
-  left: 7%;
-  top: 31%;
-
-  width: 13%;
-  height: 10%;
-
-  border-radius: 12px;
-}
-
-
-/* ============================================================
-   ADVENTURE CHECKLIST
-============================================================ */
-
-.zone-checklist {
-  left: 0%;
-  top: 39%;
-
-  width: 13.5%;
-  height: 28%;
-
-  border-radius: 18px;
-}
-
-.zone-checklist::before {
-  inset: -4%;
-
-  background:
-    radial-gradient(
-      ellipse at 45% 50%,
-      rgba(255, 200, 115, 0.22) 0%,
-      rgba(255, 170, 75, 0.09) 45%,
-      transparent 76%
-    );
-
-  filter: blur(7px);
-}
-
-
-/* ============================================================
-   VEHICLE + WAYS IN
-============================================================ */
-
-.zone-vehicle {
-  left: 15%;
-  top: 33%;
-
-  width: 23%;
-  height: 21%;
-
-  border-radius: 24px;
-}
-
-.zone-vehicle::before {
-  background:
-    radial-gradient(
-      ellipse at 42% 50%,
-      rgba(255, 188, 85, 0.21) 0%,
-      rgba(255, 155, 48, 0.08) 46%,
-      transparent 74%
-    ),
-
-    radial-gradient(
-      ellipse at 82% 70%,
-      rgba(255, 205, 130, 0.13) 0%,
-      rgba(255, 170, 75, 0.05) 42%,
-      transparent 70%
-    );
-}
-
-
-/* ============================================================
-   BACKPACK + PREPARE
-============================================================ */
-
-.zone-backpack {
-  left: 4%;
-  top: 50%;
-
-  width: 34%;
-  height: 42%;
-
-  border-radius: 30px;
-}
-
-.zone-backpack::before {
-  background:
-    radial-gradient(
-      ellipse at 42% 48%,
-      rgba(255, 194, 100, 0.19) 0%,
-      rgba(255, 160, 58, 0.07) 50%,
-      transparent 76%
-    ),
-
-    radial-gradient(
-      ellipse at 86% 18%,
-      rgba(255, 205, 130, 0.13) 0%,
-      rgba(255, 170, 75, 0.05) 40%,
-      transparent 68%
-    );
-}
-
-
-/* ============================================================
-   FIRST AID + SAFETY
-============================================================ */
-
-.zone-firstaid {
-  left: 36%;
-  top: 63%;
-
-  width: 22%;
-  height: 24%;
-
-  border-radius: 24px;
-}
-
-.zone-firstaid::before {
-  background:
-    radial-gradient(
-      ellipse at 48% 48%,
-      rgba(255, 190, 92, 0.20) 0%,
-      rgba(255, 155, 50, 0.07) 50%,
-      transparent 75%
-    ),
-
-    radial-gradient(
-      ellipse at 78% 85%,
-      rgba(255, 205, 130, 0.11) 0%,
-      transparent 65%
-    );
-}
-
-
-/* ============================================================
-   FIELD GUIDE + LEARN
-============================================================ */
-
-.zone-guide {
-  left: 57%;
-  top: 56%;
-
-  width: 21%;
-  height: 31%;
-
-  border-radius: 24px;
-}
-
-.zone-guide::before {
-  background:
-    radial-gradient(
-      ellipse at 45% 48%,
-      rgba(255, 195, 105, 0.19) 0%,
-      rgba(255, 160, 58, 0.07) 50%,
-      transparent 76%
-    ),
-
-    radial-gradient(
-      ellipse at 80% 88%,
-      rgba(255, 205, 130, 0.12) 0%,
-      transparent 68%
-    );
-}
-
-
-/* ============================================================
-   JOURNAL + MY WILD JOURNAL
-============================================================ */
-
-.zone-journal {
-  left: 73%;
-  top: 48%;
-
-  width: 24%;
-  height: 40%;
-
-  border-radius: 26px;
-}
-
-.zone-journal::before {
-  background:
-    radial-gradient(
-      ellipse at 52% 52%,
-      rgba(255, 190, 95, 0.19) 0%,
-      rgba(255, 155, 50, 0.07) 52%,
-      transparent 77%
-    ),
-
-    radial-gradient(
-      ellipse at 50% 88%,
-      rgba(255, 205, 130, 0.12) 0%,
-      transparent 66%
-    );
-}
-
-
-/* ============================================================
-   THE WILD WALL
-   POLAROID + LABEL
-============================================================ */
-
-.zone-stories {
-  left: 63%;
-  top: 7%;
-
-  width: 29%;
-  height: 24%;
-
-  border-radius: 22px;
-}
-
-.zone-stories::before {
-  background:
-    radial-gradient(
-      ellipse at 35% 48%,
-      rgba(255, 198, 110, 0.20) 0%,
-      rgba(255, 160, 58, 0.07) 48%,
-      transparent 74%
-    ),
-
-    radial-gradient(
-      ellipse at 82% 60%,
-      rgba(255, 205, 130, 0.14) 0%,
-      rgba(255, 170, 75, 0.05) 45%,
-      transparent 70%
-    );
-}
-
-
-/* ============================================================
-   PLAN YOUR WILD
-   COMPASS + LABEL
-============================================================ */
-
-.zone-plan {
-  left: 60%;
-  top: 29%;
-
-  width: 30%;
-  height: 25%;
-
-  border-radius: 24px;
-}
-
-.zone-plan::before {
-  background:
-    radial-gradient(
-      circle at 32% 58%,
-      rgba(255, 188, 80, 0.22) 0%,
-      rgba(255, 155, 48, 0.08) 42%,
-      transparent 66%
-    ),
-
-    radial-gradient(
-      ellipse at 77% 50%,
-      rgba(255, 205, 130, 0.15) 0%,
-      rgba(255, 170, 75, 0.05) 44%,
-      transparent 70%
-    );
-}
-
-
-/* ============================================================
-   TOP NAVIGATION
-============================================================ */
-
-.top-zone,
-.center-start-zone {
-  position: absolute;
-
-  z-index: 40;
-
-  display: block;
-
-  margin: 0;
-  padding: 0;
-
-  cursor: pointer;
-
-  text-decoration: none;
-
-  background: transparent;
-
-  border: none;
-  outline: none;
-
-  -webkit-tap-highlight-color: transparent;
-
-  transition:
-    transform 0.20s ease;
-}
-
-
-/* ============================================================
-   TOP NAV GLOW
-============================================================ */
-
-.top-zone::before,
-.center-start-zone::before {
-  content: "";
-
-  position: absolute;
-
-  inset: -12%;
-
-  border-radius: inherit;
-
-  background:
-    radial-gradient(
-      ellipse at center,
-      rgba(255, 215, 145, 0.22) 0%,
-      rgba(255, 175, 85, 0.09) 48%,
-      transparent 78%
-    );
-
-  filter: blur(6px);
-
-  opacity: 0;
-
-  transform: scale(0.94);
-
-  transition:
-    opacity 0.20s ease,
-    transform 0.24s ease;
-
-  pointer-events: none;
-}
-
-.top-zone:hover::before,
-.center-start-zone:hover::before {
-  opacity: 1;
-
-  transform: scale(1.07);
-}
-
-
-/* ============================================================
-   TOP NAV HOVER
-============================================================ */
-
-.top-zone:hover {
-  transform: translateY(-2px);
-}
-
-
-/* ============================================================
-   TOP NAV CLICK
-============================================================ */
-
-.top-zone:active,
-.center-start-zone:active {
-  transform: scale(0.97);
-}
-
-
-/* ============================================================
-   TOP NAV
-   EXPLORE
-============================================================ */
-
-.top-explore {
-  left: 19.5%;
-  top: 0.2%;
-
-  width: 6.5%;
-  height: 5.5%;
-
-  border-radius: 8px;
-}
-
-
-/* ============================================================
-   TOP NAV
-   PLAN
-============================================================ */
-
-.top-plan {
-  left: 27.3%;
-  top: 0.2%;
-
-  width: 5%;
-  height: 5.5%;
-
-  border-radius: 8px;
-}
-
-
-/* ============================================================
-   TOP NAV
-   PREPARE
-============================================================ */
-
-.top-prepare {
-  left: 33%;
-  top: 0.2%;
-
-  width: 7%;
-  height: 5.5%;
-
-  border-radius: 8px;
-}
-
-
-/* ============================================================
-   TOP NAV
-   SAFETY
-============================================================ */
-
-.top-safety {
-  left: 40.2%;
-  top: 0.2%;
-
-  width: 6%;
-  height: 5.5%;
-
-  border-radius: 8px;
-}
-
-
-/* ============================================================
-   TOP NAV
-   LEARN
-============================================================ */
-
-.top-learn {
-  left: 47.2%;
-  top: 0.2%;
-
-  width: 6%;
-  height: 5.5%;
-
-  border-radius: 8px;
-}
-
-
-/* ============================================================
-   TOP NAV
-   JOURNAL
-============================================================ */
-
-.top-journal {
-  left: 53.8%;
-  top: 0.2%;
-
-  width: 7%;
-  height: 5.5%;
-
-  border-radius: 8px;
-}
-
-
-/* ============================================================
-   TOP NAV
-   STORIES
-============================================================ */
-
-.top-stories {
-  left: 61.4%;
-  top: 0.2%;
-
-  width: 6.5%;
-  height: 5.5%;
-
-  border-radius: 8px;
-}
-
-
-/* ============================================================
-   TOP NAV
-   BADGES
-============================================================ */
-
-.top-badges {
-  left: 68.2%;
-  top: 0.2%;
-
-  width: 6.5%;
-  height: 5.5%;
-
-  border-radius: 8px;
-}
-
-
-/* ============================================================
-   SIGN IN
-============================================================ */
-
-.top-signin {
-  left: 74.5%;
-  top: 0%;
-
-  width: 9.5%;
-  height: 6.5%;
-
-  border-radius: 8px;
-}
-
-
-/*
-   SIGN IN gets a slightly stronger white/warm response
-*/
-
-.top-signin::before {
-  background:
-    radial-gradient(
-      ellipse at center,
-      rgba(255, 238, 205, 0.22) 0%,
-      rgba(255, 200, 130, 0.08) 52%,
-      transparent 80%
-    );
-}
-
-
-/* ============================================================
-   TOP START YOUR WILD
-============================================================ */
-
-.top-start {
-  left: 84.7%;
-  top: 0%;
-
-  width: 14.5%;
-  height: 6.5%;
-
-  border-radius: 8px;
-}
-
-.top-start::before {
-  inset: -10%;
-
-  background:
-    radial-gradient(
-      ellipse at center,
-      rgba(255, 226, 155, 0.38) 0%,
-      rgba(255, 180, 70, 0.17) 46%,
-      rgba(255, 150, 40, 0.05) 66%,
-      transparent 82%
-    );
-
-  filter: blur(7px);
-}
-
-.top-start:hover {
-  transform:
-    translateY(-2px)
-    scale(1.015);
-}
-
-
-/* ============================================================
-   CENTER START YOUR WILD
-============================================================ */
-
-.center-start-zone {
-  left: 38.2%;
-  top: 52.5%;
-
-  width: 23%;
-  height: 8.5%;
-
-  border-radius: 9px;
-}
-
-.center-start-zone::before {
-  inset: -10%;
-
-  background:
-    radial-gradient(
-      ellipse at center,
-      rgba(255, 226, 155, 0.40) 0%,
-      rgba(255, 180, 70, 0.18) 46%,
-      rgba(255, 150, 40, 0.05) 66%,
-      transparent 82%
-    );
-
-  filter: blur(8px);
-}
-
-.center-start-zone:hover {
-  transform:
-    translateY(-3px)
-    scale(1.018);
-}
-
-
-/* ============================================================
-   ACCESSIBILITY
-============================================================ */
-
-.desk-zone:focus-visible,
-.top-zone:focus-visible,
-.center-start-zone:focus-visible {
-  outline:
-    2px solid
-    rgba(241, 167, 77, 0.90);
-
-  outline-offset: 3px;
-}
-
-
-/* ============================================================
-   SYSTEM PAGES
-
-   Keeps the pages we created earlier working.
-============================================================ */
-
-.system-page {
-  min-height: 100vh;
-
-  display: flex;
-
-  align-items: center;
-  justify-content: center;
-
-  padding: 40px 24px;
-
-  background:
-    radial-gradient(
-      circle at top,
-      #27231d 0%,
-      #11100e 45%,
-      #080808 100%
-    );
-}
-
-.system-card {
-  width: 100%;
-  max-width: 1000px;
-
-  padding: 60px;
-
-  border-radius: 28px;
-
-  background: #f0eadf;
-
-  color: #151412;
-
-  text-align: center;
-
-  box-shadow:
-    0 30px 80px
-    rgba(0, 0, 0, 0.35);
-}
-
-.system-card h1 {
-  margin:
-    0
-    0
-    18px;
-
-  font-size:
-    clamp(
-      34px,
-      5vw,
-      58px
-    );
-
-  line-height: 1;
-
-  letter-spacing: 0.06em;
-}
-
-.system-card > p {
-  margin:
-    0
-    auto;
-
-  max-width: 620px;
-
-  font-size: 17px;
-  line-height: 1.6;
-
-  color:
-    rgba(21, 20, 18, 0.68);
-}
-
-
-/* ============================================================
-   OPTION / BADGE GRIDS
-============================================================ */
-
-.option-grid,
-.badge-grid {
-  display: grid;
-
-  grid-template-columns:
-    repeat(3, minmax(0, 1fr));
-
-  gap: 18px;
-
-  margin-top: 42px;
-}
-
-.option-grid button,
-.badge-item {
-  min-height: 130px;
-
-  padding: 28px 22px;
-
-  border: none;
-  border-radius: 18px;
-
-  background: #181715;
-
-  color: #f5efe4;
-
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    background 0.2s ease;
-}
-
-.option-grid button {
-  cursor: pointer;
-
-  font-size: 18px;
-  font-weight: 700;
-
-  letter-spacing: 0.05em;
-}
-
-.option-grid button:hover,
-.badge-item:hover {
-  transform: translateY(-4px);
-
-  background: #24211d;
-
-  box-shadow:
-    0 14px 30px
-    rgba(0, 0, 0, 0.20);
-}
-
-.badge-item h2 {
-  margin:
-    0
-    0
-    10px;
-
-  font-size: 22px;
-
-  letter-spacing: 0.08em;
-}
-
-.badge-item p {
-  margin: 0;
-
-  color:
-    rgba(245, 239, 228, 0.68);
-
-  line-height: 1.5;
-}
-
-
-/* ============================================================
-   REDUCED MOTION
-============================================================ */
-
-@media (prefers-reduced-motion: reduce) {
-
-  html {
-    scroll-behavior: auto;
-  }
-
-  .desk-zone,
-  .desk-zone::before,
-  .desk-zone::after,
-  .top-zone,
-  .top-zone::before,
-  .center-start-zone,
-  .center-start-zone::before,
-  .option-grid button,
-  .badge-item {
-    transition: none;
-  }
-}
-
-
-/* ============================================================
-   TABLET / MOBILE
-============================================================ */
-
-@media (max-width: 768px) {
-
-  /*
-     For now we preserve the desktop interactive desk.
-
-     We will design a dedicated mobile homepage later.
-  */
-
-  .roam-page {
-    overflow-x: auto;
-  }
-
-  .roam-desk {
-    min-width: 900px;
-  }
-
-
-  /*
-     Touch devices do not need desktop hover glows.
-  */
-
-  .desk-zone::before,
-  .desk-zone::after,
-  .top-zone::before,
-  .center-start-zone::before {
-    display: none;
-  }
-
-  .desk-zone:hover,
-  .top-zone:hover,
-  .center-start-zone:hover {
-    transform: none;
-  }
-
-
-  /* SYSTEM PAGES */
-
-  .system-page {
-    padding: 24px 16px;
-  }
-
-  .system-card {
-    padding: 38px 22px;
-
-    border-radius: 22px;
-  }
-
-  .option-grid,
-  .badge-grid {
-    grid-template-columns: 1fr;
-  }
-}
-/* ============================================================
-   WAYS IN PAGE
-============================================================ */
-
-.ways-page {
-  min-height: 100vh;
-  background: #111713;
-  color: #f2eee5;
-}
-
-.ways-header {
-  width: 100%;
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 30px 48px;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.ways-logo {
-  font-size: 22px;
-  font-weight: 900;
-  letter-spacing: 0.18em;
-  color: #f5f1e8;
-}
-
-.ways-back {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  color: rgba(245, 241, 232, 0.62);
-
-  transition:
-    color 0.2s ease,
-    transform 0.2s ease;
-}
-
-.ways-back:hover {
-  color: #f0a23c;
-  transform: translateX(-3px);
-}
-
-
-/* HERO */
-
-.ways-hero {
-  width: 100%;
-  max-width: 1280px;
-  margin: 0 auto;
-
-  padding:
-    110px
-    48px
-    90px;
-}
-
-.ways-kicker {
-  margin: 0 0 24px;
-
-  font-size: 11px;
-  font-weight: 800;
-
-  letter-spacing: 0.25em;
-
-  color: #df9838;
-}
-
-.ways-hero h1 {
-  margin: 0;
-
-  max-width: 900px;
-
-  font-size:
-    clamp(64px, 8vw, 122px);
-
-  line-height: 0.86;
-
-  letter-spacing: -0.055em;
-
-  font-weight: 900;
-
-  color: #f4f0e7;
-}
-
-.ways-intro {
-  max-width: 580px;
-
-  margin: 42px 0 0;
-
-  font-size: 18px;
-  line-height: 1.7;
-
-  color: rgba(244, 240, 231, 0.62);
-}
-
-
-/* LIST */
-
-.ways-list {
-  width: 100%;
-  max-width: 1280px;
-
-  margin: 0 auto;
-
-  padding:
-    0
-    48px
-    120px;
-}
-
-.way-card {
-  position: relative;
-
-  display: grid;
-
-  grid-template-columns:
-    90px
-    minmax(0, 1fr)
-    60px;
-
-  gap: 28px;
-
-  align-items: center;
-
-  padding:
-    38px
-    20px;
-
-  border-top:
-    1px solid rgba(255, 255, 255, 0.12);
-
-  color: inherit;
-
-  transition:
-    background 0.25s ease,
-    transform 0.25s ease;
-}
-
-.way-card:last-child {
-  border-bottom:
-    1px solid rgba(255, 255, 255, 0.12);
-}
-
-.way-card:hover {
-  background:
-    rgba(255, 255, 255, 0.035);
-
-  transform:
-    translateX(8px);
-}
-
-.way-card:hover .way-arrow {
-  color: #efa13b;
-  transform: translateX(6px);
-}
-
-.way-number {
-  font-size: 11px;
-  font-weight: 800;
-
-  letter-spacing: 0.15em;
-
-  color:
-    rgba(244, 240, 231, 0.35);
-}
-
-.way-meta {
-  margin:
-    0
-    0
-    10px;
-
-  font-size: 10px;
-  font-weight: 700;
-
-  letter-spacing: 0.18em;
-
-  color: #d28b34;
-}
-
-.way-main h2 {
-  margin: 0;
-
-  font-size:
-    clamp(34px, 5vw, 64px);
-
-  line-height: 1;
-
-  letter-spacing: -0.035em;
-
-  font-weight: 850;
-}
-
-.way-description {
-  max-width: 680px;
-
-  margin:
-    14px
-    0
-    0;
-
-  font-size: 15px;
-  line-height: 1.65;
-
-  color:
-    rgba(244, 240, 231, 0.56);
-}
-
-.way-arrow {
-  justify-self: end;
-
-  font-size: 34px;
-
-  color:
-    rgba(244, 240, 231, 0.45);
-
-  transition:
-    color 0.2s ease,
-    transform 0.2s ease;
-}
-
-
-/* FOOTER CTA */
-
-.ways-footer {
-  padding:
-    120px
-    48px
-    140px;
-
-  text-align: center;
-
-  background:
-    #ebe2d2;
-
-  color:
-    #171714;
-}
-
-.ways-footer > p {
-  margin:
-    0
-    0
-    20px;
-
-  font-size: 11px;
-  font-weight: 800;
-
-  letter-spacing: 0.18em;
-
-  color: #9a6b2f;
-}
-
-.ways-footer h2 {
-  margin: 0;
-
-  font-size:
-    clamp(48px, 7vw, 96px);
-
-  line-height: 0.92;
-
-  letter-spacing: -0.05em;
-}
-
-.ways-cta {
-  display: inline-flex;
-
-  align-items: center;
-  justify-content: center;
-
-  margin-top: 46px;
-
-  min-height: 54px;
-
-  padding:
-    0
-    28px;
-
-  border-radius: 8px;
-
-  background:
-    #171714;
-
-  color:
-    #f5eee1;
-
-  font-size: 12px;
-  font-weight: 800;
-
-  letter-spacing: 0.08em;
-
-  transition:
-    transform 0.2s ease,
-    background 0.2s ease;
-}
-
-.ways-cta:hover {
-  transform:
-    translateY(-3px);
-
-  background:
-    #d88d32;
-}
-
-
-/* MOBILE */
-
-@media (max-width: 768px) {
-
-  .ways-header {
-    padding:
-      22px
-      20px;
-  }
-
-  .ways-logo {
-    font-size: 18px;
-  }
-
-  .ways-hero {
-    padding:
-      80px
-      20px
-      65px;
-  }
-
-  .ways-hero h1 {
-    font-size: 58px;
-  }
-
-  .ways-intro {
-    font-size: 16px;
-  }
-
-  .ways-list {
-    padding:
-      0
-      20px
-      80px;
-  }
-
-  .way-card {
-    grid-template-columns:
-      42px
-      minmax(0, 1fr)
-      28px;
-
-    gap: 14px;
-
-    padding:
-      28px
-      0;
-  }
-
-  .way-description {
-    font-size: 14px;
-  }
-
-  .way-arrow {
-    font-size: 24px;
-  }
-
-  .ways-footer {
-    padding:
-      90px
-      20px;
-  }
-
-}
-/* ============================================================
-   WAYS IN / DRIVE
-============================================================ */
-
-.drive-page {
-  min-height: 100vh;
-  background: #111713;
-  color: #f3eee5;
-}
-
-.drive-header {
-  width: 100%;
-  max-width: 1280px;
-
-  margin: 0 auto;
-  padding: 30px 48px;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.drive-logo {
-  color: #f4efe5;
-
-  font-size: 22px;
-  font-weight: 900;
-
-  letter-spacing: 0.18em;
-}
-
-.drive-back {
-  color: rgba(244, 239, 229, 0.6);
-
-  font-size: 11px;
-  font-weight: 800;
-
-  letter-spacing: 0.14em;
-
-  transition:
-    color 0.2s ease,
-    transform 0.2s ease;
-}
-
-.drive-back:hover {
-  color: #e59a39;
-  transform: translateX(-3px);
-}
-
-
-/* HERO */
-
-.drive-hero {
-  width: 100%;
-  max-width: 1280px;
-
-  margin: 0 auto;
-
-  padding:
-    105px
-    48px
-    95px;
-}
-
-.drive-kicker {
-  margin: 0 0 24px;
-
-  color: #df9437;
-
-  font-size: 11px;
-  font-weight: 800;
-
-  letter-spacing: 0.23em;
-}
-
-.drive-hero h1 {
-  margin: 0;
-
-  font-size:
-    clamp(62px, 8vw, 118px);
-
-  line-height: 0.88;
-
-  letter-spacing: -0.055em;
-
-  font-weight: 900;
-}
-
-.drive-intro {
-  max-width: 620px;
-
-  margin: 42px 0 0;
-
-  color:
-    rgba(243, 238, 229, 0.62);
-
-  font-size: 18px;
-  line-height: 1.7;
-}
-
-
-/* FORM */
-
-.drive-form {
-  width: 100%;
-  max-width: 1280px;
-
-  margin: 0 auto;
-
-  padding:
-    0
-    48px
-    140px;
-}
-
-.drive-step {
-  padding:
-    62px
-    0;
-
-  border-top:
-    1px solid
-    rgba(255, 255, 255, 0.12);
-}
-
-.drive-step-head {
-  display: grid;
-
-  grid-template-columns:
-    70px
-    minmax(0, 1fr);
-
-  gap: 24px;
-
-  margin-bottom: 38px;
-}
-
-.drive-step-head > span {
-  padding-top: 5px;
-
-  color:
-    rgba(243, 238, 229, 0.32);
-
-  font-size: 11px;
-  font-weight: 800;
-
-  letter-spacing: 0.15em;
-}
-
-.drive-step-head p {
-  margin:
-    0
-    0
-    10px;
-
-  color: #d78e35;
-
-  font-size: 10px;
-  font-weight: 800;
-
-  letter-spacing: 0.2em;
-}
-
-.drive-step-head h2 {
-  margin: 0;
-
-  font-size:
-    clamp(30px, 4vw, 52px);
-
-  line-height: 1;
-
-  letter-spacing: -0.035em;
-}
-
-
-/* VEHICLE OPTIONS */
-
-.vehicle-choice-grid {
-  display: grid;
-
-  grid-template-columns:
-    repeat(2, minmax(0, 1fr));
-
-  gap: 16px;
-
-  margin-left: 94px;
-}
-
-.vehicle-choice {
-  min-height: 180px;
-
-  padding: 28px;
-
-  display: flex;
-  flex-direction: column;
-
-  align-items: flex-start;
-  justify-content: space-between;
-
-  text-align: left;
-
-  cursor: pointer;
-
-  border:
-    1px solid
-    rgba(255, 255, 255, 0.12);
-
-  border-radius: 14px;
-
-  background:
-    rgba(255, 255, 255, 0.025);
-
-  color: #f4efe5;
-
-  transition:
-    transform 0.22s ease,
-    background 0.22s ease,
-    border-color 0.22s ease;
-}
-
-.vehicle-choice:hover {
-  transform: translateY(-4px);
-
-  background:
-    rgba(255, 255, 255, 0.055);
-
-  border-color:
-    rgba(222, 149, 57, 0.55);
-}
-
-.vehicle-choice-title {
-  font-size: 24px;
-  font-weight: 850;
-
-  letter-spacing: 0.02em;
-}
-
-.vehicle-choice-description {
-  max-width: 390px;
-
-  margin-top: 28px;
-
-  color:
-    rgba(244, 239, 229, 0.55);
-
-  font-size: 14px;
-  line-height: 1.55;
-}
-
-
-/* MODEL INPUT */
-
-.vehicle-model {
-  margin:
-    34px
-    0
-    0
-    94px;
-
-  max-width: 650px;
-}
-
-.vehicle-model label {
-  display: block;
-
-  margin-bottom: 12px;
-
-  color:
-    rgba(244, 239, 229, 0.55);
-
-  font-size: 10px;
-  font-weight: 800;
-
-  letter-spacing: 0.18em;
-}
-
-.vehicle-model input {
-  width: 100%;
-
-  padding:
-    18px
-    0;
-
-  border: none;
-  border-bottom:
-    1px solid
-    rgba(255, 255, 255, 0.24);
-
-  outline: none;
-
-  background: transparent;
-
-  color: #f4efe5;
-
-  font-size: 24px;
-
-  transition:
-    border-color 0.2s ease;
-}
-
-.vehicle-model input:focus {
-  border-color: #e49a3a;
-}
-
-.vehicle-model input::placeholder {
-  color:
-    rgba(244, 239, 229, 0.25);
-}
-
-.vehicle-model p {
-  margin:
-    12px
-    0
-    0;
-
-  color:
-    rgba(244, 239, 229, 0.4);
-
-  font-size: 12px;
-  line-height: 1.5;
-}
-
-
-/* SIMPLE OPTIONS */
-
-.simple-choice-grid {
-  display: grid;
-
-  grid-template-columns:
-    repeat(4, minmax(0, 1fr));
-
-  gap: 14px;
-
-  margin-left: 94px;
-}
-
-.simple-choice-grid button {
-  min-height: 92px;
-
-  padding:
-    20px
-    16px;
-
-  cursor: pointer;
-
-  border:
-    1px solid
-    rgba(255, 255, 255, 0.12);
-
-  border-radius: 12px;
-
-  background:
-    rgba(255, 255, 255, 0.025);
-
-  color: #f3eee5;
-
-  font-size: 14px;
-  font-weight: 700;
-
-  transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    transform 0.2s ease;
-}
-
-.simple-choice-grid button:hover {
-  transform: translateY(-3px);
-
-  background:
-    rgba(255, 255, 255, 0.055);
-
-  border-color:
-    rgba(222, 149, 57, 0.55);
-}
-
-
-/* NEXT */
-
-.drive-next {
-  margin-top: 40px;
-
-  padding:
-    70px;
-
-  display: flex;
-
-  align-items: flex-end;
-  justify-content: space-between;
-
-  gap: 40px;
-
-  background: #e9dfcf;
-
-  color: #181714;
-
-  border-radius: 24px;
-}
-
-.drive-next p {
-  margin:
-    0
-    0
-    16px;
-
-  color: #a26d2d;
-
-  font-size: 10px;
-  font-weight: 800;
-
-  letter-spacing: 0.2em;
-}
-
-.drive-next h2 {
-  margin: 0;
-
-  font-size:
-    clamp(38px, 5vw, 68px);
-
-  line-height: 0.95;
-
-  letter-spacing: -0.045em;
-}
-
-.drive-next-button {
-  flex-shrink: 0;
-
-  display: inline-flex;
-
-  align-items: center;
-  justify-content: center;
-
-  min-height: 54px;
-
-  padding:
-    0
-    28px;
-
-  border-radius: 9px;
-
-  background: #161613;
-
-  color: #f4ede1;
-
-  font-size: 12px;
-  font-weight: 800;
-
-  letter-spacing: 0.08em;
-
-  transition:
-    transform 0.2s ease,
-    background 0.2s ease;
-}
-
-.drive-next-button:hover {
-  transform: translateY(-3px);
-
-  background: #d98f34;
-}
-
-
-/* MOBILE */
-
-@media (max-width: 768px) {
-
-  .drive-header {
-    padding:
-      22px
-      20px;
-  }
-
-  .drive-hero {
-    padding:
-      80px
-      20px
-      65px;
-  }
-
-  .drive-hero h1 {
-    font-size: 56px;
-  }
-
-  .drive-form {
-    padding:
-      0
-      20px
-      90px;
-  }
-
-  .drive-step {
-    padding:
-      46px
-      0;
-  }
-
-  .drive-step-head {
-    grid-template-columns:
-      34px
-      minmax(0, 1fr);
-
-    gap: 12px;
-  }
-
-  .vehicle-choice-grid,
-  .simple-choice-grid,
-  .vehicle-model {
-    margin-left: 46px;
-  }
-
-  .vehicle-choice-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .simple-choice-grid {
-    grid-template-columns:
-      repeat(2, minmax(0, 1fr));
-  }
-
-  .drive-next {
-    padding: 38px 26px;
-
-    flex-direction: column;
-
-    align-items: flex-start;
-  }
-
-}
-/* ============================================================
-   WAYS IN — VISUAL EXPERIENCE
-============================================================ */
-
-.ways-visual-page {
-  min-height: 100vh;
-
-  background: #101511;
-
-  color: #f3eee4;
-}
-
-
-/* ============================================================
-   HEADER
-============================================================ */
-
-.ways-visual-header {
-  width: 100%;
-  max-width: 1412px;
-
-  margin: 0 auto;
-
-  padding: 28px 48px;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  border-bottom:
-    1px solid rgba(255, 255, 255, 0.08);
-}
-
-
-.ways-visual-logo {
-  color: #f3eee4;
-
-  font-size: 21px;
-  font-weight: 900;
-
-  letter-spacing: 0.18em;
-}
-
-
-.ways-visual-back {
-  color:
-    rgba(243, 238, 228, 0.55);
-
-  font-size: 10px;
-  font-weight: 800;
-
-  letter-spacing: 0.16em;
-
-  transition:
-    color 0.2s ease,
-    transform 0.2s ease;
-}
-
-
-.ways-visual-back:hover {
-  color: #e99b3c;
-
-  transform: translateX(-4px);
-}
-
-
-/* ============================================================
-   HERO
-============================================================ */
-
-.ways-visual-hero {
-  width: 100%;
-  max-width: 1412px;
-
-  margin: 0 auto;
-
-  padding:
-    100px
-    48px
-    90px;
-
-  display: flex;
-
-  align-items: flex-end;
-  justify-content: space-between;
-
-  gap: 60px;
-}
-
-
-.ways-visual-hero-copy {
-  max-width: 980px;
-}
-
-
-.ways-visual-kicker {
-  margin:
-    0
-    0
-    24px;
-
-  color: #e39a3b;
-
-  font-size: 11px;
-  font-weight: 800;
-
-  letter-spacing: 0.25em;
-}
-
-
-.ways-visual-hero h1 {
-  margin: 0;
-
-  color: #f4efe5;
-
-  font-size:
-    clamp(70px, 8.5vw, 126px);
-
-  font-weight: 900;
-
-  line-height: 0.84;
-
-  letter-spacing: -0.06em;
-}
-
-
-.ways-visual-intro {
-  max-width: 590px;
-
-  margin:
-    42px
-    0
-    0;
-
-  color:
-    rgba(243, 238, 228, 0.57);
-
-  font-size: 17px;
-
-  line-height: 1.7;
-}
-
-
-.ways-visual-index {
-  flex-shrink: 0;
-
-  padding-bottom: 5px;
-
-  text-align: right;
-}
-
-
-.ways-visual-index span {
-  color: #e29a3d;
-
-  font-size: 28px;
-  font-weight: 800;
-}
-
-
-.ways-visual-index p {
-  margin:
-    7px
-    0
-    0;
-
-  color:
-    rgba(243, 238, 228, 0.35);
-
-  font-size: 9px;
-  font-weight: 800;
-
-  letter-spacing: 0.18em;
-}
-
-
-/* ============================================================
-   VISUAL GRID
-============================================================ */
-
-.ways-visual-grid {
-  width: 100%;
-  max-width: 1412px;
-
-  margin: 0 auto;
-
-  padding:
-    0
-    48px
-    48px;
-
-  display: grid;
-
-  grid-template-columns:
-    repeat(2, minmax(0, 1fr));
-
-  gap: 18px;
-}
-
-
-/* ============================================================
-   IMAGE CARD
-============================================================ */
-
-.ways-image-card {
-  position: relative;
-
-  min-height: 560px;
-
-  overflow: hidden;
-
-  border-radius: 5px;
-
-  background: #20251f;
-
-  color: #fff;
-
-  isolation: isolate;
-}
-
-
-/* IMAGE */
-
-.ways-image {
-  position: absolute;
-
-  inset: 0;
-
-  z-index: 0;
-
-  width: 100%;
-  height: 100%;
-
-  object-fit: cover;
-
-  transform: scale(1.01);
-
-  filter:
-    saturate(0.78)
-    brightness(0.75);
-
-  transition:
-    transform 0.7s cubic-bezier(.2,.7,.2,1),
-    filter 0.45s ease;
-}
-
-
-/* DARK GRADIENT */
-
-.ways-image-shade {
-  position: absolute;
-
-  inset: 0;
-
-  z-index: 1;
-
-  background:
-    linear-gradient(
-      to top,
-      rgba(6, 9, 7, 0.92) 0%,
-      rgba(6, 9, 7, 0.50) 43%,
-      rgba(6, 9, 7, 0.12) 72%,
-      rgba(6, 9, 7, 0.28) 100%
-    );
-
-  transition:
-    background 0.4s ease;
-}
-
-
-/* NUMBER */
-
-.ways-card-number {
-  position: absolute;
-
-  z-index: 3;
-
-  top: 28px;
-  left: 30px;
-
-  color:
-    rgba(255, 255, 255, 0.68);
-
-  font-size: 10px;
-  font-weight: 800;
-
-  letter-spacing: 0.16em;
-}
-
-
-/* CARD COPY */
-
-.ways-card-content {
-  position: absolute;
-
-  z-index: 3;
-
-  left: 0;
-  right: 0;
-  bottom: 0;
-
-  padding: 34px;
-}
-
-
-.ways-card-eyebrow {
-  margin:
-    0
-    0
-    10px;
-
-  color: #efaa4e;
-
-  font-size: 9px;
-  font-weight: 800;
-
-  letter-spacing: 0.19em;
-}
-
-
-.ways-card-content h2 {
-  margin: 0;
-
-  color: #f8f4eb;
-
-  font-size:
-    clamp(46px, 5vw, 76px);
-
-  font-weight: 900;
-
-  line-height: 0.9;
-
-  letter-spacing: -0.045em;
-}
-
-
-.ways-card-description {
-  max-width: 460px;
-
-  margin:
-    18px
-    0
-    0;
-
-  color:
-    rgba(255, 255, 255, 0.62);
-
-  font-size: 13px;
-
-  line-height: 1.6;
-}
-
-
-/* CARD ACTION */
-
-.ways-card-action {
-  margin-top: 26px;
-
-  padding-top: 17px;
-
-  display: flex;
-
-  align-items: center;
-  justify-content: space-between;
-
-  border-top:
-    1px solid rgba(255, 255, 255, 0.20);
-
-  color:
-    rgba(255, 255, 255, 0.74);
-
-  font-size: 10px;
-  font-weight: 800;
-
-  letter-spacing: 0.14em;
-}
-
-
-.ways-card-action strong {
-  color: #efa33e;
-
-  font-size: 25px;
-  font-weight: 400;
-
-  transition:
-    transform 0.25s ease;
-}
-
-
-/* ============================================================
-   CARD HOVER
-============================================================ */
-
-.ways-image-card:hover .ways-image {
-  transform: scale(1.065);
-
-  filter:
-    saturate(0.95)
-    brightness(0.88);
-}
-
-
-.ways-image-card:hover .ways-card-action strong {
-  transform: translateX(7px);
-}
-
-
-.ways-image-card:hover .ways-card-action {
-  color: #fff;
-}
-
-
-/* ============================================================
-   NOT SURE
-============================================================ */
-
-.ways-unsure {
-  width: calc(100% - 96px);
-  max-width: 1316px;
-
-  min-height: 440px;
-
-  margin:
-    0
-    auto
-    120px;
-
-  padding: 62px;
-
-  display: grid;
-
-  grid-template-columns:
-    90px
-    minmax(0, 1fr)
-    auto;
-
-  align-items: end;
-
-  gap: 34px;
-
-  background:
-    linear-gradient(
-      135deg,
-      #e9dfcf 0%,
-      #dcd0bd 100%
-    );
-
-  color: #161713;
-
-  border-radius: 5px;
-}
-
-
-.ways-unsure-number {
-  align-self: start;
-
-  color:
-    rgba(22, 23, 19, 0.38);
-
-  font-size: 11px;
-  font-weight: 800;
-
-  letter-spacing: 0.16em;
-}
-
-
-.ways-unsure-copy > p {
-  margin:
-    0
-    0
-    17px;
-
-  color: #9a672c;
-
-  font-size: 10px;
-  font-weight: 800;
-
-  letter-spacing: 0.18em;
-}
-
-
-.ways-unsure-copy h2 {
-  margin: 0;
-
-  font-size:
-    clamp(44px, 5.7vw, 78px);
-
-  line-height: 0.91;
-
-  letter-spacing: -0.05em;
-}
-
-
-.ways-unsure-copy > span {
-  display: block;
-
-  max-width: 540px;
-
-  margin-top: 25px;
-
-  color:
-    rgba(22, 23, 19, 0.62);
-
-  font-size: 14px;
-
-  line-height: 1.65;
-}
-
-
-/* BUTTON */
-
-.ways-unsure-button {
-  min-width: 205px;
-  min-height: 56px;
-
-  padding:
-    0
-    22px;
-
-  display: flex;
-
-  align-items: center;
-  justify-content: space-between;
-
-  gap: 30px;
-
-  background: #171914;
-
-  color: #f4eee4;
-
-  border-radius: 5px;
-
-  font-size: 10px;
-  font-weight: 800;
-
-  letter-spacing: 0.12em;
-
-  transition:
-    background 0.2s ease,
-    transform 0.2s ease;
-}
-
-
-.ways-unsure-button strong {
-  color: #eca143;
-
-  font-size: 22px;
-
-  transition:
-    transform 0.2s ease;
-}
-
-
-.ways-unsure-button:hover {
-  background: #282a23;
-
-  transform: translateY(-3px);
-}
-
-
-.ways-unsure-button:hover strong {
-  transform: translateX(5px);
-}
-
-
-/* ============================================================
-   BOTTOM
-============================================================ */
-
-.ways-bottom {
-  padding:
-    130px
-    48px
-    140px;
-
-  text-align: center;
-
-  background: #090c09;
-}
-
-
-.ways-bottom > p {
-  margin:
-    0
-    0
-    22px;
-
-  color: #d89037;
-
-  font-size: 10px;
-  font-weight: 800;
-
-  letter-spacing: 0.20em;
-}
-
-
-.ways-bottom h2 {
-  margin: 0;
-
-  color: #eee8dd;
-
-  font-size:
-    clamp(48px, 7vw, 94px);
-
-  line-height: 0.91;
-
-  letter-spacing: -0.055em;
-}
-
-
-.ways-bottom-link {
-  display: inline-block;
-
-  margin-top: 48px;
-
-  color:
-    rgba(238, 232, 221, 0.46);
-
-  font-size: 10px;
-  font-weight: 800;
-
-  letter-spacing: 0.14em;
-
-  transition:
-    color 0.2s ease;
-}
-
-
-.ways-bottom-link:hover {
-  color: #e99b3c;
-}
-
-
-/* ============================================================
-   TABLET
-============================================================ */
-
-@media (max-width: 900px) {
-
-  .ways-visual-hero {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-
-  .ways-visual-index {
-    text-align: left;
-  }
-
-
-  .ways-visual-grid {
-    grid-template-columns: 1fr;
-  }
-
-
-  .ways-unsure {
-    grid-template-columns:
-      50px
-      1fr;
-  }
-
-
-  .ways-unsure-button {
-    grid-column: 2;
-
-    justify-self: start;
-  }
-
-}
-
-/* ============================================================
-   WAYS IN DESK
-============================================================ */
-
-.ways-desk-page {
-  width: 100%;
-  min-height: 100vh;
-  margin: 0;
-  padding: 0;
-  background: #080908;
-  overflow-x: hidden;
-}
-
-.ways-desk-stage {
-  position: relative;
-
-  width: 100%;
   max-width: 1536px;
 
   margin: 0 auto;
 
-  background: #080908;
-
   overflow: hidden;
+
+  background: #070807;
 }
 
-.ways-desk-image {
+
+.wv2-bg,
+.drv2-bg,
+.trip2-bg {
   position: relative;
+
   z-index: 1;
 
   display: block;
@@ -2736,255 +53,763 @@ img {
   height: auto;
 
   margin: 0;
-  padding: 0;
+
+  user-select: none;
 
   pointer-events: none;
-  user-select: none;
+
   -webkit-user-drag: none;
 }
 
 
 /* ============================================================
-   HOTSPOTS
+   WAYS IN NAV
 ============================================================ */
 
-.ways-hotspot {
-  position: absolute;
-  z-index: 20;
+.wv2-nav {
+  position: absolute !important;
 
-  display: block;
+  z-index: 90000 !important;
 
-  background: transparent;
+  top: 0 !important;
 
-  border: none;
-  outline: none;
+  left: 18% !important;
+  right: 1.5% !important;
 
-  cursor: pointer;
+  height: 64px !important;
 
-  border-radius: 24px;
+  display: flex !important;
 
-  transition:
-    transform 0.22s ease;
+  align-items: center !important;
+  justify-content: flex-end !important;
+
+  gap: 16px !important;
+
+  pointer-events: auto !important;
 }
 
 
-/* WARM DESK GLOW */
+.wv2-nav-links {
+  display: flex;
 
-.ways-hotspot::before {
+  align-items: center;
+
+  gap: 18px;
+}
+
+
+.wv2-nav-links a,
+.wv2-signin {
+  color: rgba(248, 242, 230, 0.88);
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+  letter-spacing: 0.08em;
+
+  text-decoration: none;
+
+  white-space: nowrap;
+
+  text-shadow:
+    0 2px 8px rgba(0,0,0,.85);
+}
+
+
+.wv2-start {
+  min-height: 38px;
+
+  padding: 0 15px;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 5px;
+
+  background: #e8a33f;
+
+  color: #17130d;
+
+  font-size: 9px;
+
+  font-weight: 900;
+
+  letter-spacing: .07em;
+
+  text-decoration: none;
+
+  white-space: nowrap;
+}
+
+
+/* ============================================================
+   WAYS IN CLICK ZONES
+============================================================ */
+
+.wv2-zone {
+  position: absolute !important;
+
+  z-index: 50000 !important;
+
+  display: block !important;
+
+  background: transparent !important;
+
+  cursor: pointer !important;
+
+  pointer-events: auto !important;
+
+  border-radius: 28px;
+
+  text-decoration: none;
+}
+
+
+/* DRIVE */
+
+.wv2-drive {
+  left: 5% !important;
+
+  top: 5% !important;
+
+  width: 40% !important;
+
+  height: 51% !important;
+}
+
+
+/* HIKE */
+
+.wv2-hike {
+  left: 68% !important;
+
+  top: 6% !important;
+
+  width: 30% !important;
+
+  height: 48% !important;
+}
+
+
+/* RIDE */
+
+.wv2-ride {
+  left: 2% !important;
+
+  top: 56% !important;
+
+  width: 31% !important;
+
+  height: 39% !important;
+}
+
+
+/* PADDLE */
+
+.wv2-paddle {
+  left: 69% !important;
+
+  top: 54% !important;
+
+  width: 30% !important;
+
+  height: 42% !important;
+}
+
+
+.wv2-unsure {
+  left: 37% !important;
+
+  top: 68% !important;
+
+  width: 27% !important;
+
+  height: 18% !important;
+}
+
+
+.wv2-logo {
+  position: absolute;
+
+  z-index: 95000;
+
+  left: 0;
+
+  top: 0;
+
+  width: 17%;
+  height: 10%;
+
+  display: block;
+}
+
+
+/* ============================================================
+   DRIVE NAV
+============================================================ */
+
+.drv2-nav {
+  position: absolute !important;
+
+  z-index: 90000 !important;
+
+  top: 0 !important;
+
+  left: 18% !important;
+  right: 1.5% !important;
+
+  height: 64px !important;
+
+  display: flex !important;
+
+  align-items: center !important;
+  justify-content: flex-end !important;
+
+  gap: 16px !important;
+}
+
+
+.drv2-nav-links {
+  display: flex;
+
+  align-items: center;
+
+  gap: 18px;
+}
+
+
+.drv2-nav-links a,
+.drv2-signin {
+  color: rgba(248,242,230,.88);
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+  letter-spacing: .08em;
+
+  text-decoration: none;
+
+  white-space: nowrap;
+
+  text-shadow:
+    0 2px 8px rgba(0,0,0,.85);
+}
+
+
+.drv2-start {
+  min-height: 38px;
+
+  padding: 0 15px;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 5px;
+
+  background: #e8a33f;
+
+  color: #17130d;
+
+  font-size: 9px;
+
+  font-weight: 900;
+
+  letter-spacing: .07em;
+
+  text-decoration: none;
+
+  white-space: nowrap;
+}
+
+
+/* ============================================================
+   DRIVE VEHICLE ZONES
+============================================================ */
+
+.drv2-zone {
+  position: absolute !important;
+
+  z-index: 50000 !important;
+
+  display: block !important;
+
+  padding: 0;
+
+  border: 0;
+
+  background: transparent;
+
+  cursor: pointer !important;
+
+  pointer-events: auto !important;
+
+  border-radius: 28px;
+
+  appearance: none;
+
+  -webkit-appearance: none;
+
+  transition:
+    transform .2s ease;
+}
+
+
+.drv2-zone::before {
   content: "";
 
   position: absolute;
 
-  inset: -5%;
+  inset: -4%;
 
   border-radius: inherit;
 
   background:
     radial-gradient(
       ellipse at center,
-      rgba(255, 193, 107, 0.22) 0%,
-      rgba(230, 143, 49, 0.10) 38%,
-      rgba(210, 113, 25, 0.035) 62%,
-      transparent 78%
+      rgba(255,190,95,.23),
+      rgba(220,135,45,.07) 48%,
+      transparent 76%
     );
 
   filter: blur(10px);
 
   opacity: 0;
 
-  transform: scale(0.95);
-
   transition:
-    opacity 0.28s ease,
-    transform 0.30s ease;
+    opacity .2s ease;
 
   pointer-events: none;
 }
 
 
-.ways-hotspot::after {
-  content: "";
-
-  position: absolute;
-
-  inset: 2%;
-
-  border-radius: inherit;
-
-  background:
-    radial-gradient(
-      circle at center,
-      rgba(255, 226, 179, 0.11) 0%,
-      rgba(255, 200, 125, 0.04) 48%,
-      transparent 74%
-    );
-
-  opacity: 0;
-
-  transition:
-    opacity 0.24s ease;
-
-  pointer-events: none;
-}
-
-
-.ways-hotspot:hover::before {
-  opacity: 1;
-
-  transform: scale(1.035);
-}
-
-
-.ways-hotspot:hover::after {
+.drv2-zone:hover::before,
+.drv2-zone.selected::before {
   opacity: 1;
 }
 
 
-.ways-hotspot:hover {
+.drv2-zone:hover,
+.drv2-zone.selected {
   transform: translateY(-2px);
 }
 
 
-.ways-hotspot:active {
-  transform: scale(0.985);
+/* SUV */
+
+.drv2-suv {
+  left: 5%;
+  top: 6%;
+
+  width: 31%;
+  height: 38%;
 }
 
 
-/* ============================================================
-   DRIVE
-   car + keys + DRIVE tag
-============================================================ */
+/* TRUCK */
 
-.ways-hotspot-drive {
-  left: 4%;
+.drv2-truck {
+  left: 35%;
   top: 5%;
 
-  width: 36%;
-  height: 34%;
-
-  border-radius: 30px;
+  width: 30%;
+  height: 36%;
 }
 
 
-/* ============================================================
-   HIKE
-   boots + compass + HIKE tag
-============================================================ */
+/* VAN */
 
-.ways-hotspot-hike {
-  left: 58%;
-  top: 2%;
+.drv2-van {
+  left: 63%;
+  top: 4%;
 
-  width: 37%;
-  height: 38%;
-
-  border-radius: 30px;
+  width: 31%;
+  height: 41%;
 }
 
 
-/* ============================================================
-   RIDE
-   gloves + computer + tools + RIDE tag
-============================================================ */
+/* CROSSOVER */
 
-.ways-hotspot-ride {
-  left: 2%;
-  top: 48%;
+.drv2-crossover {
+  left: 3%;
+  top: 42%;
 
-  width: 37%;
-  height: 43%;
-
-  border-radius: 30px;
+  width: 34%;
+  height: 40%;
 }
 
 
-/* ============================================================
-   PADDLE
-   dry bag + paddle + PADDLE tag
-============================================================ */
+/* CITY */
 
-.ways-hotspot-paddle {
-  left: 61%;
-  top: 43%;
+.drv2-city {
+  left: 68%;
+  top: 42%;
 
-  width: 37%;
-  height: 48%;
-
-  border-radius: 30px;
+  width: 29%;
+  height: 39%;
 }
 
 
-/* ============================================================
-   NOT SURE
-   notebook
-============================================================ */
-
-.ways-hotspot-unsure {
-  left: 37%;
-  top: 59%;
-
-  width: 27%;
-  height: 37%;
-
-  border-radius: 22px;
-}
-
-
-/* ============================================================
-   LOGO / HOME
-============================================================ */
-
-.ways-home-hotspot {
+.drv2-logo {
   position: absolute;
 
-  z-index: 30;
+  z-index: 95000;
 
-  left: 1.5%;
-  top: 1.5%;
+  left: 0;
 
-  width: 14%;
-  height: 8%;
+  top: 0;
+
+  width: 17%;
+  height: 10%;
+
+  display: block;
+}
+
+
+.drv2-back {
+  position: absolute;
+
+  z-index: 70000;
+
+  left: 2%;
+  bottom: 2.5%;
+
+  padding: 10px 14px;
+
+  background: rgba(8,9,8,.82);
+
+  border-radius: 5px;
+
+  color: rgba(245,239,228,.78);
+
+  font-size: 9px;
+
+  font-weight: 800;
+
+  letter-spacing: .12em;
+
+  text-decoration: none;
+}
+
+
+/* ============================================================
+   TRIP NAV
+============================================================ */
+
+.trip2-nav {
+  position: absolute !important;
+
+  z-index: 90000 !important;
+
+  top: 0 !important;
+
+  left: 18% !important;
+  right: 1.5% !important;
+
+  height: 64px !important;
+
+  display: flex !important;
+
+  align-items: center !important;
+  justify-content: flex-end !important;
+
+  gap: 16px !important;
+}
+
+
+.trip2-nav-links {
+  display: flex;
+
+  align-items: center;
+
+  gap: 18px;
+}
+
+
+.trip2-nav-links a,
+.trip2-signin {
+  color: rgba(248,242,230,.88);
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+  letter-spacing: .08em;
+
+  text-decoration: none;
+
+  white-space: nowrap;
+
+  text-shadow:
+    0 2px 8px rgba(0,0,0,.85);
+}
+
+
+.trip2-start {
+  min-height: 38px;
+
+  padding: 0 15px;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 5px;
+
+  background: #e8a33f;
+
+  color: #17130d;
+
+  font-size: 9px;
+
+  font-weight: 900;
+
+  letter-spacing: .07em;
+
+  text-decoration: none;
+
+  white-space: nowrap;
+}
+
+
+/* ============================================================
+   TRIP STYLE ZONES
+============================================================ */
+
+.trip2-zone {
+  position: absolute !important;
+
+  z-index: 50000 !important;
 
   display: block;
 
-  cursor: pointer;
+  padding: 0;
 
-  border-radius: 10px;
+  border: 0;
 
   background: transparent;
+
+  cursor: pointer;
+
+  pointer-events: auto !important;
+
+  border-radius: 20px;
+
+  appearance: none;
+
+  -webkit-appearance: none;
 }
 
 
-.ways-home-hotspot::before {
+.trip2-zone::before {
   content: "";
 
   position: absolute;
 
-  inset: -10%;
+  inset: -4%;
 
   border-radius: inherit;
 
   background:
     radial-gradient(
       ellipse at center,
-      rgba(255, 205, 125, 0.18) 0%,
-      rgba(230, 148, 53, 0.07) 48%,
-      transparent 78%
+      rgba(255,194,105,.24),
+      rgba(226,139,47,.08) 46%,
+      transparent 76%
     );
 
-  filter: blur(7px);
+  filter: blur(10px);
 
   opacity: 0;
 
   transition:
-    opacity 0.22s ease;
+    opacity .22s ease;
 
   pointer-events: none;
 }
 
 
-.ways-home-hotspot:hover::before {
+.trip2-zone:hover::before,
+.trip2-zone.selected::before {
   opacity: 1;
+}
+
+
+.trip2-weekend {
+  left: 11%;
+  top: 40%;
+
+  width: 20%;
+  height: 38%;
+}
+
+
+.trip2-road {
+  left: 31%;
+  top: 40%;
+
+  width: 19%;
+  height: 38%;
+}
+
+
+.trip2-basecamp {
+  left: 49%;
+  top: 40%;
+
+  width: 19%;
+  height: 38%;
+}
+
+
+.trip2-remote {
+  left: 67%;
+  top: 40%;
+
+  width: 20%;
+  height: 38%;
+}
+
+
+.trip2-back {
+  position: absolute;
+
+  z-index: 70000;
+
+  left: 2%;
+  bottom: 2.5%;
+
+  padding: 10px 14px;
+
+  border-radius: 5px;
+
+  background: rgba(8,9,8,.82);
+
+  color: rgba(245,239,228,.78);
+
+  font-size: 9px;
+
+  font-weight: 800;
+
+  letter-spacing: .12em;
+
+  text-decoration: none;
+}
+
+
+/* ============================================================
+   TRIP SELECTED PANEL
+============================================================ */
+
+.trip2-panel {
+  position: absolute;
+
+  z-index: 80000;
+
+  left: 50%;
+  bottom: 2.5%;
+
+  transform: translateX(-50%);
+
+  width: min(540px, 70%);
+
+  min-height: 76px;
+
+  padding: 13px 14px 13px 20px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  border:
+    1px solid rgba(255,255,255,.10);
+
+  border-radius: 8px;
+
+  background:
+    rgba(10,12,9,.92);
+
+  box-shadow:
+    0 15px 45px rgba(0,0,0,.40);
+
+  backdrop-filter: blur(12px);
+}
+
+
+.trip2-summary {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+
+.trip2-summary span {
+  color: #df983d;
+
+  font-size: 8px;
+
+  font-weight: 800;
+
+  letter-spacing: .18em;
+}
+
+
+.trip2-summary strong {
+  color: #f4eee3;
+
+  font-size: 18px;
+
+  font-weight: 850;
+}
+
+
+.trip2-summary small {
+  color: rgba(244,238,227,.46);
+
+  font-size: 8px;
+
+  font-weight: 700;
+
+  letter-spacing: .1em;
+}
+
+
+.trip2-continue {
+  min-height: 44px;
+
+  padding: 0 18px;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 5px;
+
+  background: #e8a23e;
+
+  color: #17130d;
+
+  font-size: 9px;
+
+  font-weight: 900;
+
+  letter-spacing: .08em;
+
+  text-decoration: none;
+
+  white-space: nowrap;
 }
 
 
@@ -2994,3770 +819,16 @@ img {
 
 @media (max-width: 768px) {
 
-  .ways-desk-page {
-    overflow-x: auto;
-  }
-
-  .ways-desk-stage {
-    min-width: 900px;
-  }
-
-  .ways-hotspot::before,
-  .ways-hotspot::after,
-  .ways-home-hotspot::before {
-    display: none;
-  }
-
-  .ways-hotspot:hover {
-    transform: none;
-  }
-
-}
-/* ============================================================
-   WAYS IN — REAL NAVIGATION
-============================================================ */
-
-.ways-real-nav {
-  position: absolute !important;
-
-  z-index: 9999 !important;
-
-  top: 0 !important;
-  left: 18% !important;
-  right: 1.5% !important;
-
-  height: 72px !important;
-
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-end !important;
-
-  gap: 18px !important;
-
-  background: transparent !important;
-
-  pointer-events: auto !important;
-}
-
-
-/* NAV LINKS */
-
-.ways-real-links {
-  display: flex !important;
-  align-items: center !important;
-
-  gap: 19px !important;
-}
-
-
-.ways-real-links a,
-.ways-real-signin {
-  position: relative;
-
-  color: rgba(248, 242, 230, 0.86) !important;
-
-  font-size: 10px !important;
-  font-weight: 800 !important;
-
-  line-height: 1 !important;
-
-  letter-spacing: 0.09em !important;
-
-  text-decoration: none !important;
-
-  text-shadow:
-    0 1px 5px rgba(0, 0, 0, 0.9),
-    0 2px 12px rgba(0, 0, 0, 0.55);
-
-  white-space: nowrap;
-
-  transition:
-    color 0.2s ease,
-    transform 0.2s ease;
-}
-
-
-/* HOVER UNDERLINE */
-
-.ways-real-links a::after,
-.ways-real-signin::after {
-  content: "";
-
-  position: absolute;
-
-  left: 0;
-  right: 0;
-
-  bottom: -8px;
-
-  height: 1px;
-
-  background: #e9a143;
-
-  transform: scaleX(0);
-
-  transition: transform 0.2s ease;
-}
-
-
-.ways-real-links a:hover,
-.ways-real-signin:hover {
-  color: #ffffff !important;
-}
-
-
-.ways-real-links a:hover::after,
-.ways-real-signin:hover::after {
-  transform: scaleX(1);
-}
-
-
-/* SIGN IN */
-
-.ways-real-signin {
-  padding: 10px 8px;
-}
-
-
-/* YELLOW CTA */
-
-.ways-real-start {
-  min-height: 38px;
-
-  padding: 0 15px;
-
-  display: inline-flex !important;
-  align-items: center;
-  justify-content: center;
-
-  flex-shrink: 0;
-
-  border-radius: 5px;
-
-  background: #e8a33f !important;
-
-  color: #18130d !important;
-
-  font-size: 9px !important;
-  font-weight: 900 !important;
-
-  letter-spacing: 0.07em !important;
-
-  white-space: nowrap;
-
-  text-decoration: none !important;
-
-  box-shadow:
-    0 4px 16px rgba(0, 0, 0, 0.28);
-
-  transition:
-    transform 0.2s ease,
-    background 0.2s ease;
-}
-
-
-.ways-real-start:hover {
-  transform: translateY(-2px);
-
-  background: #f0b04b !important;
-}
-
-
-/* IMAGE'S ROAMLAB LOGO IS CLICKABLE */
-
-.ways-logo-hotspot {
-  position: absolute;
-
-  z-index: 10000;
-
-  left: 1.3%;
-  top: 1%;
-
-  width: 13%;
-  height: 10%;
-
-  display: block;
-
-  background: transparent;
-
-  cursor: pointer;
-}
-
-
-/* ============================================================
-   RESPONSIVE
-============================================================ */
-
-@media (max-width: 1150px) {
-
-  .ways-real-nav {
-    left: 17% !important;
-
-    gap: 10px !important;
-  }
-
-  .ways-real-links {
-    gap: 11px !important;
-  }
-
-  .ways-real-links a,
-  .ways-real-signin {
-    font-size: 8px !important;
-  }
-
-  .ways-real-start {
-    padding: 0 10px;
-
-    font-size: 8px !important;
-  }
-
-}
-
-
-@media (max-width: 768px) {
-
-  .ways-real-nav {
-    min-width: 720px;
-  }
-
-}
-/* ============================================================
-   DRIVE DESK
-============================================================ */
-
-.drive-desk-page {
-  width: 100%;
-  min-height: 100vh;
-  margin: 0;
-  padding: 0;
-
-  background: #080908;
-
-  overflow-x: hidden;
-}
-
-
-.drive-desk-stage {
-  position: relative;
-
-  width: 100%;
-  max-width: 1536px;
-
-  margin: 0 auto;
-
-  overflow: hidden;
-
-  background: #080908;
-}
-
-
-.drive-desk-image {
-  position: relative;
-  z-index: 1;
-
-  display: block;
-
-  width: 100%;
-  height: auto;
-
-  pointer-events: none;
-
-  user-select: none;
-  -webkit-user-drag: none;
-}
-
-
-/* ============================================================
-   REAL NAV
-============================================================ */
-
-.drive-real-nav {
-  position: absolute !important;
-
-  z-index: 9999 !important;
-
-  top: 0 !important;
-  left: 18% !important;
-  right: 1.5% !important;
-
-  height: 72px !important;
-
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-end !important;
-
-  gap: 18px !important;
-
-  background: transparent !important;
-
-  pointer-events: auto !important;
-}
-
-
-.drive-real-links {
-  display: flex !important;
-  align-items: center !important;
-
-  gap: 19px !important;
-}
-
-
-.drive-real-links a,
-.drive-real-signin {
-  position: relative;
-
-  color: rgba(248, 242, 230, 0.86) !important;
-
-  font-size: 10px !important;
-  font-weight: 800 !important;
-
-  line-height: 1 !important;
-
-  letter-spacing: 0.09em !important;
-
-  text-decoration: none !important;
-
-  text-shadow:
-    0 1px 5px rgba(0, 0, 0, 0.9),
-    0 2px 12px rgba(0, 0, 0, 0.55);
-
-  white-space: nowrap;
-}
-
-
-.drive-real-links a::after,
-.drive-real-signin::after {
-  content: "";
-
-  position: absolute;
-
-  left: 0;
-  right: 0;
-  bottom: -8px;
-
-  height: 1px;
-
-  background: #e9a143;
-
-  transform: scaleX(0);
-
-  transition: transform 0.2s ease;
-}
-
-
-.drive-real-links a:hover,
-.drive-real-signin:hover {
-  color: #ffffff !important;
-}
-
-
-.drive-real-links a:hover::after,
-.drive-real-signin:hover::after {
-  transform: scaleX(1);
-}
-
-
-.drive-real-signin {
-  padding: 10px 8px;
-}
-
-
-.drive-real-start {
-  min-height: 38px;
-
-  padding: 0 15px;
-
-  display: inline-flex !important;
-  align-items: center;
-  justify-content: center;
-
-  border-radius: 5px;
-
-  background: #e8a33f !important;
-
-  color: #18130d !important;
-
-  font-size: 9px !important;
-  font-weight: 900 !important;
-
-  letter-spacing: 0.07em !important;
-
-  white-space: nowrap;
-
-  text-decoration: none !important;
-
-  box-shadow:
-    0 4px 16px rgba(0, 0, 0, 0.28);
-}
-
-
-/* ============================================================
-   VEHICLE HOTSPOTS
-============================================================ */
-
-.drive-vehicle-zone {
-  position: absolute;
-
-  z-index: 40;
-
-  display: block;
-
-  padding: 0;
-  margin: 0;
-
-  border: none;
-  outline: none;
-
-  background: transparent;
-
-  cursor: pointer;
-
-  border-radius: 28px;
-
-  transition:
-    transform 0.22s ease;
-}
-
-
-/* WARM GLOW */
-
-.drive-vehicle-zone::before {
-  content: "";
-
-  position: absolute;
-
-  inset: -5%;
-
-  border-radius: inherit;
-
-  background:
-    radial-gradient(
-      ellipse at center,
-      rgba(255, 196, 110, 0.24) 0%,
-      rgba(229, 143, 51, 0.10) 42%,
-      rgba(215, 117, 28, 0.035) 64%,
-      transparent 79%
-    );
-
-  filter: blur(10px);
-
-  opacity: 0;
-
-  transform: scale(0.95);
-
-  transition:
-    opacity 0.25s ease,
-    transform 0.28s ease;
-
-  pointer-events: none;
-}
-
-
-.drive-vehicle-zone::after {
-  content: "";
-
-  position: absolute;
-
-  inset: 2%;
-
-  border-radius: inherit;
-
-  background:
-    radial-gradient(
-      circle at center,
-      rgba(255, 228, 184, 0.11) 0%,
-      rgba(255, 199, 116, 0.04) 48%,
-      transparent 74%
-    );
-
-  opacity: 0;
-
-  transition:
-    opacity 0.22s ease;
-
-  pointer-events: none;
-}
-
-
-.drive-vehicle-zone:hover::before,
-.drive-vehicle-zone.is-selected::before {
-  opacity: 1;
-
-  transform: scale(1.035);
-}
-
-
-.drive-vehicle-zone:hover::after,
-.drive-vehicle-zone.is-selected::after {
-  opacity: 1;
-}
-
-
-.drive-vehicle-zone:hover {
-  transform: translateY(-2px);
-}
-
-
-/* SELECTED VEHICLE */
-
-.drive-vehicle-zone.is-selected {
-  transform: translateY(-2px);
-}
-
-
-/* ============================================================
-   VEHICLE POSITIONS
-============================================================ */
-
-/* SUV */
-
-.drive-zone-suv {
-  left: 7%;
-  top: 9%;
-
-  width: 29%;
-  height: 32%;
-}
-
-
-/* TRUCK */
-
-.drive-zone-truck {
-  left: 36%;
-  top: 5%;
-
-  width: 29%;
-  height: 31%;
-}
-
-
-/* VAN */
-
-.drive-zone-van {
-  left: 63%;
-  top: 4%;
-
-  width: 27%;
-  height: 36%;
-}
-
-
-/* CROSSOVER / AWD */
-
-.drive-zone-crossover {
-  left: 5%;
-  top: 43%;
-
-  width: 31%;
-  height: 34%;
-}
-
-
-/* CITY CAR */
-
-.drive-zone-city {
-  left: 69%;
-  top: 43%;
-
-  width: 25%;
-  height: 34%;
-}
-
-
-/* ============================================================
-   LOGO
-============================================================ */
-
-.drive-logo-hotspot {
-  position: absolute;
-
-  z-index: 10000;
-
-  left: 1.3%;
-  top: 1%;
-
-  width: 13%;
-  height: 10%;
-
-  display: block;
-
-  background: transparent;
-
-  cursor: pointer;
-}
-
-
-/* ============================================================
-   BACK BUTTON
-============================================================ */
-
-.drive-back-button {
-  position: absolute;
-
-  z-index: 500;
-
-  left: 2%;
-  bottom: 2.5%;
-
-  padding:
-    10px
-    14px;
-
-  border-radius: 5px;
-
-  background:
-    rgba(8, 9, 8, 0.72);
-
-  color:
-    rgba(245, 239, 228, 0.72);
-
-  font-size: 9px;
-  font-weight: 800;
-
-  letter-spacing: 0.12em;
-
-  backdrop-filter: blur(7px);
-
-  transition:
-    color 0.2s ease,
-    transform 0.2s ease;
-}
-
-
-.drive-back-button:hover {
-  color: #f1a544;
-
-  transform: translateX(-3px);
-}
-
-
-/* ============================================================
-   SELECTION PANEL
-============================================================ */
-
-.drive-selection-panel {
-  position: absolute;
-
-  z-index: 1000;
-
-  left: 50%;
-  bottom: 3%;
-
-  transform: translateX(-50%);
-
-  width: min(520px, 70%);
-
-  min-height: 74px;
-
-  padding:
-    13px
-    14px
-    13px
-    20px;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  gap: 20px;
-
-  border:
-    1px solid
-    rgba(255, 255, 255, 0.10);
-
-  border-radius: 8px;
-
-  background:
-    rgba(10, 12, 9, 0.88);
-
-  box-shadow:
-    0 15px 45px rgba(0, 0, 0, 0.35);
-
-  backdrop-filter: blur(12px);
-}
-
-
-.drive-selection-panel > div {
-  display: flex;
-  flex-direction: column;
-
-  gap: 5px;
-}
-
-
-.drive-selection-panel span {
-  color: #df983d;
-
-  font-size: 8px;
-  font-weight: 800;
-
-  letter-spacing: 0.18em;
-}
-
-
-.drive-selection-panel strong {
-  color: #f4eee3;
-
-  font-size: 18px;
-  font-weight: 850;
-
-  letter-spacing: 0.02em;
-}
-
-
-.drive-continue-button {
-  min-height: 44px;
-
-  padding:
-    0
-    18px;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  flex-shrink: 0;
-
-  border-radius: 5px;
-
-  background: #e8a23e;
-
-  color: #17130d;
-
-  font-size: 9px;
-  font-weight: 900;
-
-  letter-spacing: 0.08em;
-
-  transition:
-    background 0.2s ease,
-    transform 0.2s ease;
-}
-
-
-.drive-continue-button:hover {
-  background: #f0b04a;
-
-  transform: translateY(-2px);
-}
-
-
-/* ============================================================
-   RESPONSIVE
-============================================================ */
-
-@media (max-width: 1150px) {
-
-  .drive-real-nav {
-    left: 17% !important;
-
-    gap: 10px !important;
-  }
-
-  .drive-real-links {
-    gap: 11px !important;
-  }
-
-  .drive-real-links a,
-  .drive-real-signin {
-    font-size: 8px !important;
-  }
-
-  .drive-real-start {
-    padding: 0 10px;
-
-    font-size: 8px !important;
-  }
-
-}
-
-
-@media (max-width: 768px) {
-
-  .drive-desk-page {
-    overflow-x: auto;
-  }
-
-  .drive-desk-stage {
-    min-width: 900px;
-  }
-
-  .drive-real-nav {
-    min-width: 720px;
-  }
-
-  .drive-vehicle-zone::before,
-  .drive-vehicle-zone::after {
-    display: none;
-  }
-
-}
-/* ============================================================
-   TRIP STYLE DESK
-============================================================ */
-
-.trip-desk-page {
-  width: 100%;
-  min-height: 100vh;
-
-  margin: 0;
-  padding: 0;
-
-  background: #080908;
-
-  overflow-x: hidden;
-}
-
-
-.trip-desk-stage {
-  position: relative;
-
-  width: 100%;
-  max-width: 1536px;
-
-  margin: 0 auto;
-
-  overflow: hidden;
-
-  background: #080908;
-}
-
-
-.trip-desk-image {
-  position: relative;
-  z-index: 1;
-
-  display: block;
-
-  width: 100%;
-  height: auto;
-
-  pointer-events: none;
-
-  user-select: none;
-  -webkit-user-drag: none;
-}
-
-
-/* ============================================================
-   REAL NAV
-============================================================ */
-
-.trip-real-nav {
-  position: absolute !important;
-
-  z-index: 9999 !important;
-
-  top: 0 !important;
-  left: 18% !important;
-  right: 1.5% !important;
-
-  height: 72px !important;
-
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-end !important;
-
-  gap: 18px !important;
-
-  background: transparent !important;
-
-  pointer-events: auto !important;
-}
-
-
-.trip-real-links {
-  display: flex !important;
-  align-items: center !important;
-
-  gap: 19px !important;
-}
-
-
-.trip-real-links a,
-.trip-real-signin {
-  position: relative;
-
-  color: rgba(248, 242, 230, 0.86) !important;
-
-  font-size: 10px !important;
-  font-weight: 800 !important;
-
-  line-height: 1 !important;
-
-  letter-spacing: 0.09em !important;
-
-  text-decoration: none !important;
-
-  text-shadow:
-    0 1px 5px rgba(0, 0, 0, 0.9),
-    0 2px 12px rgba(0, 0, 0, 0.55);
-
-  white-space: nowrap;
-}
-
-
-.trip-real-links a::after,
-.trip-real-signin::after {
-  content: "";
-
-  position: absolute;
-
-  left: 0;
-  right: 0;
-  bottom: -8px;
-
-  height: 1px;
-
-  background: #e9a143;
-
-  transform: scaleX(0);
-
-  transition: transform 0.2s ease;
-}
-
-
-.trip-real-links a:hover,
-.trip-real-signin:hover {
-  color: #ffffff !important;
-}
-
-
-.trip-real-links a:hover::after,
-.trip-real-signin:hover::after {
-  transform: scaleX(1);
-}
-
-
-.trip-real-signin {
-  padding: 10px 8px;
-}
-
-
-.trip-real-start {
-  min-height: 38px;
-
-  padding: 0 15px;
-
-  display: inline-flex !important;
-  align-items: center;
-  justify-content: center;
-
-  flex-shrink: 0;
-
-  border-radius: 5px;
-
-  background: #e8a33f !important;
-
-  color: #18130d !important;
-
-  font-size: 9px !important;
-  font-weight: 900 !important;
-
-  letter-spacing: 0.07em !important;
-
-  white-space: nowrap;
-
-  text-decoration: none !important;
-
-  box-shadow:
-    0 4px 16px rgba(0, 0, 0, 0.28);
-
-  transition:
-    transform 0.2s ease,
-    background 0.2s ease;
-}
-
-
-.trip-real-start:hover {
-  transform: translateY(-2px);
-
-  background: #f0b04b !important;
-}
-
-
-/* ============================================================
-   CURRENT VEHICLE
-============================================================ */
-
-.trip-current-vehicle {
-  position: absolute;
-
-  z-index: 500;
-
-  left: 35%;
-  top: 12%;
-
-  display: flex;
-  align-items: center;
-
-  gap: 8px;
-
-  padding:
-    7px
-    11px;
-
-  border-radius: 5px;
-
-  background:
-    rgba(17, 15, 10, 0.82);
-
-  box-shadow:
-    0 5px 18px rgba(0, 0, 0, 0.24);
-
-  backdrop-filter: blur(6px);
-}
-
-
-.trip-current-vehicle span {
-  color:
-    rgba(245, 237, 224, 0.52);
-
-  font-size: 7px;
-  font-weight: 800;
-
-  letter-spacing: 0.14em;
-}
-
-
-.trip-current-vehicle strong {
-  color: #e6a047;
-
-  font-size: 9px;
-  font-weight: 900;
-
-  letter-spacing: 0.08em;
-}
-
-
-/* ============================================================
-   TRIP HOTSPOTS
-============================================================ */
-
-.trip-style-zone {
-  position: absolute;
-
-  z-index: 40;
-
-  display: block;
-
-  padding: 0;
-  margin: 0;
-
-  border: none;
-  outline: none;
-
-  background: transparent;
-
-  cursor: pointer;
-
-  border-radius: 20px;
-
-  transition:
-    transform 0.22s ease;
-}
-
-
-/* WARM GLOW */
-
-.trip-style-zone::before {
-  content: "";
-
-  position: absolute;
-
-  inset: -5%;
-
-  border-radius: inherit;
-
-  background:
-    radial-gradient(
-      ellipse at center,
-      rgba(255, 196, 110, 0.24) 0%,
-      rgba(229, 143, 51, 0.11) 40%,
-      rgba(210, 115, 28, 0.035) 63%,
-      transparent 79%
-    );
-
-  filter: blur(10px);
-
-  opacity: 0;
-
-  transform: scale(0.95);
-
-  transition:
-    opacity 0.25s ease,
-    transform 0.3s ease;
-
-  pointer-events: none;
-}
-
-
-.trip-style-zone::after {
-  content: "";
-
-  position: absolute;
-
-  inset: 2%;
-
-  border-radius: inherit;
-
-  background:
-    radial-gradient(
-      circle at center,
-      rgba(255, 228, 184, 0.11) 0%,
-      rgba(255, 199, 116, 0.04) 48%,
-      transparent 74%
-    );
-
-  opacity: 0;
-
-  transition:
-    opacity 0.22s ease;
-
-  pointer-events: none;
-}
-
-
-.trip-style-zone:hover::before,
-.trip-style-zone.is-selected::before {
-  opacity: 1;
-
-  transform: scale(1.035);
-}
-
-
-.trip-style-zone:hover::after,
-.trip-style-zone.is-selected::after {
-  opacity: 1;
-}
-
-
-.trip-style-zone:hover {
-  transform: translateY(-2px);
-}
-
-
-.trip-style-zone.is-selected {
-  transform: translateY(-2px);
-}
-
-
-/* ============================================================
-   TRIP POSITIONS
-============================================================ */
-
-/* WEEKEND */
-
-.trip-zone-weekend {
-  left: 12%;
-  top: 39%;
-
-  width: 18%;
-  height: 36%;
-}
-
-
-/* ROAD TRIP */
-
-.trip-zone-road {
-  left: 31%;
-  top: 40%;
-
-  width: 18%;
-  height: 36%;
-}
-
-
-/* REMOTE */
-
-.trip-zone-remote {
-  left: 49%;
-  top: 40%;
-
-  width: 18%;
-  height: 36%;
-}
-
-
-/* ROAD + HIKE */
-
-.trip-zone-hike {
-  left: 67%;
-  top: 40%;
-
-  width: 18%;
-  height: 36%;
-}
-
-
-/* ============================================================
-   LOGO
-============================================================ */
-
-.trip-logo-hotspot {
-  position: absolute;
-
-  z-index: 10000;
-
-  left: 1.3%;
-  top: 1%;
-
-  width: 13%;
-  height: 10%;
-
-  display: block;
-
-  background: transparent;
-
-  cursor: pointer;
-}
-
-
-/* ============================================================
-   BACK BUTTON
-============================================================ */
-
-.trip-back-button {
-  position: absolute;
-
-  z-index: 500;
-
-  left: 2%;
-  bottom: 2.5%;
-
-  padding:
-    10px
-    14px;
-
-  border-radius: 5px;
-
-  background:
-    rgba(8, 9, 8, 0.74);
-
-  color:
-    rgba(245, 239, 228, 0.72);
-
-  font-size: 9px;
-  font-weight: 800;
-
-  letter-spacing: 0.12em;
-
-  backdrop-filter: blur(7px);
-
-  transition:
-    color 0.2s ease,
-    transform 0.2s ease;
-}
-
-
-.trip-back-button:hover {
-  color: #f1a544;
-
-  transform: translateX(-3px);
-}
-
-
-/* ============================================================
-   SELECTION PANEL
-============================================================ */
-
-.trip-selection-panel {
-  position: absolute;
-
-  z-index: 1000;
-
-  left: 50%;
-  bottom: 3%;
-
-  transform: translateX(-50%);
-
-  width: min(540px, 70%);
-
-  min-height: 76px;
-
-  padding:
-    13px
-    14px
-    13px
-    20px;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  gap: 20px;
-
-  border:
-    1px solid
-    rgba(255, 255, 255, 0.10);
-
-  border-radius: 8px;
-
-  background:
-    rgba(10, 12, 9, 0.90);
-
-  box-shadow:
-    0 15px 45px rgba(0, 0, 0, 0.35);
-
-  backdrop-filter: blur(12px);
-}
-
-
-.trip-selection-summary {
-  display: flex;
-  flex-direction: column;
-
-  gap: 4px;
-}
-
-
-.trip-selection-summary span {
-  color: #df983d;
-
-  font-size: 8px;
-  font-weight: 800;
-
-  letter-spacing: 0.18em;
-}
-
-
-.trip-selection-summary strong {
-  color: #f4eee3;
-
-  font-size: 18px;
-  font-weight: 850;
-}
-
-
-.trip-selection-summary small {
-  color:
-    rgba(244, 238, 227, 0.42);
-
-  font-size: 8px;
-  font-weight: 700;
-
-  letter-spacing: 0.1em;
-}
-
-
-.trip-continue-button {
-  min-height: 44px;
-
-  padding:
-    0
-    18px;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  flex-shrink: 0;
-
-  border-radius: 5px;
-
-  background: #e8a23e;
-
-  color: #17130d;
-
-  font-size: 9px;
-  font-weight: 900;
-
-  letter-spacing: 0.08em;
-
-  transition:
-    background 0.2s ease,
-    transform 0.2s ease;
-}
-
-
-.trip-continue-button:hover {
-  background: #f0b04a;
-
-  transform: translateY(-2px);
-}
-
-
-/* ============================================================
-   RESPONSIVE
-============================================================ */
-
-@media (max-width: 1150px) {
-
-  .trip-real-nav {
-    left: 17% !important;
-
-    gap: 10px !important;
-  }
-
-  .trip-real-links {
-    gap: 11px !important;
-  }
-
-  .trip-real-links a,
-  .trip-real-signin {
-    font-size: 8px !important;
-  }
-
-  .trip-real-start {
-    padding: 0 10px;
-
-    font-size: 8px !important;
-  }
-
-}
-
-
-@media (max-width: 768px) {
-
-  .trip-desk-page {
-    overflow-x: auto;
-  }
-
-  .trip-desk-stage {
-    min-width: 900px;
-  }
-
-  .trip-real-nav {
-    min-width: 720px;
-  }
-
-  .trip-style-zone::before,
-  .trip-style-zone::after {
-    display: none;
-  }
-
-}
-/* ============================================================
-   DRIVE VEHICLE CLICK AREAS
-============================================================ */
-
-.drive-vehicle-zone {
-  position: absolute;
-  z-index: 60;
-
-  display: block;
-
-  padding: 0;
-  margin: 0;
-
-  border: none;
-  outline: none;
-
-  background: transparent;
-
-  cursor: pointer;
-
-  border-radius: 26px;
-
-  transition:
-    transform 0.2s ease;
-}
-
-
-.drive-vehicle-zone::before {
-  content: "";
-
-  position: absolute;
-
-  inset: -5%;
-
-  border-radius: inherit;
-
-  background:
-    radial-gradient(
-      ellipse at center,
-      rgba(255, 194, 103, 0.25) 0%,
-      rgba(231, 147, 55, 0.1) 43%,
-      transparent 77%
-    );
-
-  filter: blur(10px);
-
-  opacity: 0;
-
-  transform: scale(0.95);
-
-  transition:
-    opacity 0.22s ease,
-    transform 0.25s ease;
-
-  pointer-events: none;
-}
-
-
-.drive-vehicle-zone:hover::before,
-.drive-vehicle-zone.is-selected::before {
-  opacity: 1;
-
-  transform: scale(1.035);
-}
-
-
-.drive-vehicle-zone:hover,
-.drive-vehicle-zone.is-selected {
-  transform: translateY(-2px);
-}
-
-
-.drive-zone-suv {
-  left: 6%;
-  top: 8%;
-
-  width: 29%;
-  height: 35%;
-}
-
-
-.drive-zone-truck {
-  left: 36%;
-  top: 5%;
-
-  width: 29%;
-  height: 34%;
-}
-
-
-.drive-zone-van {
-  left: 63%;
-  top: 5%;
-
-  width: 29%;
-  height: 38%;
-}
-
-
-.drive-zone-crossover {
-  left: 5%;
-  top: 42%;
-
-  width: 29%;
-  height: 34%;
-}
-
-
-.drive-zone-city {
-  left: 70%;
-  top: 43%;
-
-  width: 25%;
-  height: 34%;
-}
-
-
-/* ============================================================
-   TRIP STYLE PAGE
-============================================================ */
-
-.trip-desk-page {
-  width: 100%;
-
-  min-height: 100vh;
-
-  margin: 0;
-  padding: 0;
-
-  background: #070807;
-
-  overflow-x: hidden;
-}
-
-
-.trip-desk-stage {
-  position: relative;
-
-  width: 100%;
-
-  max-width: 1536px;
-
-  margin: 0 auto;
-
-  overflow: hidden;
-
-  background: #070807;
-}
-
-
-.trip-desk-image {
-  position: relative;
-
-  z-index: 1;
-
-  display: block;
-
-  width: 100%;
-  height: auto;
-
-  pointer-events: none;
-
-  user-select: none;
-  -webkit-user-drag: none;
-}
-
-
-/* ============================================================
-   TRIP REAL NAV
-============================================================ */
-
-.trip-real-nav {
-  position: absolute !important;
-
-  z-index: 9999 !important;
-
-  top: 0 !important;
-
-  left: 18% !important;
-  right: 1.5% !important;
-
-  height: 72px !important;
-
-  display: flex !important;
-
-  align-items: center !important;
-  justify-content: flex-end !important;
-
-  gap: 18px !important;
-
-  background: transparent !important;
-
-  pointer-events: auto !important;
-}
-
-
-.trip-real-links {
-  display: flex !important;
-
-  align-items: center !important;
-
-  gap: 19px !important;
-}
-
-
-.trip-real-links a,
-.trip-real-signin {
-  position: relative;
-
-  color:
-    rgba(248, 242, 230, 0.86) !important;
-
-  font-size: 10px !important;
-
-  font-weight: 800 !important;
-
-  line-height: 1 !important;
-
-  letter-spacing: 0.09em !important;
-
-  text-decoration: none !important;
-
-  text-shadow:
-    0 1px 5px rgba(0, 0, 0, 0.9),
-    0 2px 12px rgba(0, 0, 0, 0.55);
-
-  white-space: nowrap;
-}
-
-
-.trip-real-links a::after,
-.trip-real-signin::after {
-  content: "";
-
-  position: absolute;
-
-  left: 0;
-  right: 0;
-
-  bottom: -8px;
-
-  height: 1px;
-
-  background: #e9a143;
-
-  transform: scaleX(0);
-
-  transition: transform 0.2s ease;
-}
-
-
-.trip-real-links a:hover,
-.trip-real-signin:hover {
-  color: #ffffff !important;
-}
-
-
-.trip-real-links a:hover::after,
-.trip-real-signin:hover::after {
-  transform: scaleX(1);
-}
-
-
-.trip-real-signin {
-  padding: 10px 8px;
-}
-
-
-.trip-real-start {
-  min-height: 38px;
-
-  padding: 0 15px;
-
-  display: inline-flex !important;
-
-  align-items: center;
-  justify-content: center;
-
-  flex-shrink: 0;
-
-  border-radius: 5px;
-
-  background: #e8a33f !important;
-
-  color: #18130d !important;
-
-  font-size: 9px !important;
-
-  font-weight: 900 !important;
-
-  letter-spacing: 0.07em !important;
-
-  white-space: nowrap;
-
-  text-decoration: none !important;
-
-  box-shadow:
-    0 4px 16px rgba(0, 0, 0, 0.28);
-}
-
-
-/* ============================================================
-   SELECTED VEHICLE MODEL
-============================================================ */
-
-.trip-selected-vehicle-wrap {
-  position: absolute;
-
-  z-index: 300;
-
-  left: 1.8%;
-  top: 7%;
-
-  width: 27%;
-
-  height: 31%;
-
-  pointer-events: none;
-}
-
-
-.trip-selected-vehicle-image {
-  position: absolute;
-
-  left: 0;
-  top: 0;
-
-  width: 100%;
-  height: 100%;
-
-  object-fit: contain;
-
-  object-position: center;
-
-  filter:
-    drop-shadow(
-      0 16px 18px rgba(0, 0, 0, 0.48)
-    );
-
-  user-select: none;
-}
-
-
-.trip-selected-vehicle-tag {
-  position: absolute;
-
-  left: 50%;
-  bottom: -3%;
-
-  transform: translateX(-50%);
-
-  min-width: 132px;
-
-  padding:
-    8px
-    14px;
-
-  display: flex;
-
-  flex-direction: column;
-
-  align-items: center;
-
-  gap: 2px;
-
-  border-radius: 5px;
-
-  background:
-    rgba(15, 15, 12, 0.91);
-
-  border:
-    1px solid
-    rgba(255, 255, 255, 0.08);
-
-  box-shadow:
-    0 6px 18px rgba(0, 0, 0, 0.35);
-}
-
-
-.trip-selected-vehicle-tag span {
-  color: #dc963d;
-
-  font-size: 7px;
-
-  font-weight: 900;
-
-  letter-spacing: 0.13em;
-}
-
-
-.trip-selected-vehicle-tag strong {
-  color: #efe7d9;
-
-  font-size: 11px;
-
-  font-weight: 900;
-
-  letter-spacing: 0.06em;
-
-  white-space: nowrap;
-}
-
-
-/* ============================================================
-   TRIP STYLE HOTSPOTS
-============================================================ */
-
-.trip-style-zone {
-  position: absolute;
-
-  z-index: 50;
-
-  display: block;
-
-  padding: 0;
-  margin: 0;
-
-  border: none;
-  outline: none;
-
-  background: transparent;
-
-  cursor: pointer;
-
-  border-radius: 20px;
-
-  transition:
-    transform 0.22s ease;
-}
-
-
-.trip-style-zone::before {
-  content: "";
-
-  position: absolute;
-
-  inset: -5%;
-
-  border-radius: inherit;
-
-  background:
-    radial-gradient(
-      ellipse at center,
-      rgba(255, 196, 110, 0.25) 0%,
-      rgba(229, 143, 51, 0.11) 42%,
-      rgba(210, 115, 28, 0.03) 64%,
-      transparent 79%
-    );
-
-  filter: blur(10px);
-
-  opacity: 0;
-
-  transform: scale(0.95);
-
-  transition:
-    opacity 0.25s ease,
-    transform 0.3s ease;
-
-  pointer-events: none;
-}
-
-
-.trip-style-zone:hover::before,
-.trip-style-zone.is-selected::before {
-  opacity: 1;
-
-  transform: scale(1.035);
-}
-
-
-.trip-style-zone:hover,
-.trip-style-zone.is-selected {
-  transform: translateY(-2px);
-}
-
-
-/* WEEKEND */
-
-.trip-zone-weekend {
-  left: 11.5%;
-  top: 40%;
-
-  width: 19%;
-  height: 37%;
-}
-
-
-/* ROAD TRIP */
-
-.trip-zone-road {
-  left: 31%;
-  top: 40%;
-
-  width: 18.5%;
-  height: 37%;
-}
-
-
-/* BASECAMP */
-
-.trip-zone-basecamp {
-  left: 49%;
-  top: 40%;
-
-  width: 18.5%;
-  height: 37%;
-}
-
-
-/* REMOTE */
-
-.trip-zone-remote {
-  left: 67%;
-  top: 40%;
-
-  width: 18.5%;
-  height: 37%;
-}
-
-
-/* ============================================================
-   LOGO HOTSPOT
-============================================================ */
-
-.trip-logo-hotspot {
-  position: absolute;
-
-  z-index: 10000;
-
-  left: 1%;
-  top: 1%;
-
-  width: 14%;
-  height: 10%;
-
-  display: block;
-
-  background: transparent;
-}
-
-
-/* ============================================================
-   BACK BUTTON
-============================================================ */
-
-.trip-back-button {
-  position: absolute;
-
-  z-index: 500;
-
-  left: 2%;
-  bottom: 2.5%;
-
-  padding:
-    10px
-    14px;
-
-  border-radius: 5px;
-
-  background:
-    rgba(8, 9, 8, 0.76);
-
-  color:
-    rgba(245, 239, 228, 0.73);
-
-  font-size: 9px;
-
-  font-weight: 800;
-
-  letter-spacing: 0.12em;
-
-  text-decoration: none;
-
-  backdrop-filter: blur(7px);
-}
-
-
-.trip-back-button:hover {
-  color: #f1a544;
-}
-
-
-/* ============================================================
-   SELECTION PANEL
-============================================================ */
-
-.trip-selection-panel {
-  position: absolute;
-
-  z-index: 1000;
-
-  left: 50%;
-  bottom: 2.5%;
-
-  transform: translateX(-50%);
-
-  width:
-    min(
-      540px,
-      70%
-    );
-
-  min-height: 76px;
-
-  padding:
-    13px
-    14px
-    13px
-    20px;
-
-  display: flex;
-
-  align-items: center;
-  justify-content: space-between;
-
-  gap: 20px;
-
-  border:
-    1px solid
-    rgba(255, 255, 255, 0.1);
-
-  border-radius: 8px;
-
-  background:
-    rgba(10, 12, 9, 0.91);
-
-  box-shadow:
-    0 15px 45px
-    rgba(0, 0, 0, 0.35);
-
-  backdrop-filter: blur(12px);
-}
-
-
-.trip-selection-summary {
-  display: flex;
-
-  flex-direction: column;
-
-  gap: 4px;
-}
-
-
-.trip-selection-summary span {
-  color: #df983d;
-
-  font-size: 8px;
-
-  font-weight: 800;
-
-  letter-spacing: 0.18em;
-}
-
-
-.trip-selection-summary strong {
-  color: #f4eee3;
-
-  font-size: 18px;
-
-  font-weight: 850;
-}
-
-
-.trip-selection-summary small {
-  color:
-    rgba(244, 238, 227, 0.44);
-
-  font-size: 8px;
-
-  font-weight: 700;
-
-  letter-spacing: 0.1em;
-}
-
-
-.trip-continue-button {
-  min-height: 44px;
-
-  padding:
-    0
-    18px;
-
-  display: inline-flex;
-
-  align-items: center;
-  justify-content: center;
-
-  flex-shrink: 0;
-
-  border-radius: 5px;
-
-  background: #e8a23e;
-
-  color: #17130d;
-
-  font-size: 9px;
-
-  font-weight: 900;
-
-  letter-spacing: 0.08em;
-
-  text-decoration: none;
-
-  transition:
-    background 0.2s ease,
-    transform 0.2s ease;
-}
-
-
-.trip-continue-button:hover {
-  background: #f0b04a;
-
-  transform: translateY(-2px);
-}
-
-
-/* ============================================================
-   RESPONSIVE
-============================================================ */
-
-@media (max-width: 1150px) {
-
-  .trip-real-nav {
-    left: 17% !important;
-
-    gap: 10px !important;
-  }
-
-
-  .trip-real-links {
-    gap: 11px !important;
-  }
-
-
-  .trip-real-links a,
-  .trip-real-signin {
-    font-size: 8px !important;
-  }
-
-
-  .trip-real-start {
-    padding: 0 10px;
-
-    font-size: 8px !important;
-  }
-
-}
-
-
-@media (max-width: 768px) {
-
-  .trip-desk-page {
+  .wv2-page,
+  .drv2-page,
+  .trip2-page {
     overflow-x: auto;
   }
 
 
-  .trip-desk-stage {
+  .wv2-stage,
+  .drv2-stage,
+  .trip2-stage {
     min-width: 900px;
   }
-
-
-  .trip-real-nav {
-    min-width: 720px;
-  }
-
-
-  .trip-style-zone::before {
-    display: none;
-  }
-
-}
-/* ============================================================
-   ROAMLAB DRIVE + TRIP STYLE FINAL OVERRIDES
-============================================================ */
-
-
-/* ============================================================
-   DRIVE VEHICLE HOTSPOTS
-============================================================ */
-
-.drive-vehicle-zone {
-  position: absolute;
-  z-index: 80;
-
-  display: block;
-
-  padding: 0;
-  margin: 0;
-
-  border: 0;
-  outline: 0;
-
-  background: transparent;
-
-  cursor: pointer;
-
-  border-radius: 28px;
-
-  -webkit-appearance: none;
-  appearance: none;
-
-  transition:
-    transform 0.2s ease;
-}
-
-
-.drive-vehicle-zone::before {
-  content: "";
-
-  position: absolute;
-
-  inset: -5%;
-
-  border-radius: inherit;
-
-  background:
-    radial-gradient(
-      ellipse at center,
-      rgba(255, 196, 108, 0.25) 0%,
-      rgba(231, 147, 55, 0.11) 42%,
-      rgba(210, 115, 28, 0.035) 64%,
-      transparent 79%
-    );
-
-  filter: blur(10px);
-
-  opacity: 0;
-
-  transform: scale(0.95);
-
-  transition:
-    opacity 0.22s ease,
-    transform 0.26s ease;
-
-  pointer-events: none;
-}
-
-
-.drive-vehicle-zone:hover::before,
-.drive-vehicle-zone.is-selected::before {
-  opacity: 1;
-
-  transform: scale(1.035);
-}
-
-
-.drive-vehicle-zone:hover,
-.drive-vehicle-zone.is-selected {
-  transform: translateY(-2px);
-}
-
-
-/* SUV */
-
-.drive-zone-suv {
-  left: 6%;
-  top: 7%;
-
-  width: 29%;
-  height: 37%;
-}
-
-
-/* TRUCK */
-
-.drive-zone-truck {
-  left: 36%;
-  top: 5%;
-
-  width: 29%;
-  height: 35%;
-}
-
-
-/* VAN */
-
-.drive-zone-van {
-  left: 63%;
-  top: 4%;
-
-  width: 29%;
-  height: 40%;
-}
-
-
-/* CROSSOVER */
-
-.drive-zone-crossover {
-  left: 4%;
-  top: 42%;
-
-  width: 31%;
-  height: 36%;
-}
-
-
-/* CITY */
-
-.drive-zone-city {
-  left: 69%;
-  top: 42%;
-
-  width: 27%;
-  height: 36%;
-}
-
-
-/* ============================================================
-   TRIP PAGE
-============================================================ */
-
-.trip-desk-page {
-  width: 100%;
-
-  min-height: 100vh;
-
-  margin: 0;
-  padding: 0;
-
-  background: #070807;
-
-  overflow-x: hidden;
-}
-
-
-.trip-desk-stage {
-  position: relative;
-
-  width: 100%;
-
-  max-width: 1536px;
-
-  margin: 0 auto;
-
-  overflow: hidden;
-
-  background: #070807;
-}
-
-
-.trip-desk-image {
-  position: relative;
-
-  z-index: 1;
-
-  display: block;
-
-  width: 100%;
-  height: auto;
-
-  margin: 0;
-
-  pointer-events: none;
-
-  user-select: none;
-
-  -webkit-user-drag: none;
-}
-
-
-/* ============================================================
-   TRIP NAV
-============================================================ */
-
-.trip-real-nav {
-  position: absolute !important;
-
-  z-index: 9999 !important;
-
-  top: 0 !important;
-
-  left: 18% !important;
-  right: 1.5% !important;
-
-  height: 72px !important;
-
-  display: flex !important;
-
-  align-items: center !important;
-  justify-content: flex-end !important;
-
-  gap: 18px !important;
-
-  background: transparent !important;
-
-  pointer-events: auto !important;
-}
-
-
-.trip-real-links {
-  display: flex !important;
-
-  align-items: center !important;
-
-  gap: 19px !important;
-}
-
-
-.trip-real-links a,
-.trip-real-signin {
-  position: relative;
-
-  color:
-    rgba(248, 242, 230, 0.86) !important;
-
-  font-size: 10px !important;
-
-  font-weight: 800 !important;
-
-  line-height: 1 !important;
-
-  letter-spacing: 0.09em !important;
-
-  text-decoration: none !important;
-
-  white-space: nowrap;
-
-  text-shadow:
-    0 1px 5px rgba(0, 0, 0, 0.92),
-    0 2px 12px rgba(0, 0, 0, 0.6);
-}
-
-
-.trip-real-links a::after,
-.trip-real-signin::after {
-  content: "";
-
-  position: absolute;
-
-  left: 0;
-  right: 0;
-
-  bottom: -8px;
-
-  height: 1px;
-
-  background: #e9a143;
-
-  transform: scaleX(0);
-
-  transition:
-    transform 0.2s ease;
-}
-
-
-.trip-real-links a:hover,
-.trip-real-signin:hover {
-  color: #ffffff !important;
-}
-
-
-.trip-real-links a:hover::after,
-.trip-real-signin:hover::after {
-  transform: scaleX(1);
-}
-
-
-.trip-real-signin {
-  padding: 10px 8px;
-}
-
-
-.trip-real-start {
-  min-height: 38px;
-
-  padding: 0 15px;
-
-  display: inline-flex !important;
-
-  align-items: center;
-  justify-content: center;
-
-  flex-shrink: 0;
-
-  border-radius: 5px;
-
-  background: #e8a33f !important;
-
-  color: #18130d !important;
-
-  font-size: 9px !important;
-
-  font-weight: 900 !important;
-
-  letter-spacing: 0.07em !important;
-
-  white-space: nowrap;
-
-  text-decoration: none !important;
-
-  box-shadow:
-    0 4px 16px rgba(0, 0, 0, 0.28);
-}
-
-
-/* ============================================================
-   DYNAMIC VEHICLE
-============================================================ */
-
-.trip-selected-vehicle-wrap {
-  position: absolute;
-
-  z-index: 5000;
-
-  left: 2%;
-  top: 7.5%;
-
-  width: 29%;
-  height: 29%;
-
-  pointer-events: none;
-}
-
-
-.trip-selected-vehicle-image {
-  position: absolute;
-
-  z-index: 5001;
-
-  left: 0;
-  top: 0;
-
-  width: 100%;
-  height: 100%;
-
-  display: block;
-
-  object-fit: contain;
-  object-position: center;
-
-  user-select: none;
-
-  -webkit-user-drag: none;
-
-  filter:
-    drop-shadow(
-      0 16px 18px rgba(0, 0, 0, 0.52)
-    );
-}
-
-
-.trip-selected-vehicle-tag {
-  position: absolute;
-
-  z-index: 5002;
-
-  left: 50%;
-  bottom: -4%;
-
-  transform: translateX(-50%);
-
-  min-width: 145px;
-
-  padding:
-    8px
-    14px;
-
-  display: flex;
-
-  flex-direction: column;
-
-  align-items: center;
-
-  gap: 2px;
-
-  border-radius: 5px;
-
-  background:
-    rgba(14, 14, 11, 0.92);
-
-  border:
-    1px solid
-    rgba(255, 255, 255, 0.08);
-
-  box-shadow:
-    0 7px 20px
-    rgba(0, 0, 0, 0.38);
-
-  backdrop-filter: blur(7px);
-}
-
-
-.trip-selected-vehicle-tag span {
-  color: #d8943d;
-
-  font-size: 7px;
-
-  font-weight: 900;
-
-  letter-spacing: 0.14em;
-}
-
-
-.trip-selected-vehicle-tag strong {
-  color: #f0e8db;
-
-  font-size: 11px;
-
-  font-weight: 900;
-
-  letter-spacing: 0.055em;
-
-  white-space: nowrap;
-}
-
-
-/* ============================================================
-   TRIP HOTSPOTS
-============================================================ */
-
-.trip-style-zone {
-  position: absolute;
-
-  z-index: 100;
-
-  display: block;
-
-  padding: 0;
-  margin: 0;
-
-  border: 0;
-  outline: 0;
-
-  background: transparent;
-
-  cursor: pointer;
-
-  border-radius: 20px;
-
-  -webkit-appearance: none;
-  appearance: none;
-
-  transition:
-    transform 0.22s ease;
-}
-
-
-.trip-style-zone::before {
-  content: "";
-
-  position: absolute;
-
-  inset: -5%;
-
-  border-radius: inherit;
-
-  background:
-    radial-gradient(
-      ellipse at center,
-      rgba(255, 196, 110, 0.26) 0%,
-      rgba(229, 143, 51, 0.12) 42%,
-      rgba(210, 115, 28, 0.035) 63%,
-      transparent 80%
-    );
-
-  filter: blur(10px);
-
-  opacity: 0;
-
-  transform: scale(0.95);
-
-  transition:
-    opacity 0.25s ease,
-    transform 0.3s ease;
-
-  pointer-events: none;
-}
-
-
-.trip-style-zone::after {
-  content: "";
-
-  position: absolute;
-
-  inset: 2%;
-
-  border-radius: inherit;
-
-  background:
-    radial-gradient(
-      circle at center,
-      rgba(255, 227, 183, 0.1) 0%,
-      rgba(255, 195, 110, 0.04) 50%,
-      transparent 75%
-    );
-
-  opacity: 0;
-
-  transition:
-    opacity 0.2s ease;
-
-  pointer-events: none;
-}
-
-
-.trip-style-zone:hover::before,
-.trip-style-zone.is-selected::before {
-  opacity: 1;
-
-  transform: scale(1.035);
-}
-
-
-.trip-style-zone:hover::after,
-.trip-style-zone.is-selected::after {
-  opacity: 1;
-}
-
-
-.trip-style-zone:hover,
-.trip-style-zone.is-selected {
-  transform: translateY(-2px);
-}
-
-
-/* WEEKEND */
-
-.trip-zone-weekend {
-  left: 12%;
-  top: 40%;
-
-  width: 18%;
-  height: 37%;
-}
-
-
-/* ROAD TRIP */
-
-.trip-zone-road {
-  left: 31%;
-  top: 40%;
-
-  width: 18%;
-  height: 37%;
-}
-
-
-/* BASECAMP */
-
-.trip-zone-basecamp {
-  left: 49%;
-  top: 40%;
-
-  width: 18%;
-  height: 37%;
-}
-
-
-/* REMOTE */
-
-.trip-zone-remote {
-  left: 67%;
-  top: 40%;
-
-  width: 18%;
-  height: 37%;
-}
-
-
-/* ============================================================
-   LOGO
-============================================================ */
-
-.trip-logo-hotspot {
-  position: absolute;
-
-  z-index: 10000;
-
-  left: 1%;
-  top: 1%;
-
-  width: 14%;
-  height: 9%;
-
-  display: block;
-
-  background: transparent;
-
-  cursor: pointer;
-}
-
-
-/* ============================================================
-   BACK
-============================================================ */
-
-.trip-back-button {
-  position: absolute;
-
-  z-index: 6000;
-
-  left: 2%;
-  bottom: 2.5%;
-
-  padding:
-    10px
-    14px;
-
-  border-radius: 5px;
-
-  background:
-    rgba(8, 9, 8, 0.78);
-
-  color:
-    rgba(245, 239, 228, 0.75);
-
-  font-size: 9px;
-
-  font-weight: 800;
-
-  letter-spacing: 0.12em;
-
-  text-decoration: none;
-
-  backdrop-filter: blur(7px);
-
-  transition:
-    color 0.2s ease,
-    transform 0.2s ease;
-}
-
-
-.trip-back-button:hover {
-  color: #f1a544;
-
-  transform: translateX(-2px);
-}
-
-
-/* ============================================================
-   SELECTED TRIP PANEL
-============================================================ */
-
-.trip-selection-panel {
-  position: absolute;
-
-  z-index: 7000;
-
-  left: 50%;
-  bottom: 2.5%;
-
-  transform: translateX(-50%);
-
-  width: min(540px, 70%);
-
-  min-height: 76px;
-
-  padding:
-    13px
-    14px
-    13px
-    20px;
-
-  display: flex;
-
-  align-items: center;
-  justify-content: space-between;
-
-  gap: 20px;
-
-  border:
-    1px solid
-    rgba(255, 255, 255, 0.1);
-
-  border-radius: 8px;
-
-  background:
-    rgba(10, 12, 9, 0.92);
-
-  box-shadow:
-    0 15px 45px
-    rgba(0, 0, 0, 0.4);
-
-  backdrop-filter: blur(12px);
-}
-
-
-.trip-selection-summary {
-  display: flex;
-
-  flex-direction: column;
-
-  gap: 4px;
-}
-
-
-.trip-selection-summary span {
-  color: #df983d;
-
-  font-size: 8px;
-
-  font-weight: 800;
-
-  letter-spacing: 0.18em;
-}
-
-
-.trip-selection-summary strong {
-  color: #f4eee3;
-
-  font-size: 18px;
-
-  font-weight: 850;
-}
-
-
-.trip-selection-summary small {
-  color:
-    rgba(244, 238, 227, 0.46);
-
-  font-size: 8px;
-
-  font-weight: 700;
-
-  letter-spacing: 0.1em;
-}
-
-
-.trip-continue-button {
-  min-height: 44px;
-
-  padding:
-    0
-    18px;
-
-  display: inline-flex;
-
-  align-items: center;
-  justify-content: center;
-
-  flex-shrink: 0;
-
-  border-radius: 5px;
-
-  background: #e8a23e;
-
-  color: #17130d;
-
-  font-size: 9px;
-
-  font-weight: 900;
-
-  letter-spacing: 0.08em;
-
-  text-decoration: none;
-
-  transition:
-    background 0.2s ease,
-    transform 0.2s ease;
-}
-
-
-.trip-continue-button:hover {
-  background: #f0b04a;
-
-  transform: translateY(-2px);
-}
-
-
-/* ============================================================
-   RESPONSIVE
-============================================================ */
-
-@media (max-width: 1150px) {
-
-  .trip-real-nav {
-    left: 17% !important;
-
-    gap: 10px !important;
-  }
-
-  .trip-real-links {
-    gap: 11px !important;
-  }
-
-  .trip-real-links a,
-  .trip-real-signin {
-    font-size: 8px !important;
-  }
-
-  .trip-real-start {
-    padding: 0 10px;
-
-    font-size: 8px !important;
-  }
-}
-
-
-@media (max-width: 768px) {
-
-  .trip-desk-page {
-    overflow-x: auto;
-  }
-
-  .trip-desk-stage {
-    min-width: 900px;
-  }
-
-  .trip-real-nav {
-    min-width: 720px;
-  }
-
-  .trip-style-zone::before,
-  .trip-style-zone::after {
-    display: none;
-  }
-}
-/* ============================================================
-   ROAMLAB TRIP STYLE — FINAL FULL DESK VERSION
-============================================================ */
-
-.trip-desk-page {
-  width: 100%;
-  min-height: 100vh;
-
-  margin: 0;
-  padding: 0;
-
-  background: #070807;
-
-  overflow-x: hidden;
-}
-
-
-.trip-desk-stage {
-  position: relative;
-
-  width: 100%;
-  max-width: 1536px;
-
-  margin: 0 auto;
-
-  overflow: hidden;
-
-  background: #070807;
-}
-
-
-/* ============================================================
-   FULL DESK IMAGE
-============================================================ */
-
-.trip-desk-image {
-  position: relative;
-
-  z-index: 1;
-
-  display: block;
-
-  width: 100%;
-  height: auto;
-
-  margin: 0;
-  padding: 0;
-
-  pointer-events: none;
-
-  user-select: none;
-  -webkit-user-drag: none;
-}
-
-
-/* ============================================================
-   REAL NAV
-============================================================ */
-
-.trip-real-nav {
-  position: absolute !important;
-
-  z-index: 9999 !important;
-
-  top: 0 !important;
-
-  left: 18% !important;
-  right: 1.5% !important;
-
-  height: 72px !important;
-
-  display: flex !important;
-
-  align-items: center !important;
-  justify-content: flex-end !important;
-
-  gap: 18px !important;
-
-  background: transparent !important;
-
-  pointer-events: auto !important;
-}
-
-
-.trip-real-links {
-  display: flex !important;
-
-  align-items: center !important;
-
-  gap: 19px !important;
-}
-
-
-.trip-real-links a,
-.trip-real-signin {
-  position: relative;
-
-  color:
-    rgba(248, 242, 230, 0.86) !important;
-
-  font-size: 10px !important;
-
-  font-weight: 800 !important;
-
-  line-height: 1 !important;
-
-  letter-spacing: 0.09em !important;
-
-  text-decoration: none !important;
-
-  white-space: nowrap;
-
-  text-shadow:
-    0 1px 5px rgba(0, 0, 0, 0.92),
-    0 2px 12px rgba(0, 0, 0, 0.62);
-}
-
-
-.trip-real-links a::after,
-.trip-real-signin::after {
-  content: "";
-
-  position: absolute;
-
-  left: 0;
-  right: 0;
-
-  bottom: -8px;
-
-  height: 1px;
-
-  background: #e9a143;
-
-  transform: scaleX(0);
-
-  transition:
-    transform 0.2s ease;
-}
-
-
-.trip-real-links a:hover,
-.trip-real-signin:hover {
-  color: #ffffff !important;
-}
-
-
-.trip-real-links a:hover::after,
-.trip-real-signin:hover::after {
-  transform: scaleX(1);
-}
-
-
-.trip-real-signin {
-  padding: 10px 8px;
-}
-
-
-.trip-real-start {
-  min-height: 38px;
-
-  padding: 0 15px;
-
-  display: inline-flex !important;
-
-  align-items: center;
-  justify-content: center;
-
-  flex-shrink: 0;
-
-  border-radius: 5px;
-
-  background: #e8a33f !important;
-
-  color: #18130d !important;
-
-  font-size: 9px !important;
-
-  font-weight: 900 !important;
-
-  letter-spacing: 0.07em !important;
-
-  white-space: nowrap;
-
-  text-decoration: none !important;
-
-  box-shadow:
-    0 4px 16px
-    rgba(0, 0, 0, 0.28);
-
-  transition:
-    transform 0.2s ease,
-    background 0.2s ease;
-}
-
-
-.trip-real-start:hover {
-  transform: translateY(-2px);
-
-  background: #f0b04a !important;
-}
-
-
-/* ============================================================
-   REMOVE OLD DYNAMIC VEHICLE LAYER
-============================================================ */
-
-.trip-selected-vehicle-wrap,
-.trip-selected-vehicle-image,
-.trip-selected-vehicle-tag {
-  display: none !important;
-}
-
-
-/* ============================================================
-   TRIP STYLE HOTSPOTS
-============================================================ */
-
-.trip-style-zone {
-  position: absolute;
-
-  z-index: 100;
-
-  display: block;
-
-  padding: 0;
-  margin: 0;
-
-  border: 0;
-  outline: 0;
-
-  background: transparent;
-
-  cursor: pointer;
-
-  border-radius: 20px;
-
-  appearance: none;
-  -webkit-appearance: none;
-
-  transition:
-    transform 0.22s ease;
-}
-
-
-.trip-style-zone::before {
-  content: "";
-
-  position: absolute;
-
-  inset: -5%;
-
-  border-radius: inherit;
-
-  background:
-    radial-gradient(
-      ellipse at center,
-      rgba(255, 196, 110, 0.24) 0%,
-      rgba(229, 143, 51, 0.11) 42%,
-      rgba(210, 115, 28, 0.035) 64%,
-      transparent 79%
-    );
-
-  filter: blur(10px);
-
-  opacity: 0;
-
-  transform: scale(0.95);
-
-  transition:
-    opacity 0.25s ease,
-    transform 0.3s ease;
-
-  pointer-events: none;
-}
-
-
-.trip-style-zone::after {
-  content: "";
-
-  position: absolute;
-
-  inset: 2%;
-
-  border-radius: inherit;
-
-  background:
-    radial-gradient(
-      circle at center,
-      rgba(255, 228, 184, 0.10) 0%,
-      rgba(255, 198, 115, 0.04) 50%,
-      transparent 75%
-    );
-
-  opacity: 0;
-
-  transition:
-    opacity 0.22s ease;
-
-  pointer-events: none;
-}
-
-
-.trip-style-zone:hover::before,
-.trip-style-zone.is-selected::before {
-  opacity: 1;
-
-  transform: scale(1.035);
-}
-
-
-.trip-style-zone:hover::after,
-.trip-style-zone.is-selected::after {
-  opacity: 1;
-}
-
-
-.trip-style-zone:hover,
-.trip-style-zone.is-selected {
-  transform: translateY(-2px);
-}
-
-
-/* ============================================================
-   FOUR TRIP CARD POSITIONS
-============================================================ */
-
-.trip-zone-weekend {
-  left: 12%;
-  top: 40%;
-
-  width: 18%;
-  height: 37%;
-}
-
-
-.trip-zone-road {
-  left: 31%;
-  top: 40%;
-
-  width: 18%;
-  height: 37%;
-}
-
-
-.trip-zone-basecamp {
-  left: 49%;
-  top: 40%;
-
-  width: 18%;
-  height: 37%;
-}
-
-
-.trip-zone-remote {
-  left: 67%;
-  top: 40%;
-
-  width: 18%;
-  height: 37%;
-}
-
-
-/* ============================================================
-   LOGO HOTSPOT
-============================================================ */
-
-.trip-logo-hotspot {
-  position: absolute;
-
-  z-index: 10000;
-
-  left: 1%;
-  top: 1%;
-
-  width: 14%;
-  height: 9%;
-
-  display: block;
-
-  background: transparent;
-
-  cursor: pointer;
-}
-
-
-/* ============================================================
-   BACK BUTTON
-============================================================ */
-
-.trip-back-button {
-  position: absolute;
-
-  z-index: 6000;
-
-  left: 2%;
-  bottom: 2.5%;
-
-  padding:
-    10px
-    14px;
-
-  border-radius: 5px;
-
-  background:
-    rgba(8, 9, 8, 0.78);
-
-  color:
-    rgba(245, 239, 228, 0.76);
-
-  font-size: 9px;
-
-  font-weight: 800;
-
-  letter-spacing: 0.12em;
-
-  text-decoration: none;
-
-  backdrop-filter: blur(7px);
-
-  transition:
-    color 0.2s ease,
-    transform 0.2s ease;
-}
-
-
-.trip-back-button:hover {
-  color: #f1a544;
-
-  transform: translateX(-2px);
-}
-
-
-/* ============================================================
-   SELECTED TRIP PANEL
-============================================================ */
-
-.trip-selection-panel {
-  position: absolute;
-
-  z-index: 7000;
-
-  left: 50%;
-  bottom: 2.5%;
-
-  transform: translateX(-50%);
-
-  width: min(540px, 70%);
-
-  min-height: 76px;
-
-  padding:
-    13px
-    14px
-    13px
-    20px;
-
-  display: flex;
-
-  align-items: center;
-  justify-content: space-between;
-
-  gap: 20px;
-
-  border:
-    1px solid
-    rgba(255, 255, 255, 0.10);
-
-  border-radius: 8px;
-
-  background:
-    rgba(10, 12, 9, 0.92);
-
-  box-shadow:
-    0 15px 45px
-    rgba(0, 0, 0, 0.40);
-
-  backdrop-filter: blur(12px);
-}
-
-
-.trip-selection-summary {
-  display: flex;
-
-  flex-direction: column;
-
-  gap: 4px;
-}
-
-
-.trip-selection-summary span {
-  color: #df983d;
-
-  font-size: 8px;
-
-  font-weight: 800;
-
-  letter-spacing: 0.18em;
-}
-
-
-.trip-selection-summary strong {
-  color: #f4eee3;
-
-  font-size: 18px;
-
-  font-weight: 850;
-}
-
-
-.trip-selection-summary small {
-  color:
-    rgba(244, 238, 227, 0.46);
-
-  font-size: 8px;
-
-  font-weight: 700;
-
-  letter-spacing: 0.10em;
-}
-
-
-.trip-continue-button {
-  min-height: 44px;
-
-  padding:
-    0
-    18px;
-
-  display: inline-flex;
-
-  align-items: center;
-  justify-content: center;
-
-  flex-shrink: 0;
-
-  border-radius: 5px;
-
-  background: #e8a23e;
-
-  color: #17130d;
-
-  font-size: 9px;
-
-  font-weight: 900;
-
-  letter-spacing: 0.08em;
-
-  text-decoration: none;
-
-  transition:
-    background 0.2s ease,
-    transform 0.2s ease;
-}
-
-
-.trip-continue-button:hover {
-  background: #f0b04a;
-
-  transform: translateY(-2px);
-}
-
-
-/* ============================================================
-   RESPONSIVE
-============================================================ */
-
-@media (max-width: 1150px) {
-
-  .trip-real-nav {
-    left: 17% !important;
-
-    gap: 10px !important;
-  }
-
-  .trip-real-links {
-    gap: 11px !important;
-  }
-
-  .trip-real-links a,
-  .trip-real-signin {
-    font-size: 8px !important;
-  }
-
-  .trip-real-start {
-    padding: 0 10px;
-
-    font-size: 8px !important;
-  }
-}
-
-
-@media (max-width: 768px) {
-
-  .trip-desk-page {
-    overflow-x: auto;
-  }
-
-  .trip-desk-stage {
-    min-width: 900px;
-  }
-
-  .trip-real-nav {
-    min-width: 720px;
-  }
-
-  .trip-style-zone::before,
-  .trip-style-zone::after {
-    display: none;
-  }
-}
-/* ============================================================
-   WAYS IN — DRIVE FINAL CLICK FIX
-============================================================ */
-
-.ways-drive-final {
-  position: absolute !important;
-
-  z-index: 20000 !important;
-
-  left: 8% !important;
-  top: 7% !important;
-
-  width: 31% !important;
-  height: 43% !important;
-
-  display: block !important;
-
-  background: transparent !important;
-
-  cursor: pointer !important;
-
-  border: 0 !important;
-  outline: 0 !important;
-}
-
-
-/* make sure old drive hotspot cannot intercept clicks */
-
-.ways-hotspot-drive {
-  pointer-events: none !important;
-}
-/* ============================================================
-   WAYS IN — DRIVE CLICK FINAL FIX
-============================================================ */
-
-.ways-desk-stage {
-  position: relative !important;
-}
-
-
-/* SUV MODEL + DRIVE LABEL */
-
-.ways-drive-click {
-  position: absolute !important;
-
-  z-index: 50000 !important;
-
-  left: 7% !important;
-  top: 5% !important;
-
-  width: 40% !important;
-  height: 53% !important;
-
-  display: block !important;
-
-  background: transparent !important;
-
-  border: 0 !important;
-  outline: 0 !important;
-
-  cursor: pointer !important;
-
-  pointer-events: auto !important;
-
-  border-radius: 28px;
-
-  text-decoration: none !important;
-}
-
-
-/* warm hover glow */
-
-.ways-drive-click::before {
-  content: "";
-
-  position: absolute;
-
-  inset: 2%;
-
-  border-radius: 28px;
-
-  background:
-    radial-gradient(
-      ellipse at center,
-      rgba(255, 193, 103, 0.16) 0%,
-      rgba(229, 143, 51, 0.06) 45%,
-      transparent 75%
-    );
-
-  filter: blur(10px);
-
-  opacity: 0;
-
-  transition:
-    opacity 0.25s ease,
-    transform 0.25s ease;
-
-  pointer-events: none;
-}
-
-
-.ways-drive-click:hover::before {
-  opacity: 1;
-
-  transform: scale(1.02);
-}
-
-
-/* OLD DRIVE HOTSPOTS MUST NOT BLOCK */
-
-.ways-hotspot-drive,
-.ways-drive-final {
-  display: none !important;
-
-  pointer-events: none !important;
 }
