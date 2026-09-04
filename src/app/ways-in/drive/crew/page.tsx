@@ -101,6 +101,10 @@ export default function CrewPage() {
     setPeople(null);
   };
 
+  const choosePeople = (count: number) => {
+    setPeople(count);
+  };
+
   const closeSelection = () => {
     setSelectedCrew(null);
     setPeople(null);
@@ -117,15 +121,12 @@ export default function CrewPage() {
   return (
     <main className="crew-page">
       <section className="crew-stage">
-
         <img
           src="/crew-desk.jpg"
           alt="RoamLab Crew planning desk"
           className="crew-bg"
           draggable={false}
         />
-
-        {/* GLOBAL NAV */}
 
         <nav className="crew-nav">
           <div className="crew-nav-links">
@@ -177,15 +178,11 @@ export default function CrewPage() {
           </Link>
         </nav>
 
-        {/* PLANNER PROGRESS */}
-
         <PlannerProgress
           currentStep={3}
           vehicle={vehicle}
           trip={trip}
         />
-
-        {/* SOLO */}
 
         <button
           type="button"
@@ -194,13 +191,10 @@ export default function CrewPage() {
               ? "selected"
               : ""
           }`}
-          onClick={() =>
-            chooseCrew("solo")
-          }
+          onClick={() => chooseCrew("solo")}
           aria-label="Choose Solo"
+          aria-pressed={selectedCrew === "solo"}
         />
-
-        {/* COUPLE */}
 
         <button
           type="button"
@@ -209,13 +203,10 @@ export default function CrewPage() {
               ? "selected"
               : ""
           }`}
-          onClick={() =>
-            chooseCrew("couple")
-          }
+          onClick={() => chooseCrew("couple")}
           aria-label="Choose Couple"
+          aria-pressed={selectedCrew === "couple"}
         />
-
-        {/* FAMILY */}
 
         <button
           type="button"
@@ -224,13 +215,10 @@ export default function CrewPage() {
               ? "selected"
               : ""
           }`}
-          onClick={() =>
-            chooseCrew("family")
-          }
+          onClick={() => chooseCrew("family")}
           aria-label="Choose Family"
+          aria-pressed={selectedCrew === "family"}
         />
-
-        {/* FRIENDS */}
 
         <button
           type="button"
@@ -239,13 +227,10 @@ export default function CrewPage() {
               ? "selected"
               : ""
           }`}
-          onClick={() =>
-            chooseCrew("friends")
-          }
+          onClick={() => chooseCrew("friends")}
           aria-label="Choose Friends"
+          aria-pressed={selectedCrew === "friends"}
         />
-
-        {/* BACK */}
 
         <Link
           href={`/ways-in/drive/setup?vehicle=${vehicle}`}
@@ -254,13 +239,8 @@ export default function CrewPage() {
           ← TRIP STYLE
         </Link>
 
-        {/* SELECTION PANEL */}
-
         {selectedCrew && (
           <div className="crew-panel">
-
-            {/* CLOSE */}
-
             <button
               type="button"
               className="crew-panel-close"
@@ -271,68 +251,71 @@ export default function CrewPage() {
             </button>
 
             <div className="crew-summary">
-
               <span>YOUR CREW</span>
 
               <strong>
                 {crewLabels[selectedCrew]}
               </strong>
 
-              {/* SOLO / COUPLE */}
-
               {(selectedCrew === "solo" ||
                 selectedCrew === "couple") && (
                 <div className="crew-people-confirmed">
-                  {people}{" "}
+                  ✓ {people}{" "}
                   {people === 1
                     ? "PERSON"
                     : "PEOPLE"}
                 </div>
               )}
 
-              {/* FAMILY / FRIENDS */}
-
               {(selectedCrew === "family" ||
                 selectedCrew === "friends") && (
                 <div className="crew-people-picker">
-
                   <span className="crew-people-question">
                     HOW MANY PEOPLE?
                   </span>
 
-                 <div className="crew-people-options">
-  {peopleOptions[selectedCrew].map((count) => (
-    <button
-      key={count}
-      type="button"
-      className={`crew-people-button ${
-        people === count ? "is-selected" : ""
-      }`}
-      onClick={() => setPeople(count)}
-      aria-pressed={people === count}
-    >
-      {count === 6 ? "6+" : count}
-    </button>
-  ))}
+                  <div className="crew-people-options">
+                    {peopleOptions[selectedCrew].map(
+                      (count) => (
+                        <button
+                          key={count}
+                          type="button"
+                          className={`crew-people-button ${
+                            people === count
+                              ? "is-selected"
+                              : ""
+                          }`}
+                          onClick={() =>
+                            choosePeople(count)
+                          }
+                          aria-pressed={
+                            people === count
+                          }
+                        >
+                          {count === 6
+                            ? "6+"
+                            : count}
+                        </button>
+                      )
+                    )}
 
-  {people !== null && (
-    <span className="crew-people-selected-text">
-      ✓ {people === 6 ? "6+" : people} PEOPLE
-    </span>
-  )}
-</div>
+                    {people !== null && (
+                      <span className="crew-people-selected-text">
+                        ✓{" "}
+                        {people === 6
+                          ? "6+"
+                          : people}{" "}
+                        PEOPLE
+                      </span>
+                    )}
                   </div>
-
                 </div>
               )}
 
               <small>
                 STEP 3 OF 5
               </small>
-
             </div>
-
-            {/* CONTINUE */}
 
             {people !== null && (
               <Link
@@ -342,10 +325,8 @@ export default function CrewPage() {
                 CONTINUE →
               </Link>
             )}
-
           </div>
         )}
-
       </section>
     </main>
   );
