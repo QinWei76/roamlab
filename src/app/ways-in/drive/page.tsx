@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import PlannerProgress from "@/components/PlannerProgress";
 
 type Vehicle =
   | "suv"
@@ -11,7 +12,8 @@ type Vehicle =
   | "city";
 
 export default function DrivePage() {
-  const [selected, setSelected] = useState<Vehicle | null>(null);
+  const [selected, setSelected] =
+    useState<Vehicle | null>(null);
 
   const chooseVehicle = (vehicle: Vehicle) => {
     setSelected(vehicle);
@@ -25,6 +27,7 @@ export default function DrivePage() {
   return (
     <main className="drv2-page">
       <section className="drv2-stage">
+
         <img
           src="/drive-desk.jpg"
           alt="RoamLab vehicle selection"
@@ -32,7 +35,7 @@ export default function DrivePage() {
           draggable={false}
         />
 
-        {/* REAL NAV */}
+        {/* GLOBAL NAV */}
         <nav className="drv2-nav">
           <div className="drv2-nav-links">
             <Link href="/explore">EXPLORE</Link>
@@ -45,22 +48,35 @@ export default function DrivePage() {
             <Link href="/badges">BADGES</Link>
           </div>
 
-          <Link href="/signin" className="drv2-signin">
+          <Link
+            href="/signin"
+            className="drv2-signin"
+          >
             SIGN IN
           </Link>
 
-          <Link href="/start-here" className="drv2-start">
+          <Link
+            href="/start-here"
+            className="drv2-start"
+          >
             START YOUR WILD →
           </Link>
         </nav>
+
+        {/* PLANNER PROGRESS */}
+        <PlannerProgress currentStep={1} />
 
         {/* SUV */}
         <button
           type="button"
           className={`drv2-zone drv2-suv ${
-            selected === "suv" ? "selected" : ""
+            selected === "suv"
+              ? "selected"
+              : ""
           }`}
-          onClick={() => chooseVehicle("suv")}
+          onClick={() =>
+            chooseVehicle("suv")
+          }
           aria-label="Choose SUV"
         />
 
@@ -68,9 +84,13 @@ export default function DrivePage() {
         <button
           type="button"
           className={`drv2-zone drv2-truck ${
-            selected === "truck" ? "selected" : ""
+            selected === "truck"
+              ? "selected"
+              : ""
           }`}
-          onClick={() => chooseVehicle("truck")}
+          onClick={() =>
+            chooseVehicle("truck")
+          }
           aria-label="Choose Truck"
         />
 
@@ -78,9 +98,13 @@ export default function DrivePage() {
         <button
           type="button"
           className={`drv2-zone drv2-van ${
-            selected === "van" ? "selected" : ""
+            selected === "van"
+              ? "selected"
+              : ""
           }`}
-          onClick={() => chooseVehicle("van")}
+          onClick={() =>
+            chooseVehicle("van")
+          }
           aria-label="Choose Van"
         />
 
@@ -88,9 +112,13 @@ export default function DrivePage() {
         <button
           type="button"
           className={`drv2-zone drv2-crossover ${
-            selected === "crossover" ? "selected" : ""
+            selected === "crossover"
+              ? "selected"
+              : ""
           }`}
-          onClick={() => chooseVehicle("crossover")}
+          onClick={() =>
+            chooseVehicle("crossover")
+          }
           aria-label="Choose Crossover AWD"
         />
 
@@ -98,26 +126,29 @@ export default function DrivePage() {
         <button
           type="button"
           className={`drv2-zone drv2-city ${
-            selected === "city" ? "selected" : ""
+            selected === "city"
+              ? "selected"
+              : ""
           }`}
-          onClick={() => chooseVehicle("city")}
+          onClick={() =>
+            chooseVehicle("city")
+          }
           aria-label="Choose City Car"
         />
 
-        {/* LOGO */}
         <a
           href="/"
           className="drv2-logo"
           aria-label="RoamLab home"
         />
 
-        {/* BACK */}
         <a
           href="/ways-in"
           className="drv2-back"
         >
           ← WAYS IN
         </a>
+
       </section>
     </main>
   );
