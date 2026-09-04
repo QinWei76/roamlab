@@ -1,0 +1,151 @@
+import Link from "next/link";
+
+type PlannerProgressProps = {
+  currentStep: 1 | 2 | 3 | 4 | 5;
+  vehicle?: string;
+  trip?: string;
+};
+
+export default function PlannerProgress({
+  currentStep,
+  vehicle,
+  trip,
+}: PlannerProgressProps) {
+  const tripHref = vehicle
+    ? `/ways-in/drive/setup?vehicle=${vehicle}`
+    : null;
+
+  const crewHref =
+    vehicle && trip
+      ? `/ways-in/drive/crew?vehicle=${vehicle}&trip=${trip}`
+      : null;
+
+  return (
+    <div className="planner-progress">
+      <div className="planner-progress-inner">
+
+        <Link
+          href="/ways-in/drive"
+          className={`planner-step ${
+            currentStep === 1
+              ? "is-current"
+              : currentStep > 1
+              ? "is-done"
+              : ""
+          }`}
+        >
+          <span className="planner-step-number">
+            {currentStep > 1 ? "✓" : "1"}
+          </span>
+
+          <span className="planner-step-label">
+            VEHICLE
+          </span>
+        </Link>
+
+        <span className="planner-line" />
+
+        {tripHref ? (
+          <Link
+            href={tripHref}
+            className={`planner-step ${
+              currentStep === 2
+                ? "is-current"
+                : currentStep > 2
+                ? "is-done"
+                : ""
+            }`}
+          >
+            <span className="planner-step-number">
+              {currentStep > 2 ? "✓" : "2"}
+            </span>
+
+            <span className="planner-step-label">
+              TRIP STYLE
+            </span>
+          </Link>
+        ) : (
+          <div className="planner-step">
+            <span className="planner-step-number">
+              2
+            </span>
+
+            <span className="planner-step-label">
+              TRIP STYLE
+            </span>
+          </div>
+        )}
+
+        <span className="planner-line" />
+
+        {crewHref ? (
+          <Link
+            href={crewHref}
+            className={`planner-step ${
+              currentStep === 3
+                ? "is-current"
+                : currentStep > 3
+                ? "is-done"
+                : ""
+            }`}
+          >
+            <span className="planner-step-number">
+              {currentStep > 3 ? "✓" : "3"}
+            </span>
+
+            <span className="planner-step-label">
+              CREW
+            </span>
+          </Link>
+        ) : (
+          <div
+            className={`planner-step ${
+              currentStep === 3 ? "is-current" : ""
+            }`}
+          >
+            <span className="planner-step-number">
+              3
+            </span>
+
+            <span className="planner-step-label">
+              CREW
+            </span>
+          </div>
+        )}
+
+        <span className="planner-line" />
+
+        <div
+          className={`planner-step ${
+            currentStep === 4 ? "is-current" : ""
+          }`}
+        >
+          <span className="planner-step-number">
+            4
+          </span>
+
+          <span className="planner-step-label">
+            DURATION
+          </span>
+        </div>
+
+        <span className="planner-line" />
+
+        <div
+          className={`planner-step ${
+            currentStep === 5 ? "is-current" : ""
+          }`}
+        >
+          <span className="planner-step-number">
+            5
+          </span>
+
+          <span className="planner-step-label">
+            GEAR
+          </span>
+        </div>
+
+      </div>
+    </div>
+  );
+}
