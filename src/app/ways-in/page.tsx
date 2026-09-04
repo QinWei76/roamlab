@@ -1,102 +1,198 @@
+"use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-export default function WaysInPage() {
+export default function DrivePage() {
+  const router = useRouter();
+
+  const [selectedVehicle, setSelectedVehicle] = useState<string | null>(null);
+
+  const chooseVehicle = (vehicle: string) => {
+    setSelectedVehicle(vehicle);
+
+    window.setTimeout(() => {
+      router.push(`/ways-in/drive/setup?vehicle=${vehicle}`);
+    }, 220);
+  };
+
   return (
-    <main className="ways-desk-page">
-      <section className="ways-desk-stage">
+    <main className="drive-desk-page">
+      <section className="drive-desk-stage">
 
-        {/* MASTER IMAGE */}
+        {/* =====================================================
+            MASTER IMAGE
+        ====================================================== */}
+
         <img
-          src="/ways-in-desk.jpg"
-          alt="RoamLab Ways In planning desk"
-          className="ways-desk-image"
+          src="/drive-desk.jpg"
+          alt="RoamLab Drive vehicle selection desk"
+          className="drive-desk-image"
           draggable={false}
         />
 
+
         {/* =====================================================
-            REAL TOP NAVIGATION
+            REAL NAVIGATION
         ====================================================== */}
 
-        <nav className="ways-real-nav">
-          <div className="ways-real-links">
-            <Link href="/explore">EXPLORE</Link>
-            <Link href="/plan">PLAN</Link>
-            <Link href="/prepare">PREPARE</Link>
-            <Link href="/safety">SAFETY</Link>
-            <Link href="/learn">LEARN</Link>
-            <Link href="/journal">JOURNAL</Link>
-            <Link href="/stories">STORIES</Link>
-            <Link href="/badges">BADGES</Link>
+        <nav className="drive-real-nav">
+          <div className="drive-real-links">
+
+            <Link href="/explore">
+              EXPLORE
+            </Link>
+
+            <Link href="/plan">
+              PLAN
+            </Link>
+
+            <Link href="/prepare">
+              PREPARE
+            </Link>
+
+            <Link href="/safety">
+              SAFETY
+            </Link>
+
+            <Link href="/learn">
+              LEARN
+            </Link>
+
+            <Link href="/journal">
+              JOURNAL
+            </Link>
+
+            <Link href="/stories">
+              STORIES
+            </Link>
+
+            <Link href="/badges">
+              BADGES
+            </Link>
+
           </div>
 
-          <Link href="/signin" className="ways-real-signin">
+
+          <Link
+            href="/signin"
+            className="drive-real-signin"
+          >
             SIGN IN
           </Link>
 
-          <Link href="/start-here" className="ways-real-start">
+
+          <Link
+            href="/start-here"
+            className="drive-real-start"
+          >
             START YOUR WILD →
           </Link>
         </nav>
 
+
         {/* =====================================================
-            DRIVE
+            SUV
         ====================================================== */}
 
-        <Link
-          href="/ways-in/drive"
-          className="ways-hotspot ways-hotspot-drive"
-          aria-label="Drive"
+        <button
+          type="button"
+          className={`drive-vehicle-zone drive-zone-suv ${
+            selectedVehicle === "suv"
+              ? "is-selected"
+              : ""
+          }`}
+          onClick={() => chooseVehicle("suv")}
+          aria-label="Choose SUV"
         />
 
+
         {/* =====================================================
-            HIKE
+            TRUCK
         ====================================================== */}
 
-        <Link
-          href="/ways-in/hike"
-          className="ways-hotspot ways-hotspot-hike"
-          aria-label="Hike"
+        <button
+          type="button"
+          className={`drive-vehicle-zone drive-zone-truck ${
+            selectedVehicle === "truck"
+              ? "is-selected"
+              : ""
+          }`}
+          onClick={() => chooseVehicle("truck")}
+          aria-label="Choose Truck"
         />
 
+
         {/* =====================================================
-            RIDE
+            VAN
         ====================================================== */}
 
-        <Link
-          href="/ways-in/ride"
-          className="ways-hotspot ways-hotspot-ride"
-          aria-label="Ride"
+        <button
+          type="button"
+          className={`drive-vehicle-zone drive-zone-van ${
+            selectedVehicle === "van"
+              ? "is-selected"
+              : ""
+          }`}
+          onClick={() => chooseVehicle("van")}
+          aria-label="Choose Van"
         />
 
+
         {/* =====================================================
-            PADDLE
+            CROSSOVER / AWD
         ====================================================== */}
 
-        <Link
-          href="/ways-in/paddle"
-          className="ways-hotspot ways-hotspot-paddle"
-          aria-label="Paddle"
+        <button
+          type="button"
+          className={`drive-vehicle-zone drive-zone-crossover ${
+            selectedVehicle === "crossover"
+              ? "is-selected"
+              : ""
+          }`}
+          onClick={() => chooseVehicle("crossover")}
+          aria-label="Choose Crossover or AWD"
         />
 
+
         {/* =====================================================
-            NOT SURE
+            2WD / CITY CAR
         ====================================================== */}
 
-        <Link
-          href="/plan"
-          className="ways-hotspot ways-hotspot-unsure"
-          aria-label="Not sure? Start here"
+        <button
+          type="button"
+          className={`drive-vehicle-zone drive-zone-city ${
+            selectedVehicle === "city"
+              ? "is-selected"
+              : ""
+          }`}
+          onClick={() => chooseVehicle("city")}
+          aria-label="Choose 2WD or City Car"
         />
 
+
         {/* =====================================================
-            IMAGE LOGO → HOME
+            LOGO → HOME
         ====================================================== */}
 
         <Link
           href="/"
-          className="ways-logo-hotspot"
+          className="drive-logo-hotspot"
           aria-label="Back to RoamLab home"
         />
+
+
+        {/* =====================================================
+            BACK TO WAYS IN
+        ====================================================== */}
+
+        <Link
+          href="/ways-in"
+          className="drive-back-button"
+        >
+          ← WAYS IN
+        </Link>
 
       </section>
     </main>
