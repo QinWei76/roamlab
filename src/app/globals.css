@@ -1700,3 +1700,280 @@
     height: auto !important;
   }
 }
+/* ============================================================
+   CREW — OVERLAY POSITION FIX
+============================================================ */
+
+.crew-stage {
+  position: relative !important;
+}
+
+
+/* ---------- GLOBAL NAV ---------- */
+
+.crew-nav {
+  position: absolute !important;
+
+  z-index: 90000 !important;
+
+  top: 0 !important;
+  left: 18% !important;
+  right: 1.5% !important;
+
+  height: 64px !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+
+  gap: 16px !important;
+
+  background: transparent !important;
+
+  pointer-events: auto !important;
+}
+
+
+.crew-nav-links {
+  display: flex !important;
+
+  align-items: center !important;
+
+  gap: 18px !important;
+}
+
+
+.crew-nav-links a,
+.crew-signin {
+  display: inline-flex !important;
+
+  align-items: center !important;
+
+  color: rgba(248, 242, 230, 0.88) !important;
+
+  font-size: 10px !important;
+
+  font-weight: 800 !important;
+
+  letter-spacing: 0.08em !important;
+
+  text-decoration: none !important;
+
+  white-space: nowrap !important;
+
+  text-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.85) !important;
+}
+
+
+.crew-start {
+  display: inline-flex !important;
+
+  align-items: center !important;
+  justify-content: center !important;
+
+  min-height: 38px !important;
+
+  padding: 0 15px !important;
+
+  border-radius: 5px !important;
+
+  background: #e8a33f !important;
+
+  color: #17130d !important;
+
+  font-size: 9px !important;
+
+  font-weight: 900 !important;
+
+  letter-spacing: 0.07em !important;
+
+  text-decoration: none !important;
+
+  white-space: nowrap !important;
+}
+
+
+/* ============================================================
+   PLANNER PROGRESS — FORCE OVER IMAGE
+============================================================ */
+
+.crew-stage .planner-progress {
+  position: absolute !important;
+
+  z-index: 85000 !important;
+
+  top: 68px !important;
+
+  left: 50% !important;
+
+  transform: translateX(-50%) !important;
+
+  width: min(760px, 72%) !important;
+
+  height: 48px !important;
+
+  margin: 0 !important;
+
+  display: flex !important;
+
+  align-items: center !important;
+  justify-content: center !important;
+
+  pointer-events: auto !important;
+}
+
+
+.crew-stage .planner-progress-inner {
+  width: 100% !important;
+
+  display: flex !important;
+
+  align-items: center !important;
+  justify-content: center !important;
+
+  gap: 8px !important;
+
+  padding: 8px 15px !important;
+
+  border-radius: 8px !important;
+
+  background: rgba(9, 10, 8, 0.78) !important;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.08) !important;
+
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.25) !important;
+
+  backdrop-filter: blur(8px);
+}
+
+
+.crew-stage .planner-step {
+  display: inline-flex !important;
+
+  align-items: center !important;
+
+  gap: 7px !important;
+
+  color: rgba(245, 239, 226, 0.42) !important;
+
+  text-decoration: none !important;
+
+  white-space: nowrap !important;
+}
+
+
+.crew-stage .planner-step-number {
+  width: 26px !important;
+  height: 26px !important;
+
+  display: inline-flex !important;
+
+  align-items: center !important;
+  justify-content: center !important;
+
+  border-radius: 50% !important;
+
+  border:
+    1px solid rgba(245, 239, 226, 0.38) !important;
+
+  font-size: 10px !important;
+
+  font-weight: 900 !important;
+}
+
+
+.crew-stage .planner-step-label {
+  font-size: 9px !important;
+
+  font-weight: 850 !important;
+
+  letter-spacing: 0.08em !important;
+}
+
+
+.crew-stage .planner-step.is-current {
+  color: #e8a23e !important;
+}
+
+
+.crew-stage
+.planner-step.is-current
+.planner-step-number {
+  color: #e8a23e !important;
+
+  border-color: #e8a23e !important;
+}
+
+
+.crew-stage .planner-step.is-done {
+  color: rgba(246, 241, 229, 0.9) !important;
+}
+
+
+.crew-stage
+.planner-step.is-done
+.planner-step-number {
+  background: #3d8d75 !important;
+
+  border-color: #3d8d75 !important;
+
+  color: #ffffff !important;
+}
+
+
+.crew-stage .planner-line {
+  display: block !important;
+
+  flex: 1 !important;
+
+  min-width: 20px !important;
+  max-width: 46px !important;
+
+  height: 1px !important;
+
+  background:
+    rgba(245, 239, 226, 0.24) !important;
+}
+
+
+/* ============================================================
+   BACK BUTTON — FORCE OVER IMAGE
+============================================================ */
+
+.crew-back {
+  position: absolute !important;
+
+  z-index: 90000 !important;
+
+  left: 2% !important;
+
+  bottom: 2.5% !important;
+
+  display: inline-flex !important;
+
+  align-items: center !important;
+  justify-content: center !important;
+
+  padding: 10px 14px !important;
+
+  margin: 0 !important;
+
+  border-radius: 5px !important;
+
+  background: rgba(8, 9, 8, 0.86) !important;
+
+  color: rgba(245, 239, 228, 0.82) !important;
+
+  font-size: 9px !important;
+
+  font-weight: 800 !important;
+
+  letter-spacing: 0.12em !important;
+
+  text-decoration: none !important;
+
+  white-space: nowrap !important;
+}
