@@ -12,7 +12,7 @@ export default function HomePage() {
         />
 
         {/* =====================================================
-            MAIN DESK OBJECT HOTSPOTS
+            DESK OBJECT HOTSPOTS
         ====================================================== */}
 
         <Link
