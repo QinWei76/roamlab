@@ -1624,3 +1624,79 @@
       scale(1.006) !important;
   }
 }
+/* ============================================================
+   CREW — FULL IMAGE FIT FIX
+============================================================ */
+
+.crew-page {
+  width: 100% !important;
+  min-height: 100vh !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  background: #070807 !important;
+
+  overflow-x: hidden !important;
+}
+
+
+.crew-stage {
+  position: relative !important;
+
+  width: 100% !important;
+  max-width: none !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  overflow: hidden !important;
+}
+
+
+.crew-bg {
+  position: relative !important;
+
+  z-index: 1 !important;
+
+  display: block !important;
+
+  width: 100% !important;
+  height: auto !important;
+
+  max-width: none !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  object-fit: contain !important;
+
+  pointer-events: none !important;
+
+  user-select: none !important;
+
+  -webkit-user-drag: none !important;
+}
+
+
+/* IMPORTANT:
+   remove old mobile minimum width behavior
+*/
+
+@media (max-width: 768px) {
+
+  .crew-page {
+    overflow-x: hidden !important;
+  }
+
+  .crew-stage {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+
+  .crew-bg {
+    width: 100% !important;
+    height: auto !important;
+  }
+}
