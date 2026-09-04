@@ -4,12 +4,17 @@ export default function WaysInPage() {
   return (
     <main className="ways-desk-page">
       <section className="ways-desk-stage">
+
         <img
           src="/ways-in-desk.jpg"
           alt="RoamLab Ways In planning desk"
           className="ways-desk-image"
           draggable={false}
         />
+
+        {/* =========================
+            REAL NAV
+        ========================== */}
 
         <nav className="ways-real-nav">
           <div className="ways-real-links">
@@ -38,29 +43,55 @@ export default function WaysInPage() {
           </Link>
         </nav>
 
+
+        {/* =========================
+            DRIVE
+            SUV + DRIVE PLAQUE
+        ========================== */}
+
         <Link
           href="/ways-in/drive"
-          className="ways-hotspot ways-hotspot-drive"
-          aria-label="Drive"
+          className="ways-drive-click"
+          aria-label="Choose Drive"
         />
+
+
+        {/* =========================
+            HIKE
+        ========================== */}
 
         <Link
           href="/ways-in/hike"
           className="ways-hotspot ways-hotspot-hike"
-          aria-label="Hike"
+          aria-label="Choose Hike"
         />
+
+
+        {/* =========================
+            RIDE
+        ========================== */}
 
         <Link
           href="/ways-in/ride"
           className="ways-hotspot ways-hotspot-ride"
-          aria-label="Ride"
+          aria-label="Choose Ride"
         />
+
+
+        {/* =========================
+            PADDLE
+        ========================== */}
 
         <Link
           href="/ways-in/paddle"
           className="ways-hotspot ways-hotspot-paddle"
-          aria-label="Paddle"
+          aria-label="Choose Paddle"
         />
+
+
+        {/* =========================
+            NOT SURE
+        ========================== */}
 
         <Link
           href="/plan"
@@ -68,11 +99,17 @@ export default function WaysInPage() {
           aria-label="Not sure? Start here"
         />
 
+
+        {/* =========================
+            LOGO → HOME
+        ========================== */}
+
         <Link
           href="/"
           className="ways-logo-hotspot"
           aria-label="Back to RoamLab home"
         />
+
       </section>
     </main>
   );
