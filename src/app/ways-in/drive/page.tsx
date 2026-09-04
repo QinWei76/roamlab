@@ -1,18 +1,40 @@
-import Link from "next/link";
+"use client";
 
-export default function WaysInPage() {
+import Link from "next/link";
+import { useState } from "react";
+
+type Vehicle =
+  | "suv"
+  | "truck"
+  | "van"
+  | "crossover"
+  | "city";
+
+export default function DrivePage() {
+  const [selected, setSelected] = useState<Vehicle | null>(null);
+
+  const chooseVehicle = (vehicle: Vehicle) => {
+    setSelected(vehicle);
+
+    window.setTimeout(() => {
+      window.location.href =
+        `/ways-in/drive/setup?vehicle=${vehicle}`;
+    }, 180);
+  };
+
   return (
-    <main className="ways-desk-page">
-      <section className="ways-desk-stage">
+    <main className="drv2-page">
+      <section className="drv2-stage">
         <img
-          src="/ways-in-desk.jpg"
-          alt="RoamLab Ways In planning desk"
-          className="ways-desk-image"
+          src="/drive-desk.jpg"
+          alt="RoamLab vehicle selection"
+          className="drv2-bg"
           draggable={false}
         />
 
-        <nav className="ways-real-nav">
-          <div className="ways-real-links">
+        {/* REAL NAV */}
+        <nav className="drv2-nav">
+          <div className="drv2-nav-links">
             <Link href="/explore">EXPLORE</Link>
             <Link href="/plan">PLAN</Link>
             <Link href="/prepare">PREPARE</Link>
@@ -23,50 +45,79 @@ export default function WaysInPage() {
             <Link href="/badges">BADGES</Link>
           </div>
 
-          <Link href="/signin" className="ways-real-signin">
+          <Link href="/signin" className="drv2-signin">
             SIGN IN
           </Link>
 
-          <Link href="/start-here" className="ways-real-start">
+          <Link href="/start-here" className="drv2-start">
             START YOUR WILD →
           </Link>
         </nav>
 
-        <Link
-          href="/ways-in/drive"
-          className="ways-drive-final"
-          aria-label="Choose Drive"
+        {/* SUV */}
+        <button
+          type="button"
+          className={`drv2-zone drv2-suv ${
+            selected === "suv" ? "selected" : ""
+          }`}
+          onClick={() => chooseVehicle("suv")}
+          aria-label="Choose SUV"
         />
 
-        <Link
-          href="/ways-in/hike"
-          className="ways-hotspot ways-hotspot-hike"
-          aria-label="Choose Hike"
+        {/* TRUCK */}
+        <button
+          type="button"
+          className={`drv2-zone drv2-truck ${
+            selected === "truck" ? "selected" : ""
+          }`}
+          onClick={() => chooseVehicle("truck")}
+          aria-label="Choose Truck"
         />
 
-        <Link
-          href="/ways-in/ride"
-          className="ways-hotspot ways-hotspot-ride"
-          aria-label="Choose Ride"
+        {/* VAN */}
+        <button
+          type="button"
+          className={`drv2-zone drv2-van ${
+            selected === "van" ? "selected" : ""
+          }`}
+          onClick={() => chooseVehicle("van")}
+          aria-label="Choose Van"
         />
 
-        <Link
-          href="/ways-in/paddle"
-          className="ways-hotspot ways-hotspot-paddle"
-          aria-label="Choose Paddle"
+        {/* CROSSOVER */}
+        <button
+          type="button"
+          className={`drv2-zone drv2-crossover ${
+            selected === "crossover" ? "selected" : ""
+          }`}
+          onClick={() => chooseVehicle("crossover")}
+          aria-label="Choose Crossover AWD"
         />
 
-        <Link
-          href="/plan"
-          className="ways-hotspot ways-hotspot-unsure"
-          aria-label="Not sure? Start here"
+        {/* CITY */}
+        <button
+          type="button"
+          className={`drv2-zone drv2-city ${
+            selected === "city" ? "selected" : ""
+          }`}
+          onClick={() => chooseVehicle("city")}
+          aria-label="Choose City Car"
         />
 
-        <Link
+        {/* LOGO */}
+        <a
           href="/"
-          className="ways-logo-hotspot"
-          aria-label="Back to RoamLab home"
+          className="drv2-logo"
+          aria-label="RoamLab home"
         />
+
+        {/* BACK */}
+        <a
+          href="/ways-in"
+          className="drv2-back"
+        >
+          ← WAYS IN
+        </a>
       </section>
     </main>
   );
