@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import PlannerProgress from "@/components/PlannerProgress";
 
 type VehicleKey =
   | "suv"
@@ -49,10 +50,7 @@ const vehicles: Record<
   },
 };
 
-const trips: Record<
-  TripKey,
-  string
-> = {
+const trips: Record<TripKey, string> = {
   weekend: "Weekend Escape",
   "road-trip": "Road Trip",
   basecamp: "Basecamp",
@@ -98,8 +96,6 @@ export default function TripStylePage() {
     <main className="trip2-page">
       <section className="trip2-stage">
 
-        {/* FULL DESK IMAGE */}
-
         {ready && (
           <img
             src={currentVehicle.image}
@@ -109,8 +105,7 @@ export default function TripStylePage() {
           />
         )}
 
-        {/* REAL NAV */}
-
+        {/* GLOBAL NAV */}
         <nav className="trip2-nav">
           <div className="trip2-nav-links">
             <Link href="/explore">EXPLORE</Link>
@@ -138,8 +133,13 @@ export default function TripStylePage() {
           </Link>
         </nav>
 
-        {/* WEEKEND */}
+        {/* PLANNER PROGRESS */}
+        <PlannerProgress
+          currentStep={2}
+          vehicle={vehicle}
+        />
 
+        {/* WEEKEND */}
         <button
           type="button"
           className={`trip2-zone trip2-weekend ${
@@ -154,7 +154,6 @@ export default function TripStylePage() {
         />
 
         {/* ROAD TRIP */}
-
         <button
           type="button"
           className={`trip2-zone trip2-road ${
@@ -169,7 +168,6 @@ export default function TripStylePage() {
         />
 
         {/* BASECAMP */}
-
         <button
           type="button"
           className={`trip2-zone trip2-basecamp ${
@@ -184,7 +182,6 @@ export default function TripStylePage() {
         />
 
         {/* REMOTE */}
-
         <button
           type="button"
           className={`trip2-zone trip2-remote ${
@@ -198,16 +195,12 @@ export default function TripStylePage() {
           aria-label="Remote Off Grid"
         />
 
-        {/* BACK */}
-
         <a
           href="/ways-in/drive"
           className="trip2-back"
         >
           ← VEHICLE
         </a>
-
-        {/* SELECTED */}
 
         {selectedTrip && (
           <div className="trip2-panel">
@@ -233,6 +226,7 @@ export default function TripStylePage() {
             </a>
           </div>
         )}
+
       </section>
     </main>
   );
