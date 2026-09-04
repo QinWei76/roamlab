@@ -6645,3 +6645,34 @@ img {
     display: none;
   }
 }
+/* ============================================================
+   WAYS IN — DRIVE FINAL CLICK FIX
+============================================================ */
+
+.ways-drive-final {
+  position: absolute !important;
+
+  z-index: 20000 !important;
+
+  left: 8% !important;
+  top: 7% !important;
+
+  width: 31% !important;
+  height: 43% !important;
+
+  display: block !important;
+
+  background: transparent !important;
+
+  cursor: pointer !important;
+
+  border: 0 !important;
+  outline: 0 !important;
+}
+
+
+/* make sure old drive hotspot cannot intercept clicks */
+
+.ways-hotspot-drive {
+  pointer-events: none !important;
+}
