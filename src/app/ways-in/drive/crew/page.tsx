@@ -300,29 +300,27 @@ export default function CrewPage() {
                     HOW MANY PEOPLE?
                   </span>
 
-                  <div className="crew-people-options">
+                 <div className="crew-people-options">
+  {peopleOptions[selectedCrew].map((count) => (
+    <button
+      key={count}
+      type="button"
+      className={`crew-people-button ${
+        people === count ? "is-selected" : ""
+      }`}
+      onClick={() => setPeople(count)}
+      aria-pressed={people === count}
+    >
+      {count === 6 ? "6+" : count}
+    </button>
+  ))}
 
-                    {peopleOptions[
-                      selectedCrew
-                    ].map((count) => (
-                      <button
-                        key={count}
-                        type="button"
-                        className={`crew-people-button ${
-                          people === count
-                            ? "is-selected"
-                            : ""
-                        }`}
-                        onClick={() =>
-                          setPeople(count)
-                        }
-                      >
-                        {count === 6
-                          ? "6+"
-                          : count}
-                      </button>
-                    ))}
-
+  {people !== null && (
+    <span className="crew-people-selected-text">
+      ✓ {people === 6 ? "6+" : people} PEOPLE
+    </span>
+  )}
+</div>
                   </div>
 
                 </div>
