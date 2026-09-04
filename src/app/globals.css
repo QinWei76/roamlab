@@ -1400,3 +1400,227 @@
     transform: none;
   }
 }
+/* ============================================================
+   WAYS IN V2 — STRONG OBJECT LIGHTING
+   FINAL OVERRIDE
+============================================================ */
+
+.wv2-zone {
+  position: absolute !important;
+  z-index: 50000 !important;
+
+  display: block !important;
+
+  background: transparent !important;
+
+  cursor: pointer !important;
+  pointer-events: auto !important;
+
+  border: 0 !important;
+  outline: 0 !important;
+
+  text-decoration: none !important;
+
+  isolation: isolate;
+
+  transition:
+    transform 0.25s ease,
+    background 0.25s ease,
+    box-shadow 0.25s ease !important;
+}
+
+
+/* ============================================================
+   MAIN LIGHT
+============================================================ */
+
+.wv2-zone::before {
+  content: "" !important;
+
+  position: absolute !important;
+
+  z-index: 2 !important;
+
+  inset: -3% !important;
+
+  border-radius: inherit !important;
+
+  background:
+    radial-gradient(
+      ellipse at center,
+
+      rgba(255, 235, 190, 0.34) 0%,
+
+      rgba(255, 199, 116, 0.25) 25%,
+
+      rgba(232, 154, 66, 0.14) 48%,
+
+      rgba(199, 108, 29, 0.05) 67%,
+
+      transparent 82%
+    ) !important;
+
+  filter: blur(12px) !important;
+
+  opacity: 0 !important;
+
+  transform: scale(0.94) !important;
+
+  transition:
+    opacity 0.25s ease,
+    transform 0.3s ease !important;
+
+  pointer-events: none !important;
+}
+
+
+/* ============================================================
+   CENTER HIGHLIGHT
+============================================================ */
+
+.wv2-zone::after {
+  content: "" !important;
+
+  position: absolute !important;
+
+  z-index: 3 !important;
+
+  inset: 4% !important;
+
+  border-radius: inherit !important;
+
+  background:
+    radial-gradient(
+      ellipse at 50% 48%,
+
+      rgba(255, 246, 218, 0.23) 0%,
+
+      rgba(255, 211, 143, 0.15) 35%,
+
+      rgba(239, 165, 74, 0.06) 58%,
+
+      transparent 78%
+    ) !important;
+
+  opacity: 0 !important;
+
+  transition:
+    opacity 0.22s ease !important;
+
+  pointer-events: none !important;
+}
+
+
+/* ============================================================
+   HOVER
+============================================================ */
+
+.wv2-zone:hover::before {
+  opacity: 1 !important;
+
+  transform: scale(1.04) !important;
+}
+
+
+.wv2-zone:hover::after {
+  opacity: 1 !important;
+}
+
+
+.wv2-zone:hover {
+  transform:
+    translateY(-3px)
+    scale(1.006) !important;
+
+  background:
+    rgba(255, 190, 94, 0.035) !important;
+
+  box-shadow:
+    0 0 35px rgba(224, 142, 52, 0.08) !important;
+}
+
+
+/* CLICK */
+
+.wv2-zone:active {
+  transform:
+    translateY(0)
+    scale(0.985) !important;
+}
+
+
+/* ============================================================
+   DRIVE — SUV
+============================================================ */
+
+.wv2-drive {
+  border-radius: 34px !important;
+}
+
+
+.wv2-drive:hover::before {
+  background:
+    radial-gradient(
+      ellipse at 52% 42%,
+
+      rgba(255, 239, 201, 0.38) 0%,
+
+      rgba(255, 201, 116, 0.27) 27%,
+
+      rgba(230, 147, 55, 0.14) 50%,
+
+      rgba(203, 112, 30, 0.045) 68%,
+
+      transparent 82%
+    ) !important;
+}
+
+
+/* ============================================================
+   HIKE — BOOTS
+============================================================ */
+
+.wv2-hike {
+  border-radius: 36px !important;
+}
+
+
+/* ============================================================
+   RIDE
+============================================================ */
+
+.wv2-ride {
+  border-radius: 32px !important;
+}
+
+
+/* ============================================================
+   PADDLE
+============================================================ */
+
+.wv2-paddle {
+  border-radius: 32px !important;
+}
+
+
+/* ============================================================
+   NOT SURE
+============================================================ */
+
+.wv2-unsure {
+  border-radius: 18px !important;
+}
+
+
+/* ============================================================
+   DESKTOP ONLY
+============================================================ */
+
+@media (hover: hover) and (pointer: fine) {
+
+  .wv2-zone:hover {
+    transform:
+      translateY(-3px)
+      scale(1.006) !important;
+  }
+}
