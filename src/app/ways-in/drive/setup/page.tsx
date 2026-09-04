@@ -16,7 +16,7 @@ type TripKey =
   | "basecamp"
   | "remote";
 
-const vehicleData: Record<
+const vehicles: Record<
   VehicleKey,
   {
     label: string;
@@ -25,92 +25,94 @@ const vehicleData: Record<
 > = {
   suv: {
     label: "SUV",
-    image: "/vehicle-model-suv.png",
+    image: "/trip-style-suv.jpg",
   },
 
   truck: {
     label: "TRUCK",
-    image: "/vehicle-model-truck.png",
+    image: "/trip-style-truck.jpg",
   },
 
   van: {
     label: "VAN",
-    image: "/vehicle-model-van.png",
+    image: "/trip-style-van.jpg",
   },
 
   crossover: {
     label: "CROSSOVER / AWD",
-    image: "/vehicle-model-crossover.png",
+    image: "/trip-style-crossover.jpg",
   },
 
   city: {
     label: "2WD / CITY CAR",
-    image: "/vehicle-model-city.png",
+    image: "/trip-style-city.jpg",
   },
 };
 
-const tripStyles: {
-  id: TripKey;
-  label: string;
-}[] = [
-  {
-    id: "weekend",
-    label: "Weekend Escape",
-  },
-  {
-    id: "road-trip",
-    label: "Road Trip",
-  },
-  {
-    id: "basecamp",
-    label: "Basecamp",
-  },
-  {
-    id: "remote",
-    label: "Remote / Off-Grid",
-  },
-];
+const trips: Record<
+  TripKey,
+  string
+> = {
+  weekend: "Weekend Escape",
+  "road-trip": "Road Trip",
+  basecamp: "Basecamp",
+  remote: "Remote / Off-Grid",
+};
 
 export default function TripStylePage() {
-  const [vehicle, setVehicle] = useState<VehicleKey>("suv");
-  const [selectedTrip, setSelectedTrip] = useState<TripKey | null>(null);
-  const [ready, setReady] = useState(false);
+  const [vehicle, setVehicle] =
+    useState<VehicleKey>("suv");
+
+  const [selectedTrip, setSelectedTrip] =
+    useState<TripKey | null>(null);
+
+  const [ready, setReady] =
+    useState(false);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
+    const params =
+      new URLSearchParams(
+        window.location.search
+      );
 
-    const vehicleParam = params.get("vehicle");
+    const value =
+      params.get("vehicle");
 
     if (
-      vehicleParam === "suv" ||
-      vehicleParam === "truck" ||
-      vehicleParam === "van" ||
-      vehicleParam === "crossover" ||
-      vehicleParam === "city"
+      value === "suv" ||
+      value === "truck" ||
+      value === "van" ||
+      value === "crossover" ||
+      value === "city"
     ) {
-      setVehicle(vehicleParam);
+      setVehicle(value);
     }
 
     setReady(true);
   }, []);
 
-  const currentVehicle = vehicleData[vehicle];
-
-  const selectedTripLabel =
-    tripStyles.find((trip) => trip.id === selectedTrip)?.label ?? "";
+  const currentVehicle =
+    vehicles[vehicle];
 
   return (
-    <main className="trip-desk-page">
-      <section className="trip-desk-stage">
-        <img
-          src="/trip-style-desk-v2.jpg"
-          alt="RoamLab Trip Style Planning Desk"
-          className="trip-desk-image"
-          draggable={false}
-        />
+    <main className="trip2-page">
+      <section className="trip2-stage">
 
-        <nav className="trip-real-nav">
-          <div className="trip-real-links">
+        {/* FULL DESK IMAGE */}
+
+        {ready && (
+          <img
+            src={currentVehicle.image}
+            alt={`${currentVehicle.label} trip style desk`}
+            className="trip2-bg"
+            draggable={false}
+          />
+        )}
+
+        {/* REAL NAV */}
+
+        <nav className="trip2-nav">
+          <div className="trip2-nav-links">
             <Link href="/explore">EXPLORE</Link>
             <Link href="/plan">PLAN</Link>
             <Link href="/prepare">PREPARE</Link>
@@ -121,96 +123,114 @@ export default function TripStylePage() {
             <Link href="/badges">BADGES</Link>
           </div>
 
-          <Link href="/signin" className="trip-real-signin">
+          <Link
+            href="/signin"
+            className="trip2-signin"
+          >
             SIGN IN
           </Link>
 
-          <Link href="/start-here" className="trip-real-start">
+          <Link
+            href="/start-here"
+            className="trip2-start"
+          >
             START YOUR WILD →
           </Link>
         </nav>
 
-        {ready && (
-          <div className="trip-selected-vehicle-wrap">
-            <img
-              key={currentVehicle.image}
-              src={currentVehicle.image}
-              alt={currentVehicle.label}
-              className="trip-selected-vehicle-image"
-              draggable={false}
-            />
-
-            <div className="trip-selected-vehicle-tag">
-              <span>VEHICLE</span>
-              <strong>{currentVehicle.label} ✓</strong>
-            </div>
-          </div>
-        )}
+        {/* WEEKEND */}
 
         <button
           type="button"
-          className={`trip-style-zone trip-zone-weekend ${
-            selectedTrip === "weekend" ? "is-selected" : ""
+          className={`trip2-zone trip2-weekend ${
+            selectedTrip === "weekend"
+              ? "selected"
+              : ""
           }`}
-          onClick={() => setSelectedTrip("weekend")}
-          aria-label="Select Weekend Escape"
+          onClick={() =>
+            setSelectedTrip("weekend")
+          }
+          aria-label="Weekend Escape"
         />
+
+        {/* ROAD TRIP */}
 
         <button
           type="button"
-          className={`trip-style-zone trip-zone-road ${
-            selectedTrip === "road-trip" ? "is-selected" : ""
+          className={`trip2-zone trip2-road ${
+            selectedTrip === "road-trip"
+              ? "selected"
+              : ""
           }`}
-          onClick={() => setSelectedTrip("road-trip")}
-          aria-label="Select Road Trip"
+          onClick={() =>
+            setSelectedTrip("road-trip")
+          }
+          aria-label="Road Trip"
         />
+
+        {/* BASECAMP */}
 
         <button
           type="button"
-          className={`trip-style-zone trip-zone-basecamp ${
-            selectedTrip === "basecamp" ? "is-selected" : ""
+          className={`trip2-zone trip2-basecamp ${
+            selectedTrip === "basecamp"
+              ? "selected"
+              : ""
           }`}
-          onClick={() => setSelectedTrip("basecamp")}
-          aria-label="Select Basecamp"
+          onClick={() =>
+            setSelectedTrip("basecamp")
+          }
+          aria-label="Basecamp"
         />
+
+        {/* REMOTE */}
 
         <button
           type="button"
-          className={`trip-style-zone trip-zone-remote ${
-            selectedTrip === "remote" ? "is-selected" : ""
+          className={`trip2-zone trip2-remote ${
+            selectedTrip === "remote"
+              ? "selected"
+              : ""
           }`}
-          onClick={() => setSelectedTrip("remote")}
-          aria-label="Select Remote Off-Grid"
+          onClick={() =>
+            setSelectedTrip("remote")
+          }
+          aria-label="Remote Off Grid"
         />
 
-        <Link
-          href="/"
-          className="trip-logo-hotspot"
-          aria-label="Back to RoamLab home"
-        />
+        {/* BACK */}
 
-        <Link href="/ways-in/drive" className="trip-back-button">
+        <a
+          href="/ways-in/drive"
+          className="trip2-back"
+        >
           ← VEHICLE
-        </Link>
+        </a>
+
+        {/* SELECTED */}
 
         {selectedTrip && (
-          <div className="trip-selection-panel">
-            <div className="trip-selection-summary">
+          <div className="trip2-panel">
+            <div className="trip2-summary">
               <span>YOUR PLAN</span>
 
-              <strong>{selectedTripLabel}</strong>
+              <strong>
+                {trips[selectedTrip]}
+              </strong>
 
               <small>
-                {currentVehicle.label} · STEP 2 OF 5
+                {currentVehicle.label}
+                {" · "}
+                STEP 2 OF 5
               </small>
             </div>
 
-            <Link
+            <a
               href={`/ways-in/drive/crew?vehicle=${vehicle}&trip=${selectedTrip}`}
-              className="trip-continue-button"
+              className="trip2-continue"
             >
               CONTINUE →
-            </Link>
+            </a>
           </div>
         )}
       </section>
