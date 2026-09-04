@@ -6676,3 +6676,88 @@ img {
 .ways-hotspot-drive {
   pointer-events: none !important;
 }
+/* ============================================================
+   WAYS IN — DRIVE CLICK FINAL FIX
+============================================================ */
+
+.ways-desk-stage {
+  position: relative !important;
+}
+
+
+/* SUV MODEL + DRIVE LABEL */
+
+.ways-drive-click {
+  position: absolute !important;
+
+  z-index: 50000 !important;
+
+  left: 7% !important;
+  top: 5% !important;
+
+  width: 40% !important;
+  height: 53% !important;
+
+  display: block !important;
+
+  background: transparent !important;
+
+  border: 0 !important;
+  outline: 0 !important;
+
+  cursor: pointer !important;
+
+  pointer-events: auto !important;
+
+  border-radius: 28px;
+
+  text-decoration: none !important;
+}
+
+
+/* warm hover glow */
+
+.ways-drive-click::before {
+  content: "";
+
+  position: absolute;
+
+  inset: 2%;
+
+  border-radius: 28px;
+
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(255, 193, 103, 0.16) 0%,
+      rgba(229, 143, 51, 0.06) 45%,
+      transparent 75%
+    );
+
+  filter: blur(10px);
+
+  opacity: 0;
+
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
+
+  pointer-events: none;
+}
+
+
+.ways-drive-click:hover::before {
+  opacity: 1;
+
+  transform: scale(1.02);
+}
+
+
+/* OLD DRIVE HOTSPOTS MUST NOT BLOCK */
+
+.ways-hotspot-drive,
+.ways-drive-final {
+  display: none !important;
+
+  pointer-events: none !important;
+}
