@@ -50,13 +50,6 @@ const vehicles: Record<
   },
 };
 
-const trips: Record<TripKey, string> = {
-  weekend: "Weekend Escape",
-  "road-trip": "Road Trip",
-  basecamp: "Basecamp",
-  remote: "Remote / Off-Grid",
-};
-
 export default function TripStylePage() {
   const [vehicle, setVehicle] =
     useState<VehicleKey>("suv");
@@ -69,9 +62,7 @@ export default function TripStylePage() {
 
   useEffect(() => {
     const params =
-      new URLSearchParams(
-        window.location.search
-      );
+      new URLSearchParams(window.location.search);
 
     const value =
       params.get("vehicle");
@@ -92,6 +83,15 @@ export default function TripStylePage() {
   const currentVehicle =
     vehicles[vehicle];
 
+  const chooseTrip = (trip: TripKey) => {
+    setSelectedTrip(trip);
+
+    window.setTimeout(() => {
+      window.location.href =
+        `/ways-in/drive/crew?vehicle=${vehicle}&trip=${trip}`;
+    }, 180);
+  };
+
   return (
     <main className="trip2-page">
       <section className="trip2-stage">
@@ -106,16 +106,42 @@ export default function TripStylePage() {
         )}
 
         {/* GLOBAL NAV */}
+
         <nav className="trip2-nav">
           <div className="trip2-nav-links">
-            <Link href="/explore">EXPLORE</Link>
-            <Link href="/plan">PLAN</Link>
-            <Link href="/prepare">PREPARE</Link>
-            <Link href="/safety">SAFETY</Link>
-            <Link href="/learn">LEARN</Link>
-            <Link href="/journal">JOURNAL</Link>
-            <Link href="/stories">STORIES</Link>
-            <Link href="/badges">BADGES</Link>
+
+            <Link href="/explore">
+              EXPLORE
+            </Link>
+
+            <Link href="/plan">
+              PLAN
+            </Link>
+
+            <Link href="/prepare">
+              PREPARE
+            </Link>
+
+            <Link href="/safety">
+              SAFETY
+            </Link>
+
+            <Link href="/learn">
+              LEARN
+            </Link>
+
+            <Link href="/journal">
+              JOURNAL
+            </Link>
+
+            <Link href="/stories">
+              STORIES
+            </Link>
+
+            <Link href="/badges">
+              BADGES
+            </Link>
+
           </div>
 
           <Link
@@ -134,12 +160,14 @@ export default function TripStylePage() {
         </nav>
 
         {/* PLANNER PROGRESS */}
+
         <PlannerProgress
           currentStep={2}
           vehicle={vehicle}
         />
 
-        {/* WEEKEND */}
+        {/* WEEKEND ESCAPE */}
+
         <button
           type="button"
           className={`trip2-zone trip2-weekend ${
@@ -148,12 +176,13 @@ export default function TripStylePage() {
               : ""
           }`}
           onClick={() =>
-            setSelectedTrip("weekend")
+            chooseTrip("weekend")
           }
-          aria-label="Weekend Escape"
+          aria-label="Choose Weekend Escape"
         />
 
         {/* ROAD TRIP */}
+
         <button
           type="button"
           className={`trip2-zone trip2-road ${
@@ -162,12 +191,13 @@ export default function TripStylePage() {
               : ""
           }`}
           onClick={() =>
-            setSelectedTrip("road-trip")
+            chooseTrip("road-trip")
           }
-          aria-label="Road Trip"
+          aria-label="Choose Road Trip"
         />
 
         {/* BASECAMP */}
+
         <button
           type="button"
           className={`trip2-zone trip2-basecamp ${
@@ -176,12 +206,13 @@ export default function TripStylePage() {
               : ""
           }`}
           onClick={() =>
-            setSelectedTrip("basecamp")
+            chooseTrip("basecamp")
           }
-          aria-label="Basecamp"
+          aria-label="Choose Basecamp"
         />
 
-        {/* REMOTE */}
+        {/* REMOTE / OFF-GRID */}
+
         <button
           type="button"
           className={`trip2-zone trip2-remote ${
@@ -190,10 +221,12 @@ export default function TripStylePage() {
               : ""
           }`}
           onClick={() =>
-            setSelectedTrip("remote")
+            chooseTrip("remote")
           }
-          aria-label="Remote Off Grid"
+          aria-label="Choose Remote Off Grid"
         />
+
+        {/* BACK */}
 
         <a
           href="/ways-in/drive"
@@ -201,31 +234,6 @@ export default function TripStylePage() {
         >
           ← VEHICLE
         </a>
-
-        {selectedTrip && (
-          <div className="trip2-panel">
-            <div className="trip2-summary">
-              <span>YOUR PLAN</span>
-
-              <strong>
-                {trips[selectedTrip]}
-              </strong>
-
-              <small>
-                {currentVehicle.label}
-                {" · "}
-                STEP 2 OF 5
-              </small>
-            </div>
-
-            <a
-              href={`/ways-in/drive/crew?vehicle=${vehicle}&trip=${selectedTrip}`}
-              className="trip2-continue"
-            >
-              CONTINUE →
-            </a>
-          </div>
-        )}
 
       </section>
     </main>
