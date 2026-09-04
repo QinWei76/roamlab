@@ -2293,21 +2293,119 @@
 
 @media (max-width: 768px) {
 
-  .crew-page {
-    overflow-x: hidden !important;
+  /* ============================================================
+   CREW — VIEWPORT FIT
+============================================================ */
+
+.crew-page {
+  width: 100% !important;
+  height: 100vh !important;
+  min-height: 100vh !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  overflow: hidden !important;
+
+  background: #070807 !important;
+}
+
+.crew-stage {
+  position: relative !important;
+
+  width: 100% !important;
+  height: 100vh !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  overflow: hidden !important;
+}
+
+.crew-bg {
+  position: absolute !important;
+
+  z-index: 1 !important;
+
+  inset: 0 !important;
+
+  width: 100% !important;
+  height: 100% !important;
+
+  object-fit: cover !important;
+  object-position: center center !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  pointer-events: none !important;
+
+  user-select: none !important;
+
+  -webkit-user-drag: none !important;
+}
+/* ============================================================
+   CREW — PEOPLE SELECTED FEEDBACK
+============================================================ */
+
+.crew-people-button.is-selected {
+  background: #e8a23e !important;
+
+  color: #17130d !important;
+
+  border:
+    2px solid #ffd58b !important;
+
+  font-weight: 950 !important;
+
+  transform:
+    scale(1.12) !important;
+
+  box-shadow:
+    0 0 0 3px rgba(232, 162, 62, 0.16),
+    0 0 18px rgba(232, 162, 62, 0.55),
+    0 0 34px rgba(232, 162, 62, 0.20) !important;
+}
+
+
+.crew-people-button.is-selected:hover {
+  transform:
+    scale(1.12) !important;
+}
+
+
+/* CONFIRMATION TEXT */
+
+.crew-people-selected-text {
+  display: inline-flex !important;
+
+  align-items: center !important;
+
+  margin-left: 8px !important;
+
+  color: #e8a23e !important;
+
+  font-size: 9px !important;
+
+  font-weight: 900 !important;
+
+  letter-spacing: 0.10em !important;
+
+  white-space: nowrap !important;
+
+  animation:
+    crewPeopleConfirmed 0.22s ease-out;
+}
+
+
+@keyframes crewPeopleConfirmed {
+  from {
+    opacity: 0;
+    transform: translateX(-5px);
   }
 
-  .crew-stage {
-    width: 100% !important;
-
-    min-width: 0 !important;
-
-    max-width: none !important;
-  }
-
-  .crew-bg {
-    width: 100% !important;
-
-    height: auto !important;
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
 }
