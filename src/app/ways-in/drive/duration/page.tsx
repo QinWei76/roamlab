@@ -34,28 +34,23 @@ const durationLabels: Record<
   {
     title: string;
     detail: string;
-    note: string;
   }
 > = {
   overnight: {
-    title: "OVERNIGHT",
-    detail: "1 NIGHT",
-    note: "A quick reset.",
+    title: "Overnight",
+    detail: "1 Night",
   },
   weekend: {
-    title: "WEEKEND",
-    detail: "2–3 NIGHTS",
-    note: "The classic getaway.",
+    title: "Weekend",
+    detail: "2–3 Nights",
   },
   "multi-day": {
-    title: "MULTI-DAY",
-    detail: "4–7 NIGHTS",
-    note: "Go further.",
+    title: "Multi-Day",
+    detail: "4–7 Nights",
   },
   extended: {
-    title: "EXTENDED",
-    detail: "8+ NIGHTS",
-    note: "Built for the long haul.",
+    title: "Extended",
+    detail: "8+ Nights",
   },
 };
 
@@ -147,42 +142,42 @@ export default function DurationPage() {
 
   if (!ready) {
     return (
-      <main className="duration-page">
-        <div className="duration-loading" />
+      <main className="duration2-page">
+        <div className="duration2-loading" />
       </main>
     );
   }
 
   return (
-    <main className="duration-page">
-      <section className="duration-stage">
+    <main className="duration2-page">
+      <section className="duration2-stage">
 
         {/* BACKGROUND */}
         <img
-          src="/duration-desk.jpg"
+          src="/duration-desk-v2.jpg"
           alt="RoamLab duration planning desk"
-          className="duration-bg"
+          className="duration2-bg"
           draggable={false}
         />
 
-        {/* HTML LOGO */}
+        {/* REAL HTML LOGO */}
         <Link
           href="/"
-          className="duration-logo"
+          className="duration2-logo"
           aria-label="RoamLab home"
         >
-          <span className="duration-logo-main">
+          <span className="duration2-logo-main">
             ROAMLAB
           </span>
 
-          <span className="duration-logo-sub">
+          <span className="duration2-logo-sub">
             PLANS · GEAR · STORIES
           </span>
         </Link>
 
         {/* GLOBAL NAV */}
-        <nav className="duration-nav">
-          <div className="duration-nav-links">
+        <nav className="duration2-nav">
+          <div className="duration2-nav-links">
             <Link href="/explore">
               EXPLORE
             </Link>
@@ -218,14 +213,14 @@ export default function DurationPage() {
 
           <Link
             href="/signin"
-            className="duration-signin"
+            className="duration2-signin"
           >
             SIGN IN
           </Link>
 
           <Link
             href="/start-here"
-            className="duration-start"
+            className="duration2-start"
           >
             START YOUR WILD →
           </Link>
@@ -238,162 +233,93 @@ export default function DurationPage() {
           trip={trip}
         />
 
-        {/* TITLE */}
-        <div className="duration-heading">
-          <h1>
-            HOW LONG ARE YOU STAYING?
-          </h1>
+        {/* HOTSPOTS */}
+        <button
+          type="button"
+          className={`duration2-zone duration2-overnight ${
+            selectedDuration === "overnight"
+              ? "selected"
+              : ""
+          }`}
+          onClick={() =>
+            chooseDuration("overnight")
+          }
+          aria-label="Choose Overnight"
+          aria-pressed={
+            selectedDuration === "overnight"
+          }
+        />
 
-          <h2>
-            CHOOSE YOUR DURATION.
-          </h2>
+        <button
+          type="button"
+          className={`duration2-zone duration2-weekend ${
+            selectedDuration === "weekend"
+              ? "selected"
+              : ""
+          }`}
+          onClick={() =>
+            chooseDuration("weekend")
+          }
+          aria-label="Choose Weekend"
+          aria-pressed={
+            selectedDuration === "weekend"
+          }
+        />
 
-          <p>
-            We&apos;ll size your setup for
-            the days ahead.
-          </p>
-        </div>
+        <button
+          type="button"
+          className={`duration2-zone duration2-multiday ${
+            selectedDuration === "multi-day"
+              ? "selected"
+              : ""
+          }`}
+          onClick={() =>
+            chooseDuration("multi-day")
+          }
+          aria-label="Choose Multi-Day"
+          aria-pressed={
+            selectedDuration === "multi-day"
+          }
+        />
 
-        {/* DURATION OPTIONS */}
-        <div className="duration-options">
-
-          <button
-            type="button"
-            className={`duration-card ${
-              selectedDuration === "overnight"
-                ? "selected"
-                : ""
-            }`}
-            onClick={() =>
-              chooseDuration("overnight")
-            }
-          >
-            <span className="duration-number">
-              01
-            </span>
-
-            <strong>
-              OVERNIGHT
-            </strong>
-
-            <span className="duration-detail">
-              1 NIGHT
-            </span>
-
-            <small>
-              A quick reset.
-            </small>
-          </button>
-
-          <button
-            type="button"
-            className={`duration-card ${
-              selectedDuration === "weekend"
-                ? "selected"
-                : ""
-            }`}
-            onClick={() =>
-              chooseDuration("weekend")
-            }
-          >
-            <span className="duration-number">
-              02
-            </span>
-
-            <strong>
-              WEEKEND
-            </strong>
-
-            <span className="duration-detail">
-              2–3 NIGHTS
-            </span>
-
-            <small>
-              The classic getaway.
-            </small>
-          </button>
-
-          <button
-            type="button"
-            className={`duration-card ${
-              selectedDuration === "multi-day"
-                ? "selected"
-                : ""
-            }`}
-            onClick={() =>
-              chooseDuration("multi-day")
-            }
-          >
-            <span className="duration-number">
-              03
-            </span>
-
-            <strong>
-              MULTI-DAY
-            </strong>
-
-            <span className="duration-detail">
-              4–7 NIGHTS
-            </span>
-
-            <small>
-              Go further.
-            </small>
-          </button>
-
-          <button
-            type="button"
-            className={`duration-card ${
-              selectedDuration === "extended"
-                ? "selected"
-                : ""
-            }`}
-            onClick={() =>
-              chooseDuration("extended")
-            }
-          >
-            <span className="duration-number">
-              04
-            </span>
-
-            <strong>
-              EXTENDED
-            </strong>
-
-            <span className="duration-detail">
-              8+ NIGHTS
-            </span>
-
-            <small>
-              Built for the long haul.
-            </small>
-          </button>
-
-        </div>
+        <button
+          type="button"
+          className={`duration2-zone duration2-extended ${
+            selectedDuration === "extended"
+              ? "selected"
+              : ""
+          }`}
+          onClick={() =>
+            chooseDuration("extended")
+          }
+          aria-label="Choose Extended"
+          aria-pressed={
+            selectedDuration === "extended"
+          }
+        />
 
         {/* BACK */}
         <Link
           href={`/ways-in/drive/crew?vehicle=${vehicle}&trip=${trip}`}
-          className="duration-back"
+          className="duration2-back"
         >
           ← CREW
         </Link>
 
         {/* SELECTED PANEL */}
         {selectedDuration && (
-          <div className="duration-panel">
+          <div className="duration2-panel">
 
             <button
               type="button"
-              className="duration-panel-close"
+              className="duration2-panel-close"
               onClick={closeSelection}
               aria-label="Close duration selection"
             >
               ×
             </button>
 
-            <div className="duration-summary">
-
+            <div className="duration2-summary">
               <span>
                 YOUR DURATION
               </span>
@@ -406,7 +332,7 @@ export default function DurationPage() {
                 }
               </strong>
 
-              <div className="duration-summary-detail">
+              <div className="duration2-summary-detail">
                 {
                   durationLabels[
                     selectedDuration
@@ -417,12 +343,11 @@ export default function DurationPage() {
               <small>
                 STEP 4 OF 5
               </small>
-
             </div>
 
             <Link
               href={`/ways-in/drive/gear?vehicle=${vehicle}&trip=${trip}&crew=${crew}&people=${people}&duration=${selectedDuration}`}
-              className="duration-continue"
+              className="duration2-continue"
             >
               CONTINUE →
             </Link>
