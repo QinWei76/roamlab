@@ -122,23 +122,23 @@ export default function CrewPage() {
     <main className="crew-page">
       <section className="crew-stage">
 
-        {/* NEW CREW BACKGROUND */}
+        {/* BACKGROUND */}
         <img
-          src="/crew-desk.jpg?v=20260905"
+          src="/crew-desk-v2.jpg"
           alt="RoamLab Crew planning desk"
           className="crew-bg"
           draggable={false}
         />
 
-        {/* REAL HTML LOGO */}
+        {/* REAL HTML ROAMLAB LOGO */}
         <Link
           href="/"
           aria-label="RoamLab home"
           style={{
             position: "absolute",
             zIndex: 95000,
-            top: "14px",
-            left: "24px",
+            top: "12px",
+            left: "20px",
             display: "flex",
             flexDirection: "column",
             alignItems: "flex-start",
@@ -150,11 +150,11 @@ export default function CrewPage() {
             style={{
               color: "#f3eee2",
               fontSize: "30px",
-              lineHeight: "1",
+              lineHeight: "0.95",
               fontWeight: 900,
-              letterSpacing: "0.035em",
+              letterSpacing: "0.025em",
               textShadow:
-                "0 2px 10px rgba(0,0,0,0.75)",
+                "0 2px 10px rgba(0,0,0,0.85)",
             }}
           >
             ROAMLAB
@@ -162,24 +162,23 @@ export default function CrewPage() {
 
           <span
             style={{
-              marginTop: "5px",
-              color: "rgba(243,238,226,0.82)",
+              marginTop: "7px",
+              color: "rgba(243,238,226,0.78)",
               fontSize: "8px",
               lineHeight: "1",
               fontWeight: 800,
-              letterSpacing: "0.18em",
+              letterSpacing: "0.16em",
               textShadow:
-                "0 2px 8px rgba(0,0,0,0.8)",
+                "0 2px 8px rgba(0,0,0,0.85)",
             }}
           >
             PLANS · GEAR · STORIES
           </span>
         </Link>
 
-        {/* TOP NAV */}
+        {/* GLOBAL NAV */}
         <nav className="crew-nav">
           <div className="crew-nav-links">
-
             <Link href="/explore">
               EXPLORE
             </Link>
@@ -211,7 +210,6 @@ export default function CrewPage() {
             <Link href="/badges">
               BADGES
             </Link>
-
           </div>
 
           <Link
@@ -244,9 +242,13 @@ export default function CrewPage() {
               ? "selected"
               : ""
           }`}
-          onClick={() => chooseCrew("solo")}
+          onClick={() =>
+            chooseCrew("solo")
+          }
           aria-label="Choose Solo"
-          aria-pressed={selectedCrew === "solo"}
+          aria-pressed={
+            selectedCrew === "solo"
+          }
         />
 
         {/* COUPLE */}
@@ -300,7 +302,7 @@ export default function CrewPage() {
           }
         />
 
-        {/* BACK */}
+        {/* BACK TO TRIP STYLE */}
         <Link
           href={`/ways-in/drive/setup?vehicle=${vehicle}`}
           className="crew-back"
@@ -308,10 +310,11 @@ export default function CrewPage() {
           ← TRIP STYLE
         </Link>
 
-        {/* SELECTED CREW PANEL */}
+        {/* CREW SELECTION PANEL */}
         {selectedCrew && (
           <div className="crew-panel">
 
+            {/* CLOSE */}
             <button
               type="button"
               className="crew-panel-close"
@@ -331,6 +334,7 @@ export default function CrewPage() {
                 {crewLabels[selectedCrew]}
               </strong>
 
+              {/* SOLO / COUPLE */}
               {(selectedCrew === "solo" ||
                 selectedCrew === "couple") && (
                 <div className="crew-people-confirmed">
@@ -341,6 +345,7 @@ export default function CrewPage() {
                 </div>
               )}
 
+              {/* FAMILY / FRIENDS */}
               {(selectedCrew === "family" ||
                 selectedCrew === "friends") && (
                 <div className="crew-people-picker">
@@ -395,6 +400,7 @@ export default function CrewPage() {
 
             </div>
 
+            {/* CONTINUE */}
             {people !== null && (
               <Link
                 href={`/ways-in/drive/duration?vehicle=${vehicle}&trip=${trip}&crew=${selectedCrew}&people=${people}`}
