@@ -121,15 +121,65 @@ export default function CrewPage() {
   return (
     <main className="crew-page">
       <section className="crew-stage">
+
+        {/* NEW CREW BACKGROUND */}
         <img
-          src="/crew-desk.jpg"
+          src="/crew-desk.jpg?v=20260905"
           alt="RoamLab Crew planning desk"
           className="crew-bg"
           draggable={false}
         />
 
+        {/* REAL HTML LOGO */}
+        <Link
+          href="/"
+          aria-label="RoamLab home"
+          style={{
+            position: "absolute",
+            zIndex: 95000,
+            top: "14px",
+            left: "24px",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-start",
+            textDecoration: "none",
+            pointerEvents: "auto",
+          }}
+        >
+          <span
+            style={{
+              color: "#f3eee2",
+              fontSize: "30px",
+              lineHeight: "1",
+              fontWeight: 900,
+              letterSpacing: "0.035em",
+              textShadow:
+                "0 2px 10px rgba(0,0,0,0.75)",
+            }}
+          >
+            ROAMLAB
+          </span>
+
+          <span
+            style={{
+              marginTop: "5px",
+              color: "rgba(243,238,226,0.82)",
+              fontSize: "8px",
+              lineHeight: "1",
+              fontWeight: 800,
+              letterSpacing: "0.18em",
+              textShadow:
+                "0 2px 8px rgba(0,0,0,0.8)",
+            }}
+          >
+            PLANS · GEAR · STORIES
+          </span>
+        </Link>
+
+        {/* TOP NAV */}
         <nav className="crew-nav">
           <div className="crew-nav-links">
+
             <Link href="/explore">
               EXPLORE
             </Link>
@@ -161,6 +211,7 @@ export default function CrewPage() {
             <Link href="/badges">
               BADGES
             </Link>
+
           </div>
 
           <Link
@@ -178,12 +229,14 @@ export default function CrewPage() {
           </Link>
         </nav>
 
+        {/* PLANNER PROGRESS */}
         <PlannerProgress
           currentStep={3}
           vehicle={vehicle}
           trip={trip}
         />
 
+        {/* SOLO */}
         <button
           type="button"
           className={`crew-zone crew-solo ${
@@ -196,6 +249,7 @@ export default function CrewPage() {
           aria-pressed={selectedCrew === "solo"}
         />
 
+        {/* COUPLE */}
         <button
           type="button"
           className={`crew-zone crew-couple ${
@@ -203,11 +257,16 @@ export default function CrewPage() {
               ? "selected"
               : ""
           }`}
-          onClick={() => chooseCrew("couple")}
+          onClick={() =>
+            chooseCrew("couple")
+          }
           aria-label="Choose Couple"
-          aria-pressed={selectedCrew === "couple"}
+          aria-pressed={
+            selectedCrew === "couple"
+          }
         />
 
+        {/* FAMILY */}
         <button
           type="button"
           className={`crew-zone crew-family ${
@@ -215,11 +274,16 @@ export default function CrewPage() {
               ? "selected"
               : ""
           }`}
-          onClick={() => chooseCrew("family")}
+          onClick={() =>
+            chooseCrew("family")
+          }
           aria-label="Choose Family"
-          aria-pressed={selectedCrew === "family"}
+          aria-pressed={
+            selectedCrew === "family"
+          }
         />
 
+        {/* FRIENDS */}
         <button
           type="button"
           className={`crew-zone crew-friends ${
@@ -227,11 +291,16 @@ export default function CrewPage() {
               ? "selected"
               : ""
           }`}
-          onClick={() => chooseCrew("friends")}
+          onClick={() =>
+            chooseCrew("friends")
+          }
           aria-label="Choose Friends"
-          aria-pressed={selectedCrew === "friends"}
+          aria-pressed={
+            selectedCrew === "friends"
+          }
         />
 
+        {/* BACK */}
         <Link
           href={`/ways-in/drive/setup?vehicle=${vehicle}`}
           className="crew-back"
@@ -239,8 +308,10 @@ export default function CrewPage() {
           ← TRIP STYLE
         </Link>
 
+        {/* SELECTED CREW PANEL */}
         {selectedCrew && (
           <div className="crew-panel">
+
             <button
               type="button"
               className="crew-panel-close"
@@ -251,7 +322,10 @@ export default function CrewPage() {
             </button>
 
             <div className="crew-summary">
-              <span>YOUR CREW</span>
+
+              <span>
+                YOUR CREW
+              </span>
 
               <strong>
                 {crewLabels[selectedCrew]}
@@ -270,34 +344,36 @@ export default function CrewPage() {
               {(selectedCrew === "family" ||
                 selectedCrew === "friends") && (
                 <div className="crew-people-picker">
+
                   <span className="crew-people-question">
                     HOW MANY PEOPLE?
                   </span>
 
                   <div className="crew-people-options">
-                    {peopleOptions[selectedCrew].map(
-                      (count) => (
-                        <button
-                          key={count}
-                          type="button"
-                          className={`crew-people-button ${
-                            people === count
-                              ? "is-selected"
-                              : ""
-                          }`}
-                          onClick={() =>
-                            choosePeople(count)
-                          }
-                          aria-pressed={
-                            people === count
-                          }
-                        >
-                          {count === 6
-                            ? "6+"
-                            : count}
-                        </button>
-                      )
-                    )}
+
+                    {peopleOptions[
+                      selectedCrew
+                    ].map((count) => (
+                      <button
+                        key={count}
+                        type="button"
+                        className={`crew-people-button ${
+                          people === count
+                            ? "is-selected"
+                            : ""
+                        }`}
+                        onClick={() =>
+                          choosePeople(count)
+                        }
+                        aria-pressed={
+                          people === count
+                        }
+                      >
+                        {count === 6
+                          ? "6+"
+                          : count}
+                      </button>
+                    ))}
 
                     {people !== null && (
                       <span className="crew-people-selected-text">
@@ -308,6 +384,7 @@ export default function CrewPage() {
                         PEOPLE
                       </span>
                     )}
+
                   </div>
                 </div>
               )}
@@ -315,6 +392,7 @@ export default function CrewPage() {
               <small>
                 STEP 3 OF 5
               </small>
+
             </div>
 
             {people !== null && (
@@ -325,8 +403,10 @@ export default function CrewPage() {
                 CONTINUE →
               </Link>
             )}
+
           </div>
         )}
+
       </section>
     </main>
   );
