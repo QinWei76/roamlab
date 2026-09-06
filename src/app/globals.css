@@ -2453,3 +2453,424 @@ a.planner-step:hover {
     overflow: hidden;
   }
 }
+/* ============================================================
+   ROAMLAB — GEAR ROOM
+============================================================ */
+
+.gearroom-page {
+  width: 100%;
+  height: 100vh;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: #070807;
+}
+
+.gearroom-stage {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background: #070807;
+}
+
+.gearroom-bg {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.gearroom-loading {
+  width: 100%;
+  height: 100vh;
+  background: #070807;
+}
+
+/* -----------------------------
+   TRIP REVIEW
+----------------------------- */
+
+.gearroom-trip-review {
+  position: absolute;
+  z-index: 70000;
+  top: 11%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(720px, 68%);
+  text-align: center;
+  pointer-events: auto;
+}
+
+.gearroom-trip-label {
+  display: block;
+  margin-bottom: 7px;
+  color: rgba(235, 221, 190, .72);
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: .22em;
+}
+
+.gearroom-trip-values {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: #efe6d3;
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: .08em;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, .85);
+}
+
+.gearroom-trip-values i {
+  color: #d99a42;
+  font-style: normal;
+}
+
+.gearroom-build {
+  margin-top: 13px;
+  min-height: 39px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 5px;
+  background: #d89a42;
+  color: #17130d;
+  font-size: 8px;
+  font-weight: 950;
+  letter-spacing: .1em;
+  cursor: pointer;
+  box-shadow: 0 7px 20px rgba(0, 0, 0, .28);
+}
+
+.gearroom-built {
+  display: inline-flex;
+  margin-top: 12px;
+  padding: 8px 13px;
+  border-radius: 5px;
+  background: rgba(12, 18, 13, .78);
+  color: #d6e3cf;
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: .11em;
+}
+
+/* -----------------------------
+   THREE PHYSICAL GEAR ZONES
+----------------------------- */
+
+.gearroom-zone {
+  position: absolute;
+  z-index: 50000;
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  border-radius: 18px;
+  background: transparent;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  pointer-events: auto;
+  isolation: isolate;
+  transition: transform .22s ease;
+}
+
+.gearroom-zone::before {
+  content: "";
+  position: absolute;
+  inset: -3%;
+  border-radius: inherit;
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(255, 239, 201, .30) 0%,
+      rgba(255, 202, 119, .19) 31%,
+      rgba(224, 146, 57, .09) 54%,
+      transparent 79%
+    );
+  filter: blur(13px);
+  opacity: 0;
+  transform: scale(.96);
+  transition:
+    opacity .24s ease,
+    transform .26s ease;
+  pointer-events: none;
+}
+
+.gearroom-zone:hover::before,
+.gearroom-zone.selected::before {
+  opacity: 1;
+  transform: scale(1.025);
+}
+
+.gearroom-zone:hover,
+.gearroom-zone.selected {
+  transform: translateY(-2px);
+}
+
+/*
+  Broad zones intentionally used.
+  We can make ONE adjustment after seeing
+  the deployed screenshot if necessary.
+*/
+
+.gearroom-personal {
+  left: 4%;
+  top: 27%;
+  width: 29%;
+  height: 45%;
+}
+
+.gearroom-vehicle {
+  left: 34%;
+  top: 27%;
+  width: 34%;
+  height: 45%;
+}
+
+.gearroom-safety {
+  left: 69%;
+  top: 27%;
+  width: 27%;
+  height: 45%;
+}
+
+/* -----------------------------
+   GEAR SYSTEM DRAWER
+----------------------------- */
+
+.gearroom-drawer {
+  position: absolute;
+  z-index: 90000;
+  top: 19%;
+  right: 3%;
+  width: min(350px, 28%);
+  max-height: 55%;
+  overflow-y: auto;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, .09);
+  border-radius: 8px;
+  background: rgba(10, 12, 9, .94);
+  box-shadow: 0 20px 55px rgba(0, 0, 0, .52);
+  backdrop-filter: blur(13px);
+}
+
+.gearroom-drawer-close {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: rgba(245, 239, 228, .58);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.gearroom-drawer-close:hover {
+  color: #fff;
+}
+
+.gearroom-drawer-eyebrow {
+  display: block;
+  color: #d99a42;
+  font-size: 7px;
+  font-weight: 900;
+  letter-spacing: .18em;
+}
+
+.gearroom-drawer h2 {
+  margin: 6px 0 15px;
+  color: #f0e8d8;
+  font-size: 16px;
+  line-height: 1.1;
+  font-weight: 900;
+  letter-spacing: .035em;
+}
+
+.gearroom-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.gearroom-list-item {
+  min-height: 37px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border-top: 1px solid rgba(255, 255, 255, .07);
+}
+
+.gearroom-list-item span {
+  color: rgba(242, 235, 220, .88);
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.gear-priority {
+  flex: 0 0 auto;
+  padding: 4px 6px;
+  border-radius: 3px;
+  font-size: 6px;
+  font-weight: 950;
+  letter-spacing: .1em;
+}
+
+.gear-priority.essential {
+  background: rgba(126, 73, 39, .78);
+  color: #f4d5ae;
+}
+
+.gear-priority.recommended {
+  background: rgba(66, 105, 78, .72);
+  color: #dcebd9;
+}
+
+.gear-priority.optional {
+  background: rgba(84, 84, 77, .70);
+  color: #d7d4c9;
+}
+
+/* -----------------------------
+   BACK
+----------------------------- */
+
+.gearroom-back {
+  position: absolute;
+  z-index: 80000;
+  left: 2%;
+  bottom: 3%;
+  padding: 9px 13px;
+  border-radius: 5px;
+  background: rgba(8, 9, 8, .78);
+  color: rgba(245, 239, 228, .72);
+  font-size: 8px;
+  font-weight: 850;
+  letter-spacing: .12em;
+  text-decoration: none;
+}
+
+/* -----------------------------
+   BOTTOM PLANNER PROGRESS
+----------------------------- */
+
+.gearroom-progress {
+  position: absolute;
+  z-index: 85000;
+  left: 50%;
+  bottom: 2.5%;
+  transform: translateX(-50%);
+  width: min(720px, 68%);
+  pointer-events: auto;
+}
+
+.gearroom-progress-inner {
+  width: 100%;
+  min-height: 46px;
+  padding: 7px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 8px;
+  background: rgba(8, 10, 8, .82);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .34);
+  backdrop-filter: blur(9px);
+}
+
+.gearroom-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(244, 238, 226, .76);
+  font-size: 8px;
+  font-weight: 850;
+  letter-spacing: .07em;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.gearroom-step span {
+  width: 23px;
+  height: 23px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid rgba(244, 238, 226, .34);
+  font-size: 8px;
+  font-weight: 950;
+}
+
+.gearroom-step.done span {
+  border-color: #477f68;
+  background: #477f68;
+  color: #fff;
+}
+
+.gearroom-step.current {
+  color: #e4a14a;
+}
+
+.gearroom-step.current span {
+  border-color: #e4a14a;
+  color: #e4a14a;
+  box-shadow: 0 0 14px rgba(228, 161, 74, .24);
+}
+
+.gearroom-progress-inner > i {
+  flex: 1;
+  min-width: 15px;
+  max-width: 38px;
+  height: 1px;
+  background: rgba(244, 238, 226, .21);
+}
+
+a.gearroom-step:hover {
+  color: #fff;
+}
+
+/* -----------------------------
+   RESPONSIVE
+----------------------------- */
+
+@media (max-width: 900px) {
+  .gearroom-trip-review {
+    width: 84%;
+  }
+
+  .gearroom-progress {
+    width: 88%;
+  }
+
+  .gearroom-step {
+    font-size: 6px;
+    gap: 4px;
+  }
+
+  .gearroom-step span {
+    width: 20px;
+    height: 20px;
+  }
+
+  .gearroom-drawer {
+    right: 2%;
+    width: 38%;
+  }
+}
