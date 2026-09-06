@@ -33,6 +33,11 @@ type Priority =
   | "recommended"
   | "optional";
 
+type GearSystemKey =
+  | "personal"
+  | "vehicle"
+  | "safety";
+
 type GearItem = {
   name: string;
   priority: Priority;
@@ -90,9 +95,7 @@ export default function GearPage() {
     useState(false);
 
   const [activeSystem, setActiveSystem] =
-    useState<
-      "personal" | "vehicle" | "safety" | null
-    >(null);
+    useState<GearSystemKey | null>(null);
 
   useEffect(() => {
     const params =
@@ -188,10 +191,9 @@ export default function GearPage() {
       },
       {
         name: "Personal Lighting",
-        priority:
-          isRemote
-            ? "essential"
-            : "recommended",
+        priority: isRemote
+          ? "essential"
+          : "recommended",
       },
       {
         name: "Water & Hydration",
@@ -199,10 +201,9 @@ export default function GearPage() {
       },
       {
         name: "Hygiene Kit",
-        priority:
-          isLong
-            ? "essential"
-            : "recommended",
+        priority: isLong
+          ? "essential"
+          : "recommended",
       },
       {
         name: "Personal Essentials",
@@ -251,10 +252,9 @@ export default function GearPage() {
       },
       {
         name: "Storage & Organization",
-        priority:
-          isCityCar
-            ? "essential"
-            : "recommended",
+        priority: isCityCar
+          ? "essential"
+          : "recommended",
       },
       {
         name: "Shelter",
@@ -287,10 +287,9 @@ export default function GearPage() {
       },
       {
         name: "Vehicle Recovery",
-        priority:
-          isRemote
-            ? "essential"
-            : "recommended",
+        priority: isRemote
+          ? "essential"
+          : "recommended",
       },
       {
         name: "Jump Start / Backup Power",
@@ -298,17 +297,15 @@ export default function GearPage() {
       },
       {
         name: "Navigation",
-        priority:
-          isRemote
-            ? "essential"
-            : "recommended",
+        priority: isRemote
+          ? "essential"
+          : "recommended",
       },
       {
         name: "Emergency Communication",
-        priority:
-          isRemote
-            ? "essential"
-            : "optional",
+        priority: isRemote
+          ? "essential"
+          : "optional",
       },
       {
         name: "Emergency Water & Food",
@@ -331,6 +328,11 @@ export default function GearPage() {
     duration,
   ]);
 
+  const buildSystem = () => {
+    setSystemBuilt(true);
+    setActiveSystem("personal");
+  };
+
   if (!ready) {
     return (
       <main className="gearroom-page">
@@ -346,7 +348,6 @@ export default function GearPage() {
     <main className="gearroom-page">
       <section className="gearroom-stage">
 
-        {/* MASTER GEAR ROOM IMAGE */}
         <img
           src="/gear-room.jpg"
           alt="RoamLab Gear Room"
@@ -354,54 +355,9 @@ export default function GearPage() {
           draggable={false}
         />
 
-        {/* GEAR SYSTEM HOTSPOTS */}
-
-        <button
-          type="button"
-          className={`gearroom-zone gearroom-personal ${
-            activeSystem === "personal"
-              ? "selected"
-              : ""
-          }`}
-          onClick={() =>
-            setActiveSystem("personal")
-          }
-          aria-label="Personal Gear"
-        />
-
-        <button
-          type="button"
-          className={`gearroom-zone gearroom-vehicle ${
-            activeSystem === "vehicle"
-              ? "selected"
-              : ""
-          }`}
-          onClick={() =>
-            setActiveSystem("vehicle")
-          }
-          aria-label="Vehicle and Camp Gear"
-        />
-
-        <button
-          type="button"
-          className={`gearroom-zone gearroom-safety ${
-            activeSystem === "safety"
-              ? "selected"
-              : ""
-          }`}
-          onClick={() =>
-            setActiveSystem("safety")
-          }
-          aria-label="Safety and Emergency Gear"
-        />
-
-        {/* TRIP REVIEW */}
-        <div className="gearroom-trip-review">
-          <span className="gearroom-trip-label">
-            YOUR TRIP SETUP
-          </span>
-
-          <div className="gearroom-trip-values">
+        {/* TOP DYNAMIC TRIP DATA */}
+        <div className="gearroom-trip-overlay">
+          <div className="gearroom-trip-line">
             <span>{vehicleLabels[vehicle]}</span>
             <i>·</i>
             <span>{tripLabels[trip]}</span>
@@ -412,27 +368,84 @@ export default function GearPage() {
             <i>·</i>
             <span>{durationLabels[duration]}</span>
           </div>
-
-          {!systemBuilt && (
-            <button
-              type="button"
-              className="gearroom-build"
-              onClick={() =>
-                setSystemBuilt(true)
-              }
-            >
-              BUILD MY GEAR SYSTEM →
-            </button>
-          )}
-
-          {systemBuilt && (
-            <div className="gearroom-built">
-              ✓ YOUR GEAR SYSTEM IS READY
-            </div>
-          )}
         </div>
 
-        {/* RESULT DRAWER */}
+        {/* BUILD BUTTON — RIGHT SIDE */}
+        {!systemBuilt && (
+          <button
+            type="button"
+            className="gearroom-build-fixed"
+            onClick={buildSystem}
+          >
+            BUILD MY GEAR SYSTEM →
+          </button>
+        )}
+
+        {systemBuilt && (
+          <div className="gearroom-ready">
+            ✓ GEAR SYSTEM READY
+          </div>
+        )}
+
+        {/* THREE GEAR AREAS */}
+        <button
+          type="button"
+          className={`gearroom-zone gearroom-personal ${
+            activeSystem === "personal"
+              ? "selected"
+              : ""
+          } ${
+            systemBuilt
+              ? "enabled"
+              : "disabled"
+          }`}
+          onClick={() => {
+            if (systemBuilt) {
+              setActiveSystem("personal");
+            }
+          }}
+          aria-label="Personal Gear"
+        />
+
+        <button
+          type="button"
+          className={`gearroom-zone gearroom-vehicle ${
+            activeSystem === "vehicle"
+              ? "selected"
+              : ""
+          } ${
+            systemBuilt
+              ? "enabled"
+              : "disabled"
+          }`}
+          onClick={() => {
+            if (systemBuilt) {
+              setActiveSystem("vehicle");
+            }
+          }}
+          aria-label="Vehicle and Camp Gear"
+        />
+
+        <button
+          type="button"
+          className={`gearroom-zone gearroom-safety ${
+            activeSystem === "safety"
+              ? "selected"
+              : ""
+          } ${
+            systemBuilt
+              ? "enabled"
+              : "disabled"
+          }`}
+          onClick={() => {
+            if (systemBuilt) {
+              setActiveSystem("safety");
+            }
+          }}
+          aria-label="Safety and Emergency Gear"
+        />
+
+        {/* RESULT PANEL */}
         {systemBuilt && activeSystem && (
           <div className="gearroom-drawer">
 
@@ -442,7 +455,7 @@ export default function GearPage() {
               onClick={() =>
                 setActiveSystem(null)
               }
-              aria-label="Close gear system"
+              aria-label="Close gear list"
             >
               ×
             </button>
@@ -493,7 +506,7 @@ export default function GearPage() {
           ← DURATION
         </Link>
 
-        {/* BOTTOM PLANNER PROGRESS */}
+        {/* BOTTOM PROGRESS */}
         <div className="gearroom-progress">
           <div className="gearroom-progress-inner">
 
