@@ -1622,21 +1622,63 @@ a.planner-step:hover {
 }
 
 .gearroom-trip-value {
-  min-width: 0;
+  position: absolute;
+  top: 0;
+  height: 100%;
   display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding: 0 5px 4px;
-  color: #f5eee2;
-  font-size: clamp(7px, .72vw, 11px);
+  align-items: center;
+  justify-content: flex-start;
+  color: #f3eadb;
+  font-weight: 850;
   line-height: 1;
-  font-weight: 900;
-  letter-spacing: .035em;
-  text-align: center;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.95);
   white-space: nowrap;
-  text-transform: uppercase;
-  text-shadow: 0 2px 6px rgba(0,0,0,.95);
   pointer-events: none;
+}
+
+/* 01 — Vehicle */
+.gearroom-trip-vehicle {
+  left: 0;
+  width: 18%;
+  padding-left: 58px;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+}
+
+/* 02 — Trip Style */
+.gearroom-trip-style {
+  left: 18%;
+  width: 25%;
+  padding-left: 62px;
+  font-size: 9px;
+  letter-spacing: 0.015em;
+}
+
+/* 03 — Crew */
+.gearroom-trip-crew {
+  left: 43%;
+  width: 18%;
+  padding-left: 56px;
+  font-size: 10px;
+  letter-spacing: 0.035em;
+}
+
+/* 04 — People */
+.gearroom-trip-people {
+  left: 61%;
+  width: 18%;
+  padding-left: 54px;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+}
+
+/* 05 — Duration */
+.gearroom-trip-duration {
+  left: 79%;
+  width: 21%;
+  padding-left: 58px;
+  font-size: 9px;
+  letter-spacing: 0.02em;
 }
 
 .gearroom-trip-value::after {
