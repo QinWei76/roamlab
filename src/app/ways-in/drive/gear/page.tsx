@@ -83,7 +83,7 @@ export default function GearPage() {
     useState<CrewKey>("couple");
 
   const [people, setPeople] =
-    useState<number>(2);
+    useState(2);
 
   const [duration, setDuration] =
     useState<DurationKey>("weekend");
@@ -213,18 +213,18 @@ export default function GearPage() {
 
     const vehicleGear: GearItem[] = [
       {
-        name: "Sleeping Setup",
+        name: "Vehicle Sleeping Setup",
         priority: "essential",
       },
       {
-        name: "Power System",
+        name: "Power",
         priority:
           isRemote || isLong
             ? "essential"
             : "recommended",
       },
       {
-        name: "Cooking System",
+        name: "Cooking",
         priority:
           duration === "overnight"
             ? "recommended"
@@ -333,6 +333,11 @@ export default function GearPage() {
     setActiveSystem("personal");
   };
 
+  const peopleLabel =
+    `${people} ${
+      people === 1 ? "PERSON" : "PEOPLE"
+    }`;
+
   if (!ready) {
     return (
       <main className="gearroom-page">
@@ -341,13 +346,11 @@ export default function GearPage() {
     );
   }
 
-  const peopleLabel =
-    `${people} ${people === 1 ? "PERSON" : "PEOPLE"}`;
-
   return (
     <main className="gearroom-page">
       <section className="gearroom-stage">
 
+        {/* BACKGROUND */}
         <img
           src="/gear-room.jpg"
           alt="RoamLab Gear Room"
@@ -355,49 +358,63 @@ export default function GearPage() {
           draggable={false}
         />
 
-        {/* TOP DYNAMIC TRIP DATA */}
+        {/* DYNAMIC TRIP SUMMARY */}
         <div className="gearroom-trip-overlay">
           <div className="gearroom-trip-line">
-            <span>{vehicleLabels[vehicle]}</span>
+
+            <span>
+              {vehicleLabels[vehicle]}
+            </span>
+
             <i>·</i>
-            <span>{tripLabels[trip]}</span>
+
+            <span>
+              {tripLabels[trip]}
+            </span>
+
             <i>·</i>
-            <span>{crewLabels[crew]}</span>
+
+            <span>
+              {crewLabels[crew]}
+            </span>
+
             <i>·</i>
-            <span>{peopleLabel}</span>
+
+            <span>
+              {peopleLabel}
+            </span>
+
             <i>·</i>
-            <span>{durationLabels[duration]}</span>
+
+            <span>
+              {durationLabels[duration]}
+            </span>
+
           </div>
         </div>
 
-        {/* BUILD BUTTON — RIGHT SIDE */}
-        {!systemBuilt && (
-          <button
-            type="button"
-            className="gearroom-build-fixed"
-            onClick={buildSystem}
-          >
-            BUILD MY GEAR SYSTEM →
-          </button>
-        )}
+        {/* BUILD CTA */}
+        <button
+          type="button"
+          className={`gearroom-build-fixed ${
+            systemBuilt ? "is-built" : ""
+          }`}
+          onClick={buildSystem}
+        >
+          {systemBuilt
+            ? "✓ GEAR SYSTEM READY"
+            : "BUILD MY GEAR SYSTEM →"}
+        </button>
 
-        {systemBuilt && (
-          <div className="gearroom-ready">
-            ✓ GEAR SYSTEM READY
-          </div>
-        )}
-
-        {/* THREE GEAR AREAS */}
+        {/* PERSONAL GEAR */}
         <button
           type="button"
           className={`gearroom-zone gearroom-personal ${
+            systemBuilt ? "enabled" : "disabled"
+          } ${
             activeSystem === "personal"
               ? "selected"
               : ""
-          } ${
-            systemBuilt
-              ? "enabled"
-              : "disabled"
           }`}
           onClick={() => {
             if (systemBuilt) {
@@ -407,16 +424,15 @@ export default function GearPage() {
           aria-label="Personal Gear"
         />
 
+        {/* VEHICLE GEAR */}
         <button
           type="button"
           className={`gearroom-zone gearroom-vehicle ${
+            systemBuilt ? "enabled" : "disabled"
+          } ${
             activeSystem === "vehicle"
               ? "selected"
               : ""
-          } ${
-            systemBuilt
-              ? "enabled"
-              : "disabled"
           }`}
           onClick={() => {
             if (systemBuilt) {
@@ -426,28 +442,27 @@ export default function GearPage() {
           aria-label="Vehicle and Camp Gear"
         />
 
+        {/* SAFETY GEAR */}
         <button
           type="button"
           className={`gearroom-zone gearroom-safety ${
+            systemBuilt ? "enabled" : "disabled"
+          } ${
             activeSystem === "safety"
               ? "selected"
               : ""
-          } ${
-            systemBuilt
-              ? "enabled"
-              : "disabled"
           }`}
           onClick={() => {
             if (systemBuilt) {
               setActiveSystem("safety");
             }
           }}
-          aria-label="Safety and Emergency Gear"
+          aria-label="Safety and Emergency"
         />
 
-        {/* RESULT PANEL */}
+        {/* DRAWER */}
         {systemBuilt && activeSystem && (
-          <div className="gearroom-drawer">
+          <aside className="gearroom-drawer">
 
             <button
               type="button"
@@ -455,7 +470,7 @@ export default function GearPage() {
               onClick={() =>
                 setActiveSystem(null)
               }
-              aria-label="Close gear list"
+              aria-label="Close"
             >
               ×
             </button>
@@ -476,11 +491,12 @@ export default function GearPage() {
             </h2>
 
             <div className="gearroom-list">
+
               {gearSystem[activeSystem].map(
                 (item) => (
                   <div
-                    key={item.name}
                     className="gearroom-list-item"
+                    key={item.name}
                   >
                     <span>
                       {item.name}
@@ -494,20 +510,29 @@ export default function GearPage() {
                   </div>
                 )
               )}
+
             </div>
-          </div>
+
+          </aside>
         )}
 
-        {/* BACK */}
+        {/* BACK TO DURATION */}
         <Link
-          href={`/ways-in/drive/duration?vehicle=${vehicle}&trip=${trip}&crew=${crew}&people=${people}`}
           className="gearroom-back"
+          href={
+            `/ways-in/drive/duration` +
+            `?vehicle=${vehicle}` +
+            `&trip=${trip}` +
+            `&crew=${crew}` +
+            `&people=${people}`
+          }
         >
           ← DURATION
         </Link>
 
         {/* BOTTOM PROGRESS */}
         <div className="gearroom-progress">
+
           <div className="gearroom-progress-inner">
 
             <Link
@@ -521,7 +546,10 @@ export default function GearPage() {
             <i />
 
             <Link
-              href={`/ways-in/drive/setup?vehicle=${vehicle}`}
+              href={
+                `/ways-in/drive/setup` +
+                `?vehicle=${vehicle}`
+              }
               className="gearroom-step done"
             >
               <span>✓</span>
@@ -531,7 +559,11 @@ export default function GearPage() {
             <i />
 
             <Link
-              href={`/ways-in/drive/crew?vehicle=${vehicle}&trip=${trip}`}
+              href={
+                `/ways-in/drive/crew` +
+                `?vehicle=${vehicle}` +
+                `&trip=${trip}`
+              }
               className="gearroom-step done"
             >
               <span>✓</span>
@@ -541,7 +573,13 @@ export default function GearPage() {
             <i />
 
             <Link
-              href={`/ways-in/drive/duration?vehicle=${vehicle}&trip=${trip}&crew=${crew}&people=${people}`}
+              href={
+                `/ways-in/drive/duration` +
+                `?vehicle=${vehicle}` +
+                `&trip=${trip}` +
+                `&crew=${crew}` +
+                `&people=${people}`
+              }
               className="gearroom-step done"
             >
               <span>✓</span>
@@ -556,6 +594,7 @@ export default function GearPage() {
             </div>
 
           </div>
+
         </div>
 
       </section>
