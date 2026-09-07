@@ -1,837 +1,2004 @@
-"use client";
+/* ============================================================
+   ROAMLAB — CLEAN GLOBALS.CSS
+   Home + Ways In + Drive + Trip Style + Planner + Crew
+============================================================ */
 
-import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+* {
+  box-sizing: border-box;
+}
 
-type VehicleKey =
-  | "suv"
-  | "truck"
-  | "van"
-  | "crossover"
-  | "city";
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100%;
+  background: #070807;
+}
 
-type TripKey =
-  | "weekend"
-  | "road-trip"
-  | "basecamp"
-  | "remote";
+body {
+  overflow-x: hidden;
+}
 
-type CrewKey =
-  | "solo"
-  | "couple"
-  | "family"
-  | "friends";
+a,
+button {
+  -webkit-tap-highlight-color: transparent;
+}
 
-type DurationKey =
-  | "overnight"
-  | "weekend"
-  | "multi-day"
-  | "extended";
+/* ============================================================
+   SHARED PLANNER PAGES
+============================================================ */
 
-type Priority =
-  | "essential"
-  | "recommended"
-  | "optional";
+.wv2-page,
+.drv2-page,
+.trip2-page {
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  background: #070807;
+  overflow-x: hidden;
+}
 
-type GearSystemKey =
-  | "personal"
-  | "vehicle"
-  | "safety";
+.wv2-stage,
+.drv2-stage,
+.trip2-stage {
+  position: relative;
+  width: 100%;
+  max-width: 1536px;
+  margin: 0 auto;
+  overflow: hidden;
+  background: #070807;
+}
 
-type GearItem = {
-  name: string;
-  priority: Priority;
-};
+.wv2-bg,
+.drv2-bg,
+.trip2-bg {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
 
-const vehicleLabels: Record<VehicleKey, string> = {
-  suv: "SUV",
-  truck: "TRUCK",
-  van: "VAN",
-  crossover: "CROSSOVER / AWD",
-  city: "2WD / CITY CAR",
-};
+/* ============================================================
+   WAYS IN — NAV
+============================================================ */
 
-const tripLabels: Record<TripKey, string> = {
-  weekend: "WEEKEND ESCAPE",
-  "road-trip": "ROAD TRIP",
-  basecamp: "BASECAMP",
-  remote: "REMOTE / OFF-GRID",
-};
+.wv2-nav,
+.drv2-nav,
+.trip2-nav,
+.crew-nav {
+  position: absolute;
+  z-index: 90000;
+  top: 0;
+  left: 18%;
+  right: 1.5%;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  pointer-events: auto;
+}
 
-const crewLabels: Record<CrewKey, string> = {
-  solo: "SOLO",
-  couple: "COUPLE",
-  family: "FAMILY",
-  friends: "FRIENDS",
-};
+.wv2-nav-links,
+.drv2-nav-links,
+.trip2-nav-links,
+.crew-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
 
-const durationLabels: Record<DurationKey, string> = {
-  overnight: "1 NIGHT",
-  weekend: "2–3 NIGHTS",
-  "multi-day": "4–7 NIGHTS",
-  extended: "8+ NIGHTS",
-};
+.wv2-nav-links a,
+.wv2-signin,
+.drv2-nav-links a,
+.drv2-signin,
+.trip2-nav-links a,
+.trip2-signin,
+.crew-nav-links a,
+.crew-signin {
+  color: rgba(248, 242, 230, 0.88);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  white-space: nowrap;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85);
+}
 
-const systemTitles: Record<GearSystemKey, string> = {
-  personal: "PERSONAL GEAR",
-  vehicle: "VEHICLE & CAMP GEAR",
-  safety: "SAFETY & EMERGENCY",
-};
+.wv2-start,
+.drv2-start,
+.trip2-start,
+.crew-start {
+  min-height: 38px;
+  padding: 0 15px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  background: #e8a33f;
+  color: #17130d;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  text-decoration: none;
+  white-space: nowrap;
+}
 
-export default function GearPage() {
-  const [vehicle, setVehicle] =
-    useState<VehicleKey>("suv");
+/* ============================================================
+   WAYS IN — CLICK ZONES
+============================================================ */
 
-  const [trip, setTrip] =
-    useState<TripKey>("weekend");
+.wv2-zone {
+  position: absolute;
+  z-index: 50000;
+  display: block;
+  background: transparent;
+  cursor: pointer;
+  pointer-events: auto;
+  border: 0;
+  outline: 0;
+  border-radius: 28px;
+  text-decoration: none;
+  isolation: isolate;
+  transition: transform 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+}
 
-  const [crew, setCrew] =
-    useState<CrewKey>("couple");
+.wv2-zone::before {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  inset: -3%;
+  border-radius: inherit;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 235, 190, 0.34) 0%,
+    rgba(255, 199, 116, 0.25) 25%,
+    rgba(232, 154, 66, 0.14) 48%,
+    rgba(199, 108, 29, 0.05) 67%,
+    transparent 82%
+  );
+  filter: blur(12px);
+  opacity: 0;
+  transform: scale(0.94);
+  transition: opacity 0.25s ease, transform 0.3s ease;
+  pointer-events: none;
+}
 
-  const [people, setPeople] =
-    useState(2);
+.wv2-zone::after {
+  content: "";
+  position: absolute;
+  z-index: 3;
+  inset: 4%;
+  border-radius: inherit;
+  background: radial-gradient(
+    ellipse at 50% 48%,
+    rgba(255, 246, 218, 0.23) 0%,
+    rgba(255, 211, 143, 0.15) 35%,
+    rgba(239, 165, 74, 0.06) 58%,
+    transparent 78%
+  );
+  opacity: 0;
+  transition: opacity 0.22s ease;
+  pointer-events: none;
+}
 
-  const [duration, setDuration] =
-    useState<DurationKey>("weekend");
+.wv2-zone:hover::before {
+  opacity: 1;
+  transform: scale(1.04);
+}
 
-  const [ready, setReady] =
-    useState(false);
+.wv2-zone:hover::after {
+  opacity: 1;
+}
 
-  const [activeSystem, setActiveSystem] =
-    useState<GearSystemKey | null>(null);
+.wv2-zone:hover {
+  transform: translateY(-3px) scale(1.006);
+  background: rgba(255, 190, 94, 0.035);
+  box-shadow: 0 0 35px rgba(224, 142, 52, 0.08);
+}
 
-  const [selectedItems, setSelectedItems] =
-    useState<Record<string, boolean>>({});
+.wv2-zone:active {
+  transform: translateY(0) scale(0.985);
+}
 
-  const [systemBuilt, setSystemBuilt] =
-    useState(false);
+.wv2-drive {
+  left: 5%;
+  top: 5%;
+  width: 40%;
+  height: 51%;
+  border-radius: 34px;
+}
 
-  useEffect(() => {
-    const params =
-      new URLSearchParams(window.location.search);
+.wv2-hike {
+  left: 68%;
+  top: 6%;
+  width: 30%;
+  height: 48%;
+  border-radius: 36px;
+}
 
-    const vehicleValue =
-      params.get("vehicle");
+.wv2-ride {
+  left: 2%;
+  top: 56%;
+  width: 31%;
+  height: 39%;
+  border-radius: 32px;
+}
 
-    const tripValue =
-      params.get("trip");
+.wv2-paddle {
+  left: 69%;
+  top: 54%;
+  width: 30%;
+  height: 42%;
+  border-radius: 32px;
+}
 
-    const crewValue =
-      params.get("crew");
+.wv2-unsure {
+  left: 37%;
+  top: 68%;
+  width: 27%;
+  height: 18%;
+  border-radius: 18px;
+}
 
-    const peopleValue =
-      params.get("people");
+.wv2-logo,
+.drv2-logo {
+  position: absolute;
+  z-index: 95000;
+  left: 0;
+  top: 0;
+  width: 17%;
+  height: 10%;
+  display: block;
+}
 
-    const durationValue =
-      params.get("duration");
+/* ============================================================
+   DRIVE — VEHICLES
+============================================================ */
 
-    if (
-      vehicleValue === "suv" ||
-      vehicleValue === "truck" ||
-      vehicleValue === "van" ||
-      vehicleValue === "crossover" ||
-      vehicleValue === "city"
-    ) {
-      setVehicle(vehicleValue);
-    }
+.drv2-zone {
+  position: absolute;
+  z-index: 50000;
+  display: block;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  pointer-events: auto;
+  border-radius: 28px;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: transform 0.2s ease;
+}
 
-    if (
-      tripValue === "weekend" ||
-      tripValue === "road-trip" ||
-      tripValue === "basecamp" ||
-      tripValue === "remote"
-    ) {
-      setTrip(tripValue);
-    }
+.drv2-zone::before {
+  content: "";
+  position: absolute;
+  inset: -4%;
+  border-radius: inherit;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 190, 95, 0.23),
+    rgba(220, 135, 45, 0.07) 48%,
+    transparent 76%
+  );
+  filter: blur(10px);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
 
-    if (
-      crewValue === "solo" ||
-      crewValue === "couple" ||
-      crewValue === "family" ||
-      crewValue === "friends"
-    ) {
-      setCrew(crewValue);
-    }
+.drv2-zone:hover::before,
+.drv2-zone.selected::before {
+  opacity: 1;
+}
 
-    const parsedPeople =
-      Number(peopleValue);
+.drv2-zone:hover,
+.drv2-zone.selected {
+  transform: translateY(-2px);
+}
 
-    if (
-      Number.isFinite(parsedPeople) &&
-      parsedPeople > 0
-    ) {
-      setPeople(parsedPeople);
-    }
+.drv2-suv {
+  left: 5%;
+  top: 6%;
+  width: 31%;
+  height: 38%;
+}
 
-    if (
-      durationValue === "overnight" ||
-      durationValue === "weekend" ||
-      durationValue === "multi-day" ||
-      durationValue === "extended"
-    ) {
-      setDuration(durationValue);
-    }
+.drv2-truck {
+  left: 35%;
+  top: 5%;
+  width: 30%;
+  height: 36%;
+}
 
-    setReady(true);
-  }, []);
+.drv2-van {
+  left: 63%;
+  top: 4%;
+  width: 31%;
+  height: 41%;
+}
 
-  const gearSystem = useMemo(() => {
-    const isRemote =
-      trip === "remote";
+.drv2-crossover {
+  left: 3%;
+  top: 42%;
+  width: 34%;
+  height: 40%;
+}
 
-    const isLong =
-      duration === "multi-day" ||
-      duration === "extended";
+.drv2-city {
+  left: 68%;
+  top: 42%;
+  width: 29%;
+  height: 39%;
+}
 
-    const isLargeCrew =
-      people >= 4;
+.drv2-back,
+.trip2-back,
+.crew-back {
+  position: absolute;
+  z-index: 70000;
+  left: 2%;
+  bottom: 2.5%;
+  padding: 10px 14px;
+  border-radius: 5px;
+  background: rgba(8, 9, 8, 0.82);
+  color: rgba(245, 239, 228, 0.78);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-decoration: none;
+  white-space: nowrap;
+}
 
-    const isCityCar =
-      vehicle === "city";
+/* ============================================================
+   TRIP STYLE
+============================================================ */
 
-    const personal: GearItem[] = [
-      {
-        name: "Sleeping System",
-        priority: "essential",
-      },
-      {
-        name: "Clothing Layers",
-        priority: "essential",
-      },
-      {
-        name: "Personal Lighting",
-        priority: isRemote
-          ? "essential"
-          : "recommended",
-      },
-      {
-        name: "Water & Hydration",
-        priority: "essential",
-      },
-      {
-        name: "Hygiene Kit",
-        priority: isLong
-          ? "essential"
-          : "recommended",
-      },
-      {
-        name: "Personal Essentials",
-        priority: "essential",
-      },
-    ];
+.trip2-zone {
+  position: absolute;
+  z-index: 50000;
+  display: block;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  pointer-events: auto;
+  border-radius: 20px;
+  appearance: none;
+  -webkit-appearance: none;
+}
 
-    const vehicleGear: GearItem[] = [
-      {
-        name: "Vehicle Sleeping Setup",
-        priority: "essential",
-      },
-      {
-        name: "Power",
-        priority:
-          isRemote || isLong
-            ? "essential"
-            : "recommended",
-      },
-      {
-        name: "Cooking",
-        priority:
-          duration === "overnight"
-            ? "recommended"
-            : "essential",
-      },
-      {
-        name: "Food Storage",
-        priority:
-          isLong || isLargeCrew
-            ? "essential"
-            : "recommended",
-      },
-      {
-        name: "Water Storage",
-        priority:
-          isRemote ||
-          isLong ||
-          isLargeCrew
-            ? "essential"
-            : "recommended",
-      },
-      {
-        name: "Camp Lighting",
-        priority: "recommended",
-      },
-      {
-        name: "Storage & Organization",
-        priority: isCityCar
-          ? "essential"
-          : "recommended",
-      },
-      {
-        name: "Shelter",
-        priority:
-          trip === "basecamp"
-            ? "essential"
-            : "recommended",
-      },
-      {
-        name: "Camp Furniture",
-        priority:
-          trip === "basecamp"
-            ? "recommended"
-            : "optional",
-      },
-    ];
+.trip2-zone::before {
+  content: "";
+  position: absolute;
+  inset: -4%;
+  border-radius: inherit;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 194, 105, 0.24),
+    rgba(226, 139, 47, 0.08) 46%,
+    transparent 76%
+  );
+  filter: blur(10px);
+  opacity: 0;
+  transition: opacity 0.22s ease;
+  pointer-events: none;
+}
 
-    const safety: GearItem[] = [
-      {
-        name: "First Aid",
-        priority: "essential",
-      },
-      {
-        name: "Fire Safety",
-        priority: "essential",
-      },
-      {
-        name: "Tire & Repair",
-        priority: "essential",
-      },
-      {
-        name: "Vehicle Recovery",
-        priority: isRemote
-          ? "essential"
-          : "recommended",
-      },
-      {
-        name: "Jump Start / Backup Power",
-        priority: "recommended",
-      },
-      {
-        name: "Navigation",
-        priority: isRemote
-          ? "essential"
-          : "recommended",
-      },
-      {
-        name: "Emergency Communication",
-        priority: isRemote
-          ? "essential"
-          : "optional",
-      },
-      {
-        name: "Emergency Water & Food",
-        priority:
-          isRemote || isLong
-            ? "essential"
-            : "recommended",
-      },
-    ];
+.trip2-zone:hover::before,
+.trip2-zone.selected::before {
+  opacity: 1;
+}
 
-    return {
-      personal,
-      vehicle: vehicleGear,
-      safety,
-    };
-  }, [
-    vehicle,
-    trip,
-    people,
-    duration,
-  ]);
+.trip2-weekend {
+  left: 11%;
+  top: 40%;
+  width: 20%;
+  height: 38%;
+}
 
-  useEffect(() => {
-    const initialSelection: Record<string, boolean> = {};
+.trip2-road {
+  left: 31%;
+  top: 40%;
+  width: 19%;
+  height: 38%;
+}
 
-    Object.values(gearSystem)
-      .flat()
-      .forEach((item) => {
-        initialSelection[item.name] = true;
-      });
+.trip2-basecamp {
+  left: 49%;
+  top: 40%;
+  width: 19%;
+  height: 38%;
+}
 
-    setSelectedItems(initialSelection);
-  }, [gearSystem]);
+.trip2-remote {
+  left: 67%;
+  top: 40%;
+  width: 20%;
+  height: 38%;
+}
 
-  useEffect(() => {
-    const handleEscape = (
-      event: KeyboardEvent
-    ) => {
-      if (event.key === "Escape") {
-        setActiveSystem(null);
-      }
-    };
+/* ============================================================
+   PLANNER PROGRESS
+============================================================ */
 
-    window.addEventListener(
-      "keydown",
-      handleEscape
-    );
+.planner-progress {
+  position: absolute;
+  z-index: 85000;
+  top: 68px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(760px, 72%);
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+}
 
-    return () => {
-      window.removeEventListener(
-        "keydown",
-        handleEscape
-      );
-    };
-  }, []);
+.planner-progress-inner {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 15px;
+  border-radius: 8px;
+  background: rgba(9, 10, 8, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(8px);
+}
 
-  const toggleItem = (
-    itemName: string
-  ) => {
-    setSelectedItems((current) => ({
-      ...current,
-      [itemName]:
-        !current[itemName],
-    }));
+.planner-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: rgba(245, 239, 226, 0.42);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
 
-    setSystemBuilt(false);
-  };
+.planner-step-number {
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid rgba(245, 239, 226, 0.38);
+  font-size: 10px;
+  font-weight: 900;
+}
 
-  const openChecklist = (
-    system: GearSystemKey
-  ) => {
-    setActiveSystem(system);
-  };
+.planner-step-label {
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+}
 
-  const closeChecklist = () => {
-    setActiveSystem(null);
-  };
+.planner-step.is-current {
+  color: #e8a23e;
+}
 
-  const buildGearSystem = () => {
-    setSystemBuilt(true);
-  };
+.planner-step.is-current .planner-step-number {
+  color: #e8a23e;
+  border-color: #e8a23e;
+  box-shadow: 0 0 14px rgba(232, 162, 62, 0.22);
+}
 
-  const peopleLabel =
-    `${people} ${
-      people === 1
-        ? "PERSON"
-        : "PEOPLE"
-    }`;
+.planner-step.is-done {
+  color: rgba(246, 241, 229, 0.9);
+}
 
-  const currentItems =
-    activeSystem
-      ? gearSystem[activeSystem]
-      : [];
+.planner-step.is-done .planner-step-number {
+  background: #3d8d75;
+  border-color: #3d8d75;
+  color: #fff;
+}
 
-  const currentSelectedCount =
-    currentItems.filter(
-      (item) =>
-        selectedItems[item.name]
-    ).length;
+a.planner-step:hover {
+  color: #fff;
+  transform: translateY(-1px);
+}
 
-  const essentialCount =
-    currentItems.filter(
-      (item) =>
-        item.priority === "essential"
-    ).length;
+.planner-line {
+  display: block;
+  flex: 1;
+  min-width: 20px;
+  max-width: 46px;
+  height: 1px;
+  background: rgba(245, 239, 226, 0.24);
+}
 
-  const recommendedCount =
-    currentItems.filter(
-      (item) =>
-        item.priority === "recommended"
-    ).length;
+/* ============================================================
+   HOME
+============================================================ */
 
-  const optionalCount =
-    currentItems.filter(
-      (item) =>
-        item.priority === "optional"
-    ).length;
+.roam-page {
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  background: #080808;
+  overflow-x: hidden;
+}
 
-  if (!ready) {
-    return (
-      <main className="gearroom-page">
-        <div className="gearroom-loading" />
-      </main>
-    );
+.roam-desk {
+  position: relative;
+  width: 100%;
+  max-width: 1412px;
+  margin: 0 auto;
+  padding: 0;
+  overflow: hidden;
+  background: #080808;
+}
+
+.roam-background {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+.desk-zone {
+  position: absolute;
+  z-index: 200;
+  display: block;
+  cursor: pointer;
+  pointer-events: auto;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  border-radius: 24px;
+  text-decoration: none;
+  transition: transform 0.22s ease;
+}
+
+.desk-zone::before {
+  content: "";
+  position: absolute;
+  inset: -4%;
+  z-index: 1;
+  border-radius: inherit;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 194, 105, 0.18) 0%,
+    rgba(255, 169, 72, 0.09) 38%,
+    rgba(255, 145, 42, 0.03) 62%,
+    transparent 78%
+  );
+  filter: blur(9px);
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 0.28s ease, transform 0.32s ease;
+  pointer-events: none;
+}
+
+.desk-zone::after {
+  content: "";
+  position: absolute;
+  inset: 1%;
+  z-index: 2;
+  border-radius: inherit;
+  background: radial-gradient(
+    circle at 50% 48%,
+    rgba(255, 226, 180, 0.1) 0%,
+    rgba(255, 200, 125, 0.035) 52%,
+    transparent 75%
+  );
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+
+.desk-zone:hover::before {
+  opacity: 1;
+  transform: scale(1.035);
+}
+
+.desk-zone:hover::after {
+  opacity: 1;
+}
+
+.desk-zone:hover {
+  transform: translateY(-2px);
+}
+
+.desk-zone:active {
+  transform: translateY(0) scale(0.985);
+}
+
+.zone-badge {
+  left: 2%;
+  top: 8%;
+  width: 29%;
+  height: 20%;
+}
+
+.zone-explore {
+  left: 7%;
+  top: 31%;
+  width: 13%;
+  height: 10%;
+}
+
+.zone-checklist {
+  left: 0;
+  top: 39%;
+  width: 13.5%;
+  height: 28%;
+}
+
+.zone-vehicle {
+  left: 15%;
+  top: 33%;
+  width: 23%;
+  height: 21%;
+}
+
+.zone-backpack {
+  left: 4%;
+  top: 50%;
+  width: 34%;
+  height: 42%;
+}
+
+.zone-firstaid {
+  left: 36%;
+  top: 63%;
+  width: 22%;
+  height: 24%;
+}
+
+.zone-guide {
+  left: 57%;
+  top: 56%;
+  width: 21%;
+  height: 31%;
+}
+
+.zone-journal {
+  left: 73%;
+  top: 48%;
+  width: 24%;
+  height: 40%;
+}
+
+.zone-stories {
+  left: 63%;
+  top: 7%;
+  width: 29%;
+  height: 24%;
+}
+
+.zone-plan {
+  left: 60%;
+  top: 29%;
+  width: 30%;
+  height: 25%;
+}
+
+.top-zone {
+  position: absolute;
+  z-index: 500;
+  display: block;
+  cursor: pointer;
+  pointer-events: auto;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  text-decoration: none;
+  transition: transform 0.2s ease;
+}
+
+.top-zone::before {
+  content: "";
+  position: absolute;
+  inset: -15% -8%;
+  border-radius: 8px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 184, 83, 0.16),
+    rgba(255, 155, 52, 0.045) 55%,
+    transparent 76%
+  );
+  filter: blur(5px);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.top-zone:hover::before {
+  opacity: 1;
+}
+
+.top-zone:hover {
+  transform: translateY(-1px);
+}
+
+.top-explore {
+  left: 19.5%;
+  top: 0.2%;
+  width: 6.5%;
+  height: 5.5%;
+}
+
+.top-plan {
+  left: 27.3%;
+  top: 0.2%;
+  width: 5%;
+  height: 5.5%;
+}
+
+.top-prepare {
+  left: 33%;
+  top: 0.2%;
+  width: 7%;
+  height: 5.5%;
+}
+
+.top-safety {
+  left: 40.2%;
+  top: 0.2%;
+  width: 6%;
+  height: 5.5%;
+}
+
+.top-learn {
+  left: 47.2%;
+  top: 0.2%;
+  width: 6%;
+  height: 5.5%;
+}
+
+.top-journal {
+  left: 53.8%;
+  top: 0.2%;
+  width: 7%;
+  height: 5.5%;
+}
+
+.top-stories {
+  left: 61.4%;
+  top: 0.2%;
+  width: 6.5%;
+  height: 5.5%;
+}
+
+.top-badges {
+  left: 68.2%;
+  top: 0.2%;
+  width: 6.5%;
+  height: 5.5%;
+}
+
+.top-signin {
+  left: 74.5%;
+  top: 0;
+  width: 9.5%;
+  height: 6.5%;
+  border-radius: 8px;
+}
+
+.top-start {
+  left: 84.7%;
+  top: 0;
+  width: 14.5%;
+  height: 6.5%;
+  border-radius: 8px;
+}
+
+.center-start-zone {
+  position: absolute;
+  z-index: 600;
+  left: 38.2%;
+  top: 52.5%;
+  width: 23%;
+  height: 8.5%;
+  display: block;
+  cursor: pointer;
+  pointer-events: auto;
+  border-radius: 9px;
+  background: transparent;
+  text-decoration: none;
+  transition: transform 0.2s ease;
+}
+
+.center-start-zone::before {
+  content: "";
+  position: absolute;
+  inset: -10%;
+  border-radius: 12px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 186, 83, 0.19) 0%,
+    rgba(255, 145, 37, 0.07) 48%,
+    transparent 75%
+  );
+  filter: blur(8px);
+  opacity: 0;
+  transition: opacity 0.22s ease, transform 0.22s ease;
+  pointer-events: none;
+}
+
+.center-start-zone:hover::before {
+  opacity: 1;
+  transform: scale(1.03);
+}
+
+.center-start-zone:hover {
+  transform: translateY(-2px);
+}
+
+/* ============================================================
+   CREW
+============================================================ */
+
+.crew-page {
+  width: 100%;
+  height: 100vh;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  background: #070807;
+  overflow: hidden;
+}
+
+.crew-stage {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: #070807;
+}
+
+.crew-bg {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  object-fit: cover;
+  object-position: center center;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.crew-loading {
+  width: 100%;
+  height: 100vh;
+  background: #070807;
+}
+
+.crew-zone {
+  position: absolute;
+  z-index: 50000;
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  cursor: pointer;
+  pointer-events: auto;
+  appearance: none;
+  -webkit-appearance: none;
+  border-radius: 26px;
+  isolation: isolate;
+  transition: transform 0.22s ease;
+}
+
+.crew-zone::before {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  inset: -5%;
+  border-radius: inherit;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 239, 201, 0.38) 0%,
+    rgba(255, 201, 116, 0.27) 27%,
+    rgba(230, 147, 55, 0.14) 50%,
+    rgba(203, 112, 30, 0.045) 68%,
+    transparent 82%
+  );
+  filter: blur(12px);
+  opacity: 0;
+  transform: scale(0.94);
+  transition: opacity 0.24s ease, transform 0.28s ease;
+  pointer-events: none;
+}
+
+.crew-zone::after {
+  content: "";
+  position: absolute;
+  z-index: 3;
+  inset: 4%;
+  border-radius: inherit;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 246, 218, 0.23) 0%,
+    rgba(255, 211, 143, 0.15) 35%,
+    rgba(239, 165, 74, 0.06) 58%,
+    transparent 78%
+  );
+  opacity: 0;
+  transition: opacity 0.22s ease;
+  pointer-events: none;
+}
+
+.crew-zone:hover::before,
+.crew-zone.selected::before {
+  opacity: 1;
+  transform: scale(1.04);
+}
+
+.crew-zone:hover::after,
+.crew-zone.selected::after {
+  opacity: 1;
+}
+
+.crew-zone:hover,
+.crew-zone.selected {
+  transform: translateY(-3px) scale(1.006);
+}
+
+.crew-solo {
+  left: 12%;
+  top: 35%;
+  width: 19%;
+  height: 34%;
+}
+
+.crew-couple {
+  left: 31%;
+  top: 35%;
+  width: 20%;
+  height: 34%;
+}
+
+.crew-family {
+  left: 51%;
+  top: 34%;
+  width: 22%;
+  height: 36%;
+}
+
+.crew-friends {
+  left: 73%;
+  top: 34%;
+  width: 22%;
+  height: 36%;
+}
+
+.crew-panel {
+  position: absolute;
+  z-index: 80000;
+  left: 50%;
+  bottom: 2.5%;
+  transform: translateX(-50%);
+  width: min(620px, 72%);
+  min-height: 82px;
+  padding: 16px 64px 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: rgba(10, 12, 9, 0.94);
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(12px);
+}
+
+.crew-panel-close {
+  position: absolute;
+  z-index: 5;
+  top: 8px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: rgba(245, 239, 228, 0.58);
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.18s ease, transform 0.18s ease;
+}
+
+.crew-panel-close:hover {
+  color: #fff;
+  transform: scale(1.08);
+}
+
+.crew-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.crew-summary > span {
+  color: #df983d;
+  font-size: 8px;
+  font-weight: 850;
+  letter-spacing: 0.18em;
+}
+
+.crew-summary strong {
+  color: #f4eee3;
+  font-size: 18px;
+  font-weight: 850;
+  line-height: 1.1;
+}
+
+.crew-summary small {
+  color: rgba(244, 238, 227, 0.42);
+  margin-top: 2px;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.crew-people-confirmed {
+  margin-top: 3px;
+  color: rgba(245, 239, 228, 0.72);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.crew-people-picker {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 5px;
+}
+
+.crew-people-question {
+  color: rgba(245, 239, 228, 0.7);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+  white-space: nowrap;
+}
+
+.crew-people-options {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.crew-people-button {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  border: 1px solid rgba(245, 239, 228, 0.22);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.035);
+  color: rgba(245, 239, 228, 0.72);
+  font-size: 9px;
+  font-weight: 850;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease;
+}
+
+.crew-people-button:hover {
+  border-color: rgba(232, 162, 62, 0.75);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.crew-people-button.is-selected {
+  background: #e8a23e;
+  color: #17130d;
+  border: 2px solid #ffd58b;
+  font-weight: 950;
+  transform: scale(1.12);
+  box-shadow:
+    0 0 0 3px rgba(232, 162, 62, 0.16),
+    0 0 18px rgba(232, 162, 62, 0.55),
+    0 0 34px rgba(232, 162, 62, 0.2);
+}
+
+.crew-people-button.is-selected:hover {
+  transform: scale(1.12);
+}
+
+.crew-people-selected-text {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 8px;
+  color: #e8a23e;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  animation: crewPeopleConfirmed 0.22s ease-out;
+}
+
+@keyframes crewPeopleConfirmed {
+  from {
+    opacity: 0;
+    transform: translateX(-5px);
   }
 
-  return (
-    <main className="gearroom-page">
-
-      <section className="gearroom-stage">
-
-        <img
-          src="/gear-room.jpg"
-          alt="RoamLab Gear Room"
-          className="gearroom-bg"
-          draggable={false}
-        />
-
-        {/* DYNAMIC TRIP SUMMARY */}
-        <div className="gearroom-trip-overlay">
-          <div className="gearroom-trip-line">
-
-            <span>
-              {vehicleLabels[vehicle]}
-            </span>
-
-            <i>·</i>
-
-            <span>
-              {tripLabels[trip]}
-            </span>
-
-            <i>·</i>
-
-            <span>
-              {crewLabels[crew]}
-            </span>
-
-            <i>·</i>
-
-            <span>
-              {peopleLabel}
-            </span>
-
-            <i>·</i>
-
-            <span>
-              {durationLabels[duration]}
-            </span>
-
-          </div>
-        </div>
-
-        {/* PERSONAL GEAR */}
-        <button
-          type="button"
-          className={`gearroom-zone gearroom-personal ${
-            activeSystem === "personal"
-              ? "selected"
-              : ""
-          }`}
-          onClick={() =>
-            openChecklist("personal")
-          }
-          aria-label="Open Personal Gear Checklist"
-        />
-
-        {/* VEHICLE & CAMP */}
-        <button
-          type="button"
-          className={`gearroom-zone gearroom-vehicle ${
-            activeSystem === "vehicle"
-              ? "selected"
-              : ""
-          }`}
-          onClick={() =>
-            openChecklist("vehicle")
-          }
-          aria-label="Open Vehicle and Camp Gear Checklist"
-        />
-
-        {/* SAFETY */}
-        <button
-          type="button"
-          className={`gearroom-zone gearroom-safety ${
-            activeSystem === "safety"
-              ? "selected"
-              : ""
-          }`}
-          onClick={() =>
-            openChecklist("safety")
-          }
-          aria-label="Open Safety and Emergency Checklist"
-        />
-
-        {/* BACK */}
-        <Link
-          className="gearroom-back"
-          href={
-            `/ways-in/drive/duration` +
-            `?vehicle=${vehicle}` +
-            `&trip=${trip}` +
-            `&crew=${crew}` +
-            `&people=${people}`
-          }
-        >
-          ← DURATION
-        </Link>
-
-        {/* BOTTOM PROGRESS */}
-        <div className="gearroom-progress">
-
-          <div className="gearroom-progress-inner">
-
-            <Link
-              href="/ways-in/drive"
-              className="gearroom-step done"
-            >
-              <span>✓</span>
-              VEHICLE
-            </Link>
-
-            <i />
-
-            <Link
-              href={
-                `/ways-in/drive/setup` +
-                `?vehicle=${vehicle}`
-              }
-              className="gearroom-step done"
-            >
-              <span>✓</span>
-              TRIP STYLE
-            </Link>
-
-            <i />
-
-            <Link
-              href={
-                `/ways-in/drive/crew` +
-                `?vehicle=${vehicle}` +
-                `&trip=${trip}`
-              }
-              className="gearroom-step done"
-            >
-              <span>✓</span>
-              CREW
-            </Link>
-
-            <i />
-
-            <Link
-              href={
-                `/ways-in/drive/duration` +
-                `?vehicle=${vehicle}` +
-                `&trip=${trip}` +
-                `&crew=${crew}` +
-                `&people=${people}`
-              }
-              className="gearroom-step done"
-            >
-              <span>✓</span>
-              DURATION
-            </Link>
-
-            <i />
-
-            <div className="gearroom-step current">
-              <span>5</span>
-              GEAR
-            </div>
-
-          </div>
-
-        </div>
-
-        {/* PROFESSIONAL CHECKLIST MODAL */}
-        {activeSystem && (
-          <div
-            className="gearroom-modal-backdrop"
-            onMouseDown={(event) => {
-              if (
-                event.target ===
-                event.currentTarget
-              ) {
-                closeChecklist();
-              }
-            }}
-          >
-
-            <section
-              className="gearroom-checklist"
-              role="dialog"
-              aria-modal="true"
-              aria-label={`${systemTitles[activeSystem]} checklist`}
-            >
-
-              <button
-                type="button"
-                className="gearroom-checklist-close"
-                onClick={closeChecklist}
-                aria-label="Close checklist"
-              >
-                ×
-              </button>
-
-              {/* HEADER */}
-              <header className="gearroom-checklist-header">
-
-                <div className="gearroom-checklist-brand">
-                  ROAMLAB
-                </div>
-
-                <div className="gearroom-checklist-kicker">
-                  EXPEDITION GEAR CHECKLIST
-                </div>
-
-                <h1>
-                  {systemTitles[activeSystem]}
-                </h1>
-
-                <div className="gearroom-checklist-trip">
-
-                  <span>
-                    {vehicleLabels[vehicle]}
-                  </span>
-
-                  <i>•</i>
-
-                  <span>
-                    {tripLabels[trip]}
-                  </span>
-
-                  <i>•</i>
-
-                  <span>
-                    {crewLabels[crew]}
-                  </span>
-
-                  <i>•</i>
-
-                  <span>
-                    {peopleLabel}
-                  </span>
-
-                  <i>•</i>
-
-                  <span>
-                    {durationLabels[duration]}
-                  </span>
-
-                </div>
-
-              </header>
-
-              {/* LIST */}
-              <div className="gearroom-checklist-body">
-
-                <div className="gearroom-checklist-column-head">
-                  <span>INCLUDE</span>
-                  <span>GEAR CATEGORY</span>
-                  <span>PRIORITY</span>
-                </div>
-
-                <div className="gearroom-checklist-items">
-
-                  {currentItems.map(
-                    (item, index) => {
-
-                      const checked =
-                        selectedItems[item.name] ??
-                        true;
-
-                      return (
-                        <button
-                          type="button"
-                          className={`gearroom-checklist-row ${
-                            checked
-                              ? "is-checked"
-                              : ""
-                          }`}
-                          key={item.name}
-                          onClick={() =>
-                            toggleItem(
-                              item.name
-                            )
-                          }
-                        >
-
-                          <span className="gearroom-check-box">
-                            {checked
-                              ? "✓"
-                              : ""}
-                          </span>
-
-                          <span className="gearroom-check-name">
-
-                            <small>
-                              {String(
-                                index + 1
-                              ).padStart(
-                                2,
-                                "0"
-                              )}
-                            </small>
-
-                            {item.name}
-
-                          </span>
-
-                          <strong
-                            className={`gearroom-priority ${item.priority}`}
-                          >
-                            {item.priority.toUpperCase()}
-                          </strong>
-
-                        </button>
-                      );
-                    }
-                  )}
-
-                </div>
-
-              </div>
-
-              {/* SUMMARY */}
-              <div className="gearroom-checklist-summary">
-
-                <div>
-                  <strong>
-                    {currentSelectedCount}
-                  </strong>
-                  <span>
-                    SELECTED
-                  </span>
-                </div>
-
-                <div>
-                  <strong>
-                    {essentialCount}
-                  </strong>
-                  <span>
-                    ESSENTIAL
-                  </span>
-                </div>
-
-                <div>
-                  <strong>
-                    {recommendedCount}
-                  </strong>
-                  <span>
-                    RECOMMENDED
-                  </span>
-                </div>
-
-                <div>
-                  <strong>
-                    {optionalCount}
-                  </strong>
-                  <span>
-                    OPTIONAL
-                  </span>
-                </div>
-
-              </div>
-
-              {/* FOOTER */}
-              <footer className="gearroom-checklist-footer">
-
-                <div className="gearroom-checklist-note">
-                  Review the categories for your trip,
-                  then build your complete gear system.
-                </div>
-
-                <button
-                  type="button"
-                  className={`gearroom-checklist-build ${
-                    systemBuilt
-                      ? "is-built"
-                      : ""
-                  }`}
-                  onClick={buildGearSystem}
-                >
-                  {systemBuilt
-                    ? "✓ GEAR SYSTEM BUILT"
-                    : "BUILD MY GEAR SYSTEM →"}
-                </button>
-
-              </footer>
-
-            </section>
-
-          </div>
-        )}
-
-      </section>
-
-    </main>
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.crew-continue {
+  min-width: 116px;
+  min-height: 44px;
+  padding: 0 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  background: #e8a23e;
+  color: #17130d;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+
+@media (hover: hover) and (pointer: fine) {
+  .wv2-zone:hover,
+  .crew-zone:hover {
+    transform: translateY(-3px) scale(1.006);
+  }
+}
+
+@media (max-width: 1100px) {
+  .wv2-nav-links,
+  .drv2-nav-links,
+  .trip2-nav-links,
+  .crew-nav-links {
+    gap: 11px;
+  }
+
+  .wv2-nav-links a,
+  .wv2-signin,
+  .drv2-nav-links a,
+  .drv2-signin,
+  .trip2-nav-links a,
+  .trip2-signin,
+  .crew-nav-links a,
+  .crew-signin {
+    font-size: 8px;
+  }
+
+  .planner-progress {
+    width: min(700px, 78%);
+  }
+}
+
+@media (max-width: 768px) {
+  .wv2-page,
+  .drv2-page,
+  .trip2-page,
+  .roam-page {
+    overflow-x: auto;
+  }
+
+  .wv2-stage,
+  .drv2-stage,
+  .trip2-stage,
+  .roam-desk {
+    min-width: 900px;
+  }
+
+  .desk-zone::before,
+  .desk-zone::after,
+  .top-zone::before,
+  .center-start-zone::before {
+    display: none;
+  }
+
+  .desk-zone:hover,
+  .top-zone:hover,
+  .center-start-zone:hover {
+    transform: none;
+  }
+
+  .crew-page {
+    width: 100%;
+    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .crew-stage {
+    width: 100%;
+    min-width: 0;
+    height: 100vh;
+  }
+
+  .crew-bg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .crew-panel {
+    width: 86%;
+  }
+}
+
+/* ============================================================
+   DURATION V2 — IMAGE + HOTSPOTS
+============================================================ */
+
+.duration2-page {
+  width: 100%;
+  height: 100vh;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  background: #070807;
+  overflow: hidden;
+}
+
+.duration2-stage {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: #070807;
+}
+
+.duration2-bg {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.duration2-loading {
+  width: 100%;
+  height: 100vh;
+  background: #070807;
+}
+
+.duration2-logo {
+  position: absolute;
+  z-index: 95000;
+  top: 12px;
+  left: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-decoration: none;
+  pointer-events: auto;
+}
+
+.duration2-logo-main {
+  color: #f3eee2;
+  font-size: 30px;
+  line-height: .95;
+  font-weight: 900;
+  letter-spacing: .025em;
+  text-shadow: 0 2px 10px rgba(0,0,0,.85);
+}
+
+.duration2-logo-sub {
+  margin-top: 7px;
+  color: rgba(243,238,226,.78);
+  font-size: 8px;
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: .16em;
+  text-shadow: 0 2px 8px rgba(0,0,0,.85);
+}
+
+.duration2-nav {
+  position: absolute;
+  z-index: 90000;
+  top: 0;
+  left: 18%;
+  right: 1.5%;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  pointer-events: auto;
+}
+
+.duration2-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.duration2-nav-links a,
+.duration2-signin {
+  color: rgba(248,242,230,.88);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-decoration: none;
+  white-space: nowrap;
+  text-shadow: 0 2px 8px rgba(0,0,0,.85);
+}
+
+.duration2-start {
+  min-height: 38px;
+  padding: 0 15px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  background: #e8a33f;
+  color: #17130d;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .07em;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.duration2-zone {
+  position: absolute;
+  z-index: 50000;
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  cursor: pointer;
+  pointer-events: auto;
+  appearance: none;
+  -webkit-appearance: none;
+  border-radius: 18px;
+  isolation: isolate;
+  transition: transform .22s ease;
+}
+
+.duration2-zone::before {
+  content: "";
+  position: absolute;
+  inset: -4%;
+  border-radius: inherit;
+  background: radial-gradient(ellipse at center, rgba(255,239,201,.34) 0%, rgba(255,201,116,.24) 28%, rgba(230,147,55,.13) 50%, rgba(203,112,30,.04) 68%, transparent 82%);
+  filter: blur(11px);
+  opacity: 0;
+  transform: scale(.95);
+  transition: opacity .24s ease, transform .28s ease;
+  pointer-events: none;
+}
+
+.duration2-zone::after {
+  content: "";
+  position: absolute;
+  inset: 5%;
+  border-radius: inherit;
+  background: radial-gradient(ellipse at center, rgba(255,246,218,.20) 0%, rgba(255,211,143,.13) 36%, rgba(239,165,74,.05) 58%, transparent 78%);
+  opacity: 0;
+  transition: opacity .22s ease;
+  pointer-events: none;
+}
+
+.duration2-zone:hover::before,
+.duration2-zone.selected::before {
+  opacity: 1;
+  transform: scale(1.04);
+}
+
+.duration2-zone:hover::after,
+.duration2-zone.selected::after { opacity: 1; }
+
+.duration2-zone:hover,
+.duration2-zone.selected {
+  transform: translateY(-3px) scale(1.006);
+}
+
+.duration2-overnight { left: 14%; top: 35%; width: 18%; height: 34%; }
+.duration2-weekend { left: 32%; top: 35%; width: 18%; height: 34%; }
+.duration2-multiday { left: 50%; top: 35%; width: 18%; height: 34%; }
+.duration2-extended { left: 68%; top: 35%; width: 18%; height: 34%; }
+
+.duration2-back {
+  position: absolute;
+  z-index: 70000;
+  left: 2%;
+  bottom: 2.5%;
+  padding: 10px 14px;
+  border-radius: 5px;
+  background: rgba(8,9,8,.82);
+  color: rgba(245,239,228,.78);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.duration2-panel {
+  position: absolute;
+  z-index: 80000;
+  left: 50%;
+  bottom: 2.5%;
+  transform: translateX(-50%);
+  width: min(560px,70%);
+  min-height: 82px;
+  padding: 16px 64px 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 8px;
+  background: rgba(10,12,9,.94);
+  box-shadow: 0 15px 45px rgba(0,0,0,.42);
+  backdrop-filter: blur(12px);
+}
+
+.duration2-panel-close {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: rgba(245,239,228,.58);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.duration2-panel-close:hover { color: #fff; }
+
+.duration2-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.duration2-summary > span {
+  color: #df983d;
+  font-size: 8px;
+  font-weight: 850;
+  letter-spacing: .18em;
+}
+
+.duration2-summary strong {
+  color: #f4eee3;
+  font-size: 18px;
+  font-weight: 850;
+}
+
+.duration2-summary-detail {
+  color: rgba(245,239,228,.72);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .12em;
+}
+
+.duration2-summary small {
+  color: rgba(244,238,227,.42);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: .1em;
+}
+
+.duration2-continue {
+  min-width: 116px;
+  min-height: 44px;
+  padding: 0 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  background: #e8a23e;
+  color: #17130d;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+/* ============================================================
+   ROAMLAB — GEAR ROOM V4 SAFE
+   SCOPED — DOES NOT BLOCK OTHER PAGES
+============================================================ */
+
+.gearroom-page {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: #080908;
+}
+
+.gearroom-stage {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  isolation: isolate;
+  background: #080908;
+}
+
+.gearroom-bg {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center center;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.gearroom-loading {
+  width: 100%;
+  height: 100vh;
+  background: #080908;
+}
+
+/* Dynamic trip summary */
+.gearroom-trip-overlay {
+  position: absolute;
+  z-index: 10;
+  top: 4.4%;
+  left: 26.5%;
+  width: 40%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.gearroom-trip-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: #eee4d2;
+  font-size: 8px;
+  line-height: 1;
+  font-weight: 850;
+  letter-spacing: .07em;
+  white-space: nowrap;
+  text-shadow: 0 2px 7px rgba(0,0,0,.9);
+}
+
+.gearroom-trip-line i {
+  color: rgba(224,158,68,.95);
+  font-style: normal;
+}
+
+/* Build CTA: below trip setup, on transition strip */
+.gearroom-build-fixed {
+  position: absolute;
+  z-index: 30;
+  top: 23.4%;
+  right: 11.5%;
+  left: auto;
+  width: 19%;
+  min-width: 210px;
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 4px;
+  background: #dfa042;
+  color: #17120b;
+  font-family: inherit;
+  font-size: 7px;
+  line-height: 1;
+  font-weight: 950;
+  letter-spacing: .1em;
+  white-space: nowrap;
+  cursor: pointer;
+  pointer-events: auto;
+  opacity: 1;
+  visibility: visible;
+  box-shadow: 0 5px 14px rgba(0,0,0,.30);
+  transition: transform .18s ease, filter .18s ease, background .18s ease;
+}
+
+.gearroom-build-fixed:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+
+.gearroom-build-fixed.is-built {
+  background: #bc873c;
+}
+
+/* Three gear-system hotspots */
+.gearroom-zone {
+  position: absolute;
+  z-index: 20;
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  border-radius: 14px;
+  background: transparent;
+  appearance: none;
+  -webkit-appearance: none;
+  isolation: isolate;
+  transition: transform .2s ease, opacity .2s ease;
+}
+
+.gearroom-zone.disabled {
+  pointer-events: none;
+  cursor: default;
+}
+
+.gearroom-zone.enabled {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.gearroom-zone::before {
+  content: "";
+  position: absolute;
+  inset: -2%;
+  border-radius: inherit;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255,235,193,.27) 0%,
+    rgba(255,196,105,.16) 34%,
+    rgba(220,137,48,.07) 56%,
+    transparent 80%
   );
+  filter: blur(14px);
+  opacity: 0;
+  transform: scale(.97);
+  transition: opacity .22s ease, transform .25s ease;
+  pointer-events: none;
+}
+
+.gearroom-zone.enabled:hover::before,
+.gearroom-zone.selected::before {
+  opacity: 1;
+  transform: scale(1.02);
+}
+
+.gearroom-zone.enabled:hover,
+.gearroom-zone.selected {
+  transform: translateY(-2px);
+}
+
+.gearroom-personal {
+  left: 17.2%;
+  top: 28.2%;
+  width: 23%;
+  height: 52%;
+}
+
+.gearroom-vehicle {
+  left: 40.5%;
+  top: 28.2%;
+  width: 25.5%;
+  height: 52%;
+}
+
+.gearroom-safety {
+  left: 66.6%;
+  top: 28.2%;
+  width: 23%;
+  height: 52%;
+}
+
+/* Drawer */
+.gearroom-drawer {
+  position: absolute;
+  z-index: 50;
+  top: 28%;
+  right: 2.2%;
+  width: min(350px,27%);
+  max-height: 55%;
+  overflow-y: auto;
+  padding: 20px;
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 8px;
+  background: rgba(9,11,9,.96);
+  box-shadow: 0 20px 55px rgba(0,0,0,.52);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.gearroom-drawer-close {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: rgba(245,239,228,.55);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.gearroom-drawer-close:hover { color: #fff; }
+
+.gearroom-drawer-eyebrow {
+  display: block;
+  color: #db9a42;
+  font-size: 7px;
+  font-weight: 900;
+  letter-spacing: .18em;
+}
+
+.gearroom-drawer h2 {
+  margin: 6px 0 15px;
+  color: #f0e7d6;
+  font-size: 16px;
+  line-height: 1.1;
+  font-weight: 900;
+  letter-spacing: .035em;
+}
+
+.gearroom-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.gearroom-list-item {
+  min-height: 37px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border-top: 1px solid rgba(255,255,255,.07);
+}
+
+.gearroom-list-item span {
+  color: rgba(242,235,220,.88);
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.gear-priority {
+  flex: 0 0 auto;
+  padding: 4px 6px;
+  border-radius: 3px;
+  font-size: 6px;
+  font-weight: 950;
+  letter-spacing: .1em;
+}
+
+.gear-priority.essential {
+  background: rgba(126,73,39,.78);
+  color: #f4d5ae;
+}
+
+.gear-priority.recommended {
+  background: rgba(66,105,78,.72);
+  color: #dcebd9;
+}
+
+.gear-priority.optional {
+  background: rgba(84,84,77,.70);
+  color: #d7d4c9;
+}
+
+/* Back */
+.gearroom-back {
+  position: absolute;
+  z-index: 35;
+  left: 1.3%;
+  bottom: 2.6%;
+  padding: 9px 13px;
+  border-radius: 5px;
+  background: rgba(8,9,8,.82);
+  color: rgba(245,239,228,.72);
+  font-size: 7px;
+  font-weight: 850;
+  letter-spacing: .11em;
+  text-decoration: none;
+  pointer-events: auto;
+}
+
+.gearroom-back:hover { color: #fff; }
+
+/* Bottom progress */
+.gearroom-progress {
+  position: absolute;
+  z-index: 35;
+  left: 50%;
+  bottom: 1.8%;
+  transform: translateX(-50%);
+  width: min(720px,55%);
+  pointer-events: auto;
+}
+
+.gearroom-progress-inner {
+  width: 100%;
+  min-height: 46px;
+  padding: 7px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 8px;
+  background: rgba(8,10,8,.84);
+  box-shadow: 0 10px 30px rgba(0,0,0,.34);
+  backdrop-filter: blur(9px);
+  -webkit-backdrop-filter: blur(9px);
+}
+
+.gearroom-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(244,238,226,.76);
+  font-size: 7px;
+  font-weight: 850;
+  letter-spacing: .07em;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.gearroom-step span {
+  width: 23px;
+  height: 23px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 23px;
+  border-radius: 50%;
+  border: 1px solid rgba(244,238,226,.34);
+  font-size: 8px;
+  font-weight: 950;
+}
+
+.gearroom-step.done span {
+  border-color: #477f68;
+  background: #477f68;
+  color: #fff;
+}
+
+.gearroom-step.current { color: #e4a14a; }
+
+.gearroom-step.current span {
+  border-color: #e4a14a;
+  color: #e4a14a;
+  box-shadow: 0 0 14px rgba(228,161,74,.24);
+}
+
+.gearroom-progress-inner > i {
+  flex: 1;
+  min-width: 15px;
+  max-width: 38px;
+  height: 1px;
+  background: rgba(244,238,226,.21);
+}
+
+a.gearroom-step:hover { color: #fff; }
+
+@media (max-width: 1100px) {
+  .gearroom-trip-overlay {
+    left: 25%;
+    width: 43%;
+  }
+
+  .gearroom-trip-line {
+    gap: 5px;
+    font-size: 7px;
+  }
+
+  .gearroom-build-fixed {
+    right: 8%;
+    width: 20%;
+    min-width: 180px;
+  }
+
+  .gearroom-progress { width: 68%; }
+  .gearroom-step { font-size: 6px; }
+}
+
+@media (max-width: 820px) {
+  .gearroom-trip-line { font-size: 6px; }
+
+  .gearroom-build-fixed {
+    right: 4%;
+    min-width: 160px;
+    font-size: 6px;
+  }
+
+  .gearroom-progress { width: 78%; }
+
+  .gearroom-progress-inner {
+    gap: 5px;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .gearroom-step {
+    gap: 4px;
+    font-size: 5px;
+  }
+
+  .gearroom-step span {
+    width: 20px;
+    height: 20px;
+    flex-basis: 20px;
+  }
 }
