@@ -106,6 +106,10 @@ export default function GearPage() {
   const [systemBuilt, setSystemBuilt] =
     useState(false);
 
+  /* =========================================================
+     READ USER PLANNER CHOICES
+  ========================================================= */
+
   useEffect(() => {
     const params =
       new URLSearchParams(window.location.search);
@@ -174,6 +178,10 @@ export default function GearPage() {
 
     setReady(true);
   }, []);
+
+  /* =========================================================
+     GEAR RECOMMENDATION LOGIC
+  ========================================================= */
 
   const gearSystem = useMemo(() => {
     const isRemote =
@@ -337,8 +345,15 @@ export default function GearPage() {
     duration,
   ]);
 
+  /* =========================================================
+     DEFAULT CHECKLIST STATE
+  ========================================================= */
+
   useEffect(() => {
-    const initialSelection: Record<string, boolean> = {};
+    const initialSelection: Record<
+      string,
+      boolean
+    > = {};
 
     Object.values(gearSystem)
       .flat()
@@ -348,6 +363,8 @@ export default function GearPage() {
 
     setSelectedItems(initialSelection);
   }, [gearSystem]);
+
+  /* ESC closes checklist */
 
   useEffect(() => {
     const handleEscape = (
@@ -387,10 +404,12 @@ export default function GearPage() {
     system: GearSystemKey
   ) => {
     setActiveSystem(system);
+    setSystemBuilt(false);
   };
 
   const closeChecklist = () => {
     setActiveSystem(null);
+    setSystemBuilt(false);
   };
 
   const buildGearSystem = () => {
@@ -398,6 +417,9 @@ export default function GearPage() {
   };
 
   const peopleLabel =
+    `${people}`;
+
+  const peopleLongLabel =
     `${people} ${
       people === 1
         ? "PERSON"
@@ -446,49 +468,194 @@ export default function GearPage() {
 
       <section className="gearroom-stage">
 
+        {/* =====================================================
+            NEW BACKGROUND IMAGE
+        ===================================================== */}
+
         <img
-          src="/gear-room.jpg"
+          src="/gear-room-v2.jpg"
           alt="RoamLab Gear Room"
           className="gearroom-bg"
           draggable={false}
         />
 
-        {/* DYNAMIC TRIP SUMMARY */}
-        <div className="gearroom-trip-overlay">
-          <div className="gearroom-trip-line">
+        {/* =====================================================
+            DYNAMIC TRIP SETUP
 
-            <span>
+            These five values sit inside the five blank boxes
+            baked into gear-room-v2.jpg.
+
+            No second summary line.
+        ===================================================== */}
+
+        <div
+          style={{
+            position: "absolute",
+            zIndex: 14,
+            top: "14.2%",
+            left: "15.9%",
+            width: "52.4%",
+            height: "6.7%",
+            pointerEvents: "none",
+          }}
+        >
+
+          {/* VEHICLE */}
+
+          <div
+            style={{
+              position: "absolute",
+              left: "0%",
+              top: 0,
+              width: "18%",
+              height: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              paddingLeft: "34px",
+            }}
+          >
+            <span
+              style={{
+                color: "#f1eadf",
+                fontSize: "12px",
+                fontWeight: 900,
+                letterSpacing: ".04em",
+                textShadow:
+                  "0 2px 6px rgba(0,0,0,.95)",
+                whiteSpace: "nowrap",
+              }}
+            >
               {vehicleLabels[vehicle]}
             </span>
+          </div>
 
-            <i>·</i>
+          {/* TRIP STYLE */}
 
-            <span>
+          <div
+            style={{
+              position: "absolute",
+              left: "18%",
+              top: 0,
+              width: "25%",
+              height: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              paddingLeft: "36px",
+            }}
+          >
+            <span
+              style={{
+                color: "#f1eadf",
+                fontSize: "11px",
+                fontWeight: 900,
+                letterSpacing: ".025em",
+                textShadow:
+                  "0 2px 6px rgba(0,0,0,.95)",
+                whiteSpace: "nowrap",
+              }}
+            >
               {tripLabels[trip]}
             </span>
+          </div>
 
-            <i>·</i>
+          {/* CREW */}
 
-            <span>
+          <div
+            style={{
+              position: "absolute",
+              left: "43%",
+              top: 0,
+              width: "18%",
+              height: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              paddingLeft: "32px",
+            }}
+          >
+            <span
+              style={{
+                color: "#f1eadf",
+                fontSize: "12px",
+                fontWeight: 900,
+                letterSpacing: ".04em",
+                textShadow:
+                  "0 2px 6px rgba(0,0,0,.95)",
+                whiteSpace: "nowrap",
+              }}
+            >
               {crewLabels[crew]}
             </span>
+          </div>
 
-            <i>·</i>
+          {/* PEOPLE */}
 
-            <span>
+          <div
+            style={{
+              position: "absolute",
+              left: "61%",
+              top: 0,
+              width: "18%",
+              height: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              paddingLeft: "26px",
+            }}
+          >
+            <span
+              style={{
+                color: "#f1eadf",
+                fontSize: "13px",
+                fontWeight: 900,
+                letterSpacing: ".04em",
+                textShadow:
+                  "0 2px 6px rgba(0,0,0,.95)",
+                whiteSpace: "nowrap",
+              }}
+            >
               {peopleLabel}
             </span>
+          </div>
 
-            <i>·</i>
+          {/* DURATION */}
 
-            <span>
+          <div
+            style={{
+              position: "absolute",
+              left: "79%",
+              top: 0,
+              width: "21%",
+              height: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              paddingLeft: "28px",
+            }}
+          >
+            <span
+              style={{
+                color: "#f1eadf",
+                fontSize: "11px",
+                fontWeight: 900,
+                letterSpacing: ".03em",
+                textShadow:
+                  "0 2px 6px rgba(0,0,0,.95)",
+                whiteSpace: "nowrap",
+              }}
+            >
               {durationLabels[duration]}
             </span>
-
           </div>
+
         </div>
 
-        {/* PERSONAL GEAR */}
+        {/* =====================================================
+            THREE GEAR AREAS
+        ===================================================== */}
+
         <button
           type="button"
           className={`gearroom-zone gearroom-personal ${
@@ -502,7 +669,6 @@ export default function GearPage() {
           aria-label="Open Personal Gear Checklist"
         />
 
-        {/* VEHICLE & CAMP */}
         <button
           type="button"
           className={`gearroom-zone gearroom-vehicle ${
@@ -516,7 +682,6 @@ export default function GearPage() {
           aria-label="Open Vehicle and Camp Gear Checklist"
         />
 
-        {/* SAFETY */}
         <button
           type="button"
           className={`gearroom-zone gearroom-safety ${
@@ -530,7 +695,10 @@ export default function GearPage() {
           aria-label="Open Safety and Emergency Checklist"
         />
 
-        {/* BACK */}
+        {/* =====================================================
+            BACK
+        ===================================================== */}
+
         <Link
           className="gearroom-back"
           href={
@@ -544,7 +712,10 @@ export default function GearPage() {
           ← DURATION
         </Link>
 
-        {/* BOTTOM PROGRESS */}
+        {/* =====================================================
+            BOTTOM PROGRESS
+        ===================================================== */}
+
         <div className="gearroom-progress">
 
           <div className="gearroom-progress-inner">
@@ -611,7 +782,10 @@ export default function GearPage() {
 
         </div>
 
-        {/* PROFESSIONAL CHECKLIST MODAL */}
+        {/* =====================================================
+            PROFESSIONAL CHECKLIST MODAL
+        ===================================================== */}
+
         {activeSystem && (
           <div
             className="gearroom-modal-backdrop"
@@ -642,6 +816,7 @@ export default function GearPage() {
               </button>
 
               {/* HEADER */}
+
               <header className="gearroom-checklist-header">
 
                 <div className="gearroom-checklist-brand">
@@ -677,7 +852,7 @@ export default function GearPage() {
                   <i>•</i>
 
                   <span>
-                    {peopleLabel}
+                    {peopleLongLabel}
                   </span>
 
                   <i>•</i>
@@ -691,12 +866,15 @@ export default function GearPage() {
               </header>
 
               {/* LIST */}
+
               <div className="gearroom-checklist-body">
 
                 <div className="gearroom-checklist-column-head">
+
                   <span>INCLUDE</span>
                   <span>GEAR CATEGORY</span>
                   <span>PRIORITY</span>
+
                 </div>
 
                 <div className="gearroom-checklist-items">
@@ -761,6 +939,7 @@ export default function GearPage() {
               </div>
 
               {/* SUMMARY */}
+
               <div className="gearroom-checklist-summary">
 
                 <div>
@@ -802,6 +981,7 @@ export default function GearPage() {
               </div>
 
               {/* FOOTER */}
+
               <footer className="gearroom-checklist-footer">
 
                 <div className="gearroom-checklist-note">
