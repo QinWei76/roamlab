@@ -1562,37 +1562,36 @@ a.planner-step:hover {
 }
 
 /* ============================================================
-   ROAMLAB — GEAR ROOM V4 SAFE
-   SCOPED — DOES NOT BLOCK OTHER PAGES
+   ROAMLAB — GEAR ROOM V4
+   Scoped to .gearroom-* only. Background never intercepts clicks.
 ============================================================ */
 
 .gearroom-page {
-  position: relative;
   width: 100%;
-  height: 100vh;
   min-height: 100vh;
   margin: 0;
   padding: 0;
   overflow: hidden;
-  background: #080908;
+  background: #070807;
 }
 
 .gearroom-stage {
   position: relative;
   width: 100%;
   height: 100vh;
+  min-height: 100vh;
   overflow: hidden;
+  background: #070807;
   isolation: isolate;
-  background: #080908;
 }
 
 .gearroom-bg {
   position: absolute;
   z-index: 1;
   inset: 0;
+  display: block;
   width: 100%;
   height: 100%;
-  display: block;
   object-fit: cover;
   object-position: center center;
   pointer-events: none;
@@ -1603,87 +1602,54 @@ a.planner-step:hover {
 .gearroom-loading {
   width: 100%;
   height: 100vh;
-  background: #080908;
+  background: #070807;
 }
 
-/* Dynamic trip summary */
-.gearroom-trip-overlay {
+/* ------------------------------------------------------------
+   TRIP SETUP — actual planner values in the five image cells
+------------------------------------------------------------ */
+
+.gearroom-trip-fields {
   position: absolute;
-  z-index: 10;
-  top: 4.4%;
-  left: 26.5%;
-  width: 40%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  z-index: 12;
+  top: 13.8%;
+  left: 15.25%;
+  width: 53.45%;
+  height: 8.2%;
+  display: grid;
+  grid-template-columns: 18.2% 24.5% 18.5% 17.9% 20.9%;
   pointer-events: none;
 }
 
-.gearroom-trip-line {
+.gearroom-trip-value {
+  min-width: 0;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
-  gap: 7px;
-  color: #eee4d2;
-  font-size: 8px;
+  padding: 0 5px 4px;
+  color: #f5eee2;
+  font-size: clamp(7px, .72vw, 11px);
   line-height: 1;
-  font-weight: 850;
-  letter-spacing: .07em;
+  font-weight: 900;
+  letter-spacing: .035em;
+  text-align: center;
   white-space: nowrap;
-  text-shadow: 0 2px 7px rgba(0,0,0,.9);
+  text-transform: uppercase;
+  text-shadow: 0 2px 6px rgba(0,0,0,.95);
+  pointer-events: none;
 }
 
-.gearroom-trip-line i {
-  color: rgba(224,158,68,.95);
-  font-style: normal;
+.gearroom-trip-value::after {
+  content: "";
 }
 
-/* Build CTA: below trip setup, on transition strip */
-.gearroom-build-fixed {
-  position: absolute;
-  z-index: 30;
-  top: 23.4%;
-  right: 11.5%;
-  left: auto;
-  width: 19%;
-  min-width: 210px;
-  min-height: 34px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0;
-  padding: 0 16px;
-  border: 0;
-  border-radius: 4px;
-  background: #dfa042;
-  color: #17120b;
-  font-family: inherit;
-  font-size: 7px;
-  line-height: 1;
-  font-weight: 950;
-  letter-spacing: .1em;
-  white-space: nowrap;
-  cursor: pointer;
-  pointer-events: auto;
-  opacity: 1;
-  visibility: visible;
-  box-shadow: 0 5px 14px rgba(0,0,0,.30);
-  transition: transform .18s ease, filter .18s ease, background .18s ease;
-}
+/* ------------------------------------------------------------
+   THREE GEAR WALL HOTSPOTS
+------------------------------------------------------------ */
 
-.gearroom-build-fixed:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.08);
-}
-
-.gearroom-build-fixed.is-built {
-  background: #bc873c;
-}
-
-/* Three gear-system hotspots */
 .gearroom-zone {
   position: absolute;
-  z-index: 20;
+  z-index: 25;
   display: block;
   margin: 0;
   padding: 0;
@@ -1693,181 +1659,79 @@ a.planner-step:hover {
   background: transparent;
   appearance: none;
   -webkit-appearance: none;
-  isolation: isolate;
-  transition: transform .2s ease, opacity .2s ease;
-}
-
-.gearroom-zone.disabled {
-  pointer-events: none;
-  cursor: default;
-}
-
-.gearroom-zone.enabled {
-  pointer-events: auto;
   cursor: pointer;
+  pointer-events: auto;
+  isolation: isolate;
+  transition: transform .18s ease;
 }
 
 .gearroom-zone::before {
   content: "";
   position: absolute;
-  inset: -2%;
+  inset: -1.5%;
   border-radius: inherit;
   background: radial-gradient(
     ellipse at center,
-    rgba(255,235,193,.27) 0%,
-    rgba(255,196,105,.16) 34%,
-    rgba(220,137,48,.07) 56%,
+    rgba(255,235,193,.22) 0%,
+    rgba(255,196,105,.12) 35%,
+    rgba(220,137,48,.05) 56%,
     transparent 80%
   );
-  filter: blur(14px);
+  filter: blur(12px);
   opacity: 0;
-  transform: scale(.97);
-  transition: opacity .22s ease, transform .25s ease;
+  transform: scale(.985);
+  transition: opacity .2s ease, transform .22s ease;
   pointer-events: none;
 }
 
-.gearroom-zone.enabled:hover::before,
+.gearroom-zone:hover::before,
+.gearroom-zone:focus-visible::before,
 .gearroom-zone.selected::before {
   opacity: 1;
-  transform: scale(1.02);
+  transform: scale(1.015);
 }
 
-.gearroom-zone.enabled:hover,
-.gearroom-zone.selected {
-  transform: translateY(-2px);
+.gearroom-zone:hover {
+  transform: translateY(-1px);
 }
 
 .gearroom-personal {
-  left: 17.2%;
+  left: 14.3%;
   top: 28.2%;
-  width: 23%;
-  height: 52%;
+  width: 23.2%;
+  height: 58.8%;
 }
 
 .gearroom-vehicle {
-  left: 40.5%;
+  left: 37.4%;
   top: 28.2%;
-  width: 25.5%;
-  height: 52%;
+  width: 27.2%;
+  height: 58.8%;
 }
 
 .gearroom-safety {
-  left: 66.6%;
+  left: 64.8%;
   top: 28.2%;
-  width: 23%;
-  height: 52%;
+  width: 27.0%;
+  height: 58.8%;
 }
 
-/* Drawer */
-.gearroom-drawer {
-  position: absolute;
-  z-index: 50;
-  top: 28%;
-  right: 2.2%;
-  width: min(350px,27%);
-  max-height: 55%;
-  overflow-y: auto;
-  padding: 20px;
-  border: 1px solid rgba(255,255,255,.09);
-  border-radius: 8px;
-  background: rgba(9,11,9,.96);
-  box-shadow: 0 20px 55px rgba(0,0,0,.52);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-}
+/* ------------------------------------------------------------
+   BACK + BOTTOM PROGRESS
+------------------------------------------------------------ */
 
-.gearroom-drawer-close {
-  position: absolute;
-  top: 8px;
-  right: 10px;
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: rgba(245,239,228,.55);
-  font-size: 22px;
-  line-height: 1;
-  cursor: pointer;
-}
-
-.gearroom-drawer-close:hover { color: #fff; }
-
-.gearroom-drawer-eyebrow {
-  display: block;
-  color: #db9a42;
-  font-size: 7px;
-  font-weight: 900;
-  letter-spacing: .18em;
-}
-
-.gearroom-drawer h2 {
-  margin: 6px 0 15px;
-  color: #f0e7d6;
-  font-size: 16px;
-  line-height: 1.1;
-  font-weight: 900;
-  letter-spacing: .035em;
-}
-
-.gearroom-list {
-  display: flex;
-  flex-direction: column;
-}
-
-.gearroom-list-item {
-  min-height: 37px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  border-top: 1px solid rgba(255,255,255,.07);
-}
-
-.gearroom-list-item span {
-  color: rgba(242,235,220,.88);
-  font-size: 9px;
-  font-weight: 750;
-}
-
-.gear-priority {
-  flex: 0 0 auto;
-  padding: 4px 6px;
-  border-radius: 3px;
-  font-size: 6px;
-  font-weight: 950;
-  letter-spacing: .1em;
-}
-
-.gear-priority.essential {
-  background: rgba(126,73,39,.78);
-  color: #f4d5ae;
-}
-
-.gear-priority.recommended {
-  background: rgba(66,105,78,.72);
-  color: #dcebd9;
-}
-
-.gear-priority.optional {
-  background: rgba(84,84,77,.70);
-  color: #d7d4c9;
-}
-
-/* Back */
 .gearroom-back {
   position: absolute;
   z-index: 35;
-  left: 1.3%;
-  bottom: 2.6%;
-  padding: 9px 13px;
-  border-radius: 5px;
-  background: rgba(8,9,8,.82);
-  color: rgba(245,239,228,.72);
+  left: 1.25%;
+  bottom: 1.55%;
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 12px;
+  border-radius: 4px;
+  background: rgba(8,9,8,.78);
+  color: rgba(245,239,228,.76);
   font-size: 7px;
   font-weight: 850;
   letter-spacing: .11em;
@@ -1875,16 +1739,18 @@ a.planner-step:hover {
   pointer-events: auto;
 }
 
-.gearroom-back:hover { color: #fff; }
+.gearroom-back:hover {
+  color: #fff;
+  background: rgba(8,9,8,.94);
+}
 
-/* Bottom progress */
 .gearroom-progress {
   position: absolute;
   z-index: 35;
   left: 50%;
-  bottom: 1.8%;
+  bottom: .55%;
   transform: translateX(-50%);
-  width: min(720px,55%);
+  width: min(720px,54%);
   pointer-events: auto;
 }
 
@@ -1896,12 +1762,13 @@ a.planner-step:hover {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  border: 1px solid rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.07);
   border-radius: 8px;
-  background: rgba(8,10,8,.84);
-  box-shadow: 0 10px 30px rgba(0,0,0,.34);
-  backdrop-filter: blur(9px);
-  -webkit-backdrop-filter: blur(9px);
+  background: rgba(7,9,7,.77);
+  box-shadow: 0 10px 30px rgba(0,0,0,.28);
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
+  pointer-events: auto;
 }
 
 .gearroom-step {
@@ -1914,15 +1781,16 @@ a.planner-step:hover {
   letter-spacing: .07em;
   text-decoration: none;
   white-space: nowrap;
+  pointer-events: auto;
 }
 
 .gearroom-step span {
-  width: 23px;
-  height: 23px;
+  width: 22px;
+  height: 22px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  flex: 0 0 23px;
+  flex: 0 0 auto;
   border-radius: 50%;
   border: 1px solid rgba(244,238,226,.34);
   font-size: 8px;
@@ -1935,60 +1803,382 @@ a.planner-step:hover {
   color: #fff;
 }
 
-.gearroom-step.current { color: #e4a14a; }
+.gearroom-step.current {
+  color: #e4a14a;
+}
 
 .gearroom-step.current span {
   border-color: #e4a14a;
   color: #e4a14a;
-  box-shadow: 0 0 14px rgba(228,161,74,.24);
+  box-shadow: 0 0 13px rgba(228,161,74,.22);
 }
 
 .gearroom-progress-inner > i {
-  flex: 1;
-  min-width: 15px;
+  flex: 1 1 24px;
+  min-width: 12px;
   max-width: 38px;
   height: 1px;
-  background: rgba(244,238,226,.21);
+  background: rgba(244,238,226,.2);
 }
 
-a.gearroom-step:hover { color: #fff; }
+a.gearroom-step:hover {
+  color: #fff;
+}
+
+/* ------------------------------------------------------------
+   PROFESSIONAL EXPEDITION CHECKLIST MODAL
+------------------------------------------------------------ */
+
+.gearroom-modal-backdrop {
+  position: absolute;
+  z-index: 80;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+  background: rgba(3,4,3,.58);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  pointer-events: auto;
+}
+
+.gearroom-checklist {
+  position: relative;
+  z-index: 81;
+  width: min(840px, 92vw);
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid rgba(222,205,173,.18);
+  border-radius: 10px;
+  background:
+    linear-gradient(rgba(16,18,15,.96), rgba(9,11,9,.985));
+  box-shadow: 0 28px 80px rgba(0,0,0,.62);
+  color: #eee7da;
+  pointer-events: auto;
+}
+
+.gearroom-checklist-close {
+  position: absolute;
+  z-index: 3;
+  top: 12px;
+  right: 14px;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0 0 2px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255,255,255,.045);
+  color: rgba(242,235,221,.68);
+  font: inherit;
+  font-size: 23px;
+  line-height: 1;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.gearroom-checklist-close:hover {
+  background: rgba(255,255,255,.09);
+  color: #fff;
+}
+
+.gearroom-checklist-header {
+  flex: 0 0 auto;
+  padding: 24px 56px 18px 28px;
+  border-bottom: 1px solid rgba(222,205,173,.12);
+  background:
+    linear-gradient(90deg, rgba(189,125,48,.085), transparent 45%);
+}
+
+.gearroom-checklist-brand {
+  margin-bottom: 4px;
+  color: #eee7da;
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: .15em;
+}
+
+.gearroom-checklist-kicker {
+  margin-bottom: 7px;
+  color: #d89b48;
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: .2em;
+}
+
+.gearroom-checklist-header h1 {
+  margin: 0;
+  color: #f4eee2;
+  font-size: clamp(22px, 2.1vw, 28px);
+  line-height: 1.08;
+  font-weight: 900;
+  letter-spacing: .025em;
+}
+
+.gearroom-checklist-trip {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  color: rgba(239,232,217,.68);
+  font-size: 10px;
+  font-weight: 760;
+  letter-spacing: .055em;
+}
+
+.gearroom-checklist-trip i {
+  color: #d4933d;
+  font-style: normal;
+}
+
+.gearroom-checklist-body {
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 0 28px;
+}
+
+.gearroom-checklist-column-head {
+  position: sticky;
+  z-index: 2;
+  top: 0;
+  display: grid;
+  grid-template-columns: 88px 1fr 132px;
+  align-items: center;
+  min-height: 34px;
+  border-bottom: 1px solid rgba(222,205,173,.1);
+  background: rgba(12,14,12,.98);
+  color: rgba(226,216,197,.44);
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: .15em;
+}
+
+.gearroom-checklist-column-head span:last-child {
+  text-align: right;
+}
+
+.gearroom-checklist-items {
+  display: flex;
+  flex-direction: column;
+}
+
+.gearroom-checklist-row {
+  width: 100%;
+  min-height: 54px;
+  display: grid;
+  grid-template-columns: 88px 1fr 132px;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid rgba(222,205,173,.09);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: background .16s ease;
+}
+
+.gearroom-checklist-row:hover {
+  background: rgba(255,255,255,.028);
+}
+
+.gearroom-check-box {
+  width: 23px;
+  height: 23px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(224,213,191,.38);
+  border-radius: 4px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.gearroom-checklist-row.is-checked .gearroom-check-box {
+  border-color: #4f826c;
+  background: #4f826c;
+}
+
+.gearroom-check-name {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  color: rgba(244,238,226,.92);
+  font-size: 14px;
+  font-weight: 760;
+  letter-spacing: .015em;
+}
+
+.gearroom-check-name small {
+  color: rgba(216,204,182,.32);
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: .08em;
+}
+
+.gearroom-priority {
+  justify-self: end;
+  min-width: 94px;
+  padding: 6px 8px;
+  border-radius: 3px;
+  font-size: 8px;
+  line-height: 1;
+  font-weight: 950;
+  letter-spacing: .09em;
+  text-align: center;
+}
+
+.gearroom-priority.essential {
+  background: #b87931;
+  color: #171109;
+}
+
+.gearroom-priority.recommended {
+  background: rgba(67,105,79,.86);
+  color: #edf4ee;
+}
+
+.gearroom-priority.optional {
+  background: rgba(103,105,99,.72);
+  color: #f0efe9;
+}
+
+.gearroom-checklist-summary {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid rgba(222,205,173,.12);
+  border-bottom: 1px solid rgba(222,205,173,.12);
+  background: rgba(255,255,255,.018);
+}
+
+.gearroom-checklist-summary > div {
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-right: 1px solid rgba(222,205,173,.08);
+}
+
+.gearroom-checklist-summary > div:last-child {
+  border-right: 0;
+}
+
+.gearroom-checklist-summary strong {
+  color: #e2a34d;
+  font-size: 17px;
+  line-height: 1;
+  font-weight: 950;
+}
+
+.gearroom-checklist-summary span {
+  color: rgba(231,222,205,.5);
+  font-size: 7px;
+  font-weight: 900;
+  letter-spacing: .11em;
+}
+
+.gearroom-checklist-footer {
+  flex: 0 0 auto;
+  min-height: 76px;
+  padding: 14px 24px 14px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.gearroom-checklist-note {
+  max-width: 390px;
+  color: rgba(229,220,203,.5);
+  font-size: 10px;
+  line-height: 1.45;
+  letter-spacing: .02em;
+}
+
+.gearroom-checklist-build {
+  flex: 0 0 auto;
+  min-width: 250px;
+  min-height: 46px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 5px;
+  background: #d99a42;
+  color: #18120b;
+  font: inherit;
+  font-size: 9px;
+  font-weight: 950;
+  letter-spacing: .08em;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: transform .16s ease, filter .16s ease, background .16s ease;
+}
+
+.gearroom-checklist-build:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+}
+
+.gearroom-checklist-build.is-built {
+  background: #4f826c;
+  color: #fff;
+}
+
+/* ------------------------------------------------------------
+   RESPONSIVE
+------------------------------------------------------------ */
 
 @media (max-width: 1100px) {
-  .gearroom-trip-overlay {
-    left: 25%;
-    width: 43%;
+  .duration2-nav-links {
+    gap: 11px;
   }
 
-  .gearroom-trip-line {
-    gap: 5px;
-    font-size: 7px;
+  .duration2-nav-links a,
+  .duration2-signin {
+    font-size: 8px;
   }
 
-  .gearroom-build-fixed {
-    right: 8%;
-    width: 20%;
-    min-width: 180px;
+  .gearroom-progress {
+    width: 64%;
   }
 
-  .gearroom-progress { width: 68%; }
-  .gearroom-step { font-size: 6px; }
-}
-
-@media (max-width: 820px) {
-  .gearroom-trip-line { font-size: 6px; }
-
-  .gearroom-build-fixed {
-    right: 4%;
-    min-width: 160px;
+  .gearroom-step {
     font-size: 6px;
   }
 
-  .gearroom-progress { width: 78%; }
+  .gearroom-step span {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+@media (max-width: 820px) {
+  .gearroom-trip-value {
+    font-size: 6px;
+    letter-spacing: 0;
+  }
+
+  .gearroom-progress {
+    width: 80%;
+  }
 
   .gearroom-progress-inner {
     gap: 5px;
-    padding-left: 8px;
-    padding-right: 8px;
+    padding-inline: 8px;
   }
 
   .gearroom-step {
@@ -1996,9 +2186,59 @@ a.gearroom-step:hover { color: #fff; }
     font-size: 5px;
   }
 
-  .gearroom-step span {
-    width: 20px;
-    height: 20px;
-    flex-basis: 20px;
+  .gearroom-progress-inner > i {
+    min-width: 5px;
+  }
+
+  .gearroom-modal-backdrop {
+    padding: 14px;
+  }
+
+  .gearroom-checklist {
+    width: 96vw;
+    max-height: 92vh;
+  }
+
+  .gearroom-checklist-header {
+    padding: 20px 45px 15px 18px;
+  }
+
+  .gearroom-checklist-body {
+    padding-inline: 18px;
+  }
+
+  .gearroom-checklist-column-head,
+  .gearroom-checklist-row {
+    grid-template-columns: 58px 1fr 106px;
+  }
+
+  .gearroom-check-name {
+    font-size: 12px;
+  }
+
+  .gearroom-priority {
+    min-width: 84px;
+    font-size: 7px;
+  }
+
+  .gearroom-checklist-footer {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .gearroom-checklist-build {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .duration2-page,
+  .duration2-stage,
+  .gearroom-page,
+  .gearroom-stage {
+    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
   }
 }
