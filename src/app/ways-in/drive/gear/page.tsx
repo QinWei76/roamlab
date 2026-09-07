@@ -72,6 +72,12 @@ const durationLabels: Record<DurationKey, string> = {
   extended: "8+ NIGHTS",
 };
 
+const systemTitles: Record<GearSystemKey, string> = {
+  personal: "PERSONAL GEAR",
+  vehicle: "VEHICLE & CAMP GEAR",
+  safety: "SAFETY & EMERGENCY",
+};
+
 export default function GearPage() {
   const [vehicle, setVehicle] =
     useState<VehicleKey>("suv");
@@ -91,11 +97,14 @@ export default function GearPage() {
   const [ready, setReady] =
     useState(false);
 
-  const [systemBuilt, setSystemBuilt] =
-    useState(false);
-
   const [activeSystem, setActiveSystem] =
     useState<GearSystemKey | null>(null);
+
+  const [selectedItems, setSelectedItems] =
+    useState<Record<string, boolean>>({});
+
+  const [systemBuilt, setSystemBuilt] =
+    useState(false);
 
   useEffect(() => {
     const params =
@@ -328,15 +337,101 @@ export default function GearPage() {
     duration,
   ]);
 
-  const buildSystem = () => {
+  useEffect(() => {
+    const initialSelection: Record<string, boolean> = {};
+
+    Object.values(gearSystem)
+      .flat()
+      .forEach((item) => {
+        initialSelection[item.name] = true;
+      });
+
+    setSelectedItems(initialSelection);
+  }, [gearSystem]);
+
+  useEffect(() => {
+    const handleEscape = (
+      event: KeyboardEvent
+    ) => {
+      if (event.key === "Escape") {
+        setActiveSystem(null);
+      }
+    };
+
+    window.addEventListener(
+      "keydown",
+      handleEscape
+    );
+
+    return () => {
+      window.removeEventListener(
+        "keydown",
+        handleEscape
+      );
+    };
+  }, []);
+
+  const toggleItem = (
+    itemName: string
+  ) => {
+    setSelectedItems((current) => ({
+      ...current,
+      [itemName]:
+        !current[itemName],
+    }));
+
+    setSystemBuilt(false);
+  };
+
+  const openChecklist = (
+    system: GearSystemKey
+  ) => {
+    setActiveSystem(system);
+  };
+
+  const closeChecklist = () => {
+    setActiveSystem(null);
+  };
+
+  const buildGearSystem = () => {
     setSystemBuilt(true);
-    setActiveSystem("personal");
   };
 
   const peopleLabel =
     `${people} ${
-      people === 1 ? "PERSON" : "PEOPLE"
+      people === 1
+        ? "PERSON"
+        : "PEOPLE"
     }`;
+
+  const currentItems =
+    activeSystem
+      ? gearSystem[activeSystem]
+      : [];
+
+  const currentSelectedCount =
+    currentItems.filter(
+      (item) =>
+        selectedItems[item.name]
+    ).length;
+
+  const essentialCount =
+    currentItems.filter(
+      (item) =>
+        item.priority === "essential"
+    ).length;
+
+  const recommendedCount =
+    currentItems.filter(
+      (item) =>
+        item.priority === "recommended"
+    ).length;
+
+  const optionalCount =
+    currentItems.filter(
+      (item) =>
+        item.priority === "optional"
+    ).length;
 
   if (!ready) {
     return (
@@ -348,9 +443,9 @@ export default function GearPage() {
 
   return (
     <main className="gearroom-page">
+
       <section className="gearroom-stage">
 
-        {/* BACKGROUND */}
         <img
           src="/gear-room.jpg"
           alt="RoamLab Gear Room"
@@ -393,130 +488,49 @@ export default function GearPage() {
           </div>
         </div>
 
-        {/* BUILD CTA */}
-        <button
-          type="button"
-          className={`gearroom-build-fixed ${
-            systemBuilt ? "is-built" : ""
-          }`}
-          onClick={buildSystem}
-        >
-          {systemBuilt
-            ? "✓ GEAR SYSTEM READY"
-            : "BUILD MY GEAR SYSTEM →"}
-        </button>
-
         {/* PERSONAL GEAR */}
         <button
           type="button"
           className={`gearroom-zone gearroom-personal ${
-            systemBuilt ? "enabled" : "disabled"
-          } ${
             activeSystem === "personal"
               ? "selected"
               : ""
           }`}
-          onClick={() => {
-            if (systemBuilt) {
-              setActiveSystem("personal");
-            }
-          }}
-          aria-label="Personal Gear"
+          onClick={() =>
+            openChecklist("personal")
+          }
+          aria-label="Open Personal Gear Checklist"
         />
 
-        {/* VEHICLE GEAR */}
+        {/* VEHICLE & CAMP */}
         <button
           type="button"
           className={`gearroom-zone gearroom-vehicle ${
-            systemBuilt ? "enabled" : "disabled"
-          } ${
             activeSystem === "vehicle"
               ? "selected"
               : ""
           }`}
-          onClick={() => {
-            if (systemBuilt) {
-              setActiveSystem("vehicle");
-            }
-          }}
-          aria-label="Vehicle and Camp Gear"
+          onClick={() =>
+            openChecklist("vehicle")
+          }
+          aria-label="Open Vehicle and Camp Gear Checklist"
         />
 
-        {/* SAFETY GEAR */}
+        {/* SAFETY */}
         <button
           type="button"
           className={`gearroom-zone gearroom-safety ${
-            systemBuilt ? "enabled" : "disabled"
-          } ${
             activeSystem === "safety"
               ? "selected"
               : ""
           }`}
-          onClick={() => {
-            if (systemBuilt) {
-              setActiveSystem("safety");
-            }
-          }}
-          aria-label="Safety and Emergency"
+          onClick={() =>
+            openChecklist("safety")
+          }
+          aria-label="Open Safety and Emergency Checklist"
         />
 
-        {/* DRAWER */}
-        {systemBuilt && activeSystem && (
-          <aside className="gearroom-drawer">
-
-            <button
-              type="button"
-              className="gearroom-drawer-close"
-              onClick={() =>
-                setActiveSystem(null)
-              }
-              aria-label="Close"
-            >
-              ×
-            </button>
-
-            <span className="gearroom-drawer-eyebrow">
-              YOUR GEAR SYSTEM
-            </span>
-
-            <h2>
-              {activeSystem === "personal" &&
-                "PERSONAL GEAR"}
-
-              {activeSystem === "vehicle" &&
-                "VEHICLE & CAMP GEAR"}
-
-              {activeSystem === "safety" &&
-                "SAFETY & EMERGENCY"}
-            </h2>
-
-            <div className="gearroom-list">
-
-              {gearSystem[activeSystem].map(
-                (item) => (
-                  <div
-                    className="gearroom-list-item"
-                    key={item.name}
-                  >
-                    <span>
-                      {item.name}
-                    </span>
-
-                    <strong
-                      className={`gear-priority ${item.priority}`}
-                    >
-                      {item.priority.toUpperCase()}
-                    </strong>
-                  </div>
-                )
-              )}
-
-            </div>
-
-          </aside>
-        )}
-
-        {/* BACK TO DURATION */}
+        {/* BACK */}
         <Link
           className="gearroom-back"
           href={
@@ -597,7 +611,227 @@ export default function GearPage() {
 
         </div>
 
+        {/* PROFESSIONAL CHECKLIST MODAL */}
+        {activeSystem && (
+          <div
+            className="gearroom-modal-backdrop"
+            onMouseDown={(event) => {
+              if (
+                event.target ===
+                event.currentTarget
+              ) {
+                closeChecklist();
+              }
+            }}
+          >
+
+            <section
+              className="gearroom-checklist"
+              role="dialog"
+              aria-modal="true"
+              aria-label={`${systemTitles[activeSystem]} checklist`}
+            >
+
+              <button
+                type="button"
+                className="gearroom-checklist-close"
+                onClick={closeChecklist}
+                aria-label="Close checklist"
+              >
+                ×
+              </button>
+
+              {/* HEADER */}
+              <header className="gearroom-checklist-header">
+
+                <div className="gearroom-checklist-brand">
+                  ROAMLAB
+                </div>
+
+                <div className="gearroom-checklist-kicker">
+                  EXPEDITION GEAR CHECKLIST
+                </div>
+
+                <h1>
+                  {systemTitles[activeSystem]}
+                </h1>
+
+                <div className="gearroom-checklist-trip">
+
+                  <span>
+                    {vehicleLabels[vehicle]}
+                  </span>
+
+                  <i>•</i>
+
+                  <span>
+                    {tripLabels[trip]}
+                  </span>
+
+                  <i>•</i>
+
+                  <span>
+                    {crewLabels[crew]}
+                  </span>
+
+                  <i>•</i>
+
+                  <span>
+                    {peopleLabel}
+                  </span>
+
+                  <i>•</i>
+
+                  <span>
+                    {durationLabels[duration]}
+                  </span>
+
+                </div>
+
+              </header>
+
+              {/* LIST */}
+              <div className="gearroom-checklist-body">
+
+                <div className="gearroom-checklist-column-head">
+                  <span>INCLUDE</span>
+                  <span>GEAR CATEGORY</span>
+                  <span>PRIORITY</span>
+                </div>
+
+                <div className="gearroom-checklist-items">
+
+                  {currentItems.map(
+                    (item, index) => {
+
+                      const checked =
+                        selectedItems[item.name] ??
+                        true;
+
+                      return (
+                        <button
+                          type="button"
+                          className={`gearroom-checklist-row ${
+                            checked
+                              ? "is-checked"
+                              : ""
+                          }`}
+                          key={item.name}
+                          onClick={() =>
+                            toggleItem(
+                              item.name
+                            )
+                          }
+                        >
+
+                          <span className="gearroom-check-box">
+                            {checked
+                              ? "✓"
+                              : ""}
+                          </span>
+
+                          <span className="gearroom-check-name">
+
+                            <small>
+                              {String(
+                                index + 1
+                              ).padStart(
+                                2,
+                                "0"
+                              )}
+                            </small>
+
+                            {item.name}
+
+                          </span>
+
+                          <strong
+                            className={`gearroom-priority ${item.priority}`}
+                          >
+                            {item.priority.toUpperCase()}
+                          </strong>
+
+                        </button>
+                      );
+                    }
+                  )}
+
+                </div>
+
+              </div>
+
+              {/* SUMMARY */}
+              <div className="gearroom-checklist-summary">
+
+                <div>
+                  <strong>
+                    {currentSelectedCount}
+                  </strong>
+                  <span>
+                    SELECTED
+                  </span>
+                </div>
+
+                <div>
+                  <strong>
+                    {essentialCount}
+                  </strong>
+                  <span>
+                    ESSENTIAL
+                  </span>
+                </div>
+
+                <div>
+                  <strong>
+                    {recommendedCount}
+                  </strong>
+                  <span>
+                    RECOMMENDED
+                  </span>
+                </div>
+
+                <div>
+                  <strong>
+                    {optionalCount}
+                  </strong>
+                  <span>
+                    OPTIONAL
+                  </span>
+                </div>
+
+              </div>
+
+              {/* FOOTER */}
+              <footer className="gearroom-checklist-footer">
+
+                <div className="gearroom-checklist-note">
+                  Review the categories for your trip,
+                  then build your complete gear system.
+                </div>
+
+                <button
+                  type="button"
+                  className={`gearroom-checklist-build ${
+                    systemBuilt
+                      ? "is-built"
+                      : ""
+                  }`}
+                  onClick={buildGearSystem}
+                >
+                  {systemBuilt
+                    ? "✓ GEAR SYSTEM BUILT"
+                    : "BUILD MY GEAR SYSTEM →"}
+                </button>
+
+              </footer>
+
+            </section>
+
+          </div>
+        )}
+
       </section>
+
     </main>
   );
 }
