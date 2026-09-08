@@ -481,7 +481,7 @@ button {
 }
 
 .planner-step-label {
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 850;
   letter-spacing: 0.08em;
 }
@@ -1110,7 +1110,7 @@ a.planner-step:hover {
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.035);
   color: rgba(245, 239, 228, 0.72);
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 850;
   cursor: pointer;
   transition:
@@ -1622,63 +1622,21 @@ a.planner-step:hover {
 }
 
 .gearroom-trip-value {
-  position: absolute;
-  top: 0;
-  height: 100%;
+  min-width: 0;
   display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  color: #f3eadb;
-  font-weight: 850;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0 5px 4px;
+  color: #f5eee2;
+  font-size: clamp(7px, .72vw, 11px);
   line-height: 1;
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.95);
+  font-weight: 900;
+  letter-spacing: .035em;
+  text-align: center;
   white-space: nowrap;
+  text-transform: uppercase;
+  text-shadow: 0 2px 6px rgba(0,0,0,.95);
   pointer-events: none;
-}
-
-/* 01 — Vehicle */
-.gearroom-trip-vehicle {
-  left: 0;
-  width: 18%;
-  padding-left: 58px;
-  font-size: 10px;
-  letter-spacing: 0.04em;
-}
-
-/* 02 — Trip Style */
-.gearroom-trip-style {
-  left: 18%;
-  width: 25%;
-  padding-left: 62px;
-  font-size: 9px;
-  letter-spacing: 0.015em;
-}
-
-/* 03 — Crew */
-.gearroom-trip-crew {
-  left: 43%;
-  width: 18%;
-  padding-left: 56px;
-  font-size: 10px;
-  letter-spacing: 0.035em;
-}
-
-/* 04 — People */
-.gearroom-trip-people {
-  left: 61%;
-  width: 18%;
-  padding-left: 54px;
-  font-size: 10px;
-  letter-spacing: 0.04em;
-}
-
-/* 05 — Duration */
-.gearroom-trip-duration {
-  left: 79%;
-  width: 21%;
-  padding-left: 58px;
-  font-size: 9px;
-  letter-spacing: 0.02em;
 }
 
 .gearroom-trip-value::after {
@@ -1888,8 +1846,8 @@ a.gearroom-step:hover {
 .gearroom-checklist {
   position: relative;
   z-index: 81;
-  width: min(840px, 92vw);
-  max-height: 88vh;
+  width: min(920px, 94vw);
+  max-height: 91vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -1941,7 +1899,7 @@ a.gearroom-step:hover {
 .gearroom-checklist-brand {
   margin-bottom: 4px;
   color: #eee7da;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 950;
   letter-spacing: .15em;
 }
@@ -1949,15 +1907,15 @@ a.gearroom-step:hover {
 .gearroom-checklist-kicker {
   margin-bottom: 7px;
   color: #d89b48;
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 900;
-  letter-spacing: .2em;
+  letter-spacing: .18em;
 }
 
 .gearroom-checklist-header h1 {
   margin: 0;
   color: #f4eee2;
-  font-size: clamp(22px, 2.1vw, 28px);
+  font-size: clamp(26px, 2.35vw, 34px);
   line-height: 1.08;
   font-weight: 900;
   letter-spacing: .025em;
@@ -1970,7 +1928,7 @@ a.gearroom-step:hover {
   flex-wrap: wrap;
   gap: 7px;
   color: rgba(239,232,217,.68);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 760;
   letter-spacing: .055em;
 }
@@ -1994,13 +1952,13 @@ a.gearroom-step:hover {
   display: grid;
   grid-template-columns: 88px 1fr 132px;
   align-items: center;
-  min-height: 34px;
+  min-height: 40px;
   border-bottom: 1px solid rgba(222,205,173,.1);
   background: rgba(12,14,12,.98);
   color: rgba(226,216,197,.44);
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 900;
-  letter-spacing: .15em;
+  letter-spacing: .13em;
 }
 
 .gearroom-checklist-column-head span:last-child {
@@ -2014,7 +1972,7 @@ a.gearroom-step:hover {
 
 .gearroom-checklist-row {
   width: 100%;
-  min-height: 54px;
+  min-height: 60px;
   display: grid;
   grid-template-columns: 88px 1fr 132px;
   align-items: center;
@@ -2059,24 +2017,24 @@ a.gearroom-step:hover {
   align-items: center;
   gap: 13px;
   color: rgba(244,238,226,.92);
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 760;
   letter-spacing: .015em;
 }
 
 .gearroom-check-name small {
   color: rgba(216,204,182,.32);
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 850;
   letter-spacing: .08em;
 }
 
 .gearroom-priority {
   justify-self: end;
-  min-width: 94px;
-  padding: 6px 8px;
+  min-width: 108px;
+  padding: 7px 9px;
   border-radius: 3px;
-  font-size: 8px;
+  font-size: 10px;
   line-height: 1;
   font-weight: 950;
   letter-spacing: .09em;
@@ -2108,7 +2066,7 @@ a.gearroom-step:hover {
 }
 
 .gearroom-checklist-summary > div {
-  min-height: 56px;
+  min-height: 62px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2122,21 +2080,21 @@ a.gearroom-step:hover {
 
 .gearroom-checklist-summary strong {
   color: #e2a34d;
-  font-size: 17px;
+  font-size: 20px;
   line-height: 1;
   font-weight: 950;
 }
 
 .gearroom-checklist-summary span {
   color: rgba(231,222,205,.5);
-  font-size: 7px;
+  font-size: 9px;
   font-weight: 900;
-  letter-spacing: .11em;
+  letter-spacing: .1em;
 }
 
 .gearroom-checklist-footer {
   flex: 0 0 auto;
-  min-height: 76px;
+  min-height: 86px;
   padding: 14px 24px 14px 28px;
   display: flex;
   align-items: center;
@@ -2147,22 +2105,22 @@ a.gearroom-step:hover {
 .gearroom-checklist-note {
   max-width: 390px;
   color: rgba(229,220,203,.5);
-  font-size: 10px;
-  line-height: 1.45;
+  font-size: 12px;
+  line-height: 1.5;
   letter-spacing: .02em;
 }
 
 .gearroom-checklist-build {
   flex: 0 0 auto;
-  min-width: 250px;
-  min-height: 46px;
+  min-width: 285px;
+  min-height: 52px;
   padding: 0 18px;
   border: 0;
   border-radius: 5px;
   background: #d99a42;
   color: #18120b;
   font: inherit;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 950;
   letter-spacing: .08em;
   cursor: pointer;
@@ -2178,6 +2136,54 @@ a.gearroom-step:hover {
 .gearroom-checklist-build.is-built {
   background: #4f826c;
   color: #fff;
+}
+
+/* ------------------------------------------------------------
+   FINAL COMBINED GEAR SYSTEM
+------------------------------------------------------------ */
+
+.gearroom-final-system {
+  width: min(980px, 95vw);
+  max-height: 92vh;
+}
+
+.gearroom-final-body {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+.gearroom-final-section {
+  margin-bottom: 18px;
+}
+
+.gearroom-final-section:last-child {
+  margin-bottom: 0;
+}
+
+.gearroom-final-section-head {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px;
+  border-bottom: 1px solid rgba(222,205,173,.16);
+  color: #e0a04a;
+  font-size: 13px;
+  font-weight: 950;
+  letter-spacing: .1em;
+}
+
+.gearroom-final-section-head span {
+  color: rgba(239,232,217,.66);
+  font-size: 11px;
+}
+
+.gearroom-final-system .gearroom-checklist-row {
+  cursor: default;
+}
+
+.gearroom-final-system .gearroom-checklist-row:hover {
+  background: transparent;
 }
 
 /* ------------------------------------------------------------
