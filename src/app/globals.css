@@ -1624,19 +1624,42 @@ a.planner-step:hover {
 .gearroom-trip-value {
   min-width: 0;
   display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding: 0 5px 4px;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0;
   color: #f5eee2;
-  font-size: clamp(7px, .72vw, 11px);
+  font-size: clamp(8px, .78vw, 12px);
   line-height: 1;
   font-weight: 900;
-  letter-spacing: .035em;
-  text-align: center;
+  letter-spacing: .025em;
+  text-align: left;
   white-space: nowrap;
   text-transform: uppercase;
   text-shadow: 0 2px 6px rgba(0,0,0,.95);
   pointer-events: none;
+}
+
+/* Keep the dynamic labels clear of the baked-in icons. */
+.gearroom-trip-vehicle {
+  padding-left: clamp(42px, 4.3vw, 64px);
+}
+
+.gearroom-trip-style {
+  padding-left: clamp(48px, 4.6vw, 70px);
+  font-size: clamp(7px, .68vw, 10px);
+}
+
+.gearroom-trip-crew {
+  padding-left: clamp(42px, 4.2vw, 64px);
+}
+
+.gearroom-trip-people {
+  padding-left: clamp(38px, 4vw, 58px);
+}
+
+.gearroom-trip-duration {
+  padding-left: clamp(44px, 4.3vw, 66px);
+  font-size: clamp(7px, .72vw, 11px);
 }
 
 .gearroom-trip-value::after {
@@ -2216,8 +2239,27 @@ a.gearroom-step:hover {
 
 @media (max-width: 820px) {
   .gearroom-trip-value {
-    font-size: 6px;
+    font-size: 7px;
     letter-spacing: 0;
+  }
+
+  .gearroom-trip-vehicle,
+  .gearroom-trip-crew {
+    padding-left: 34px;
+  }
+
+  .gearroom-trip-style {
+    padding-left: 38px;
+    font-size: 6.5px;
+  }
+
+  .gearroom-trip-people {
+    padding-left: 31px;
+  }
+
+  .gearroom-trip-duration {
+    padding-left: 36px;
+    font-size: 6.5px;
   }
 
   .gearroom-progress {
