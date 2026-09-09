@@ -56,24 +56,35 @@ const stepNumber: Record<GearSystemKey, number> = {
   safety: 3,
 };
 
-const isVehicleKey = (v: string | null): v is VehicleKey =>
-  ["suv", "truck", "van", "crossover", "city"].includes(v || "");
+const systemOrder: GearSystemKey[] = [
+  "personal",
+  "vehicle",
+  "safety",
+];
 
-const isTripKey = (v: string | null): v is TripKey =>
-  ["weekend", "road-trip", "basecamp", "remote"].includes(v || "");
+const isVehicleKey = (value: string | null): value is VehicleKey =>
+  ["suv", "truck", "van", "crossover", "city"].includes(value || "");
 
-const isCrewKey = (v: string | null): v is CrewKey =>
-  ["solo", "couple", "family", "friends"].includes(v || "");
+const isTripKey = (value: string | null): value is TripKey =>
+  ["weekend", "road-trip", "basecamp", "remote"].includes(value || "");
 
-const isDurationKey = (v: string | null): v is DurationKey =>
-  ["overnight", "weekend", "multi-day", "extended"].includes(v || "");
+const isCrewKey = (value: string | null): value is CrewKey =>
+  ["solo", "couple", "family", "friends"].includes(value || "");
+
+const isDurationKey = (
+  value: string | null
+): value is DurationKey =>
+  ["overnight", "weekend", "multi-day", "extended"].includes(
+    value || ""
+  );
 
 export default function GearPage() {
   const [vehicle, setVehicle] = useState<VehicleKey>("suv");
   const [trip, setTrip] = useState<TripKey>("weekend");
   const [crew, setCrew] = useState<CrewKey>("couple");
   const [people, setPeople] = useState(2);
-  const [duration, setDuration] = useState<DurationKey>("weekend");
+  const [duration, setDuration] =
+    useState<DurationKey>("weekend");
 
   const [ready, setReady] = useState(false);
 
@@ -92,7 +103,8 @@ export default function GearPage() {
     Record<string, boolean>
   >({});
 
-  const [showFinalSystem, setShowFinalSystem] = useState(false);
+  const [showFinalSystem, setShowFinalSystem] =
+    useState(false);
 
   /* =====================================================
      READ URL PARAMETERS
@@ -101,20 +113,31 @@ export default function GearPage() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
 
-    const v = params.get("vehicle");
-    const t = params.get("trip");
-    const c = params.get("crew");
-    const d = params.get("duration");
+    const vehicleParam = params.get("vehicle");
+    const tripParam = params.get("trip");
+    const crewParam = params.get("crew");
+    const durationParam = params.get("duration");
 
-    if (isVehicleKey(v)) setVehicle(v);
-    if (isTripKey(t)) setTrip(t);
-    if (isCrewKey(c)) setCrew(c);
-    if (isDurationKey(d)) setDuration(d);
+    if (isVehicleKey(vehicleParam)) {
+      setVehicle(vehicleParam);
+    }
 
-    const n = Number(params.get("people"));
+    if (isTripKey(tripParam)) {
+      setTrip(tripParam);
+    }
 
-    if (Number.isFinite(n) && n > 0) {
-      setPeople(n);
+    if (isCrewKey(crewParam)) {
+      setCrew(crewParam);
+    }
+
+    if (isDurationKey(durationParam)) {
+      setDuration(durationParam);
+    }
+
+    const peopleParam = Number(params.get("people"));
+
+    if (Number.isFinite(peopleParam) && peopleParam > 0) {
+      setPeople(peopleParam);
     }
 
     setReady(true);
@@ -128,7 +151,8 @@ export default function GearPage() {
     const isRemote = trip === "remote";
 
     const isLong =
-      duration === "multi-day" || duration === "extended";
+      duration === "multi-day" ||
+      duration === "extended";
 
     const isLargeCrew = people >= 4;
 
@@ -145,7 +169,9 @@ export default function GearPage() {
       },
       {
         name: "Personal Lighting",
-        priority: isRemote ? "essential" : "recommended",
+        priority: isRemote
+          ? "essential"
+          : "recommended",
       },
       {
         name: "Water & Hydration",
@@ -153,7 +179,9 @@ export default function GearPage() {
       },
       {
         name: "Hygiene Kit",
-        priority: isLong ? "essential" : "recommended",
+        priority: isLong
+          ? "essential"
+          : "recommended",
       },
       {
         name: "Personal Essentials",
@@ -169,7 +197,9 @@ export default function GearPage() {
       {
         name: "Power",
         priority:
-          isRemote || isLong ? "essential" : "recommended",
+          isRemote || isLong
+            ? "essential"
+            : "recommended",
       },
       {
         name: "Cooking",
@@ -198,8 +228,9 @@ export default function GearPage() {
       },
       {
         name: "Storage & Organization",
-        priority:
-          isCityCar ? "essential" : "recommended",
+        priority: isCityCar
+          ? "essential"
+          : "recommended",
       },
       {
         name: "Shelter",
@@ -232,8 +263,9 @@ export default function GearPage() {
       },
       {
         name: "Vehicle Recovery",
-        priority:
-          isRemote ? "essential" : "recommended",
+        priority: isRemote
+          ? "essential"
+          : "recommended",
       },
       {
         name: "Jump Start / Backup Power",
@@ -241,13 +273,15 @@ export default function GearPage() {
       },
       {
         name: "Navigation",
-        priority:
-          isRemote ? "essential" : "recommended",
+        priority: isRemote
+          ? "essential"
+          : "recommended",
       },
       {
         name: "Emergency Communication",
-        priority:
-          isRemote ? "essential" : "optional",
+        priority: isRemote
+          ? "essential"
+          : "optional",
       },
       {
         name: "Emergency Water & Food",
@@ -282,7 +316,7 @@ export default function GearPage() {
   }, [gearSystem]);
 
   /* =====================================================
-     ESC KEY
+     ESCAPE
   ===================================================== */
 
   useEffect(() => {
@@ -296,7 +330,10 @@ export default function GearPage() {
     window.addEventListener("keydown", handleEscape);
 
     return () => {
-      window.removeEventListener("keydown", handleEscape);
+      window.removeEventListener(
+        "keydown",
+        handleEscape
+      );
     };
   }, []);
 
@@ -305,10 +342,6 @@ export default function GearPage() {
   ===================================================== */
 
   const openChecklist = (key: GearSystemKey) => {
-    /*
-      Important:
-      opening a checklist NEVER opens the final summary.
-    */
     setShowFinalSystem(false);
     setActiveSystem(key);
   };
@@ -365,12 +398,10 @@ export default function GearPage() {
     reviewed.safety;
 
   /* =====================================================
-     REVIEW CHECKLIST
+     REVIEW LOGIC
 
-     KEY FIX:
-     - first review can guide to next checklist
-     - repeat review returns to Gear Room
-     - NEVER opens final summary
+     IMPORTANT:
+     Checklist never opens final summary automatically.
   ===================================================== */
 
   const reviewAndContinue = () => {
@@ -378,7 +409,8 @@ export default function GearPage() {
 
     const current = activeSystem;
 
-    const wasAlreadyReviewed = reviewed[current];
+    const wasAlreadyReviewed =
+      reviewed[current];
 
     const nextReviewed = {
       ...reviewed,
@@ -388,22 +420,19 @@ export default function GearPage() {
     setReviewed(nextReviewed);
 
     /*
-      If user is editing an already reviewed checklist,
-      simply save and return to Gear Room.
+      Repeat visit:
+      save changes and return to Gear Room.
     */
+
     if (wasAlreadyReviewed) {
       setActiveSystem(null);
       return;
     }
 
     /*
-      FIRST-TIME GUIDED FLOW.
-
-      Personal -> Vehicle
-      Vehicle -> Safety
-
-      If user started out of order, we guide toward
-      whichever checklist has not yet been reviewed.
+      First-time guided flow.
+      Find the next checklist that has not
+      yet been reviewed.
     */
 
     if (!nextReviewed.personal) {
@@ -422,35 +451,27 @@ export default function GearPage() {
     }
 
     /*
-      All three reviewed.
+      All three have now been reviewed.
+      Return to Gear Room.
 
-      IMPORTANT:
-      return to Gear Room.
-      Do NOT open final summary automatically.
+      DO NOT open final system automatically.
     */
 
     setActiveSystem(null);
   };
 
   /* =====================================================
-     CHECKLIST BUTTON LABEL
+     ACTION LABEL
   ===================================================== */
 
   const getActionLabel = () => {
-    if (!activeSystem) return "";
-
-    /*
-      Repeat visit = editing.
-    */
+    if (!activeSystem) {
+      return "";
+    }
 
     if (reviewed[activeSystem]) {
       return "SAVE CHANGES & RETURN →";
     }
-
-    /*
-      Work out what remains after current checklist
-      becomes reviewed.
-    */
 
     const nextReviewed = {
       ...reviewed,
@@ -469,22 +490,19 @@ export default function GearPage() {
       return "NEXT: SAFETY & EMERGENCY →";
     }
 
-    /*
-      Last first-time checklist.
-      We return to Gear Room, where Build becomes available.
-    */
-
     return "SAVE & RETURN TO GEAR ROOM →";
   };
 
   /* =====================================================
-     BUILD FINAL SYSTEM
+     FINAL SYSTEM
 
-     This is the ONLY function that opens final summary.
+     ONLY this action opens the summary.
   ===================================================== */
 
   const buildGearSystem = () => {
-    if (!allReviewed) return;
+    if (!allReviewed) {
+      return;
+    }
 
     setActiveSystem(null);
     setShowFinalSystem(true);
@@ -497,17 +515,22 @@ export default function GearPage() {
   const tripSummary = (
     <div className="gearroom-checklist-trip">
       <span>{vehicleLabels[vehicle]}</span>
+
       <i>•</i>
 
       <span>{tripLabels[trip]}</span>
+
       <i>•</i>
 
       <span>{crewLabels[crew]}</span>
+
       <i>•</i>
 
       <span>
-        {people} {people === 1 ? "PERSON" : "PEOPLE"}
+        {people}{" "}
+        {people === 1 ? "PERSON" : "PEOPLE"}
       </span>
+
       <i>•</i>
 
       <span>{durationLabels[duration]}</span>
@@ -515,11 +538,30 @@ export default function GearPage() {
   );
 
   /* =====================================================
-     FINAL SYSTEM ROWS
+     FINAL SUMMARY ROWS
   ===================================================== */
 
-  const renderRows = (key: GearSystemKey) =>
-    selectedFor(key).map((item, index) => (
+  const renderFinalRows = (
+    key: GearSystemKey
+  ) => {
+    const items = selectedFor(key);
+
+    if (items.length === 0) {
+      return (
+        <div
+          style={{
+            padding: "20px 8px",
+            opacity: 0.55,
+            fontSize: "12px",
+            letterSpacing: ".08em",
+          }}
+        >
+          NO CATEGORIES SELECTED
+        </div>
+      );
+    }
+
+    return items.map((item, index) => (
       <div
         key={`${key}-${item.name}`}
         className="gearroom-checklist-row is-checked"
@@ -530,7 +572,10 @@ export default function GearPage() {
 
         <span className="gearroom-check-name">
           <small>
-            {String(index + 1).padStart(2, "0")}
+            {String(index + 1).padStart(
+              2,
+              "0"
+            )}
           </small>
 
           {item.name}
@@ -543,6 +588,7 @@ export default function GearPage() {
         </strong>
       </div>
     ));
+  };
 
   /* =====================================================
      LOADING
@@ -570,7 +616,9 @@ export default function GearPage() {
     <main className="gearroom-page">
       <section className="gearroom-stage">
 
-        {/* BACKGROUND */}
+        {/* ===============================================
+            BACKGROUND
+        =============================================== */}
 
         <img
           src="/gear-room-v2.jpg"
@@ -579,7 +627,9 @@ export default function GearPage() {
           draggable={false}
         />
 
-        {/* TRIP SETUP */}
+        {/* ===============================================
+            TRIP SETUP VALUES
+        =============================================== */}
 
         <div className="gearroom-trip-fields">
 
@@ -605,43 +655,42 @@ export default function GearPage() {
 
         </div>
 
-        {/* =================================================
-            THREE GEAR ROOM HOTSPOTS
+        {/* ===============================================
+            GEAR ROOM HOTSPOTS
 
             ALWAYS CLICKABLE
-        ================================================= */}
+        =============================================== */}
 
         <button
           type="button"
           className="gearroom-zone gearroom-personal"
-          onClick={() => openChecklist("personal")}
+          onClick={() =>
+            openChecklist("personal")
+          }
           aria-label="Open Personal Gear Checklist"
         />
 
         <button
           type="button"
           className="gearroom-zone gearroom-vehicle"
-          onClick={() => openChecklist("vehicle")}
+          onClick={() =>
+            openChecklist("vehicle")
+          }
           aria-label="Open Vehicle and Camp Gear Checklist"
         />
 
         <button
           type="button"
           className="gearroom-zone gearroom-safety"
-          onClick={() => openChecklist("safety")}
+          onClick={() =>
+            openChecklist("safety")
+          }
           aria-label="Open Safety and Emergency Checklist"
         />
 
-        {/* =================================================
+        {/* ===============================================
             BUILD BUTTON
-
-            IMPORTANT:
-            This uses existing checklist-build styling,
-            so globals.css does not need to change.
-
-            It appears only after all three checklists
-            have been reviewed.
-        ================================================= */}
+        =============================================== */}
 
         {allReviewed &&
           !activeSystem &&
@@ -652,7 +701,8 @@ export default function GearPage() {
                 zIndex: 40,
                 left: "50%",
                 bottom: "11%",
-                transform: "translateX(-50%)",
+                transform:
+                  "translateX(-50%)",
                 pointerEvents: "auto",
               }}
             >
@@ -666,7 +716,9 @@ export default function GearPage() {
             </div>
           )}
 
-        {/* BACK TO DURATION */}
+        {/* ===============================================
+            BACK
+        =============================================== */}
 
         <Link
           className="gearroom-back"
@@ -675,9 +727,9 @@ export default function GearPage() {
           ← DURATION
         </Link>
 
-        {/* =================================================
+        {/* ===============================================
             BOTTOM PROGRESS
-        ================================================= */}
+        =============================================== */}
 
         <div className="gearroom-progress">
           <div className="gearroom-progress-inner">
@@ -730,15 +782,18 @@ export default function GearPage() {
           </div>
         </div>
 
-        {/* =================================================
+        {/* ===============================================
             CHECKLIST MODAL
-        ================================================= */}
+        =============================================== */}
 
         {activeSystem && (
           <div
             className="gearroom-modal-backdrop"
             onMouseDown={(event) => {
-              if (event.target === event.currentTarget) {
+              if (
+                event.target ===
+                event.currentTarget
+              ) {
                 closeChecklist();
               }
             }}
@@ -748,8 +803,6 @@ export default function GearPage() {
               role="dialog"
               aria-modal="true"
             >
-
-              {/* CLOSE */}
 
               <button
                 type="button"
@@ -769,8 +822,11 @@ export default function GearPage() {
                 </div>
 
                 <div className="gearroom-checklist-kicker">
-                  EXPEDITION GEAR CHECKLIST · STEP{" "}
+                  EXPEDITION GEAR CHECKLIST
+                  {" · "}
+                  STEP{" "}
                   {stepNumber[activeSystem]} OF 3
+
                   {reviewed[activeSystem]
                     ? " · REVIEWED"
                     : ""}
@@ -789,9 +845,15 @@ export default function GearPage() {
               <div className="gearroom-checklist-body">
 
                 <div className="gearroom-checklist-column-head">
+
                   <span>INCLUDE</span>
-                  <span>GEAR CATEGORY</span>
+
+                  <span>
+                    GEAR CATEGORY
+                  </span>
+
                   <span>PRIORITY</span>
+
                 </div>
 
                 <div className="gearroom-checklist-items">
@@ -811,11 +873,16 @@ export default function GearPage() {
                               : ""
                           }`}
                           onClick={() =>
-                            toggleItem(item.name)
+                            toggleItem(
+                              item.name
+                            )
                           }
                         >
+
                           <span className="gearroom-check-box">
-                            {checked ? "✓" : ""}
+                            {checked
+                              ? "✓"
+                              : ""}
                           </span>
 
                           <span className="gearroom-check-name">
@@ -847,9 +914,7 @@ export default function GearPage() {
                 </div>
               </div>
 
-              {/* =================================================
-                  REVIEW STATUS
-              ================================================= */}
+              {/* STATUS */}
 
               <div className="gearroom-checklist-summary">
 
@@ -933,17 +998,18 @@ export default function GearPage() {
           </div>
         )}
 
-        {/* =================================================
+        {/* ===============================================
             FINAL GEAR SYSTEM
-
-            Only opened by buildGearSystem()
-        ================================================= */}
+        =============================================== */}
 
         {showFinalSystem && (
           <div
             className="gearroom-modal-backdrop gearroom-final-backdrop"
             onMouseDown={(event) => {
-              if (event.target === event.currentTarget) {
+              if (
+                event.target ===
+                event.currentTarget
+              ) {
                 setShowFinalSystem(false);
               }
             }}
@@ -968,7 +1034,7 @@ export default function GearPage() {
                 ×
               </button>
 
-              {/* HEADER */}
+              {/* FINAL HEADER */}
 
               <header className="gearroom-checklist-header">
 
@@ -988,17 +1054,84 @@ export default function GearPage() {
 
               </header>
 
-              {/* FINAL BODY */}
+              {/* =========================================
+                  ONE CONTINUOUS SCROLL AREA
+
+                  Sections + summary all live inside here.
+              ========================================= */}
 
               <div className="gearroom-checklist-body gearroom-final-body">
 
-                {(
-                  [
-                    "personal",
-                    "vehicle",
-                    "safety",
-                  ] as GearSystemKey[]
-                ).map((key) => (
+                {/* TOP SYSTEM OVERVIEW */}
+
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns:
+                      "repeat(3, minmax(0, 1fr))",
+                    gap: "8px",
+                    marginBottom: "18px",
+                  }}
+                >
+
+                  {systemOrder.map((key) => (
+                    <div
+                      key={`overview-${key}`}
+                      style={{
+                        border:
+                          "1px solid rgba(222,205,173,.14)",
+                        padding:
+                          "10px 12px",
+                        textAlign: "center",
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontSize: "10px",
+                          opacity: 0.58,
+                          letterSpacing:
+                            ".12em",
+                          marginBottom:
+                            "4px",
+                        }}
+                      >
+                        0{stepNumber[key]}
+                      </div>
+
+                      <strong
+                        style={{
+                          display: "block",
+                          fontSize: "11px",
+                          letterSpacing:
+                            ".08em",
+                        }}
+                      >
+                        {systemTitles[key]}
+                      </strong>
+
+                      <span
+                        style={{
+                          display: "block",
+                          marginTop: "5px",
+                          fontSize: "11px",
+                          opacity: 0.68,
+                        }}
+                      >
+                        {selectedFor(key).length}
+                        {" / "}
+                        {gearSystem[key].length}
+                      </span>
+
+                    </div>
+                  ))}
+
+                </div>
+
+                {/* =======================================
+                    THREE SYSTEMS
+                ======================================= */}
+
+                {systemOrder.map((key) => (
                   <section
                     className="gearroom-final-section"
                     key={key}
@@ -1009,78 +1142,134 @@ export default function GearPage() {
                       <strong>
                         {String(
                           stepNumber[key]
-                        ).padStart(2, "0")}{" "}
+                        ).padStart(2, "0")}
+                        {" "}
                         {systemTitles[key]}
                       </strong>
 
                       <span>
-                        {selectedFor(key).length} /{" "}
+                        {selectedFor(key).length}
+                        {" / "}
                         {gearSystem[key].length}
+                        {" SELECTED"}
                       </span>
 
                     </div>
 
                     <div className="gearroom-checklist-items">
-                      {renderRows(key)}
+                      {renderFinalRows(key)}
                     </div>
 
                   </section>
                 ))}
 
+                {/* =======================================
+                    SUMMARY
+
+                    IMPORTANT:
+                    This is now AFTER all 3 sections.
+                ======================================= */}
+
+                <section
+                  style={{
+                    marginTop: "24px",
+                    paddingTop: "18px",
+                    borderTop:
+                      "1px solid rgba(222,205,173,.22)",
+                  }}
+                >
+
+                  <div
+                    style={{
+                      fontSize: "11px",
+                      fontWeight: 900,
+                      letterSpacing: ".12em",
+                      marginBottom: "12px",
+                      color: "#e0a04a",
+                    }}
+                  >
+                    GEAR SYSTEM SUMMARY
+                  </div>
+
+                  <div className="gearroom-checklist-summary">
+
+                    <div>
+                      <strong>
+                        {totalSelected}
+                      </strong>
+
+                      <span>
+                        CATEGORIES
+                      </span>
+                    </div>
+
+                    <div>
+                      <strong>
+                        {priorityCount(
+                          "essential"
+                        )}
+                      </strong>
+
+                      <span>
+                        ESSENTIAL
+                      </span>
+                    </div>
+
+                    <div>
+                      <strong>
+                        {priorityCount(
+                          "recommended"
+                        )}
+                      </strong>
+
+                      <span>
+                        RECOMMENDED
+                      </span>
+                    </div>
+
+                    <div>
+                      <strong>
+                        {priorityCount(
+                          "optional"
+                        )}
+                      </strong>
+
+                      <span>
+                        OPTIONAL
+                      </span>
+                    </div>
+
+                  </div>
+
+                  <div
+                    style={{
+                      padding:
+                        "15px 4px 6px",
+                      fontSize: "12px",
+                      lineHeight: 1.6,
+                      opacity: 0.7,
+                    }}
+                  >
+                    Your three expedition
+                    checklists are combined
+                    into one complete Gear
+                    System for this trip.
+                  </div>
+
+                </section>
+
               </div>
 
-              {/* FINAL STATS */}
+              {/* =========================================
+                  FINAL FOOTER
 
-              <div className="gearroom-checklist-summary">
-
-                <div>
-                  <strong>
-                    {totalSelected}
-                  </strong>
-
-                  <span>
-                    CATEGORIES
-                  </span>
-                </div>
-
-                <div>
-                  <strong>
-                    {priorityCount("essential")}
-                  </strong>
-
-                  <span>
-                    ESSENTIAL
-                  </span>
-                </div>
-
-                <div>
-                  <strong>
-                    {priorityCount("recommended")}
-                  </strong>
-
-                  <span>
-                    RECOMMENDED
-                  </span>
-                </div>
-
-                <div>
-                  <strong>
-                    {priorityCount("optional")}
-                  </strong>
-
-                  <span>
-                    OPTIONAL
-                  </span>
-                </div>
-
-              </div>
-
-              {/* FINAL FOOTER */}
+                  No duplicate stats here.
+              ========================================= */}
 
               <footer className="gearroom-checklist-footer">
 
                 <div className="gearroom-checklist-note">
-                  Your three expedition checklists are now combined into one complete Gear System.
+                  Gear System complete. You can close this view and return to the Gear Room at any time to update your selections.
                 </div>
 
                 <button
