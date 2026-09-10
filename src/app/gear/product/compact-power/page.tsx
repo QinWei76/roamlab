@@ -2,9 +2,9 @@ import Link from "next/link";
 import styles from "./product.module.css";
 
 const affiliateLinks = {
-  ecoflow: "",
-  jackery: "",
-  bluetti: "",
+  ecoflow: "https://www.ecoflow.com/us/river-3-plus-portable-power-station",
+  jackery: "https://www.jackery.com/products/jackery-explorer-300-plus-portable-power-station",
+  bluetti: "https://bluetti.com/",
 };
 
 const specs = [
