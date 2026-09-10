@@ -2,47 +2,35 @@ import Link from "next/link";
 import styles from "./product.module.css";
 
 
-const products = [
-  {
-    badge: "BEST OVERALL",
-    brand: "ECOFLOW",
-    name: "DELTA 2",
-    capacity: "1024Wh",
-    output: "1800W",
-    weight: "27 lb",
-    description:
-      "A balanced power station for multi-day camping, refrigerators and serious vehicle adventures.",
-    image: "/delta-2.jpg",
-    link:
-      "https://www.ecoflow.com/us/delta-2-portable-power-station",
-  },
+const affiliateLinks = {
+  ecoflow:
+    "https://www.ecoflow.com/us/delta-2-portable-power-station",
 
-  {
-    badge: "BEST ROAD TRIP",
-    brand: "JACKERY",
-    name: "Explorer 1000 Plus",
-    capacity: "1264Wh",
-    output: "2000W",
-    weight: "32 lb",
-    description:
-      "Reliable capacity for longer road trips and flexible camping systems.",
-    image: "/jackery-explorer-1000-plus.jpg",
-    link:
-      "https://www.jackery.com/products/jackery-explorer-1000-plus-portable-power-station",
-  },
+  jackery:
+    "https://www.jackery.com/products/jackery-explorer-1000-plus-portable-power-station",
 
+  bluetti:
+    "https://www.bluettipower.com/products/ac180",
+};
+
+
+
+const specs = [
   {
-    badge: "BEST VALUE",
-    brand: "BLUETTI",
-    name: "AC180",
-    capacity: "1152Wh",
-    output: "1800W",
-    weight: "37.9 lb",
-    description:
-      "Strong output and practical capacity for campers who want more freedom.",
-    image: "/bluetti-ac180.jpg",
-    link:
-      "https://www.bluettipower.com/products/ac180",
+    label: "CAPACITY",
+    value: "1000–1200Wh",
+  },
+  {
+    label: "OUTPUT",
+    value: "1800–2000W",
+  },
+  {
+    label: "WEIGHT",
+    value: "27–38 lb",
+  },
+  {
+    label: "BEST FOR",
+    value: "2–5 night trips",
   },
 ];
 
@@ -51,7 +39,7 @@ const products = [
 const pros = [
   "Runs refrigerators and larger camping devices",
   "Better balance between capacity and portability",
-  "Great upgrade from compact systems",
+  "Great upgrade from compact power",
   "Designed for multi-day adventures",
 ];
 
@@ -65,6 +53,55 @@ const cons = [
 
 
 
+const topPicks = [
+
+  {
+    badge: "BEST OVERALL",
+    brand: "ECOFLOW",
+    name: "DELTA 2",
+    capacity: "1024Wh",
+    output: "1800W",
+    weight: "27 lb",
+    description:
+      "Our strongest all-round mid-size pick. Great balance of capacity, output and portability.",
+    image: "/delta-2.jpg",
+    affiliateUrl: affiliateLinks.ecoflow,
+  },
+
+
+  {
+    badge: "BEST ROAD TRIP",
+    brand: "JACKERY",
+    name: "Explorer 1000 Plus",
+    capacity: "1264Wh",
+    output: "2000W",
+    weight: "32 lb",
+    description:
+      "A reliable choice for longer road trips and multi-day camping systems.",
+    image: "/jackery-explorer-1000-plus.jpg",
+    affiliateUrl: affiliateLinks.jackery,
+  },
+
+
+  {
+    badge: "BEST VALUE",
+    brand: "BLUETTI",
+    name: "AC180",
+    capacity: "1152Wh",
+    output: "1800W",
+    weight: "37.9 lb",
+    description:
+      "Strong output and practical capacity for flexible camping setups.",
+    image: "/bluetti-ac180.jpg",
+    affiliateUrl: affiliateLinks.bluetti,
+  },
+
+];
+
+
+
+
+
 export default function MidSizePowerPage() {
 
 
@@ -72,6 +109,8 @@ export default function MidSizePowerPage() {
 
     <main className={styles.page}>
 
+
+      {/* HEADER */}
 
       <header className={styles.header}>
 
@@ -139,6 +178,7 @@ export default function MidSizePowerPage() {
 
 
 
+
         <div className={styles.headerActions}>
 
 
@@ -168,6 +208,10 @@ export default function MidSizePowerPage() {
 
 
 
+
+
+
+      {/* BREADCRUMB */}
 
 
       <div className={styles.breadcrumb}>
@@ -205,6 +249,10 @@ export default function MidSizePowerPage() {
 
 
 
+
+      {/* HERO */}
+
+
       <section className={styles.hero}>
 
 
@@ -215,7 +263,7 @@ export default function MidSizePowerPage() {
 
             src="/mid-size-power-hero.jpg"
 
-            alt="Mid size power camping setup"
+            alt="Mid size power system for car camping"
 
             className={styles.heroImage}
 
@@ -223,6 +271,7 @@ export default function MidSizePowerPage() {
 
 
         </div>
+
 
 
 
@@ -238,9 +287,11 @@ export default function MidSizePowerPage() {
 
 
 
+
           <h1>
             Power For Longer Trips
           </h1>
+
 
 
 
@@ -270,8 +321,9 @@ export default function MidSizePowerPage() {
                 1000Wh+
               </strong>
 
-
             </div>
+
+
 
 
 
@@ -286,8 +338,9 @@ export default function MidSizePowerPage() {
                 2–5 NIGHTS
               </strong>
 
-
             </div>
+
+
 
 
 
@@ -302,7 +355,6 @@ export default function MidSizePowerPage() {
                 ROAD TRIP
               </strong>
 
-
             </div>
 
 
@@ -313,7 +365,7 @@ export default function MidSizePowerPage() {
 
 
           <a
-            href="#products"
+            href="#top-picks"
             className={styles.primaryButton}
           >
 
@@ -327,11 +379,7 @@ export default function MidSizePowerPage() {
 
 
       </section>
-            </section>
-
-
-
-
+            {/* BEST FOR */}
 
       <section className={styles.bestFor}>
 
@@ -342,6 +390,7 @@ export default function MidSizePowerPage() {
           <p className={styles.eyebrow}>
             BEST FOR
           </p>
+
 
 
 
@@ -367,10 +416,10 @@ export default function MidSizePowerPage() {
 
           <br /><br />
 
-          Run a fridge.
+          Run a refrigerator.
           Charge camera gear.
           Power your lights.
-          Stay comfortable longer.
+          Bring more comfort to your next adventure.
 
         </p>
 
@@ -382,6 +431,9 @@ export default function MidSizePowerPage() {
 
 
 
+
+
+      {/* SPECS */}
 
 
       <section className={styles.specSection}>
@@ -431,58 +483,30 @@ export default function MidSizePowerPage() {
         <div className={styles.specGrid}>
 
 
-          <div className={styles.specCard}>
+          {specs.map((spec)=>(
 
 
-            <span>
-              CAPACITY
-            </span>
+            <div
+              className={styles.specCard}
+              key={spec.label}
+            >
 
 
-            <strong>
-              1000–1200Wh
-            </strong>
-
-
-          </div>
-
+              <span>
+                {spec.label}
+              </span>
 
 
 
-
-          <div className={styles.specCard}>
-
-
-            <span>
-              OUTPUT
-            </span>
+              <strong>
+                {spec.value}
+              </strong>
 
 
-            <strong>
-              1800–2000W
-            </strong>
+            </div>
 
 
-          </div>
-
-
-
-
-
-          <div className={styles.specCard}>
-
-
-            <span>
-              BEST FOR
-            </span>
-
-
-            <strong>
-              ROAD TRIPS
-            </strong>
-
-
-          </div>
+          ))}
 
 
 
@@ -498,6 +522,11 @@ export default function MidSizePowerPage() {
 
 
 
+
+      {/* WHY */}
+
+
+
       <section className={styles.whySection}>
 
 
@@ -508,7 +537,7 @@ export default function MidSizePowerPage() {
 
             src="/delta-2.jpg"
 
-            alt="EcoFlow Delta 2 camping setup"
+            alt="Mid size power camping setup"
 
             className={styles.whyImage}
 
@@ -533,6 +562,7 @@ export default function MidSizePowerPage() {
 
 
 
+
           <h2>
 
             More Freedom.
@@ -540,6 +570,7 @@ export default function MidSizePowerPage() {
             Longer Adventures.
 
           </h2>
+
 
 
 
@@ -559,6 +590,7 @@ export default function MidSizePowerPage() {
             longer.
 
           </p>
+
 
 
 
@@ -597,12 +629,12 @@ export default function MidSizePowerPage() {
             </span>
 
 
+
           </div>
 
 
 
         </div>
-
 
 
       </section>
@@ -611,6 +643,11 @@ export default function MidSizePowerPage() {
 
 
 
+
+
+
+
+      {/* PROS / CONS */}
 
 
 
@@ -636,13 +673,16 @@ export default function MidSizePowerPage() {
 
 
 
+
           <ul>
 
 
             {pros.map((item)=>(
 
 
-              <li key={item}>
+              <li
+                key={item}
+              >
 
                 {item}
 
@@ -685,13 +725,16 @@ export default function MidSizePowerPage() {
 
 
 
+
           <ul>
 
 
             {cons.map((item)=>(
 
 
-              <li key={item}>
+              <li
+                key={item}
+              >
 
                 {item}
 
@@ -719,6 +762,11 @@ export default function MidSizePowerPage() {
 
 
 
+
+      {/* VERDICT */}
+
+
+
       <section className={styles.verdict}>
 
 
@@ -728,6 +776,7 @@ export default function MidSizePowerPage() {
           <p className={styles.eyebrow}>
             ROAMLAB VERDICT
           </p>
+
 
 
 
@@ -742,6 +791,7 @@ export default function MidSizePowerPage() {
 
 
         </div>
+
 
 
 
@@ -764,8 +814,11 @@ export default function MidSizePowerPage() {
 
 
       </section>
-            <section
-        id="products"
+            {/* TOP PICKS */}
+
+
+      <section
+        id="top-picks"
         className={styles.topPicks}
       >
 
@@ -779,6 +832,8 @@ export default function MidSizePowerPage() {
 
 
 
+
+
           <h2>
             Top Picks For Mid-Size Power
           </h2>
@@ -786,13 +841,15 @@ export default function MidSizePowerPage() {
 
 
 
+
           <p>
 
-            Three reliable choices for campers
-            building longer and more capable
-            vehicle systems.
+            Three different approaches to the same goal.
+            Choose based on capacity, portability
+            and how far you want to go.
 
           </p>
+
 
 
         </div>
@@ -803,17 +860,17 @@ export default function MidSizePowerPage() {
 
 
 
-
         <div className={styles.pickGrid}>
 
 
-          {products.map((product)=>(
+          {topPicks.map((product)=>(
 
 
             <article
-              key={product.name}
               className={styles.pickCard}
+              key={product.name}
             >
+
 
 
               <div className={styles.pickImageWrap}>
@@ -823,7 +880,7 @@ export default function MidSizePowerPage() {
 
                   src={product.image}
 
-                  alt={product.name}
+                  alt={`${product.brand} ${product.name}`}
 
                   className={styles.pickImage}
 
@@ -840,6 +897,7 @@ export default function MidSizePowerPage() {
 
 
               </div>
+
 
 
 
@@ -864,6 +922,7 @@ export default function MidSizePowerPage() {
                   {product.name}
 
                 </h3>
+
 
 
 
@@ -932,6 +991,7 @@ export default function MidSizePowerPage() {
 
 
 
+
                 <p className={styles.productDescription}>
 
                   {product.description}
@@ -943,9 +1003,10 @@ export default function MidSizePowerPage() {
 
 
 
+
                 <a
 
-                  href={product.link}
+                  href={product.affiliateUrl}
 
                   target="_blank"
 
@@ -980,11 +1041,12 @@ export default function MidSizePowerPage() {
 
 
 
+
         <p className={styles.disclosure}>
 
-          Affiliate disclosure: RoamLab may earn
-          a commission from qualifying purchases
-          made through links on this page.
+          Affiliate disclosure: RoamLab may earn a
+          commission from qualifying purchases made
+          through links on this page.
 
         </p>
 
@@ -996,6 +1058,11 @@ export default function MidSizePowerPage() {
 
 
 
+
+
+
+
+      {/* QUICK DECISION */}
 
 
 
@@ -1011,12 +1078,9 @@ export default function MidSizePowerPage() {
 
 
         <h2>
-
           Which Mid-Size Power
           Should You Choose?
-
         </h2>
-
 
 
 
@@ -1041,7 +1105,7 @@ export default function MidSizePowerPage() {
 
             <p>
               EcoFlow DELTA 2 gives you the
-              strongest all-around setup.
+              strongest all-around system.
             </p>
 
 
@@ -1059,13 +1123,13 @@ export default function MidSizePowerPage() {
 
 
             <strong>
-              Best for road trips
+              Best for longer trips
             </strong>
 
 
             <p>
               Jackery Explorer 1000 Plus adds
-              more capacity for longer travel.
+              extra capacity for road travel.
             </p>
 
 
@@ -1083,13 +1147,13 @@ export default function MidSizePowerPage() {
 
 
             <strong>
-              Best value
+              Best practical value
             </strong>
 
 
             <p>
               BLUETTI AC180 delivers strong
-              performance at a practical size.
+              output in a flexible package.
             </p>
 
 
@@ -1107,6 +1171,11 @@ export default function MidSizePowerPage() {
 
 
 
+
+
+
+
+      {/* NEXT */}
 
 
 
@@ -1142,11 +1211,8 @@ export default function MidSizePowerPage() {
 
 
           <Link
-
             href="/gear/product/compact-power"
-
             className={styles.secondaryButton}
-
           >
 
             ← BACK TO COMPACT POWER
@@ -1160,11 +1226,8 @@ export default function MidSizePowerPage() {
 
 
           <Link
-
             href="/gear/product/large-power"
-
             className={styles.primaryButton}
-
           >
 
             NEXT: LARGE POWER →
@@ -1184,11 +1247,10 @@ export default function MidSizePowerPage() {
 
 
 
-
     </main>
 
 
   );
 
 
-}  
+}
