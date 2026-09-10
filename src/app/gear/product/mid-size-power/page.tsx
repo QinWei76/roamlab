@@ -2,23 +2,7 @@ import Link from "next/link";
 import styles from "./product.module.css";
 
 
-const specs = [
-  {
-    label: "POWER CLASS",
-    value: "1000Wh+",
-  },
-  {
-    label: "TRIP LENGTH",
-    value: "2–5 NIGHTS",
-  },
-  {
-    label: "ROAMLAB FIT",
-    value: "ROAD TRIP",
-  },
-];
-
-
-const topPicks = [
+const products = [
   {
     badge: "BEST OVERALL",
     brand: "ECOFLOW",
@@ -29,10 +13,9 @@ const topPicks = [
     description:
       "A balanced power station for multi-day camping, refrigerators and serious vehicle adventures.",
     image: "/delta-2.jpg",
-    affiliateUrl:
+    link:
       "https://www.ecoflow.com/us/delta-2-portable-power-station",
   },
-
 
   {
     badge: "BEST ROAD TRIP",
@@ -42,12 +25,11 @@ const topPicks = [
     output: "2000W",
     weight: "32 lb",
     description:
-      "A reliable choice for longer trips with more capacity and strong everyday performance.",
+      "Reliable capacity for longer road trips and flexible camping systems.",
     image: "/jackery-explorer-1000-plus.jpg",
-    affiliateUrl:
+    link:
       "https://www.jackery.com/products/jackery-explorer-1000-plus-portable-power-station",
   },
-
 
   {
     badge: "BEST VALUE",
@@ -57,9 +39,9 @@ const topPicks = [
     output: "1800W",
     weight: "37.9 lb",
     description:
-      "A powerful and practical option for campers building a flexible power system.",
+      "Strong output and practical capacity for campers who want more freedom.",
     image: "/bluetti-ac180.jpg",
-    affiliateUrl:
+    link:
       "https://www.bluettipower.com/products/ac180",
   },
 ];
@@ -68,17 +50,18 @@ const topPicks = [
 
 const pros = [
   "Runs refrigerators and larger camping devices",
-  "Great balance between capacity and portability",
-  "Ideal upgrade from compact power",
-  "Built for multi-day adventures",
+  "Better balance between capacity and portability",
+  "Great upgrade from compact systems",
+  "Designed for multi-day adventures",
 ];
 
 
 const cons = [
-  "Heavier than entry-level power stations",
+  "Heavier than compact power stations",
   "Requires more storage space",
-  "Higher investment than compact systems",
+  "Higher investment upfront",
 ];
+
 
 
 
@@ -151,7 +134,6 @@ export default function MidSizePowerPage() {
 
 
         </nav>
-
 
 
 
@@ -230,14 +212,17 @@ export default function MidSizePowerPage() {
 
 
           <img
+
             src="/mid-size-power-hero.jpg"
-            alt="Mid size power camping system"
+
+            alt="Mid size power camping setup"
+
             className={styles.heroImage}
+
           />
 
 
         </div>
-
 
 
 
@@ -260,7 +245,6 @@ export default function MidSizePowerPage() {
 
 
 
-
           <p className={styles.subtitle}>
 
             More energy for refrigerators,
@@ -272,33 +256,54 @@ export default function MidSizePowerPage() {
 
 
 
-
           <div className={styles.heroMeta}>
 
 
-            {specs.map((item)=>(
+            <div>
+
+              <span>
+                POWER CLASS
+              </span>
 
 
-              <div
-                key={item.label}
-              >
+              <strong>
+                1000Wh+
+              </strong>
 
 
-                <span>
-                  {item.label}
-                </span>
+            </div>
 
 
 
-                <strong>
-                  {item.value}
-                </strong>
+            <div>
+
+              <span>
+                TRIP LENGTH
+              </span>
 
 
-              </div>
+              <strong>
+                2–5 NIGHTS
+              </strong>
 
 
-            ))}
+            </div>
+
+
+
+            <div>
+
+              <span>
+                ROAMLAB FIT
+              </span>
+
+
+              <strong>
+                ROAD TRIP
+              </strong>
+
+
+            </div>
 
 
           </div>
@@ -307,9 +312,8 @@ export default function MidSizePowerPage() {
 
 
 
-
           <a
-            href="#top-picks"
+            href="#products"
             className={styles.primaryButton}
           >
 
@@ -323,7 +327,13 @@ export default function MidSizePowerPage() {
 
 
       </section>
-            <section className={styles.bestFor}>
+            </section>
+
+
+
+
+
+      <section className={styles.bestFor}>
 
 
         <div>
@@ -332,7 +342,6 @@ export default function MidSizePowerPage() {
           <p className={styles.eyebrow}>
             BEST FOR
           </p>
-
 
 
 
@@ -351,20 +360,24 @@ export default function MidSizePowerPage() {
 
         <p>
 
-          Mid-size power systems are designed for
-          campers who want more freedom without
-          building a complete off-grid setup.
+          Mid-size power systems are designed
+          for campers who want more freedom
+          without building a complete off-grid
+          system.
 
           <br /><br />
 
-          Run a fridge, charge camera gear,
-          power lighting and bring more comfort
-          to your next adventure.
+          Run a fridge.
+          Charge camera gear.
+          Power your lights.
+          Stay comfortable longer.
 
         </p>
 
 
       </section>
+
+
 
 
 
@@ -408,6 +421,7 @@ export default function MidSizePowerPage() {
 
 
         </div>
+
 
 
 
@@ -491,9 +505,13 @@ export default function MidSizePowerPage() {
 
 
           <img
+
             src="/delta-2.jpg"
-            alt="Mid size power station"
+
+            alt="EcoFlow Delta 2 camping setup"
+
             className={styles.whyImage}
+
           />
 
 
@@ -530,16 +548,15 @@ export default function MidSizePowerPage() {
 
           <p>
 
-            Compact power is perfect for simple trips.
-            But when your adventures grow,
-            mid-size systems give you the ability
-            to stay away longer.
+            Compact power is perfect for simple
+            weekend trips.
 
             <br /><br />
 
-            Bring a refrigerator.
-            Charge your camera.
-            Power your lights.
+            But when your adventures grow,
+            mid-size systems give you the ability
+            to bring more equipment and stay away
+            longer.
 
           </p>
 
@@ -610,6 +627,7 @@ export default function MidSizePowerPage() {
 
 
 
+
           <h3>
             Why It Works
           </h3>
@@ -624,9 +642,7 @@ export default function MidSizePowerPage() {
             {pros.map((item)=>(
 
 
-              <li
-                key={item}
-              >
+              <li key={item}>
 
                 {item}
 
@@ -634,6 +650,7 @@ export default function MidSizePowerPage() {
 
 
             ))}
+
 
 
           </ul>
@@ -674,9 +691,7 @@ export default function MidSizePowerPage() {
             {cons.map((item)=>(
 
 
-              <li
-                key={item}
-              >
+              <li key={item}>
 
                 {item}
 
@@ -717,7 +732,6 @@ export default function MidSizePowerPage() {
 
 
 
-
           <h2>
 
             The Sweet Spot
@@ -751,7 +765,7 @@ export default function MidSizePowerPage() {
 
       </section>
             <section
-        id="top-picks"
+        id="products"
         className={styles.topPicks}
       >
 
@@ -765,7 +779,6 @@ export default function MidSizePowerPage() {
 
 
 
-
           <h2>
             Top Picks For Mid-Size Power
           </h2>
@@ -773,15 +786,13 @@ export default function MidSizePowerPage() {
 
 
 
-
           <p>
 
-            Three proven choices for campers
-            who need more capacity,
-            more comfort and longer adventures.
+            Three reliable choices for campers
+            building longer and more capable
+            vehicle systems.
 
           </p>
-
 
 
         </div>
@@ -796,15 +807,13 @@ export default function MidSizePowerPage() {
         <div className={styles.pickGrid}>
 
 
-          {topPicks.map((product)=>(
-
+          {products.map((product)=>(
 
 
             <article
-              className={styles.pickCard}
               key={product.name}
+              className={styles.pickCard}
             >
-
 
 
               <div className={styles.pickImageWrap}>
@@ -837,7 +846,6 @@ export default function MidSizePowerPage() {
 
 
 
-
               <div className={styles.pickContent}>
 
 
@@ -846,7 +854,6 @@ export default function MidSizePowerPage() {
                   {product.brand}
 
                 </p>
-
 
 
 
@@ -925,7 +932,6 @@ export default function MidSizePowerPage() {
 
 
 
-
                 <p className={styles.productDescription}>
 
                   {product.description}
@@ -937,10 +943,9 @@ export default function MidSizePowerPage() {
 
 
 
-
                 <a
 
-                  href={product.affiliateUrl}
+                  href={product.link}
 
                   target="_blank"
 
@@ -985,7 +990,6 @@ export default function MidSizePowerPage() {
 
 
 
-
       </section>
 
 
@@ -1025,22 +1029,19 @@ export default function MidSizePowerPage() {
 
           <div>
 
-
             <span>
               01
             </span>
 
 
-
             <strong>
-              Want the best overall balance?
+              Best overall balance
             </strong>
 
 
-
             <p>
-              EcoFlow DELTA 2 is the strongest
-              all-round choice.
+              EcoFlow DELTA 2 gives you the
+              strongest all-around setup.
             </p>
 
 
@@ -1050,26 +1051,21 @@ export default function MidSizePowerPage() {
 
 
 
-
-
           <div>
-
 
             <span>
               02
             </span>
 
 
-
             <strong>
-              Going on longer road trips?
+              Best for road trips
             </strong>
 
 
-
             <p>
-              Jackery Explorer 1000 Plus gives
-              you extra capacity.
+              Jackery Explorer 1000 Plus adds
+              more capacity for longer travel.
             </p>
 
 
@@ -1079,26 +1075,21 @@ export default function MidSizePowerPage() {
 
 
 
-
-
           <div>
-
 
             <span>
               03
             </span>
 
 
-
             <strong>
-              Need strong value?
+              Best value
             </strong>
 
 
-
             <p>
-              BLUETTI AC180 delivers practical
-              power for serious camping.
+              BLUETTI AC180 delivers strong
+              performance at a practical size.
             </p>
 
 
@@ -1168,7 +1159,6 @@ export default function MidSizePowerPage() {
 
 
 
-
           <Link
 
             href="/gear/product/large-power"
@@ -1195,11 +1185,10 @@ export default function MidSizePowerPage() {
 
 
 
-
     </main>
 
 
   );
 
 
-}
+}  
