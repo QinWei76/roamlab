@@ -1,29 +1,73 @@
 import Link from "next/link";
 import styles from "./product.module.css";
 
+const affiliateLinks = {
+  ecoflow: "",
+  jackery: "",
+  bluetti: "",
+};
+
 const specs = [
-  { label: "CAPACITY", value: "300–500Wh" },
-  { label: "OUTPUT", value: "300–700W" },
-  { label: "WEIGHT", value: "Lightweight" },
+  { label: "CAPACITY", value: "200–300Wh" },
+  { label: "OUTPUT", value: "300–600W" },
+  { label: "WEIGHT", value: "7.9–10.4 lb" },
   { label: "BEST FOR", value: "1–2 night trips" },
 ];
 
 const pros = [
   "Easy to carry and store",
-  "Fast enough for phones, cameras and lights",
-  "Good fit for smaller vehicles",
-  "Lower cost than larger systems",
+  "Ideal for phones, cameras and camp lighting",
+  "Fits easily into smaller vehicles",
+  "Simple entry point into portable power",
 ];
 
 const cons = [
-  "Limited for high-draw appliances",
-  "Not ideal for extended off-grid use",
+  "Limited runtime for high-draw appliances",
+  "Not designed for extended off-grid systems",
+];
+
+const topPicks = [
+  {
+    badge: "BEST OVERALL",
+    brand: "ECOFLOW",
+    name: "RIVER 3 Plus",
+    capacity: "286Wh",
+    output: "600W",
+    weight: "10.4 lb",
+    description:
+      "Our strongest all-round compact pick. High output for its size, expandable capacity and a useful mix of charging options make it especially flexible for car camping.",
+    image: "/power-ecoflow.jpg",
+    affiliateUrl: affiliateLinks.ecoflow,
+  },
+  {
+    badge: "BEST LIGHTWEIGHT",
+    brand: "JACKERY",
+    name: "Explorer 300 Plus",
+    capacity: "288Wh",
+    output: "300W",
+    weight: "8.27 lb",
+    description:
+      "A lightweight option for campers who mainly need dependable charging for phones, cameras, lights, laptops and other small electronics.",
+    image: "/power.jpg",
+    affiliateUrl: affiliateLinks.jackery,
+  },
+  {
+    badge: "MINIMAL SETUP",
+    brand: "BLUETTI",
+    name: "AC2A",
+    capacity: "204.8Wh",
+    output: "300W",
+    weight: "7.9 lb",
+    description:
+      "The smallest-capacity pick here. Best suited to minimalist setups where portability matters more than long runtime.",
+    image: "/power.jpg",
+    affiliateUrl: affiliateLinks.bluetti,
+  },
 ];
 
 export default function CompactPowerPage() {
   return (
     <main className={styles.page}>
-      {/* HEADER */}
       <header className={styles.header}>
         <Link href="/" className={styles.logo}>
           ROAMLAB
@@ -53,7 +97,6 @@ export default function CompactPowerPage() {
         </div>
       </header>
 
-      {/* BREADCRUMB */}
       <div className={styles.breadcrumb}>
         <Link href="/gear">GEAR</Link>
         <span>→</span>
@@ -67,25 +110,25 @@ export default function CompactPowerPage() {
         <div className={styles.heroImageWrap}>
           <img
             src="/power-ecoflow.jpg"
-            alt="Compact portable power station"
+            alt="Portable power station for car camping"
             className={styles.heroImage}
           />
         </div>
 
         <div className={styles.heroContent}>
-          <p className={styles.eyebrow}>ROAMLAB POWER PICK</p>
+          <p className={styles.eyebrow}>ROAMLAB POWER GUIDE</p>
 
           <h1>Compact Power</h1>
 
           <p className={styles.subtitle}>
-            A lightweight portable power class for short trips,
-            simple setups and everyday camp electronics.
+            Lightweight portable power for weekend trips, smaller vehicles
+            and simple camp electronics.
           </p>
 
           <div className={styles.heroMeta}>
             <div>
               <span>POWER CLASS</span>
-              <strong>300–500Wh</strong>
+              <strong>200–300Wh</strong>
             </div>
 
             <div>
@@ -99,11 +142,8 @@ export default function CompactPowerPage() {
             </div>
           </div>
 
-          <a
-            href="#recommendation"
-            className={styles.primaryButton}
-          >
-            SEE RECOMMENDATION →
+          <a href="#top-picks" className={styles.primaryButton}>
+            SEE TOP PICKS →
           </a>
         </div>
       </section>
@@ -116,9 +156,10 @@ export default function CompactPowerPage() {
         </div>
 
         <p>
-          Compact power stations are ideal when you want reliable charging
-          without carrying a large battery. They fit especially well with
-          weekend escapes, smaller vehicles and minimalist camp systems.
+          Compact power stations make sense when your electrical system is
+          mostly phones, cameras, lights, laptops and other small devices.
+          They keep the setup portable without forcing you into a much larger
+          battery system.
         </p>
       </section>
 
@@ -127,13 +168,13 @@ export default function CompactPowerPage() {
         <div className={styles.sectionHeading}>
           <div>
             <p className={styles.eyebrow}>POWER PROFILE</p>
-            <h2>What This Class Gives You</h2>
+            <h2>What Compact Power Looks Like</h2>
           </div>
 
           <p>
-            Enough capacity for essential electronics,
+            Enough power for essential electronics.
             <br />
-            without the weight of a large system.
+            Small enough to keep the vehicle simple.
           </p>
         </div>
 
@@ -152,13 +193,13 @@ export default function CompactPowerPage() {
         <div className={styles.whyImageWrap}>
           <img
             src="/power.jpg"
-            alt="Portable power setup outdoors"
+            alt="Portable power system outdoors"
             className={styles.whyImage}
           />
         </div>
 
         <div className={styles.whyContent}>
-          <p className={styles.eyebrow}>WHY WE LIKE THIS CLASS</p>
+          <p className={styles.eyebrow}>WHY START HERE</p>
 
           <h2>
             Enough Power
@@ -167,22 +208,22 @@ export default function CompactPowerPage() {
           </h2>
 
           <p>
-            For many first-time car campers, a compact system is the most
-            sensible place to begin. It handles the devices you use most often,
-            takes up less space, and keeps your overall setup easier to manage.
+            For a first car-camping electrical system, compact power is often
+            the easiest place to begin. You get useful off-grid charging
+            without giving up much cargo space.
           </p>
 
           <div className={styles.useList}>
             <span>Phones</span>
             <span>Headlamps</span>
             <span>Cameras</span>
-            <span>Small laptops</span>
-            <span>Camp lights</span>
+            <span>Laptops</span>
+            <span>Camp Lights</span>
           </div>
         </div>
       </section>
 
-      {/* PROS CONS */}
+      {/* PROS / LIMITS */}
       <section className={styles.proConSection}>
         <div className={styles.proCard}>
           <p className={styles.eyebrow}>PROS</p>
@@ -213,75 +254,123 @@ export default function CompactPowerPage() {
           <p className={styles.eyebrow}>ROAMLAB VERDICT</p>
 
           <h2>
-            The Best Starting Point
+            Start Small.
             <br />
-            For Most Short Trips
+            Upgrade When The Trip Demands It.
           </h2>
         </div>
 
         <p>
-          If your setup is mainly phones, lights, camera gear and occasional
-          laptop charging, this power class is usually the smartest starting
-          point. Move up only if you plan to run refrigeration, cooking gear
-          or stay off-grid for longer periods.
+          If you mainly need to keep personal electronics running through a
+          weekend, this is the class we would start with. Move to a larger
+          system when refrigeration, cooking appliances or longer off-grid
+          stays become part of the plan.
         </p>
       </section>
 
-      {/* PRODUCT RECOMMENDATION */}
-      <section id="recommendation" className={styles.recommendation}>
-        <div className={styles.recommendationImageWrap}>
-          <img
-            src="/power-ecoflow.jpg"
-            alt="Recommended compact power station"
-            className={styles.recommendationImage}
-          />
+      {/* TOP PICKS */}
+      <section id="top-picks" className={styles.topPicks}>
+        <div className={styles.topPicksIntro}>
+          <p className={styles.eyebrow}>ROAMLAB RECOMMENDATIONS</p>
+          <h2>Top Picks For Compact Power</h2>
+          <p>
+            Three different approaches to the same job. Choose based on how
+            much output, weight and flexibility your setup actually needs.
+          </p>
         </div>
 
-        <div className={styles.recommendationContent}>
-          <p className={styles.eyebrow}>ROAMLAB RECOMMENDATION</p>
+        <div className={styles.pickGrid}>
+          {topPicks.map((product) => (
+            <article className={styles.pickCard} key={product.name}>
+              <div className={styles.pickImageWrap}>
+                <img
+                  src={product.image}
+                  alt={`${product.brand} ${product.name}`}
+                  className={styles.pickImage}
+                />
 
-          <h2>Compact Portable Power Station</h2>
+                <span className={styles.pickBadge}>{product.badge}</span>
+              </div>
 
-          <p className={styles.recommendationLead}>
-            Look for a reliable unit in the 300–500Wh class with USB-C,
-            AC output, vehicle charging and solar input.
-          </p>
+              <div className={styles.pickContent}>
+                <p className={styles.productBrand}>{product.brand}</p>
 
-          <div className={styles.recommendationChecklist}>
-            <div>
-              <span>✓</span>
-              <p>USB-C fast charging</p>
-            </div>
+                <h3>{product.name}</h3>
 
-            <div>
-              <span>✓</span>
-              <p>AC outlets</p>
-            </div>
+                <div className={styles.productSpecs}>
+                  <div>
+                    <span>CAPACITY</span>
+                    <strong>{product.capacity}</strong>
+                  </div>
 
-            <div>
-              <span>✓</span>
-              <p>12V vehicle output</p>
-            </div>
+                  <div>
+                    <span>OUTPUT</span>
+                    <strong>{product.output}</strong>
+                  </div>
 
-            <div>
-              <span>✓</span>
-              <p>Solar charging support</p>
-            </div>
+                  <div>
+                    <span>WEIGHT</span>
+                    <strong>{product.weight}</strong>
+                  </div>
+                </div>
+
+                <p className={styles.productDescription}>
+                  {product.description}
+                </p>
+
+                {product.affiliateUrl ? (
+                  <a
+                    href={product.affiliateUrl}
+                    target="_blank"
+                    rel="sponsored nofollow noopener noreferrer"
+                    className={styles.productButton}
+                  >
+                    VIEW PRODUCT →
+                  </a>
+                ) : (
+                  <button
+                    type="button"
+                    className={`${styles.productButton} ${styles.disabledButton}`}
+                    disabled
+                  >
+                    AFFILIATE LINK COMING SOON
+                  </button>
+                )}
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <p className={styles.disclosure}>
+          Affiliate disclosure: RoamLab may earn a commission from qualifying
+          purchases made through links on this page, at no additional cost to
+          you.
+        </p>
+      </section>
+
+      {/* DECISION */}
+      <section className={styles.decision}>
+        <p className={styles.eyebrow}>QUICK DECISION</p>
+
+        <h2>Which One Should You Choose?</h2>
+
+        <div className={styles.decisionGrid}>
+          <div>
+            <span>01</span>
+            <strong>Want the strongest all-round option?</strong>
+            <p>Start with the EcoFlow RIVER 3 Plus.</p>
           </div>
 
-          <div className={styles.buyArea}>
-            <a
-              href="#"
-              className={styles.primaryButton}
-              aria-label="View recommended compact power product"
-            >
-              VIEW PRODUCT →
-            </a>
+          <div>
+            <span>02</span>
+            <strong>Weight matters most?</strong>
+            <p>Look at the Jackery Explorer 300 Plus.</p>
+          </div>
 
-            <span className={styles.disclosure}>
-              Affiliate link. RoamLab may earn a commission at no extra cost
-              to you.
-            </span>
+          <div>
+            <span>03</span>
+            <strong>Building the smallest possible setup?</strong>
+            <p>The BLUETTI AC2A keeps things minimal.</p>
           </div>
         </div>
       </section>
@@ -289,7 +378,7 @@ export default function CompactPowerPage() {
       {/* NEXT */}
       <section className={styles.nextStep}>
         <div>
-          <p className={styles.eyebrow}>KEEP COMPARING</p>
+          <p className={styles.eyebrow}>KEEP BUILDING</p>
           <h2>Need more capacity?</h2>
         </div>
 
