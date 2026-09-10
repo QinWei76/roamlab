@@ -355,3 +355,321 @@ export default function MidSizePowerPage() {
 
 
       </section>
+      </section>
+
+
+      <section className={styles.bestFor}>
+
+
+        <div>
+
+          <p className={styles.eyebrow}>
+            BEST FOR
+          </p>
+
+
+          <h2>
+            More Power.
+            Longer Adventures.
+          </h2>
+
+        </div>
+
+
+
+        <p>
+
+          Mid-size power stations are the sweet spot
+          for campers who want more freedom without
+          carrying a full off-grid battery system.
+          Perfect for refrigerators, cameras, lights
+          and longer road trips.
+
+        </p>
+
+
+      </section>
+
+
+
+
+
+      <section className={styles.specSection}>
+
+
+        <div className={styles.sectionHeading}>
+
+
+          <div>
+
+            <p className={styles.eyebrow}>
+              POWER PROFILE
+            </p>
+
+
+            <h2>
+              Built For Multi-Day Trips
+            </h2>
+
+          </div>
+
+
+
+
+          <p>
+
+            A practical upgrade path from compact power.
+            <br />
+            More capacity without overbuilding.
+
+          </p>
+
+
+        </div>
+
+
+
+
+
+        <div className={styles.specGrid}>
+
+
+          {specs.map((spec)=>(
+
+            <div
+              className={styles.specCard}
+              key={spec.label}
+            >
+
+              <span>
+                {spec.label}
+              </span>
+
+
+              <strong>
+                {spec.value}
+              </strong>
+
+
+            </div>
+
+          ))}
+
+
+        </div>
+
+
+      </section>
+
+
+
+
+
+      <section className={styles.whySection}>
+
+
+        <div className={styles.whyImageWrap}>
+
+
+          <img
+
+            src="/power.jpg"
+
+            alt="Mid size camping power setup"
+
+            className={styles.whyImage}
+
+          />
+
+
+        </div>
+
+
+
+
+
+        <div className={styles.whyContent}>
+
+
+          <p className={styles.eyebrow}>
+            WHY MOVE UP
+          </p>
+
+
+
+          <h2>
+            More Freedom
+            <br />
+            Away From The Grid
+          </h2>
+
+
+
+
+          <p>
+
+            When weekend trips become longer,
+            mid-size power gives you the flexibility
+            to run more equipment without constantly
+            worrying about battery limits.
+
+          </p>
+
+
+
+
+          <div className={styles.useList}>
+
+
+            <span>
+              Fridge
+            </span>
+
+
+            <span>
+              Camera Gear
+            </span>
+
+
+            <span>
+              Lighting
+            </span>
+
+
+            <span>
+              Laptop
+            </span>
+
+
+            <span>
+              Small Appliances
+            </span>
+
+
+          </div>
+
+
+
+        </div>
+
+
+      </section>
+
+
+
+
+
+      <section className={styles.proConSection}>
+
+
+        <div className={styles.proCard}>
+
+
+          <p className={styles.eyebrow}>
+            PROS
+          </p>
+
+
+
+          <h3>
+            Why It Works
+          </h3>
+
+
+
+          <ul>
+
+
+            {pros.map((item)=>(
+
+              <li key={item}>
+                {item}
+              </li>
+
+            ))}
+
+
+          </ul>
+
+
+        </div>
+
+
+
+
+
+        <div className={styles.conCard}>
+
+
+          <p className={styles.eyebrow}>
+            LIMITS
+          </p>
+
+
+
+          <h3>
+            Where It Falls Short
+          </h3>
+
+
+
+          <ul>
+
+
+            {cons.map((item)=>(
+
+              <li key={item}>
+                {item}
+              </li>
+
+            ))}
+
+
+          </ul>
+
+
+        </div>
+
+
+      </section>
+
+
+
+
+
+      <section className={styles.verdict}>
+
+
+        <div>
+
+
+          <p className={styles.eyebrow}>
+            ROAMLAB VERDICT
+          </p>
+
+
+
+          <h2>
+            The Sweet Spot
+            <br />
+            For Most Campers
+          </h2>
+
+
+        </div>
+
+
+
+
+        <p>
+
+          Mid-size power is where many campers
+          find the best balance. Enough energy
+          for real trips, while still remaining
+          practical for everyday vehicles.
+
+        </p>
+
+
+
+      </section>
