@@ -7,7 +7,9 @@
   color: #f5f1e8;
 }
 
-/* HEADER */
+/* =========================================================
+   HEADER
+   ========================================================= */
 
 .header {
   position: relative;
@@ -24,7 +26,7 @@
 }
 
 .logo {
-  color: #fff;
+  color: #ffffff;
   text-decoration: none;
   font-size: 19px;
   font-weight: 900;
@@ -52,7 +54,7 @@
 .nav a:hover,
 .signIn:hover,
 .nav .active {
-  color: #fff;
+  color: #ffffff;
 }
 
 .nav .active::after {
@@ -86,7 +88,9 @@
   white-space: nowrap;
 }
 
-/* BREADCRUMB */
+/* =========================================================
+   BREADCRUMB
+   ========================================================= */
 
 .breadcrumb {
   height: 48px;
@@ -106,6 +110,10 @@
   text-decoration: none;
 }
 
+.breadcrumb a:hover {
+  color: #ffffff;
+}
+
 .breadcrumb span {
   color: rgba(255, 255, 255, 0.22);
 }
@@ -114,7 +122,55 @@
   color: #e9c879;
 }
 
-/* HERO */
+/* =========================================================
+   SHARED
+   ========================================================= */
+
+.eyebrow {
+  margin: 0 0 14px;
+  color: #e9c879;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.primaryButton,
+.secondaryButton,
+.productButton {
+  min-height: 48px;
+  padding: 0 25px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  transition:
+    transform 180ms ease,
+    background 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease;
+}
+
+.primaryButton,
+.productButton {
+  width: fit-content;
+  border: 0;
+  background: #efd28c;
+  color: #15130f;
+}
+
+.primaryButton:hover,
+.productButton:hover {
+  transform: translateY(-2px);
+  background: #f5d995;
+}
+
+/* =========================================================
+   HERO
+   ========================================================= */
 
 .hero {
   min-height: 650px;
@@ -142,17 +198,9 @@
   justify-content: center;
 }
 
-.eyebrow {
-  margin: 0 0 14px;
-  color: #e9c879;
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 0.2em;
-}
-
 .heroContent h1 {
   margin: 0;
-  color: #fff;
+  color: #ffffff;
   font-size: clamp(52px, 5vw, 80px);
   line-height: 0.98;
   letter-spacing: -0.045em;
@@ -193,39 +241,13 @@
 }
 
 .heroMeta strong {
-  color: #fff;
+  color: #ffffff;
   font-size: 11px;
 }
 
-.primaryButton,
-.secondaryButton {
-  min-height: 48px;
-  padding: 0 25px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  font-size: 9px;
-  font-weight: 900;
-  letter-spacing: 0.1em;
-  transition:
-    transform 180ms ease,
-    background 180ms ease,
-    border-color 180ms ease;
-}
-
-.primaryButton {
-  width: fit-content;
-  background: #efd28c;
-  color: #15130f;
-}
-
-.primaryButton:hover {
-  transform: translateY(-2px);
-  background: #f5d995;
-}
-
-/* BEST FOR */
+/* =========================================================
+   BEST FOR
+   ========================================================= */
 
 .bestFor {
   padding: 80px 8%;
@@ -236,22 +258,26 @@
   background: #0e0f0e;
 }
 
-.bestFor h2 {
+.bestFor h2,
+.verdict h2 {
   margin: 0;
-  color: #fff;
+  color: #ffffff;
   font-size: clamp(36px, 4vw, 58px);
   line-height: 1;
   letter-spacing: -0.04em;
 }
 
-.bestFor > p {
+.bestFor > p,
+.verdict > p {
   margin: 0;
   color: rgba(255, 255, 255, 0.52);
   font-size: 14px;
   line-height: 1.8;
 }
 
-/* SPECS */
+/* =========================================================
+   POWER PROFILE
+   ========================================================= */
 
 .specSection {
   padding: 80px 4.5%;
@@ -268,7 +294,7 @@
 
 .sectionHeading h2 {
   margin: 0;
-  color: #fff;
+  color: #ffffff;
   font-size: clamp(34px, 3.4vw, 50px);
   line-height: 1;
 }
@@ -304,11 +330,13 @@
 }
 
 .specCard strong {
-  color: #fff;
+  color: #ffffff;
   font-size: 21px;
 }
 
-/* WHY */
+/* =========================================================
+   WHY START HERE
+   ========================================================= */
 
 .whySection {
   min-height: 650px;
@@ -325,6 +353,7 @@
 .whyImage {
   width: 100%;
   height: 100%;
+  display: block;
   object-fit: cover;
 }
 
@@ -337,7 +366,7 @@
 
 .whyContent h2 {
   margin: 0 0 25px;
-  color: #fff;
+  color: #ffffff;
   font-size: clamp(42px, 4.5vw, 68px);
   line-height: 0.98;
   letter-spacing: -0.045em;
@@ -364,7 +393,9 @@
   font-weight: 800;
 }
 
-/* PROS CONS */
+/* =========================================================
+   PROS / LIMITS
+   ========================================================= */
 
 .proConSection {
   padding: 80px 4.5%;
@@ -384,7 +415,7 @@
 .proCard h3,
 .conCard h3 {
   margin: 0 0 26px;
-  color: #fff;
+  color: #ffffff;
   font-size: 28px;
 }
 
@@ -401,6 +432,12 @@
   color: rgba(255, 255, 255, 0.6);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   font-size: 12px;
+  line-height: 1.5;
+}
+
+.proCard li:last-child,
+.conCard li:last-child {
+  border-bottom: 0;
 }
 
 .proCard li::before {
@@ -415,7 +452,9 @@
   color: rgba(255, 255, 255, 0.35);
 }
 
-/* VERDICT */
+/* =========================================================
+   VERDICT
+   ========================================================= */
 
 .verdict {
   padding: 75px 8%;
@@ -428,99 +467,248 @@
   border-bottom: 1px solid rgba(233, 200, 121, 0.16);
 }
 
-.verdict h2 {
-  margin: 0;
-  color: #fff;
-  font-size: clamp(36px, 4vw, 58px);
-  line-height: 1;
+/* =========================================================
+   TOP PICKS
+   ========================================================= */
+
+.topPicks {
+  position: relative;
+  width: 100%;
+  padding: 100px 4.5% 82px;
+  background: #090a09;
 }
 
-.verdict > p {
+.topPicksIntro {
+  max-width: 760px;
+  margin: 0 0 48px;
+}
+
+.topPicksIntro h2 {
+  margin: 0 0 18px;
+  color: #ffffff;
+  font-size: clamp(42px, 4.8vw, 70px);
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+}
+
+.topPicksIntro > p:last-child {
+  max-width: 620px;
   margin: 0;
-  color: rgba(255, 255, 255, 0.52);
+  color: rgba(255, 255, 255, 0.48);
   font-size: 14px;
-  line-height: 1.8;
+  line-height: 1.75;
 }
 
-/* RECOMMENDATION */
-
-.recommendation {
-  min-height: 650px;
+.pickGrid {
+  width: 100%;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.pickCard {
+  min-width: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: #111311;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.pickImageWrap {
+  position: relative;
+  width: 100%;
+  height: 330px;
+  overflow: hidden;
+  flex-shrink: 0;
   background: #0b0c0b;
 }
 
-.recommendationImageWrap {
-  min-height: 650px;
-  overflow: hidden;
-}
-
-.recommendationImage {
+.pickImage {
   width: 100%;
   height: 100%;
+  display: block;
   object-fit: cover;
+  transition: transform 400ms ease;
 }
 
-.recommendationContent {
-  padding: 80px 9%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+.pickCard:hover .pickImage {
+  transform: scale(1.025);
 }
 
-.recommendationContent h2 {
-  margin: 0 0 20px;
-  color: #fff;
-  font-size: clamp(38px, 4vw, 60px);
-  line-height: 1;
-}
-
-.recommendationLead {
-  margin: 0 0 30px;
-  color: rgba(255, 255, 255, 0.52);
-  font-size: 14px;
-  line-height: 1.8;
-}
-
-.recommendationChecklist {
-  margin-bottom: 32px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.recommendationChecklist div {
-  min-height: 48px;
-  display: flex;
+.pickBadge {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  z-index: 2;
+  padding: 9px 12px;
+  display: inline-flex;
   align-items: center;
-  gap: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+  justify-content: center;
+  background: #efd28c;
+  color: #15130f;
+  font-size: 8px;
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: 0.12em;
 }
 
-.recommendationChecklist span {
-  color: #e9c879;
-}
-
-.recommendationChecklist p {
-  margin: 0;
-  color: rgba(255, 255, 255, 0.68);
-  font-size: 12px;
-}
-
-.buyArea {
+.pickContent {
+  flex: 1;
+  padding: 30px;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 12px;
+}
+
+.productBrand {
+  margin: 0 0 9px;
+  color: #e9c879;
+  font-size: 9px;
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+}
+
+.pickContent h3 {
+  margin: 0 0 25px;
+  color: #ffffff;
+  font-size: 30px;
+  line-height: 1;
+  letter-spacing: -0.025em;
+}
+
+.productSpecs {
+  width: 100%;
+  margin: 0 0 23px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.productSpecs div {
+  min-width: 0;
+  padding: 15px 8px 15px 0;
+}
+
+.productSpecs div + div {
+  padding-left: 12px;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.productSpecs span {
+  display: block;
+  margin: 0 0 6px;
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 7px;
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.productSpecs strong {
+  display: block;
+  color: #ffffff;
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.productDescription {
+  flex: 1;
+  min-height: 100px;
+  margin: 0 0 25px;
+  color: rgba(255, 255, 255, 0.52);
+  font-size: 12px;
+  line-height: 1.75;
+}
+
+.productButton {
+  width: 100%;
+  margin-top: auto;
+  min-height: 50px;
+  cursor: pointer;
+  background: #efd28c;
+  color: #15130f;
+}
+
+.productButton:hover {
+  background: #f5d995;
+  color: #15130f;
 }
 
 .disclosure {
-  max-width: 500px;
+  max-width: 850px;
+  margin: 22px 0 0;
   color: rgba(255, 255, 255, 0.3);
   font-size: 9px;
-  line-height: 1.5;
+  line-height: 1.65;
 }
 
-/* NEXT */
+/* =========================================================
+   QUICK DECISION
+   ========================================================= */
+
+.decision {
+  width: 100%;
+  padding: 85px 8%;
+  background: #10110f;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.decision > h2 {
+  margin: 0 0 42px;
+  color: #ffffff;
+  font-size: clamp(38px, 4vw, 58px);
+  line-height: 1;
+  letter-spacing: -0.035em;
+}
+
+.decisionGrid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.decisionGrid > div {
+  min-width: 0;
+  min-height: 210px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  background: #10110f;
+}
+
+.decisionGrid span {
+  display: block;
+  margin: 0 0 30px;
+  color: #e9c879;
+  font-size: 10px;
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+.decisionGrid strong {
+  display: block;
+  margin: 0 0 12px;
+  color: #ffffff;
+  font-size: 17px;
+  line-height: 1.35;
+}
+
+.decisionGrid p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.44);
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+/* =========================================================
+   NEXT STEP
+   ========================================================= */
 
 .nextStep {
   min-height: 220px;
@@ -530,16 +718,19 @@
   align-items: center;
   gap: 40px;
   background: #080908;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .nextStep h2 {
   margin: 0;
-  color: #fff;
+  color: #ffffff;
   font-size: clamp(30px, 3vw, 44px);
+  line-height: 1;
 }
 
 .nextActions {
   display: flex;
+  align-items: center;
   gap: 12px;
 }
 
@@ -549,7 +740,14 @@
   border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
-/* RESPONSIVE */
+.secondaryButton:hover {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.38);
+}
+
+/* =========================================================
+   TABLET
+   ========================================================= */
 
 @media (max-width: 1180px) {
   .nav {
@@ -563,23 +761,47 @@
   .headerActions {
     justify-self: end;
   }
+
+  .pickGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .pickCard {
+    display: grid;
+    grid-template-columns: minmax(320px, 0.8fr) minmax(0, 1.2fr);
+  }
+
+  .pickImageWrap {
+    height: 100%;
+    min-height: 430px;
+  }
+
+  .pickContent {
+    min-height: 430px;
+  }
+
+  .productDescription {
+    min-height: 0;
+  }
 }
+
+/* =========================================================
+   SMALL TABLET
+   ========================================================= */
 
 @media (max-width: 900px) {
   .hero,
-  .whySection,
-  .recommendation {
+  .whySection {
     grid-template-columns: 1fr;
   }
 
   .heroImageWrap,
-  .whyImageWrap,
-  .recommendationImageWrap {
+  .whyImageWrap {
     min-height: 470px;
   }
 
   .specGrid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .bestFor,
@@ -588,7 +810,19 @@
     grid-template-columns: 1fr;
     gap: 30px;
   }
+
+  .decisionGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .decisionGrid > div {
+    min-height: 0;
+  }
 }
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
 
 @media (max-width: 760px) {
   .header {
@@ -614,17 +848,36 @@
     padding: 0 20px;
   }
 
+  .heroImageWrap {
+    min-height: 390px;
+  }
+
   .heroContent,
-  .whyContent,
-  .recommendationContent {
+  .whyContent {
     padding: 55px 22px;
   }
 
   .bestFor,
   .specSection,
   .proConSection,
-  .verdict {
+  .verdict,
+  .topPicks,
+  .decision {
     padding: 55px 22px;
+  }
+
+  .heroMeta {
+    grid-template-columns: 1fr;
+  }
+
+  .heroMeta div {
+    padding: 15px 0;
+  }
+
+  .heroMeta div + div {
+    padding-left: 0;
+    border-left: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
   }
 
   .sectionHeading {
@@ -637,6 +890,47 @@
     grid-template-columns: 1fr;
   }
 
+  .pickGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .pickCard {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .pickImageWrap {
+    height: 300px;
+    min-height: 0;
+  }
+
+  .pickContent {
+    min-height: 0;
+    padding: 25px 22px;
+  }
+
+  .productSpecs {
+    grid-template-columns: 1fr;
+  }
+
+  .productSpecs div {
+    padding: 13px 0;
+  }
+
+  .productSpecs div + div {
+    padding-left: 0;
+    border-left: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .productDescription {
+    min-height: 0;
+  }
+
+  .decisionGrid {
+    grid-template-columns: 1fr;
+  }
+
   .nextStep {
     padding: 50px 22px;
     flex-direction: column;
@@ -646,5 +940,11 @@
   .nextActions {
     width: 100%;
     flex-direction: column;
+    align-items: stretch;
+  }
+
+  .nextActions .primaryButton,
+  .nextActions .secondaryButton {
+    width: 100%;
   }
 }
