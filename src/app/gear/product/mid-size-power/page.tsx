@@ -760,3 +760,157 @@ export default function MidSizePowerPage() {
 
 
       </section>
+      <section className={styles.decision}>
+
+        <p className={styles.eyebrow}>
+          QUICK DECISION
+        </p>
+
+
+        <h2>
+          Which Mid-Size Power
+          Should You Choose?
+        </h2>
+
+
+
+        <div className={styles.decisionGrid}>
+
+
+          <div>
+
+            <span>
+              01
+            </span>
+
+
+            <strong>
+              Want the best overall balance?
+            </strong>
+
+
+            <p>
+              Start with the EcoFlow DELTA 2.
+            </p>
+
+
+          </div>
+
+
+
+
+          <div>
+
+            <span>
+              02
+            </span>
+
+
+            <strong>
+              Planning longer road trips?
+            </strong>
+
+
+            <p>
+              Choose the Jackery Explorer 1000 Plus.
+            </p>
+
+
+          </div>
+
+
+
+
+          <div>
+
+            <span>
+              03
+            </span>
+
+
+            <strong>
+              Need strong output value?
+            </strong>
+
+
+            <p>
+              The BLUETTI AC180 delivers serious capacity.
+            </p>
+
+
+          </div>
+
+
+
+        </div>
+
+
+      </section>
+
+
+
+
+
+
+      <section className={styles.nextStep}>
+
+
+        <div>
+
+
+          <p className={styles.eyebrow}>
+            KEEP BUILDING
+          </p>
+
+
+
+          <h2>
+            Need Even More Power?
+          </h2>
+
+
+        </div>
+
+
+
+
+
+        <div className={styles.nextActions}>
+
+
+          <Link
+            href="/gear/product/compact-power"
+            className={styles.secondaryButton}
+          >
+
+            ← BACK TO COMPACT POWER
+
+          </Link>
+
+
+
+
+
+          <Link
+            href="/gear/product/large-power"
+            className={styles.primaryButton}
+          >
+
+            NEXT: LARGE POWER →
+
+          </Link>
+
+
+
+        </div>
+
+
+      </section>
+
+
+
+    </main>
+
+  );
+
+}
