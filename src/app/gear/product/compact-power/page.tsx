@@ -3,8 +3,9 @@ import styles from "./product.module.css";
 
 const affiliateLinks = {
   ecoflow: "https://www.ecoflow.com/us/river-3-plus-portable-power-station",
-  jackery: "https://www.jackery.com/products/jackery-explorer-300-plus-portable-power-station",
-  bluetti: "https://bluetti.com/",
+  jackery:
+    "https://www.jackery.com/products/jackery-explorer-300-plus-portable-power-station",
+  bluetti: "https://www.bluettipower.com/",
 };
 
 const specs = [
@@ -35,7 +36,7 @@ const topPicks = [
     output: "600W",
     weight: "10.4 lb",
     description:
-      "Our strongest all-round compact pick. High output for its size, expandable capacity and a useful mix of charging options make it especially flexible for car camping.",
+      "Our strongest all-round compact pick. High output for its size and a useful mix of charging options make it especially flexible for car camping.",
     image: "/power-ecoflow.jpg",
     affiliateUrl: affiliateLinks.ecoflow,
   },
@@ -68,6 +69,7 @@ const topPicks = [
 export default function CompactPowerPage() {
   return (
     <main className={styles.page}>
+      {/* HEADER */}
       <header className={styles.header}>
         <Link href="/" className={styles.logo}>
           ROAMLAB
@@ -97,6 +99,7 @@ export default function CompactPowerPage() {
         </div>
       </header>
 
+      {/* BREADCRUMB */}
       <div className={styles.breadcrumb}>
         <Link href="/gear">GEAR</Link>
         <span>→</span>
@@ -121,8 +124,8 @@ export default function CompactPowerPage() {
           <h1>Compact Power</h1>
 
           <p className={styles.subtitle}>
-            Lightweight portable power for weekend trips, smaller vehicles
-            and simple camp electronics.
+            Lightweight portable power for weekend trips, smaller vehicles and
+            simple camp electronics.
           </p>
 
           <div className={styles.heroMeta}>
@@ -223,7 +226,7 @@ export default function CompactPowerPage() {
         </div>
       </section>
 
-      {/* PROS / LIMITS */}
+      {/* PROS / CONS */}
       <section className={styles.proConSection}>
         <div className={styles.proCard}>
           <p className={styles.eyebrow}>PROS</p>
@@ -272,7 +275,9 @@ export default function CompactPowerPage() {
       <section id="top-picks" className={styles.topPicks}>
         <div className={styles.topPicksIntro}>
           <p className={styles.eyebrow}>ROAMLAB RECOMMENDATIONS</p>
+
           <h2>Top Picks For Compact Power</h2>
+
           <p>
             Three different approaches to the same job. Choose based on how
             much output, weight and flexibility your setup actually needs.
@@ -318,24 +323,14 @@ export default function CompactPowerPage() {
                   {product.description}
                 </p>
 
-                {product.affiliateUrl ? (
-                  <a
-                    href={product.affiliateUrl}
-                    target="_blank"
-                    rel="sponsored nofollow noopener noreferrer"
-                    className={styles.productButton}
-                  >
-                    VIEW PRODUCT →
-                  </a>
-                ) : (
-                  <button
-                    type="button"
-                    className={`${styles.productButton} ${styles.disabledButton}`}
-                    disabled
-                  >
-                    AFFILIATE LINK COMING SOON
-                  </button>
-                )}
+                <a
+                  href={product.affiliateUrl}
+                  target="_blank"
+                  rel="sponsored nofollow noopener noreferrer"
+                  className={styles.productButton}
+                >
+                  VIEW PRODUCT →
+                </a>
               </div>
             </article>
           ))}
@@ -348,7 +343,7 @@ export default function CompactPowerPage() {
         </p>
       </section>
 
-      {/* DECISION */}
+      {/* QUICK DECISION */}
       <section className={styles.decision}>
         <p className={styles.eyebrow}>QUICK DECISION</p>
 
