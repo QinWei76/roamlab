@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { generateGearSystem } from "@/data/gearSystemRules";
 
 type VehicleKey =
   | "suv"
@@ -244,51 +245,21 @@ export default function GearPage() {
      GEAR SYSTEM
   ============================== */
 
-  const gearSystem =
-    useMemo(() => {
-      const isRemote =
-        trip === "remote";
-
-      const isLong =
-        duration === "multi-day" ||
-        duration === "extended";
-
-      const isLargeCrew =
-        people >= 4;
-
-      const isCityCar =
-        vehicle === "city";
-
-      const personal: GearItem[] = [
-        {
-          name: "Sleeping System",
-          priority: "essential",
-        },
-        {
-          name: "Clothing Layers",
-          priority: "essential",
-        },
-        {
-          name: "Personal Lighting",
-          priority: isRemote
-            ? "essential"
-            : "recommended",
-        },
-        {
-          name: "Water & Hydration",
-          priority: "essential",
-        },
-        {
-          name: "Hygiene Kit",
-          priority: isLong
-            ? "essential"
-            : "recommended",
-        },
-        {
-          name: "Personal Essentials",
-          priority: "essential",
-        },
-      ];
+ const gearSystem = useMemo(() => {
+  return generateGearSystem({
+    vehicle,
+    trip,
+    crew,
+    people,
+    duration,
+  });
+}, [
+  vehicle,
+  trip,
+  crew,
+  people,
+  duration,
+]);
 
       const vehicleGear: GearItem[] =
         [
