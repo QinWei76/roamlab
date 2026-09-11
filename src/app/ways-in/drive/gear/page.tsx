@@ -39,11 +39,6 @@ type GearSystemKey =
   | "vehicle"
   | "safety";
 
-type GearItem = {
-  name: string;
-  priority: Priority;
-};
-
 const vehicleLabels: Record<VehicleKey, string> = {
   suv: "SUV",
   truck: "TRUCK",
@@ -245,153 +240,21 @@ export default function GearPage() {
      GEAR SYSTEM
   ============================== */
 
- const gearSystem = useMemo(() => {
-  return generateGearSystem({
+  const gearSystem = useMemo(() => {
+    return generateGearSystem({
+      vehicle,
+      trip,
+      crew,
+      people,
+      duration,
+    });
+  }, [
     vehicle,
     trip,
     crew,
     people,
     duration,
-  });
-}, [
-  vehicle,
-  trip,
-  crew,
-  people,
-  duration,
-]);
-
-      const vehicleGear: GearItem[] =
-        [
-          {
-            name:
-              "Vehicle Sleeping Setup",
-            priority:
-              "essential",
-          },
-          {
-            name: "Power",
-            priority:
-              isRemote || isLong
-                ? "essential"
-                : "recommended",
-          },
-          {
-            name: "Cooking",
-            priority:
-              duration ===
-              "overnight"
-                ? "recommended"
-                : "essential",
-          },
-          {
-            name: "Food Storage",
-            priority:
-              isLong ||
-              isLargeCrew
-                ? "essential"
-                : "recommended",
-          },
-          {
-            name:
-              "Water Storage",
-            priority:
-              isRemote ||
-              isLong ||
-              isLargeCrew
-                ? "essential"
-                : "recommended",
-          },
-          {
-            name:
-              "Camp Lighting",
-            priority:
-              "recommended",
-          },
-          {
-            name:
-              "Storage & Organization",
-            priority: isCityCar
-              ? "essential"
-              : "recommended",
-          },
-          {
-            name: "Shelter",
-            priority:
-              trip === "basecamp"
-                ? "essential"
-                : "recommended",
-          },
-          {
-            name:
-              "Camp Furniture",
-            priority:
-              trip === "basecamp"
-                ? "recommended"
-                : "optional",
-          },
-        ];
-
-      const safety: GearItem[] = [
-        {
-          name: "First Aid",
-          priority: "essential",
-        },
-        {
-          name: "Fire Safety",
-          priority: "essential",
-        },
-        {
-          name: "Tire & Repair",
-          priority: "essential",
-        },
-        {
-          name:
-            "Vehicle Recovery",
-          priority: isRemote
-            ? "essential"
-            : "recommended",
-        },
-        {
-          name:
-            "Jump Start / Backup Power",
-          priority:
-            "recommended",
-        },
-        {
-          name: "Navigation",
-          priority: isRemote
-            ? "essential"
-            : "recommended",
-        },
-        {
-          name:
-            "Emergency Communication",
-          priority: isRemote
-            ? "essential"
-            : "optional",
-        },
-        {
-          name:
-            "Emergency Water & Food",
-          priority:
-            isRemote || isLong
-              ? "essential"
-              : "recommended",
-        },
-      ];
-
-      return {
-        personal,
-        vehicle: vehicleGear,
-        safety,
-      };
-    }, [
-      vehicle,
-      trip,
-      people,
-      duration,
-    ]);
+  ]);
 
   /* ==============================
      DEFAULT SELECTED
