@@ -12,45 +12,46 @@ export interface SystemRecommendation {
 }
 
 
+
 export function generateSystem(
   profile: AdventureProfile
 ): SystemRecommendation {
 
 
-  const result: SystemRecommendation = {
+  const personal: string[] = [];
 
-    personal: [],
+  const camp: string[] = [];
 
-    camp: [],
+  const safety: string[] = [];
 
-    safety: [],
-
-  };
 
 
   /*
-   Personal Gear
+   PERSONAL SYSTEM
   */
+
 
   if (
     profile.crew === "family" ||
-    profile.duration === "4-7-nights"
+    profile.crew === "friends" ||
+    profile.duration === "4-7-nights" ||
+    profile.duration === "8-plus"
   ) {
 
-    result.personal.push(
+    personal.push(
       "Comfort Sleeping System"
     );
 
   } else {
 
-    result.personal.push(
+    personal.push(
       "Essential Sleeping System"
     );
 
   }
 
 
-  result.personal.push(
+  personal.push(
     "Personal Lighting",
     "Water & Hydration"
   );
@@ -58,7 +59,7 @@ export function generateSystem(
 
 
   /*
-    Vehicle & Camp Gear
+   CAMP SYSTEM
   */
 
 
@@ -69,29 +70,31 @@ export function generateSystem(
     profile.duration === "8-plus"
   ) {
 
-    result.camp.push(
+    camp.push(
       "Large Power System"
     );
 
-  }
 
-  else if (
+  } else if (
+
     profile.vehicle === "suv" &&
     (
       profile.crew === "family" ||
-      profile.duration === "2-3-nights"
+      profile.crew === "friends" ||
+      profile.duration === "2-3-nights" ||
+      profile.duration === "4-7-nights"
     )
+
   ) {
 
-    result.camp.push(
+    camp.push(
       "Mid-size Power System"
     );
 
-  }
 
-  else {
+  } else {
 
-    result.camp.push(
+    camp.push(
       "Compact Power System"
     );
 
@@ -101,17 +104,20 @@ export function generateSystem(
 
   // Cooking
 
-  if(profile.crew === "family"){
+  if (
 
-    result.camp.push(
-      "Family Cooking System"
+    profile.crew === "family" ||
+    profile.crew === "friends"
+
+  ) {
+
+    camp.push(
+      "Group Cooking System"
     );
 
-  }
+  } else {
 
-  else {
-
-    result.camp.push(
+    camp.push(
       "Portable Cooking System"
     );
 
@@ -121,37 +127,75 @@ export function generateSystem(
 
   // Storage
 
-  result.camp.push(
-    "Modular Storage System"
-  );
+  if (
+
+    profile.people >= 4 ||
+    profile.duration === "4-7-nights" ||
+    profile.duration === "8-plus"
+
+  ) {
+
+    camp.push(
+      "Modular Storage System"
+    );
+
+  } else {
+
+    camp.push(
+      "Basic Storage System"
+    );
+
+  }
+
 
 
   /*
-    Safety
+    SAFETY SYSTEM
   */
 
 
-  if(
+  if (
+
     profile.tripStyle === "off-grid" ||
     profile.duration === "8-plus"
-  ){
 
-    result.safety.push(
+  ) {
+
+
+    safety.push(
+
       "Advanced Emergency System",
+
       "Navigation & Communication"
+
     );
+
+
+  } else {
+
+
+    safety.push(
+
+      "Standard Safety System",
+
+      "Vehicle Recovery Kit"
+
+    );
+
 
   }
 
-  else {
-
-    result.safety.push(
-      "Standard Safety Kit"
-    );
-
-  }
 
 
-  return result;
+  return {
+
+    personal,
+
+    camp,
+
+    safety
+
+  };
+
 
 }
