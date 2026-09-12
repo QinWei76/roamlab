@@ -4,7 +4,41 @@ import {
   testProfile,
 } from "@/data/testPowerRecommendation";
 
+import {
+  calculatePowerRequirement,
+  calculatePowerScenarioFit,
+  powerProductSpecs,
+} from "@/data/powerRecommendationModel";
+
+import {
+  powerProducts,
+} from "@/data/products/powerProducts";
+
 export default function TestPowerPage() {
+  const requirement =
+    calculatePowerRequirement(testProfile);
+
+  const v2Results = powerProducts.map(
+    (product) => {
+      const result =
+        calculatePowerScenarioFit(
+          product,
+          testProfile
+        );
+
+      return {
+        product,
+        result,
+      };
+    }
+  );
+
+  const sortedV2Results = [...v2Results].sort(
+    (a, b) =>
+      b.result.scenarioFit -
+      a.result.scenarioFit
+  );
+
   return (
     <main
       style={{
@@ -19,250 +53,661 @@ export default function TestPowerPage() {
       <div
         style={{
           width: "100%",
-          maxWidth: "1100px",
+          maxWidth: "1180px",
           margin: "0 auto",
         }}
       >
-        <div
-          style={{
-            marginBottom: "40px",
-          }}
-        >
-          <p
-            style={{
-              fontSize: "12px",
-              letterSpacing: "0.18em",
-              textTransform: "uppercase",
-              opacity: 0.6,
-              marginBottom: "10px",
-            }}
-          >
-            ROAMLAB
-          </p>
+        <Header />
 
-          <h1
-            style={{
-              fontSize: "36px",
-              margin: 0,
-              marginBottom: "12px",
-            }}
-          >
-            Power Recommendation Engine Test
-          </h1>
+        <AdventureProfile />
 
-          <p
-            style={{
-              opacity: 0.7,
-              lineHeight: 1.6,
-              maxWidth: "760px",
-            }}
-          >
-            This page shows the first real output
-            from the RoamLab recommendation engine.
-          </p>
-        </div>
+        <PowerRequirementPanel
+          requirement={requirement}
+        />
 
-        <section
-          style={{
-            padding: "22px",
-            border: "1px solid #333",
-            borderRadius: "14px",
-            marginBottom: "36px",
-            background: "#181818",
-          }}
-        >
-          <h2
-            style={{
-              fontSize: "18px",
-              marginTop: 0,
-            }}
-          >
-            Test Adventure Profile
-          </h2>
+        <V2Comparison
+          results={sortedV2Results}
+        />
 
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns:
-                "repeat(auto-fit, minmax(160px, 1fr))",
-              gap: "14px",
-            }}
-          >
-            <ProfileItem
-              label="Vehicle"
-              value={testProfile.vehicle}
-            />
-
-            <ProfileItem
-              label="Trip"
-              value={testProfile.trip}
-            />
-
-            <ProfileItem
-              label="Crew"
-              value={testProfile.crew}
-            />
-
-            <ProfileItem
-              label="People"
-              value={String(testProfile.people)}
-            />
-
-            <ProfileItem
-              label="Duration"
-              value={testProfile.duration}
-            />
-          </div>
-        </section>
-
-        <section
-          style={{
-            marginBottom: "48px",
-          }}
-        >
-          <p
-            style={{
-              fontSize: "12px",
-              letterSpacing: "0.18em",
-              textTransform: "uppercase",
-              opacity: 0.6,
-              marginBottom: "10px",
-            }}
-          >
-            Professional Setup
-          </p>
-
-          <h2
-            style={{
-              fontSize: "28px",
-              marginTop: 0,
-              marginBottom: "20px",
-            }}
-          >
-            RoamLab Professional Choice
-          </h2>
-
-          {professionalPowerResult ? (
-            <RecommendationCard
-              rank="TOP 1"
-              product={
-                professionalPowerResult.product
-              }
-              brand={
-                professionalPowerResult.brand
-              }
-              price={
-                professionalPowerResult.price
-              }
-              totalScore={
-                professionalPowerResult.totalScore
-              }
-              scenarioFit={
-                professionalPowerResult.scenarioFit
-              }
-              reliability={
-                professionalPowerResult.reliability
-              }
-              safety={
-                professionalPowerResult.safety
-              }
-              durability={
-                professionalPowerResult.durability
-              }
-              value={
-                professionalPowerResult.value
-              }
-              evidenceConfidence={
-                professionalPowerResult.evidenceConfidence
-              }
-              reason={
-                professionalPowerResult.reason
-              }
-            />
-          ) : (
-            <p>No professional result.</p>
-          )}
-        </section>
-
-        <section>
-          <p
-            style={{
-              fontSize: "12px",
-              letterSpacing: "0.18em",
-              textTransform: "uppercase",
-              opacity: 0.6,
-              marginBottom: "10px",
-            }}
-          >
-            User Budget Setup
-          </p>
-
-          <h2
-            style={{
-              fontSize: "28px",
-              marginTop: 0,
-              marginBottom: "8px",
-            }}
-          >
-            Budget Top 3
-          </h2>
-
-          <p
-            style={{
-              marginTop: 0,
-              opacity: 0.65,
-              marginBottom: "22px",
-            }}
-          >
-            Power category budget: $800
-          </p>
-
-          <div
-            style={{
-              display: "grid",
-              gap: "20px",
-            }}
-          >
-            {budgetPowerResults.length > 0 ? (
-              budgetPowerResults.map(
-                (item) => (
-                  <RecommendationCard
-                    key={`${item.rank}-${item.product}`}
-                    rank={`#${item.rank}`}
-                    product={item.product}
-                    brand={item.brand}
-                    price={item.price}
-                    totalScore={
-                      item.totalScore
-                    }
-                    scenarioFit={
-                      item.scenarioFit
-                    }
-                    reliability={
-                      item.reliability
-                    }
-                    safety={item.safety}
-                    durability={
-                      item.durability
-                    }
-                    value={item.value}
-                    evidenceConfidence={
-                      item.evidenceConfidence
-                    }
-                    reason={item.reason}
-                  />
-                )
-              )
-            ) : (
-              <p>
-                No products fit the current
-                budget.
-              </p>
-            )}
-          </div>
-        </section>
+        <OldV1Results />
       </div>
     </main>
+  );
+}
+
+function Header() {
+  return (
+    <div
+      style={{
+        marginBottom: "40px",
+      }}
+    >
+      <p
+        style={{
+          fontSize: "12px",
+          letterSpacing: "0.18em",
+          textTransform: "uppercase",
+          opacity: 0.6,
+          marginBottom: "10px",
+        }}
+      >
+        ROAMLAB
+      </p>
+
+      <h1
+        style={{
+          fontSize: "38px",
+          margin: 0,
+          marginBottom: "12px",
+        }}
+      >
+        Power Recommendation Engine V2
+      </h1>
+
+      <p
+        style={{
+          opacity: 0.7,
+          lineHeight: 1.6,
+          maxWidth: "800px",
+        }}
+      >
+        V1 used general product suitability.
+        V2 calculates real power requirements
+        and compares technical capability.
+      </p>
+    </div>
+  );
+}
+
+function AdventureProfile() {
+  return (
+    <section
+      style={{
+        padding: "22px",
+        border: "1px solid #333",
+        borderRadius: "14px",
+        marginBottom: "28px",
+        background: "#181818",
+      }}
+    >
+      <h2
+        style={{
+          fontSize: "18px",
+          marginTop: 0,
+        }}
+      >
+        Test Adventure Profile
+      </h2>
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns:
+            "repeat(auto-fit, minmax(160px, 1fr))",
+          gap: "14px",
+        }}
+      >
+        <ProfileItem
+          label="Vehicle"
+          value={testProfile.vehicle}
+        />
+
+        <ProfileItem
+          label="Trip"
+          value={testProfile.trip}
+        />
+
+        <ProfileItem
+          label="Crew"
+          value={testProfile.crew}
+        />
+
+        <ProfileItem
+          label="People"
+          value={String(
+            testProfile.people
+          )}
+        />
+
+        <ProfileItem
+          label="Duration"
+          value={
+            testProfile.duration
+          }
+        />
+      </div>
+    </section>
+  );
+}
+
+function PowerRequirementPanel({
+  requirement,
+}: {
+  requirement: {
+    targetCapacityWh: number;
+    minimumAcOutputW: number;
+    targetSolarInputW: number;
+    targetAcRechargeW: number;
+    maxRecommendedWeightKg: number;
+    targetCycleLife: number;
+    remoteReservePercent: number;
+  };
+}) {
+  return (
+    <section
+      style={{
+        padding: "22px",
+        border: "1px solid #333",
+        borderRadius: "14px",
+        marginBottom: "42px",
+        background: "#181818",
+      }}
+    >
+      <p
+        style={{
+          fontSize: "12px",
+          letterSpacing: "0.16em",
+          textTransform: "uppercase",
+          opacity: 0.55,
+          marginTop: 0,
+          marginBottom: "8px",
+        }}
+      >
+        Power Requirement Engine
+      </p>
+
+      <h2
+        style={{
+          fontSize: "25px",
+          marginTop: 0,
+          marginBottom: "20px",
+        }}
+      >
+        Calculated Technical Target
+      </h2>
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns:
+            "repeat(auto-fit, minmax(150px, 1fr))",
+          gap: "12px",
+        }}
+      >
+        <RequirementItem
+          label="Target Capacity"
+          value={`${requirement.targetCapacityWh} Wh`}
+        />
+
+        <RequirementItem
+          label="Min AC Output"
+          value={`${requirement.minimumAcOutputW} W`}
+        />
+
+        <RequirementItem
+          label="Target Solar"
+          value={`${requirement.targetSolarInputW} W`}
+        />
+
+        <RequirementItem
+          label="Target AC Recharge"
+          value={`${requirement.targetAcRechargeW} W`}
+        />
+
+        <RequirementItem
+          label="Weight Target"
+          value={`${requirement.maxRecommendedWeightKg} kg`}
+        />
+
+        <RequirementItem
+          label="Cycle Life"
+          value={`${requirement.targetCycleLife}`}
+        />
+
+        <RequirementItem
+          label="Remote Reserve"
+          value={`${requirement.remoteReservePercent}%`}
+        />
+      </div>
+    </section>
+  );
+}
+
+function V2Comparison({
+  results,
+}: {
+  results: ReturnType<
+    typeof calculatePowerScenarioFit
+  > extends infer T
+    ? {
+        product:
+          (typeof powerProducts)[number];
+        result: T;
+      }[]
+    : never;
+}) {
+  return (
+    <section
+      style={{
+        marginBottom: "60px",
+      }}
+    >
+      <p
+        style={{
+          fontSize: "12px",
+          letterSpacing: "0.16em",
+          textTransform: "uppercase",
+          opacity: 0.55,
+          marginBottom: "8px",
+        }}
+      >
+        Power-Specific Model
+      </p>
+
+      <h2
+        style={{
+          fontSize: "30px",
+          marginTop: 0,
+          marginBottom: "8px",
+        }}
+      >
+        V2 Scenario Fit Ranking
+      </h2>
+
+      <p
+        style={{
+          opacity: 0.65,
+          marginTop: 0,
+          marginBottom: "24px",
+        }}
+      >
+        Ranked only by Power Scenario Fit V2.
+      </p>
+
+      <div
+        style={{
+          display: "grid",
+          gap: "20px",
+        }}
+      >
+        {results.map(
+          (
+            { product, result },
+            index
+          ) => {
+            const specs =
+              powerProductSpecs[
+                product.id
+              ];
+
+            return (
+              <div
+                key={product.id}
+                style={{
+                  border:
+                    "1px solid #333",
+                  borderRadius: "14px",
+                  padding: "24px",
+                  background: "#181818",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent:
+                      "space-between",
+                    alignItems:
+                      "flex-start",
+                    gap: "20px",
+                    flexWrap: "wrap",
+                    marginBottom:
+                      "22px",
+                  }}
+                >
+                  <div>
+                    <div
+                      style={{
+                        fontSize:
+                          "12px",
+                        opacity: 0.55,
+                        letterSpacing:
+                          "0.12em",
+                        marginBottom:
+                          "8px",
+                      }}
+                    >
+                      #{index + 1}
+                    </div>
+
+                    <h3
+                      style={{
+                        fontSize:
+                          "24px",
+                        margin: 0,
+                        marginBottom:
+                          "6px",
+                      }}
+                    >
+                      {product.name}
+                    </h3>
+
+                    <div
+                      style={{
+                        opacity: 0.6,
+                      }}
+                    >
+                      {product.brand}
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      textAlign:
+                        "right",
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize:
+                          "32px",
+                        fontWeight: 700,
+                      }}
+                    >
+                      {
+                        result.scenarioFit
+                      }
+                    </div>
+
+                    <div
+                      style={{
+                        fontSize:
+                          "11px",
+                        opacity: 0.5,
+                        textTransform:
+                          "uppercase",
+                        letterSpacing:
+                          "0.12em",
+                      }}
+                    >
+                      V2 Scenario Fit
+                    </div>
+                  </div>
+                </div>
+
+                {specs && (
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns:
+                        "repeat(auto-fit, minmax(135px, 1fr))",
+                      gap: "10px",
+                      marginBottom:
+                        "20px",
+                    }}
+                  >
+                    <SpecItem
+                      label="Capacity"
+                      value={`${specs.capacityWh} Wh`}
+                    />
+
+                    <SpecItem
+                      label="AC Output"
+                      value={`${specs.continuousOutputW} W`}
+                    />
+
+                    <SpecItem
+                      label="Solar"
+                      value={`${specs.maxSolarInputW} W`}
+                    />
+
+                    <SpecItem
+                      label="AC Recharge"
+                      value={`${specs.maxAcRechargeW} W`}
+                    />
+
+                    <SpecItem
+                      label="Weight"
+                      value={`${specs.weightKg} kg`}
+                    />
+
+                    <SpecItem
+                      label="Cycle Life"
+                      value={`${specs.cycleLife}`}
+                    />
+                  </div>
+                )}
+
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns:
+                      "repeat(auto-fit, minmax(140px, 1fr))",
+                    gap: "12px",
+                  }}
+                >
+                  <ScoreItem
+                    label="Capacity Fit"
+                    value={
+                      result.breakdown
+                        .capacityFit
+                    }
+                  />
+
+                  <ScoreItem
+                    label="Output Fit"
+                    value={
+                      result.breakdown
+                        .outputFit
+                    }
+                  />
+
+                  <ScoreItem
+                    label="Solar Fit"
+                    value={
+                      result.breakdown
+                        .solarFit
+                    }
+                  />
+
+                  <ScoreItem
+                    label="Recharge Fit"
+                    value={
+                      result.breakdown
+                        .rechargeFit
+                    }
+                  />
+
+                  <ScoreItem
+                    label="Portability"
+                    value={
+                      result.breakdown
+                        .portabilityFit
+                    }
+                  />
+
+                  <ScoreItem
+                    label="Cycle Life"
+                    value={
+                      result.breakdown
+                        .cycleLifeFit
+                    }
+                  />
+                </div>
+              </div>
+            );
+          }
+        )}
+      </div>
+    </section>
+  );
+}
+
+function OldV1Results() {
+  return (
+    <section
+      style={{
+        borderTop: "1px solid #333",
+        paddingTop: "42px",
+      }}
+    >
+      <p
+        style={{
+          fontSize: "12px",
+          letterSpacing: "0.16em",
+          textTransform: "uppercase",
+          opacity: 0.45,
+          marginBottom: "8px",
+        }}
+      >
+        Reference
+      </p>
+
+      <h2
+        style={{
+          fontSize: "28px",
+          marginTop: 0,
+        }}
+      >
+        Previous V1 Output
+      </h2>
+
+      <p
+        style={{
+          opacity: 0.6,
+          lineHeight: 1.6,
+          maxWidth: "800px",
+        }}
+      >
+        These results still use the
+        original generic recommendation
+        engine and are shown only for
+        comparison.
+      </p>
+
+      <div
+        style={{
+          display: "grid",
+          gap: "18px",
+          marginTop: "22px",
+        }}
+      >
+        {professionalPowerResult && (
+          <V1Card
+            label="Professional"
+            product={
+              professionalPowerResult.product
+            }
+            score={
+              professionalPowerResult.totalScore
+            }
+            scenarioFit={
+              professionalPowerResult.scenarioFit
+            }
+          />
+        )}
+
+        {budgetPowerResults.map(
+          (item) => (
+            <V1Card
+              key={`${item.rank}-${item.product}`}
+              label={`Budget #${item.rank}`}
+              product={item.product}
+              score={item.totalScore}
+              scenarioFit={
+                item.scenarioFit
+              }
+            />
+          )
+        )}
+      </div>
+    </section>
+  );
+}
+
+function V1Card({
+  label,
+  product,
+  score,
+  scenarioFit,
+}: {
+  label: string;
+  product: string;
+  score: number;
+  scenarioFit: number;
+}) {
+  return (
+    <div
+      style={{
+        padding: "18px 20px",
+        background: "#181818",
+        border:
+          "1px solid #2f2f2f",
+        borderRadius: "12px",
+        display: "flex",
+        justifyContent:
+          "space-between",
+        alignItems: "center",
+        gap: "20px",
+        flexWrap: "wrap",
+      }}
+    >
+      <div>
+        <div
+          style={{
+            fontSize: "11px",
+            opacity: 0.5,
+            textTransform:
+              "uppercase",
+            letterSpacing:
+              "0.1em",
+            marginBottom: "5px",
+          }}
+        >
+          {label}
+        </div>
+
+        <strong>
+          {product}
+        </strong>
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          gap: "26px",
+        }}
+      >
+        <div>
+          <div
+            style={{
+              fontSize: "11px",
+              opacity: 0.45,
+            }}
+          >
+            V1 Scenario
+          </div>
+
+          <strong>
+            {scenarioFit}
+          </strong>
+        </div>
+
+        <div>
+          <div
+            style={{
+              fontSize: "11px",
+              opacity: 0.45,
+            }}
+          >
+            Total
+          </div>
+
+          <strong>
+            {score}
+          </strong>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -305,186 +750,71 @@ function ProfileItem({
   );
 }
 
-function RecommendationCard({
-  rank,
-  product,
-  brand,
-  price,
-  totalScore,
-  scenarioFit,
-  reliability,
-  safety,
-  durability,
+function RequirementItem({
+  label,
   value,
-  evidenceConfidence,
-  reason,
 }: {
-  rank: string;
-  product: string;
-  brand: string;
-  price: number;
-  totalScore: number;
-  scenarioFit: number;
-  reliability: number;
-  safety: number;
-  durability: number;
-  value: number;
-  evidenceConfidence: number;
-  reason: string;
+  label: string;
+  value: string;
 }) {
   return (
     <div
       style={{
-        border: "1px solid #333",
-        borderRadius: "14px",
-        padding: "24px",
-        background: "#181818",
+        padding: "14px",
+        background: "#202020",
+        borderRadius: "10px",
       }}
     >
       <div
         style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-          gap: "20px",
-          flexWrap: "wrap",
-          marginBottom: "24px",
+          fontSize: "11px",
+          opacity: 0.5,
+          marginBottom: "6px",
         }}
       >
-        <div>
-          <div
-            style={{
-              fontSize: "12px",
-              letterSpacing: "0.15em",
-              opacity: 0.55,
-              marginBottom: "8px",
-            }}
-          >
-            {rank}
-          </div>
+        {label}
+      </div>
 
-          <h3
-            style={{
-              fontSize: "24px",
-              margin: 0,
-              marginBottom: "8px",
-            }}
-          >
-            {product}
-          </h3>
+      <strong>
+        {value}
+      </strong>
+    </div>
+  );
+}
 
-          <div
-            style={{
-              opacity: 0.65,
-            }}
-          >
-            {brand}
-          </div>
-        </div>
-
-        <div
-          style={{
-            textAlign: "right",
-          }}
-        >
-          <div
-            style={{
-              fontSize: "28px",
-              fontWeight: 700,
-            }}
-          >
-            {totalScore}
-          </div>
-
-          <div
-            style={{
-              fontSize: "11px",
-              opacity: 0.5,
-              textTransform: "uppercase",
-              letterSpacing: "0.12em",
-            }}
-          >
-            Total Score
-          </div>
-
-          <div
-            style={{
-              marginTop: "10px",
-              fontSize: "16px",
-            }}
-          >
-            ${price}
-          </div>
-        </div>
+function SpecItem({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <div
+      style={{
+        padding: "11px",
+        background: "#151515",
+        border:
+          "1px solid #2a2a2a",
+        borderRadius: "8px",
+      }}
+    >
+      <div
+        style={{
+          fontSize: "10px",
+          opacity: 0.45,
+          marginBottom: "5px",
+        }}
+      >
+        {label}
       </div>
 
       <div
         style={{
-          display: "grid",
-          gridTemplateColumns:
-            "repeat(auto-fit, minmax(140px, 1fr))",
-          gap: "12px",
-          marginBottom: "22px",
+          fontSize: "14px",
         }}
       >
-        <ScoreItem
-          label="Scenario Fit"
-          value={scenarioFit}
-        />
-
-        <ScoreItem
-          label="Reliability"
-          value={reliability}
-        />
-
-        <ScoreItem
-          label="Safety"
-          value={safety}
-        />
-
-        <ScoreItem
-          label="Durability"
-          value={durability}
-        />
-
-        <ScoreItem
-          label="Value"
-          value={value}
-        />
-
-        <ScoreItem
-          label="Evidence"
-          value={evidenceConfidence}
-        />
-      </div>
-
-      <div
-        style={{
-          borderTop: "1px solid #2b2b2b",
-          paddingTop: "18px",
-        }}
-      >
-        <div
-          style={{
-            fontSize: "11px",
-            textTransform: "uppercase",
-            letterSpacing: "0.12em",
-            opacity: 0.5,
-            marginBottom: "8px",
-          }}
-        >
-          Recommendation Reason
-        </div>
-
-        <p
-          style={{
-            margin: 0,
-            lineHeight: 1.65,
-            opacity: 0.8,
-          }}
-        >
-          {reason}
-        </p>
+        {value}
       </div>
     </div>
   );
