@@ -1,8 +1,24 @@
 import {
+  userAState,
+  userBState,
   userATestResult,
   userBTestResult,
   dependencyComparison,
 } from "@/data/testGearDependency";
+
+import {
+  calculatePowerRequirement,
+} from "@/data/powerRequirementEngine";
+
+const userAPowerRequirement =
+  calculatePowerRequirement(
+    userAState
+  );
+
+const userBPowerRequirement =
+  calculatePowerRequirement(
+    userBState
+  );
 
 export default function TestDependencyPage() {
   return (
@@ -63,18 +79,16 @@ export default function TestDependencyPage() {
             style={{
               marginTop: "20px",
               marginBottom: 0,
-              maxWidth: "760px",
+              maxWidth: "780px",
               fontSize: "17px",
               lineHeight: 1.6,
               color: "#555",
             }}
           >
-            Both users have the same trip
-            profile and the same $3000 budget.
-            Their existing gear and planned
-            equipment are different, so their
-            actual system requirements should
-            also be different.
+            This test now connects three
+            layers of the RoamLab engine:
+            Gear State, Dependency Analysis,
+            and Power Requirement.
           </p>
         </div>
 
@@ -155,7 +169,7 @@ export default function TestDependencyPage() {
           style={{
             display: "grid",
             gridTemplateColumns:
-              "repeat(auto-fit, minmax(320px, 1fr))",
+              "repeat(auto-fit, minmax(340px, 1fr))",
             gap: "24px",
             marginBottom: "24px",
           }}
@@ -174,7 +188,66 @@ export default function TestDependencyPage() {
         </div>
 
         {/* =================================================
-            COMPARISON
+            POWER REQUIREMENT RESULTS
+        ================================================= */}
+
+        <section
+          style={{
+            background: "#111",
+            color: "#fff",
+            padding: "30px",
+            marginBottom: "24px",
+          }}
+        >
+          <div
+            style={{
+              fontSize: "11px",
+              letterSpacing: "0.16em",
+              opacity: 0.65,
+              marginBottom: "8px",
+            }}
+          >
+            POWER REQUIREMENT ENGINE
+          </div>
+
+          <h2
+            style={{
+              margin: "0 0 28px",
+              fontSize: "30px",
+            }}
+          >
+            Actual gear choices now create
+            different power systems.
+          </h2>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns:
+                "repeat(auto-fit, minmax(340px, 1fr))",
+              gap: "20px",
+            }}
+          >
+            <PowerRequirementCard
+              title="USER A"
+              subtitle="Propane + 12V Fridge"
+              requirement={
+                userAPowerRequirement
+              }
+            />
+
+            <PowerRequirementCard
+              title="USER B"
+              subtitle="Induction Cooking"
+              requirement={
+                userBPowerRequirement
+              }
+            />
+          </div>
+        </section>
+
+        {/* =================================================
+            REQUIREMENT COMPARISON
         ================================================= */}
 
         <section
@@ -193,7 +266,106 @@ export default function TestDependencyPage() {
               marginBottom: "8px",
             }}
           >
-            SYSTEM COMPARISON
+            REQUIREMENT COMPARISON
+          </div>
+
+          <h2
+            style={{
+              margin: "0 0 26px",
+              fontSize: "28px",
+            }}
+          >
+            The same $3000 budget produces
+            different minimum technical requirements.
+          </h2>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns:
+                "repeat(auto-fit, minmax(180px, 1fr))",
+              gap: "16px",
+            }}
+          >
+            <ComparisonBox
+              label="User A Battery"
+              value={`${userAPowerRequirement.requiredBatteryCapacityWh} Wh`}
+            />
+
+            <ComparisonBox
+              label="User B Battery"
+              value={`${userBPowerRequirement.requiredBatteryCapacityWh} Wh`}
+            />
+
+            <ComparisonBox
+              label="Battery Difference"
+              value={`+${
+                userBPowerRequirement.requiredBatteryCapacityWh -
+                userAPowerRequirement.requiredBatteryCapacityWh
+              } Wh`}
+            />
+
+            <ComparisonBox
+              label="User A AC Output"
+              value={`${userAPowerRequirement.requiredContinuousAcOutputW} W`}
+            />
+
+            <ComparisonBox
+              label="User B AC Output"
+              value={`${userBPowerRequirement.requiredContinuousAcOutputW} W`}
+            />
+
+            <ComparisonBox
+              label="AC Output Difference"
+              value={`+${
+                userBPowerRequirement.requiredContinuousAcOutputW -
+                userAPowerRequirement.requiredContinuousAcOutputW
+              } W`}
+            />
+
+            <ComparisonBox
+              label="User A Solar"
+              value={`${userAPowerRequirement.recommendedSolarInputW} W`}
+            />
+
+            <ComparisonBox
+              label="User B Solar"
+              value={`${userBPowerRequirement.recommendedSolarInputW} W`}
+            />
+
+            <ComparisonBox
+              label="User A Recharge"
+              value={`${userAPowerRequirement.recommendedAcRechargeW} W`}
+            />
+
+            <ComparisonBox
+              label="User B Recharge"
+              value={`${userBPowerRequirement.recommendedAcRechargeW} W`}
+            />
+          </div>
+        </section>
+
+        {/* =================================================
+            ORIGINAL DEPENDENCY COMPARISON
+        ================================================= */}
+
+        <section
+          style={{
+            background: "#ffffff",
+            border: "1px solid #d8d5ce",
+            padding: "28px",
+            marginBottom: "24px",
+          }}
+        >
+          <div
+            style={{
+              fontSize: "11px",
+              letterSpacing: "0.16em",
+              fontWeight: 700,
+              marginBottom: "8px",
+            }}
+          >
+            DEPENDENCY COMPARISON
           </div>
 
           <h2
@@ -203,7 +375,7 @@ export default function TestDependencyPage() {
             }}
           >
             Same budget does not mean
-            same power system.
+            same power demand.
           </h2>
 
           <div
@@ -255,7 +427,35 @@ export default function TestDependencyPage() {
         </section>
 
         {/* =================================================
-            BUDGET LOGIC
+            HARD REQUIREMENTS
+        ================================================= */}
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns:
+              "repeat(auto-fit, minmax(340px, 1fr))",
+            gap: "24px",
+            marginBottom: "24px",
+          }}
+        >
+          <HardRequirementList
+            title="USER A"
+            requirements={
+              userAPowerRequirement.hardRequirements
+            }
+          />
+
+          <HardRequirementList
+            title="USER B"
+            requirements={
+              userBPowerRequirement.hardRequirements
+            }
+          />
+        </div>
+
+        {/* =================================================
+            BUDGET PRINCIPLE
         ================================================= */}
 
         <section
@@ -282,28 +482,26 @@ export default function TestDependencyPage() {
               fontSize: "26px",
             }}
           >
-            Budget is a ceiling,
-            not a spending target.
+            Requirement comes before product
+            and before spending.
           </h2>
 
           <p
             style={{
               margin: 0,
-              maxWidth: "850px",
+              maxWidth: "880px",
               lineHeight: 1.7,
               color: "#444",
             }}
           >
-            RoamLab should first calculate
-            what the trip actually requires.
-            Only after the requirement is known
-            should the system select equipment
-            and check whether the total cost
-            fits within the user&apos;s budget.
-            If the mission can be safely achieved
-            below budget, the remaining money
-            should stay unspent unless it solves
-            a meaningful system weakness.
+            RoamLab should first calculate the
+            actual technical requirement created
+            by the trip and the user&apos;s gear
+            system. Product selection comes only
+            after those requirements are known.
+            Budget is then used as a ceiling,
+            not as a target that must be fully
+            spent.
           </p>
         </section>
 
@@ -347,42 +545,51 @@ export default function TestDependencyPage() {
               "Minimum Sufficient Cost",
               "Budget Check",
               "Remaining Budget",
-            ].map((item, index) => (
-              <div
-                key={item}
-                style={{
-                  background: "#111",
-                  color: "#fff",
-                  minHeight: "92px",
-                  padding: "16px",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
-                }}
-              >
-                <span
+            ].map(
+              (item, index) => (
+                <div
+                  key={item}
                   style={{
-                    fontSize: "10px",
-                    opacity: 0.5,
+                    background:
+                      index <= 4
+                        ? "#111"
+                        : "#5f5f5f",
+                    color: "#fff",
+                    minHeight: "92px",
+                    padding: "16px",
+                    display: "flex",
+                    flexDirection:
+                      "column",
+                    justifyContent:
+                      "space-between",
                   }}
                 >
-                  {String(index + 1).padStart(
-                    2,
-                    "0"
-                  )}
-                </span>
+                  <span
+                    style={{
+                      fontSize: "10px",
+                      opacity: 0.5,
+                    }}
+                  >
+                    {String(
+                      index + 1
+                    ).padStart(
+                      2,
+                      "0"
+                    )}
+                  </span>
 
-                <span
-                  style={{
-                    fontSize: "13px",
-                    lineHeight: 1.35,
-                    fontWeight: 700,
-                  }}
-                >
-                  {item}
-                </span>
-              </div>
-            ))}
+                  <span
+                    style={{
+                      fontSize: "13px",
+                      lineHeight: 1.35,
+                      fontWeight: 700,
+                    }}
+                  >
+                    {item}
+                  </span>
+                </div>
+              )
+            )}
           </div>
         </section>
       </div>
@@ -486,14 +693,20 @@ function UserCard({
           <div>
             Cooking:{" "}
             <strong>
-              {result.system.cooking}
+              {
+                result.system
+                  .cooking
+              }
             </strong>
           </div>
 
           <div>
             Food Storage:{" "}
             <strong>
-              {result.system.foodStorage}
+              {
+                result.system
+                  .foodStorage
+              }
             </strong>
           </div>
         </div>
@@ -563,6 +776,275 @@ function UserCard({
 }
 
 /* =========================================================
+   POWER REQUIREMENT CARD
+========================================================= */
+
+function PowerRequirementCard({
+  title,
+  subtitle,
+  requirement,
+}: {
+  title: string;
+  subtitle: string;
+  requirement: ReturnType<
+    typeof calculatePowerRequirement
+  >;
+}) {
+  return (
+    <div
+      style={{
+        background: "#1b1b1b",
+        border:
+          "1px solid rgba(255,255,255,0.15)",
+        padding: "24px",
+      }}
+    >
+      <div
+        style={{
+          fontSize: "10px",
+          letterSpacing: "0.16em",
+          opacity: 0.55,
+          marginBottom: "8px",
+        }}
+      >
+        {title}
+      </div>
+
+      <h3
+        style={{
+          margin: "0 0 24px",
+          fontSize: "24px",
+        }}
+      >
+        {subtitle}
+      </h3>
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns:
+            "repeat(2, minmax(0, 1fr))",
+          gap: "18px",
+          marginBottom: "26px",
+        }}
+      >
+        <DarkMetric
+          label="Daily Load"
+          value={`${requirement.dailyLoadWh} Wh/day`}
+        />
+
+        <DarkMetric
+          label="Autonomy"
+          value={`${requirement.autonomyDays} days`}
+        />
+
+        <DarkMetric
+          label="Required Battery"
+          value={`${requirement.requiredBatteryCapacityWh} Wh`}
+        />
+
+        <DarkMetric
+          label="Required AC Output"
+          value={`${requirement.requiredContinuousAcOutputW} W`}
+        />
+
+        <DarkMetric
+          label="Surge Output"
+          value={`${requirement.requiredSurgeOutputW} W`}
+        />
+
+        <DarkMetric
+          label="Solar"
+          value={`${requirement.recommendedSolarInputW} W`}
+        />
+
+        <DarkMetric
+          label="AC Recharge"
+          value={`${requirement.recommendedAcRechargeW} W`}
+        />
+
+        <DarkMetric
+          label="Safety Reserve"
+          value={`${requirement.safetyReservePercent}%`}
+        />
+      </div>
+
+      <div
+        style={{
+          borderTop:
+            "1px solid rgba(255,255,255,0.14)",
+          paddingTop: "18px",
+        }}
+      >
+        <div
+          style={{
+            fontSize: "10px",
+            letterSpacing: "0.14em",
+            opacity: 0.5,
+            marginBottom: "10px",
+          }}
+        >
+          ENGINE REASONS
+        </div>
+
+        <div
+          style={{
+            display: "grid",
+            gap: "8px",
+          }}
+        >
+          {requirement.reasons.map(
+            (reason) => (
+              <div
+                key={reason}
+                style={{
+                  fontSize: "12px",
+                  lineHeight: 1.5,
+                  opacity: 0.78,
+                }}
+              >
+                — {reason}
+              </div>
+            )
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================
+   HARD REQUIREMENTS
+========================================================= */
+
+function HardRequirementList({
+  title,
+  requirements,
+}: {
+  title: string;
+  requirements: ReturnType<
+    typeof calculatePowerRequirement
+  >["hardRequirements"];
+}) {
+  return (
+    <section
+      style={{
+        background: "#fff",
+        border:
+          "1px solid #d8d5ce",
+        padding: "26px",
+      }}
+    >
+      <div
+        style={{
+          fontSize: "11px",
+          letterSpacing: "0.16em",
+          fontWeight: 700,
+          marginBottom: "8px",
+        }}
+      >
+        {title}
+      </div>
+
+      <h2
+        style={{
+          margin: "0 0 22px",
+          fontSize: "24px",
+        }}
+      >
+        Minimum Technical Requirements
+      </h2>
+
+      <div
+        style={{
+          display: "grid",
+          gap: "10px",
+        }}
+      >
+        {requirements.length === 0 ? (
+          <div
+            style={{
+              color: "#666",
+              fontSize: "13px",
+            }}
+          >
+            No power requirements detected.
+          </div>
+        ) : (
+          requirements.map(
+            (
+              requirement
+            ) => (
+              <div
+                key={
+                  requirement.metric
+                }
+                style={{
+                  borderTop:
+                    "1px solid #ece9e2",
+                  paddingTop: "12px",
+                }}
+              >
+                <div
+                  style={{
+                    display:
+                      "flex",
+                    justifyContent:
+                      "space-between",
+                    gap: "20px",
+                    marginBottom:
+                      "5px",
+                  }}
+                >
+                  <strong
+                    style={{
+                      fontSize:
+                        "13px",
+                    }}
+                  >
+                    {
+                      requirement.metric
+                    }
+                  </strong>
+
+                  <strong
+                    style={{
+                      fontSize:
+                        "14px",
+                    }}
+                  >
+                    ≥{" "}
+                    {
+                      requirement.minimum
+                    }{" "}
+                    {
+                      requirement.unit
+                    }
+                  </strong>
+                </div>
+
+                <div
+                  style={{
+                    fontSize:
+                      "12px",
+                    lineHeight: 1.5,
+                    color: "#666",
+                  }}
+                >
+                  {
+                    requirement.reason
+                  }
+                </div>
+              </div>
+            )
+          )
+        )}
+      </div>
+    </section>
+  );
+}
+
+/* =========================================================
    METRIC
 ========================================================= */
 
@@ -580,8 +1062,10 @@ function Metric({
       <div
         style={{
           fontSize: "10px",
-          textTransform: "uppercase",
-          letterSpacing: "0.12em",
+          textTransform:
+            "uppercase",
+          letterSpacing:
+            "0.12em",
           marginBottom: "5px",
           color: dark
             ? "rgba(255,255,255,0.55)"
@@ -594,6 +1078,45 @@ function Metric({
       <div
         style={{
           fontSize: "18px",
+          fontWeight: 700,
+        }}
+      >
+        {value}
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================
+   DARK METRIC
+========================================================= */
+
+function DarkMetric({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <div>
+      <div
+        style={{
+          fontSize: "9px",
+          textTransform:
+            "uppercase",
+          letterSpacing:
+            "0.12em",
+          marginBottom: "5px",
+          opacity: 0.5,
+        }}
+      >
+        {label}
+      </div>
+
+      <div
+        style={{
+          fontSize: "19px",
           fontWeight: 700,
         }}
       >
@@ -626,8 +1149,10 @@ function ComparisonBox({
       <div
         style={{
           fontSize: "10px",
-          letterSpacing: "0.12em",
-          textTransform: "uppercase",
+          letterSpacing:
+            "0.12em",
+          textTransform:
+            "uppercase",
           color: "#777",
           marginBottom: "14px",
         }}
