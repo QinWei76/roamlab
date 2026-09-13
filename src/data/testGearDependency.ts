@@ -9,41 +9,39 @@ import {
   calculateRemainingBudget,
 } from "@/data/gearDependencyEngine";
 
+import {
+  analyzeOwnedPowerGap,
+} from "@/data/powerGapAnalysis";
+
 /* =========================================================
-   ROAMLAB GEAR DEPENDENCY TEST — V1
+   ROAMLAB GEAR DEPENDENCY + POWER GAP TEST — V2
 
-   Purpose:
+   PURPOSE
 
-   Test two users with:
+   Two users:
 
-   - same adventure profile
-   - same total budget
-   - different owned gear
-   - different gear they want RoamLab to configure
+   - same trip
+   - same $3000 budget
+   - different gear choices
+   - different owned power equipment
 
-   Expected result:
+   We test:
 
-   Different gear choices
-   → different system loads
-   → different Power requirements
+   Gear State
+      ↓
+   Dependency
+      ↓
+   Requirement
+      ↓
+   Owned Capability
+      ↓
+   Gap
 
-   This proves:
-
-   Budget ≠ Requirement
-
-   Instead:
-
-   Gear System State
-   → Requirement
-   → Gap
-   → Recommendation
-   → Budget Optimization
    ========================================================= */
+
 
 /* =========================================================
    1. SHARED ADVENTURE PROFILE
-
-   Both users take exactly the same trip.
    ========================================================= */
 
 const sharedProfile = {
@@ -54,27 +52,29 @@ const sharedProfile = {
   duration: "multi-day" as const,
 };
 
+
 /* =========================================================
    2. USER A
 
-   Budget:
-   $3000
+   SAME BUDGET: $3000
 
-   Already owns:
+   OWNED:
    - 12V Fridge
    - Propane Stove
    - Headlamp
+   - 768Wh Power Station
+   - 200W Solar Panel
 
-   Wants RoamLab to configure:
-   - Portable Power Station
-   - Solar Panel
+   TO BUY:
+   - nothing in Power for this test
 
-   Key characteristic:
+   Expected:
 
-   Cooking uses propane.
+   Low electrical demand because cooking uses propane.
 
-   Therefore cooking does NOT create a large
-   electrical load.
+   Existing power equipment should be close to,
+   or fully capable of, meeting the trip requirement.
+
    ========================================================= */
 
 const userAGear: TripGearItem[] = [
@@ -95,12 +95,6 @@ const userAGear: TripGearItem[] = [
       powerLoad: {
         watts: 45,
         hoursPerDay: 10,
-
-        /*
-          Compressor fridge does not normally
-          draw full rated power continuously.
-        */
-
         dutyCycle: 0.5,
       },
 
@@ -130,9 +124,7 @@ const userAGear: TripGearItem[] = [
     effects: {
       fuelLoad: {
         fuelType: "propane",
-
         amount: 1,
-
         unit: "lb",
       },
 
@@ -171,36 +163,61 @@ const userAGear: TripGearItem[] = [
     },
   },
 
-  {
-    id: "user-a-power-station",
+  /* =======================================================
+     USER A OWNED POWER STATION
+     ======================================================= */
 
-    name: "Portable Power Station",
+  {
+    id: "user-a-owned-power-station",
+
+    name: "768Wh Portable Power Station",
 
     category: "power",
 
-    status: "to-buy",
+    status: "owned",
 
     priority: "essential",
 
     quantity: 1,
 
-    plannedBudget: 800,
-  },
+    specs: {
+      batteryCapacityWh: 768,
+
+      continuousAcOutputW: 1000,
+
+      surgeOutputW: 2000,
+
+      maxSolarInputW: 300,
+
+      maxAcRechargeW: 700,
+    },
+
+    satisfiesCategories: [
+      // intentionally not used here
+    ] as never,
+  } as TripGearItem,
+
+  /* =======================================================
+     USER A OWNED SOLAR
+     ======================================================= */
 
   {
-    id: "user-a-solar-panel",
+    id: "user-a-owned-solar",
 
-    name: "Solar Panel",
+    name: "200W Solar Panel",
 
     category: "power",
 
-    status: "to-buy",
+    status: "owned",
 
     priority: "recommended",
 
     quantity: 1,
 
-    plannedBudget: 300,
+    specs: {
+      panelW: 200,
+      ratedPowerW: 200,
+    },
 
     effects: {
       satisfiesCategories: [
@@ -209,6 +226,11 @@ const userAGear: TripGearItem[] = [
     },
   },
 ];
+
+
+/* =========================================================
+   3. USER A STATE
+   ========================================================= */
 
 export const userAState: TripGearState = {
   profile: sharedProfile,
@@ -220,30 +242,32 @@ export const userAState: TripGearState = {
   currency: "USD",
 };
 
+
 /* =========================================================
-   3. USER B
+   4. USER B
 
-   Budget:
-   $3000
+   SAME BUDGET: $3000
 
-   Already owns:
-   - Cooler
+   OWNED:
+   - Passive Cooler
    - Headlamp
+   - 1024Wh Power Station
+   - 400W Solar Panel
 
-   Wants RoamLab to configure:
+   TO BUY:
    - Induction Cooker
-   - Portable Power Station
-   - Solar Panel
 
-   Key characteristic:
+   Expected:
 
-   Cooking is electrical.
+   Induction cooking dramatically increases:
 
-   Therefore:
+   - daily Wh
+   - AC output requirement
+   - battery requirement
 
-   Daily energy demand ↑
-   AC output requirement ↑
-   Battery requirement ↑
+   Existing power station should therefore become
+   insufficient even though it is a substantial unit.
+
    ========================================================= */
 
 const userBGear: TripGearItem[] = [
@@ -296,6 +320,18 @@ const userBGear: TripGearItem[] = [
     },
   },
 
+  /* =======================================================
+     USER B INTENDS TO BUY INDUCTION COOKER
+
+     IMPORTANT:
+
+     It is NOT owned.
+
+     But because it is part of the intended final system,
+     it MUST influence the Power Requirement.
+
+     ======================================================= */
+
   {
     id: "user-b-induction-cooker",
 
@@ -311,19 +347,16 @@ const userBGear: TripGearItem[] = [
 
     plannedBudget: 120,
 
+    specs: {
+      powerType: "ac",
+    },
+
     effects: {
       powerLoad: {
-        /*
-          High-power AC appliance.
-        */
-
         watts: 1800,
 
         /*
-          Approx. 20 minutes/day:
-
-          20 / 60
-          ≈ 0.333 hour
+          Approx. 20 minutes per day
         */
 
         hoursPerDay: 0.333,
@@ -341,36 +374,90 @@ const userBGear: TripGearItem[] = [
     },
   },
 
-  {
-    id: "user-b-power-station",
+  /* =======================================================
+     USER B OWNED POWER STATION
 
-    name: "Portable Power Station",
+     Requirement is expected to be around:
+
+     Battery:
+     ~1700Wh
+
+     AC Output:
+     ~2200W
+
+     Existing:
+     1024Wh / 1800W
+
+     Therefore:
+
+     Battery = insufficient
+     AC Output = insufficient
+
+     ======================================================= */
+
+  {
+    id: "user-b-owned-power-station",
+
+    name: "1024Wh Portable Power Station",
 
     category: "power",
 
-    status: "to-buy",
+    status: "owned",
 
     priority: "essential",
 
     quantity: 1,
 
-    plannedBudget: 1000,
+    specs: {
+      batteryCapacityWh: 1024,
+
+      continuousAcOutputW: 1800,
+
+      surgeOutputW: 2400,
+
+      maxSolarInputW: 500,
+
+      maxAcRechargeW: 1200,
+    },
   },
 
-  {
-    id: "user-b-solar-panel",
+  /* =======================================================
+     USER B OWNED SOLAR
 
-    name: "Solar Panel",
+     Requirement should be around 300W.
+
+     Existing panel:
+     400W
+
+     Power station solar input:
+     500W
+
+     Therefore usable solar capability:
+     min(400, 500)
+     = 400W
+
+     Expected:
+     SUFFICIENT
+
+     ======================================================= */
+
+  {
+    id: "user-b-owned-solar",
+
+    name: "400W Solar Panel",
 
     category: "power",
 
-    status: "to-buy",
+    status: "owned",
 
     priority: "recommended",
 
     quantity: 1,
 
-    plannedBudget: 400,
+    specs: {
+      panelW: 400,
+      ratedPowerW: 400,
+    },
 
     effects: {
       satisfiesCategories: [
@@ -379,6 +466,11 @@ const userBGear: TripGearItem[] = [
     },
   },
 ];
+
+
+/* =========================================================
+   5. USER B STATE
+   ========================================================= */
 
 export const userBState: TripGearState = {
   profile: sharedProfile,
@@ -390,8 +482,9 @@ export const userBState: TripGearState = {
   currency: "USD",
 };
 
+
 /* =========================================================
-   4. RUN DEPENDENCY ENGINE
+   6. DEPENDENCY ANALYSIS
    ========================================================= */
 
 export const userADependency =
@@ -404,16 +497,39 @@ export const userBDependency =
     userBState
   );
 
+
 /* =========================================================
-   5. BUDGET ANALYSIS
+   7. POWER GAP ANALYSIS
 
-   IMPORTANT:
+   This is the important new test.
 
-   Budget is a ceiling.
+   Requirement:
+   calculated from FULL intended system.
 
-   Remaining budget is allowed.
+   Capability:
+   calculated from OWNED gear only.
 
-   RoamLab does NOT need to spend all $3000.
+   ========================================================= */
+
+export const userAPowerGap =
+  analyzeOwnedPowerGap(
+    userAState
+  );
+
+export const userBPowerGap =
+  analyzeOwnedPowerGap(
+    userBState
+  );
+
+
+/* =========================================================
+   8. BUDGET ANALYSIS
+
+   Only TO-BUY gear consumes planned purchase budget.
+
+   Owned power stations and solar panels should NOT
+   consume the current purchase budget.
+
    ========================================================= */
 
 export const userAPlannedSpend =
@@ -436,8 +552,9 @@ export const userBRemainingBudget =
     userBState
   );
 
+
 /* =========================================================
-   6. READABLE TEST OUTPUT
+   9. READABLE USER A RESULT
    ========================================================= */
 
 export const userATestResult = {
@@ -448,10 +565,16 @@ export const userATestResult = {
 
   system: {
     cooking:
-      "Propane Stove",
+      "Owned Propane Stove",
 
     foodStorage:
       "Owned 12V Fridge",
+
+    power:
+      "Owned 768Wh Power Station",
+
+    solar:
+      "Owned 200W Solar",
   },
 
   powerDemand: {
@@ -466,6 +589,73 @@ export const userATestResult = {
     surgeLoadW:
       userADependency.power
         .surgeLoadW,
+  },
+
+  requirement: {
+    batteryCapacityWh:
+      userAPowerGap.requirement
+        .requiredBatteryCapacityWh,
+
+    continuousAcOutputW:
+      userAPowerGap.requirement
+        .requiredContinuousAcOutputW,
+
+    surgeOutputW:
+      userAPowerGap.requirement
+        .requiredSurgeOutputW,
+
+    solarInputW:
+      userAPowerGap.requirement
+        .recommendedSolarInputW,
+
+    acRechargeW:
+      userAPowerGap.requirement
+        .recommendedAcRechargeW,
+  },
+
+  ownedCapability: {
+    batteryCapacityWh:
+      userAPowerGap
+        .existingCapability
+        .batteryCapacityWh,
+
+    continuousAcOutputW:
+      userAPowerGap
+        .existingCapability
+        .continuousAcOutputW,
+
+    surgeOutputW:
+      userAPowerGap
+        .existingCapability
+        .surgeOutputW,
+
+    solarInputW:
+      userAPowerGap
+        .existingCapability
+        .solarInputW,
+
+    acRechargeW:
+      userAPowerGap
+        .existingCapability
+        .acRechargeW,
+  },
+
+  gap: {
+    missionCapable:
+      userAPowerGap
+        .missionCapable,
+
+    needsPurchase:
+      userAPowerGap
+        .needsPurchase,
+
+    needsUpgrade:
+      userAPowerGap
+        .needsUpgrade,
+
+    missingMetrics:
+      userAPowerGap
+        .missingMetrics,
   },
 
   budgetStatus: {
@@ -481,13 +671,23 @@ export const userATestResult = {
       .satisfiedCategories,
 
   activeGear:
-    userADependency.activeItems.map(
-      (item) => ({
-        name: item.name,
-        status: item.status,
-      })
-    ),
+    userADependency
+      .activeItems
+      .map(
+        (item) => ({
+          name:
+            item.name,
+
+          status:
+            item.status,
+        })
+      ),
 };
+
+
+/* =========================================================
+   10. READABLE USER B RESULT
+   ========================================================= */
 
 export const userBTestResult = {
   user: "User B",
@@ -501,6 +701,12 @@ export const userBTestResult = {
 
     foodStorage:
       "Owned Passive Cooler",
+
+    power:
+      "Owned 1024Wh Power Station",
+
+    solar:
+      "Owned 400W Solar",
   },
 
   powerDemand: {
@@ -517,6 +723,73 @@ export const userBTestResult = {
         .surgeLoadW,
   },
 
+  requirement: {
+    batteryCapacityWh:
+      userBPowerGap.requirement
+        .requiredBatteryCapacityWh,
+
+    continuousAcOutputW:
+      userBPowerGap.requirement
+        .requiredContinuousAcOutputW,
+
+    surgeOutputW:
+      userBPowerGap.requirement
+        .requiredSurgeOutputW,
+
+    solarInputW:
+      userBPowerGap.requirement
+        .recommendedSolarInputW,
+
+    acRechargeW:
+      userBPowerGap.requirement
+        .recommendedAcRechargeW,
+  },
+
+  ownedCapability: {
+    batteryCapacityWh:
+      userBPowerGap
+        .existingCapability
+        .batteryCapacityWh,
+
+    continuousAcOutputW:
+      userBPowerGap
+        .existingCapability
+        .continuousAcOutputW,
+
+    surgeOutputW:
+      userBPowerGap
+        .existingCapability
+        .surgeOutputW,
+
+    solarInputW:
+      userBPowerGap
+        .existingCapability
+        .solarInputW,
+
+    acRechargeW:
+      userBPowerGap
+        .existingCapability
+        .acRechargeW,
+  },
+
+  gap: {
+    missionCapable:
+      userBPowerGap
+        .missionCapable,
+
+    needsPurchase:
+      userBPowerGap
+        .needsPurchase,
+
+    needsUpgrade:
+      userBPowerGap
+        .needsUpgrade,
+
+    missingMetrics:
+      userBPowerGap
+        .missingMetrics,
+  },
+
   budgetStatus: {
     plannedSpend:
       userBPlannedSpend,
@@ -530,16 +803,24 @@ export const userBTestResult = {
       .satisfiedCategories,
 
   activeGear:
-    userBDependency.activeItems.map(
-      (item) => ({
-        name: item.name,
-        status: item.status,
-      })
-    ),
+    userBDependency
+      .activeItems
+      .map(
+        (item) => ({
+          name:
+            item.name,
+
+          status:
+            item.status,
+        })
+      ),
 };
 
+
 /* =========================================================
-   7. COMPARISON
+   11. DEPENDENCY COMPARISON
+
+   Kept for the existing /test-dependency page.
    ========================================================= */
 
 export const dependencyComparison = {
@@ -602,12 +883,132 @@ export const dependencyComparison = {
   },
 };
 
+
 /* =========================================================
-   8. OPTIONAL CONSOLE TEST
+   12. POWER GAP COMPARISON
 
-   This function is NOT automatically executed.
+   New V2 output.
+   ========================================================= */
 
-   Later a test page can call it if needed.
+export const powerGapComparison = {
+  userA: {
+    requirement: {
+      batteryWh:
+        userAPowerGap
+          .requirement
+          .requiredBatteryCapacityWh,
+
+      acOutputW:
+        userAPowerGap
+          .requirement
+          .requiredContinuousAcOutputW,
+
+      solarW:
+        userAPowerGap
+          .requirement
+          .recommendedSolarInputW,
+    },
+
+    owned: {
+      batteryWh:
+        userAPowerGap
+          .existingCapability
+          .batteryCapacityWh,
+
+      acOutputW:
+        userAPowerGap
+          .existingCapability
+          .continuousAcOutputW,
+
+      solarW:
+        userAPowerGap
+          .existingCapability
+          .solarInputW,
+    },
+
+    gap: {
+      batteryWh:
+        userAPowerGap
+          .summary
+          .batteryGapWh,
+
+      acOutputW:
+        userAPowerGap
+          .summary
+          .acOutputGapW,
+
+      solarW:
+        userAPowerGap
+          .summary
+          .solarGapW,
+    },
+
+    missionCapable:
+      userAPowerGap
+        .missionCapable,
+  },
+
+  userB: {
+    requirement: {
+      batteryWh:
+        userBPowerGap
+          .requirement
+          .requiredBatteryCapacityWh,
+
+      acOutputW:
+        userBPowerGap
+          .requirement
+          .requiredContinuousAcOutputW,
+
+      solarW:
+        userBPowerGap
+          .requirement
+          .recommendedSolarInputW,
+    },
+
+    owned: {
+      batteryWh:
+        userBPowerGap
+          .existingCapability
+          .batteryCapacityWh,
+
+      acOutputW:
+        userBPowerGap
+          .existingCapability
+          .continuousAcOutputW,
+
+      solarW:
+        userBPowerGap
+          .existingCapability
+          .solarInputW,
+    },
+
+    gap: {
+      batteryWh:
+        userBPowerGap
+          .summary
+          .batteryGapWh,
+
+      acOutputW:
+        userBPowerGap
+          .summary
+          .acOutputGapW,
+
+      solarW:
+        userBPowerGap
+          .summary
+          .solarGapW,
+    },
+
+    missionCapable:
+      userBPowerGap
+        .missionCapable,
+  },
+};
+
+
+/* =========================================================
+   13. OPTIONAL CONSOLE TEST
    ========================================================= */
 
 export function printGearDependencyTest() {
@@ -616,7 +1017,7 @@ export function printGearDependencyTest() {
   );
 
   console.log(
-    "ROAMLAB DEPENDENCY TEST"
+    "ROAMLAB POWER GAP TEST"
   );
 
   console.log(
@@ -648,11 +1049,11 @@ export function printGearDependencyTest() {
   );
 
   console.log(
-    "COMPARISON"
+    "POWER GAP COMPARISON"
   );
 
   console.log(
-    dependencyComparison
+    powerGapComparison
   );
 
   console.log(
