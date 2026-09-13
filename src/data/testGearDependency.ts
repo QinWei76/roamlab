@@ -1,6 +1,6 @@
 import type {
-  TripGearState,
   TripGearItem,
+  TripGearState,
 } from "@/types/gearSystem";
 
 import {
@@ -18,24 +18,26 @@ import {
 
    PURPOSE
 
-   Two users:
+   Compare two users with:
 
-   - same trip
-   - same $3000 budget
-   - different gear choices
+   - the same adventure profile
+   - the same $3000 budget
+   - different gear systems
    - different owned power equipment
 
-   We test:
+   FLOW
 
-   Gear State
-      ↓
-   Dependency
-      ↓
-   Requirement
-      ↓
-   Owned Capability
-      ↓
-   Gap
+   Adventure Profile
+          ↓
+   Owned + To-Buy Gear
+          ↓
+   Dependency Analysis
+          ↓
+   Actual Power Requirement
+          ↓
+   Owned Power Capability
+          ↓
+   Gap Analysis
 
    ========================================================= */
 
@@ -61,34 +63,26 @@ const sharedProfile = {
    OWNED:
    - 12V Fridge
    - Propane Stove
-   - Headlamp
+   - Rechargeable Headlamp
    - 768Wh Power Station
    - 200W Solar Panel
 
-   TO BUY:
-   - nothing in Power for this test
+   KEY IDEA:
 
-   Expected:
+   User A cooks with propane.
 
-   Low electrical demand because cooking uses propane.
-
-   Existing power equipment should be close to,
-   or fully capable of, meeting the trip requirement.
+   Therefore the electrical system does not need
+   to support a high-power AC cooking appliance.
 
    ========================================================= */
 
 const userAGear: TripGearItem[] = [
   {
     id: "user-a-fridge",
-
     name: "12V Fridge",
-
     category: "food-storage",
-
     status: "owned",
-
     priority: "essential",
-
     quantity: 1,
 
     effects: {
@@ -110,15 +104,10 @@ const userAGear: TripGearItem[] = [
 
   {
     id: "user-a-propane-stove",
-
     name: "Propane Stove",
-
     category: "cooking",
-
     status: "owned",
-
     priority: "essential",
-
     quantity: 1,
 
     effects: {
@@ -136,15 +125,10 @@ const userAGear: TripGearItem[] = [
 
   {
     id: "user-a-headlamp",
-
     name: "Rechargeable Headlamp",
-
     category: "lighting",
-
     status: "owned",
-
     priority: "essential",
-
     quantity: 1,
 
     effects: {
@@ -164,54 +148,36 @@ const userAGear: TripGearItem[] = [
   },
 
   /* =======================================================
-     USER A OWNED POWER STATION
+     USER A — OWNED POWER STATION
      ======================================================= */
 
   {
     id: "user-a-owned-power-station",
-
     name: "768Wh Portable Power Station",
-
     category: "power",
-
     status: "owned",
-
     priority: "essential",
-
     quantity: 1,
 
     specs: {
       batteryCapacityWh: 768,
-
       continuousAcOutputW: 1000,
-
       surgeOutputW: 2000,
-
       maxSolarInputW: 300,
-
       maxAcRechargeW: 700,
     },
-
-    satisfiesCategories: [
-      // intentionally not used here
-    ] as never,
-  } as TripGearItem,
+  },
 
   /* =======================================================
-     USER A OWNED SOLAR
+     USER A — OWNED SOLAR PANEL
      ======================================================= */
 
   {
     id: "user-a-owned-solar",
-
     name: "200W Solar Panel",
-
     category: "power",
-
     status: "owned",
-
     priority: "recommended",
-
     quantity: 1,
 
     specs: {
@@ -250,38 +216,35 @@ export const userAState: TripGearState = {
 
    OWNED:
    - Passive Cooler
-   - Headlamp
+   - Rechargeable Headlamp
    - 1024Wh Power Station
    - 400W Solar Panel
 
    TO BUY:
    - Induction Cooker
 
-   Expected:
+   KEY IDEA:
 
-   Induction cooking dramatically increases:
+   User B intends to use induction cooking.
 
-   - daily Wh
-   - AC output requirement
+   Even though the cooker is not owned yet,
+   it is part of the intended final system.
+
+   Therefore it MUST affect:
+
+   - daily power demand
    - battery requirement
-
-   Existing power station should therefore become
-   insufficient even though it is a substantial unit.
+   - AC inverter output requirement
 
    ========================================================= */
 
 const userBGear: TripGearItem[] = [
   {
     id: "user-b-cooler",
-
     name: "Passive Cooler",
-
     category: "food-storage",
-
     status: "owned",
-
     priority: "essential",
-
     quantity: 1,
 
     effects: {
@@ -293,15 +256,10 @@ const userBGear: TripGearItem[] = [
 
   {
     id: "user-b-headlamp",
-
     name: "Rechargeable Headlamp",
-
     category: "lighting",
-
     status: "owned",
-
     priority: "essential",
-
     quantity: 1,
 
     effects: {
@@ -321,28 +279,15 @@ const userBGear: TripGearItem[] = [
   },
 
   /* =======================================================
-     USER B INTENDS TO BUY INDUCTION COOKER
-
-     IMPORTANT:
-
-     It is NOT owned.
-
-     But because it is part of the intended final system,
-     it MUST influence the Power Requirement.
-
+     USER B — TO BUY INDUCTION COOKER
      ======================================================= */
 
   {
     id: "user-b-induction-cooker",
-
     name: "Induction Cooker",
-
     category: "cooking",
-
     status: "to-buy",
-
     priority: "essential",
-
     quantity: 1,
 
     plannedBudget: 120,
@@ -356,7 +301,7 @@ const userBGear: TripGearItem[] = [
         watts: 1800,
 
         /*
-          Approx. 20 minutes per day
+          Approx. 20 minutes cooking per day
         */
 
         hoursPerDay: 0.333,
@@ -375,9 +320,9 @@ const userBGear: TripGearItem[] = [
   },
 
   /* =======================================================
-     USER B OWNED POWER STATION
+     USER B — OWNED POWER STATION
 
-     Requirement is expected to be around:
+     Expected requirement is roughly:
 
      Battery:
      ~1700Wh
@@ -385,46 +330,41 @@ const userBGear: TripGearItem[] = [
      AC Output:
      ~2200W
 
-     Existing:
-     1024Wh / 1800W
+     Owned:
 
-     Therefore:
+     Battery:
+     1024Wh
 
-     Battery = insufficient
-     AC Output = insufficient
+     AC Output:
+     1800W
+
+     Therefore this power station should NOT
+     be considered fully mission-capable.
 
      ======================================================= */
 
   {
     id: "user-b-owned-power-station",
-
     name: "1024Wh Portable Power Station",
-
     category: "power",
-
     status: "owned",
-
     priority: "essential",
-
     quantity: 1,
 
     specs: {
       batteryCapacityWh: 1024,
-
       continuousAcOutputW: 1800,
-
       surgeOutputW: 2400,
-
       maxSolarInputW: 500,
-
       maxAcRechargeW: 1200,
     },
   },
 
   /* =======================================================
-     USER B OWNED SOLAR
+     USER B — OWNED SOLAR PANEL
 
-     Requirement should be around 300W.
+     Expected solar requirement:
+     ~300W
 
      Existing panel:
      400W
@@ -432,7 +372,7 @@ const userBGear: TripGearItem[] = [
      Power station solar input:
      500W
 
-     Therefore usable solar capability:
+     Usable solar capability:
      min(400, 500)
      = 400W
 
@@ -443,15 +383,10 @@ const userBGear: TripGearItem[] = [
 
   {
     id: "user-b-owned-solar",
-
     name: "400W Solar Panel",
-
     category: "power",
-
     status: "owned",
-
     priority: "recommended",
-
     quantity: 1,
 
     specs: {
@@ -485,6 +420,15 @@ export const userBState: TripGearState = {
 
 /* =========================================================
    6. DEPENDENCY ANALYSIS
+
+   This calculates the effects created by the
+   active gear system.
+
+   ACTIVE means:
+
+   - owned
+   - to-buy
+
    ========================================================= */
 
 export const userADependency =
@@ -499,15 +443,22 @@ export const userBDependency =
 
 
 /* =========================================================
-   7. POWER GAP ANALYSIS
+   7. OWNED POWER GAP ANALYSIS
 
-   This is the important new test.
+   VERY IMPORTANT:
 
    Requirement:
-   calculated from FULL intended system.
+   calculated from the FULL intended gear system.
 
    Capability:
-   calculated from OWNED gear only.
+   calculated from OWNED power gear only.
+
+   Therefore:
+
+   TO-BUY induction cooker
+   affects User B requirement,
+
+   but it does NOT count as owned capability.
 
    ========================================================= */
 
@@ -525,10 +476,13 @@ export const userBPowerGap =
 /* =========================================================
    8. BUDGET ANALYSIS
 
-   Only TO-BUY gear consumes planned purchase budget.
+   Only TO-BUY gear consumes purchase budget.
 
-   Owned power stations and solar panels should NOT
-   consume the current purchase budget.
+   OWNED gear:
+
+   - still affects requirements
+   - still affects system capability
+   - does NOT consume current purchase budget
 
    ========================================================= */
 
@@ -554,7 +508,7 @@ export const userBRemainingBudget =
 
 
 /* =========================================================
-   9. READABLE USER A RESULT
+   9. USER A READABLE RESULT
    ========================================================= */
 
 export const userATestResult = {
@@ -574,7 +528,7 @@ export const userATestResult = {
       "Owned 768Wh Power Station",
 
     solar:
-      "Owned 200W Solar",
+      "Owned 200W Solar Panel",
   },
 
   powerDemand: {
@@ -593,23 +547,28 @@ export const userATestResult = {
 
   requirement: {
     batteryCapacityWh:
-      userAPowerGap.requirement
+      userAPowerGap
+        .requirement
         .requiredBatteryCapacityWh,
 
     continuousAcOutputW:
-      userAPowerGap.requirement
+      userAPowerGap
+        .requirement
         .requiredContinuousAcOutputW,
 
     surgeOutputW:
-      userAPowerGap.requirement
+      userAPowerGap
+        .requirement
         .requiredSurgeOutputW,
 
     solarInputW:
-      userAPowerGap.requirement
+      userAPowerGap
+        .requirement
         .recommendedSolarInputW,
 
     acRechargeW:
-      userAPowerGap.requirement
+      userAPowerGap
+        .requirement
         .recommendedAcRechargeW,
   },
 
@@ -686,7 +645,7 @@ export const userATestResult = {
 
 
 /* =========================================================
-   10. READABLE USER B RESULT
+   10. USER B READABLE RESULT
    ========================================================= */
 
 export const userBTestResult = {
@@ -697,7 +656,7 @@ export const userBTestResult = {
 
   system: {
     cooking:
-      "Induction Cooker",
+      "To Buy Induction Cooker",
 
     foodStorage:
       "Owned Passive Cooler",
@@ -706,7 +665,7 @@ export const userBTestResult = {
       "Owned 1024Wh Power Station",
 
     solar:
-      "Owned 400W Solar",
+      "Owned 400W Solar Panel",
   },
 
   powerDemand: {
@@ -725,23 +684,28 @@ export const userBTestResult = {
 
   requirement: {
     batteryCapacityWh:
-      userBPowerGap.requirement
+      userBPowerGap
+        .requirement
         .requiredBatteryCapacityWh,
 
     continuousAcOutputW:
-      userBPowerGap.requirement
+      userBPowerGap
+        .requirement
         .requiredContinuousAcOutputW,
 
     surgeOutputW:
-      userBPowerGap.requirement
+      userBPowerGap
+        .requirement
         .requiredSurgeOutputW,
 
     solarInputW:
-      userBPowerGap.requirement
+      userBPowerGap
+        .requirement
         .recommendedSolarInputW,
 
     acRechargeW:
-      userBPowerGap.requirement
+      userBPowerGap
+        .requirement
         .recommendedAcRechargeW,
   },
 
@@ -820,7 +784,9 @@ export const userBTestResult = {
 /* =========================================================
    11. DEPENDENCY COMPARISON
 
-   Kept for the existing /test-dependency page.
+   Kept compatible with the existing
+   /test-dependency page.
+
    ========================================================= */
 
 export const dependencyComparison = {
@@ -887,7 +853,15 @@ export const dependencyComparison = {
 /* =========================================================
    12. POWER GAP COMPARISON
 
-   New V2 output.
+   This is the important V2 output.
+
+   It clearly separates:
+
+   REQUIRED
+   OWNED
+   GAP
+   MISSION STATUS
+
    ========================================================= */
 
 export const powerGapComparison = {
@@ -903,10 +877,20 @@ export const powerGapComparison = {
           .requirement
           .requiredContinuousAcOutputW,
 
+      surgeOutputW:
+        userAPowerGap
+          .requirement
+          .requiredSurgeOutputW,
+
       solarW:
         userAPowerGap
           .requirement
           .recommendedSolarInputW,
+
+      acRechargeW:
+        userAPowerGap
+          .requirement
+          .recommendedAcRechargeW,
     },
 
     owned: {
@@ -920,10 +904,20 @@ export const powerGapComparison = {
           .existingCapability
           .continuousAcOutputW,
 
+      surgeOutputW:
+        userAPowerGap
+          .existingCapability
+          .surgeOutputW,
+
       solarW:
         userAPowerGap
           .existingCapability
           .solarInputW,
+
+      acRechargeW:
+        userAPowerGap
+          .existingCapability
+          .acRechargeW,
     },
 
     gap: {
@@ -946,6 +940,14 @@ export const powerGapComparison = {
     missionCapable:
       userAPowerGap
         .missionCapable,
+
+    needsPurchase:
+      userAPowerGap
+        .needsPurchase,
+
+    needsUpgrade:
+      userAPowerGap
+        .needsUpgrade,
   },
 
   userB: {
@@ -960,10 +962,20 @@ export const powerGapComparison = {
           .requirement
           .requiredContinuousAcOutputW,
 
+      surgeOutputW:
+        userBPowerGap
+          .requirement
+          .requiredSurgeOutputW,
+
       solarW:
         userBPowerGap
           .requirement
           .recommendedSolarInputW,
+
+      acRechargeW:
+        userBPowerGap
+          .requirement
+          .recommendedAcRechargeW,
     },
 
     owned: {
@@ -977,10 +989,20 @@ export const powerGapComparison = {
           .existingCapability
           .continuousAcOutputW,
 
+      surgeOutputW:
+        userBPowerGap
+          .existingCapability
+          .surgeOutputW,
+
       solarW:
         userBPowerGap
           .existingCapability
           .solarInputW,
+
+      acRechargeW:
+        userBPowerGap
+          .existingCapability
+          .acRechargeW,
     },
 
     gap: {
@@ -1003,6 +1025,14 @@ export const powerGapComparison = {
     missionCapable:
       userBPowerGap
         .missionCapable,
+
+    needsPurchase:
+      userBPowerGap
+        .needsPurchase,
+
+    needsUpgrade:
+      userBPowerGap
+        .needsUpgrade,
   },
 };
 
