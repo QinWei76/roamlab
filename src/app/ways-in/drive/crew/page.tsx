@@ -4,6 +4,12 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import PlannerProgress from "@/components/PlannerProgress";
 
+import {
+  getOrCreateCurrentWild,
+  updateWildCrew,
+} from "@/lib/wildStore";
+
+
 type VehicleKey =
   | "suv"
   | "truck"
@@ -23,6 +29,7 @@ type CrewKey =
   | "family"
   | "friends";
 
+
 const crewLabels: Record<CrewKey, string> = {
   solo: "Solo",
   couple: "Couple",
@@ -30,12 +37,14 @@ const crewLabels: Record<CrewKey, string> = {
   friends: "Friends",
 };
 
+
 const peopleOptions: Record<CrewKey, number[]> = {
   solo: [1],
   couple: [2],
   family: [3, 4, 5, 6],
   friends: [2, 3, 4, 5, 6],
 };
+
 
 export default function CrewPage() {
   const [vehicle, setVehicle] =
@@ -52,6 +61,11 @@ export default function CrewPage() {
 
   const [ready, setReady] =
     useState(false);
+
+
+  /* =======================================================
+     READ EXISTING PLANNER CONTEXT FROM URL
+     ======================================================= */
 
   useEffect(() => {
     const params =
@@ -85,6 +99,15 @@ export default function CrewPage() {
     setReady(true);
   }, []);
 
+
+  /* =======================================================
+     CHOOSE CREW TYPE
+
+     Solo and Couple have fixed people counts.
+
+     Family and Friends continue to the people picker.
+     ======================================================= */
+
   const chooseCrew = (crew: CrewKey) => {
     setSelectedCrew(crew);
 
@@ -101,14 +124,48 @@ export default function CrewPage() {
     setPeople(null);
   };
 
+
   const choosePeople = (count: number) => {
     setPeople(count);
   };
+
 
   const closeSelection = () => {
     setSelectedCrew(null);
     setPeople(null);
   };
+
+
+  /* =======================================================
+     CREW → CURRENT WILD
+
+     We save the completed crew selection only when the user
+     presses CONTINUE.
+
+     This prevents temporary clicks inside the selection
+     panel from changing the persistent Wild before the user
+     confirms the choice.
+     ======================================================= */
+
+  const continueToDuration = () => {
+    if (
+      selectedCrew === null ||
+      people === null
+    ) {
+      return;
+    }
+
+    getOrCreateCurrentWild("My Wild");
+
+    updateWildCrew({
+      type: selectedCrew,
+      people,
+    });
+
+    window.location.href =
+      `/ways-in/drive/duration?vehicle=${vehicle}&trip=${trip}&crew=${selectedCrew}&people=${people}`;
+  };
+
 
   if (!ready) {
     return (
@@ -118,11 +175,13 @@ export default function CrewPage() {
     );
   }
 
+
   return (
     <main className="crew-page">
       <section className="crew-stage">
 
         {/* BACKGROUND */}
+
         <img
           src="/crew-desk-v2.jpg"
           alt="RoamLab Crew planning desk"
@@ -130,7 +189,9 @@ export default function CrewPage() {
           draggable={false}
         />
 
+
         {/* REAL HTML ROAMLAB LOGO */}
+
         <Link
           href="/"
           aria-label="RoamLab home"
@@ -176,9 +237,12 @@ export default function CrewPage() {
           </span>
         </Link>
 
+
         {/* GLOBAL NAV */}
+
         <nav className="crew-nav">
           <div className="crew-nav-links">
+
             <Link href="/explore">
               EXPLORE
             </Link>
@@ -210,6 +274,7 @@ export default function CrewPage() {
             <Link href="/badges">
               BADGES
             </Link>
+
           </div>
 
           <Link
@@ -227,14 +292,18 @@ export default function CrewPage() {
           </Link>
         </nav>
 
+
         {/* PLANNER PROGRESS */}
+
         <PlannerProgress
           currentStep={3}
           vehicle={vehicle}
           trip={trip}
         />
 
+
         {/* SOLO */}
+
         <button
           type="button"
           className={`crew-zone crew-solo ${
@@ -251,7 +320,9 @@ export default function CrewPage() {
           }
         />
 
+
         {/* COUPLE */}
+
         <button
           type="button"
           className={`crew-zone crew-couple ${
@@ -268,7 +339,9 @@ export default function CrewPage() {
           }
         />
 
+
         {/* FAMILY */}
+
         <button
           type="button"
           className={`crew-zone crew-family ${
@@ -285,7 +358,9 @@ export default function CrewPage() {
           }
         />
 
+
         {/* FRIENDS */}
+
         <button
           type="button"
           className={`crew-zone crew-friends ${
@@ -302,7 +377,9 @@ export default function CrewPage() {
           }
         />
 
+
         {/* BACK TO TRIP STYLE */}
+
         <Link
           href={`/ways-in/drive/setup?vehicle=${vehicle}`}
           className="crew-back"
@@ -310,11 +387,14 @@ export default function CrewPage() {
           ← TRIP STYLE
         </Link>
 
+
         {/* CREW SELECTION PANEL */}
+
         {selectedCrew && (
           <div className="crew-panel">
 
             {/* CLOSE */}
+
             <button
               type="button"
               className="crew-panel-close"
@@ -323,6 +403,7 @@ export default function CrewPage() {
             >
               ×
             </button>
+
 
             <div className="crew-summary">
 
@@ -334,7 +415,9 @@ export default function CrewPage() {
                 {crewLabels[selectedCrew]}
               </strong>
 
+
               {/* SOLO / COUPLE */}
+
               {(selectedCrew === "solo" ||
                 selectedCrew === "couple") && (
                 <div className="crew-people-confirmed">
@@ -345,7 +428,9 @@ export default function CrewPage() {
                 </div>
               )}
 
+
               {/* FAMILY / FRIENDS */}
+
               {(selectedCrew === "family" ||
                 selectedCrew === "friends") && (
                 <div className="crew-people-picker">
@@ -380,6 +465,7 @@ export default function CrewPage() {
                       </button>
                     ))}
 
+
                     {people !== null && (
                       <span className="crew-people-selected-text">
                         ✓{" "}
@@ -394,20 +480,24 @@ export default function CrewPage() {
                 </div>
               )}
 
+
               <small>
                 STEP 3 OF 5
               </small>
 
             </div>
 
+
             {/* CONTINUE */}
+
             {people !== null && (
-              <Link
-                href={`/ways-in/drive/duration?vehicle=${vehicle}&trip=${trip}&crew=${selectedCrew}&people=${people}`}
+              <button
+                type="button"
                 className="crew-continue"
+                onClick={continueToDuration}
               >
                 CONTINUE →
-              </Link>
+              </button>
             )}
 
           </div>
