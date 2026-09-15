@@ -4,6 +4,12 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import PlannerProgress from "@/components/PlannerProgress";
 
+import {
+  getOrCreateCurrentWild,
+  updateWildTripStyle,
+} from "@/lib/wildStore";
+
+
 type VehicleKey =
   | "suv"
   | "truck"
@@ -16,6 +22,7 @@ type TripKey =
   | "road-trip"
   | "basecamp"
   | "remote";
+
 
 const vehicles: Record<
   VehicleKey,
@@ -50,6 +57,7 @@ const vehicles: Record<
   },
 };
 
+
 export default function TripStylePage() {
   const [vehicle, setVehicle] =
     useState<VehicleKey>("suv");
@@ -59,6 +67,17 @@ export default function TripStylePage() {
 
   const [ready, setReady] =
     useState(false);
+
+
+  /* =======================================================
+     READ EXISTING VEHICLE FROM URL
+
+     We keep the existing URL system working.
+
+     Current Wild is becoming the persistent data layer,
+     while URL parameters continue to protect the existing
+     planner flow during this migration.
+     ======================================================= */
 
   useEffect(() => {
     const params =
@@ -80,17 +99,28 @@ export default function TripStylePage() {
     setReady(true);
   }, []);
 
+
   const currentVehicle =
     vehicles[vehicle];
 
+
+  /* =======================================================
+     TRIP STYLE → CURRENT WILD
+     ======================================================= */
+
   const chooseTrip = (trip: TripKey) => {
     setSelectedTrip(trip);
+
+    getOrCreateCurrentWild("My Wild");
+
+    updateWildTripStyle(trip);
 
     window.setTimeout(() => {
       window.location.href =
         `/ways-in/drive/crew?vehicle=${vehicle}&trip=${trip}`;
     }, 180);
   };
+
 
   return (
     <main className="trip2-page">
@@ -104,6 +134,7 @@ export default function TripStylePage() {
             draggable={false}
           />
         )}
+
 
         {/* GLOBAL NAV */}
 
@@ -159,12 +190,14 @@ export default function TripStylePage() {
           </Link>
         </nav>
 
+
         {/* PLANNER PROGRESS */}
 
         <PlannerProgress
           currentStep={2}
           vehicle={vehicle}
         />
+
 
         {/* WEEKEND ESCAPE */}
 
@@ -181,6 +214,7 @@ export default function TripStylePage() {
           aria-label="Choose Weekend Escape"
         />
 
+
         {/* ROAD TRIP */}
 
         <button
@@ -195,6 +229,7 @@ export default function TripStylePage() {
           }
           aria-label="Choose Road Trip"
         />
+
 
         {/* BASECAMP */}
 
@@ -211,6 +246,7 @@ export default function TripStylePage() {
           aria-label="Choose Basecamp"
         />
 
+
         {/* REMOTE / OFF-GRID */}
 
         <button
@@ -225,6 +261,7 @@ export default function TripStylePage() {
           }
           aria-label="Choose Remote Off Grid"
         />
+
 
         {/* BACK */}
 
