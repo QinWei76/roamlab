@@ -4,6 +4,14 @@ import Link from "next/link";
 import { useState } from "react";
 import PlannerProgress from "@/components/PlannerProgress";
 
+import {
+  getOrCreateCurrentWild,
+  updateWildWayIn,
+  updateWildActivities,
+  updateWildVehicle,
+} from "@/lib/wildStore";
+
+
 type Vehicle =
   | "suv"
   | "truck"
@@ -11,18 +19,44 @@ type Vehicle =
   | "crossover"
   | "city";
 
+
 export default function DrivePage() {
   const [selected, setSelected] =
     useState<Vehicle | null>(null);
 
+
+  /* =======================================================
+     VEHICLE → CURRENT WILD
+
+     Existing visual interaction stays exactly the same.
+
+     When a vehicle is selected:
+     1. Make sure a Current Wild exists
+     2. Confirm Ways In = drive
+     3. Confirm activity = drive
+     4. Save selected vehicle into the same Wild
+     5. Continue to the existing Trip Style page
+     ======================================================= */
+
   const chooseVehicle = (vehicle: Vehicle) => {
     setSelected(vehicle);
+
+    getOrCreateCurrentWild("My Wild");
+
+    updateWildWayIn("drive");
+
+    updateWildActivities(["drive"]);
+
+    updateWildVehicle({
+      type: vehicle,
+    });
 
     window.setTimeout(() => {
       window.location.href =
         `/ways-in/drive/setup?vehicle=${vehicle}`;
     }, 180);
   };
+
 
   return (
     <main className="drv2-page">
@@ -35,17 +69,42 @@ export default function DrivePage() {
           draggable={false}
         />
 
+
         {/* GLOBAL NAV */}
+
         <nav className="drv2-nav">
           <div className="drv2-nav-links">
-            <Link href="/explore">EXPLORE</Link>
-            <Link href="/plan">PLAN</Link>
-            <Link href="/prepare">PREPARE</Link>
-            <Link href="/safety">SAFETY</Link>
-            <Link href="/learn">LEARN</Link>
-            <Link href="/journal">JOURNAL</Link>
-            <Link href="/stories">STORIES</Link>
-            <Link href="/badges">BADGES</Link>
+            <Link href="/explore">
+              EXPLORE
+            </Link>
+
+            <Link href="/plan">
+              PLAN
+            </Link>
+
+            <Link href="/prepare">
+              PREPARE
+            </Link>
+
+            <Link href="/safety">
+              SAFETY
+            </Link>
+
+            <Link href="/learn">
+              LEARN
+            </Link>
+
+            <Link href="/journal">
+              JOURNAL
+            </Link>
+
+            <Link href="/stories">
+              STORIES
+            </Link>
+
+            <Link href="/badges">
+              BADGES
+            </Link>
           </div>
 
           <Link
@@ -63,10 +122,14 @@ export default function DrivePage() {
           </Link>
         </nav>
 
+
         {/* PLANNER PROGRESS */}
+
         <PlannerProgress currentStep={1} />
 
+
         {/* SUV */}
+
         <button
           type="button"
           className={`drv2-zone drv2-suv ${
@@ -80,7 +143,9 @@ export default function DrivePage() {
           aria-label="Choose SUV"
         />
 
+
         {/* TRUCK */}
+
         <button
           type="button"
           className={`drv2-zone drv2-truck ${
@@ -94,7 +159,9 @@ export default function DrivePage() {
           aria-label="Choose Truck"
         />
 
+
         {/* VAN */}
+
         <button
           type="button"
           className={`drv2-zone drv2-van ${
@@ -108,7 +175,9 @@ export default function DrivePage() {
           aria-label="Choose Van"
         />
 
+
         {/* CROSSOVER */}
+
         <button
           type="button"
           className={`drv2-zone drv2-crossover ${
@@ -122,7 +191,9 @@ export default function DrivePage() {
           aria-label="Choose Crossover AWD"
         />
 
+
         {/* CITY */}
+
         <button
           type="button"
           className={`drv2-zone drv2-city ${
@@ -136,11 +207,17 @@ export default function DrivePage() {
           aria-label="Choose City Car"
         />
 
+
+        {/* LOGO */}
+
         <a
           href="/"
           className="drv2-logo"
           aria-label="RoamLab home"
         />
+
+
+        {/* BACK */}
 
         <a
           href="/ways-in"
