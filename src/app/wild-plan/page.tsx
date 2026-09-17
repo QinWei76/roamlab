@@ -154,6 +154,34 @@ function formatDuration(
 }
 
 
+function formatMoney(
+  amount?: number,
+  currency = "USD"
+): string {
+  if (
+    amount === undefined ||
+    !Number.isFinite(amount)
+  ) {
+    return "Budget not set";
+  }
+
+  try {
+    return new Intl.NumberFormat(
+      "en-US",
+      {
+        style: "currency",
+        currency,
+        maximumFractionDigits: 0,
+      }
+    ).format(amount);
+  } catch {
+    return `${currency} ${amount.toLocaleString(
+      "en-US"
+    )}`;
+  }
+}
+
+
 /* =========================================================
    ADVENTURE COMPLETION
    ========================================================= */
@@ -252,10 +280,46 @@ export default function WildPlanPage() {
     adventureProgress === 100;
 
 
+  const gearSystem =
+    wild?.plan.prepare?.gear;
+
+  const gearItems =
+    gearSystem?.items ?? [];
+
   const gearExists =
-    Boolean(
-      wild?.plan.prepare?.gear
-    );
+    gearItems.length > 0;
+
+  const essentialGearCount =
+    gearItems.filter(
+      (item) =>
+        item.priority === "essential"
+    ).length;
+
+  const recommendedGearCount =
+    gearItems.filter(
+      (item) =>
+        item.priority === "recommended"
+    ).length;
+
+  const optionalGearCount =
+    gearItems.filter(
+      (item) =>
+        item.priority === "optional"
+    ).length;
+
+  const cost =
+    wild?.plan.cost;
+
+  const totalWildBudget =
+    cost?.totalWildBudget;
+
+  const currency =
+    cost?.currency ?? "USD";
+
+  const totalBudgetExists =
+    typeof totalWildBudget === "number" &&
+    Number.isFinite(totalWildBudget) &&
+    totalWildBudget > 0;
 
 
   const routeExists =
@@ -283,9 +347,7 @@ export default function WildPlanPage() {
 
 
   const costExists =
-    Boolean(
-      wild?.plan.cost
-    );
+    Boolean(cost);
 
 
   /* =======================================================
@@ -385,15 +447,15 @@ export default function WildPlanPage() {
         "Gear Room · Owned · Need · Checklist",
 
       detail: gearExists
-        ? "Your gear system is connected to this Wild."
+        ? `${gearItems.length} categories · ${essentialGearCount} essential · ${recommendedGearCount} recommended · ${optionalGearCount} optional`
         : "Build the right system for this Wild.",
 
       status: gearExists
-        ? "IN PROGRESS"
+        ? "GEAR SYSTEM BUILT"
         : "AVAILABLE",
 
       progress: gearExists
-        ? 50
+        ? 100
         : 0,
 
       enabled: true,
@@ -459,19 +521,28 @@ export default function WildPlanPage() {
       description:
         "Travel · Gear · Food · Camps · Fees",
 
-      detail: costExists
+      detail: totalBudgetExists
+        ? `${formatMoney(
+            totalWildBudget,
+            currency
+          )} total Wild budget`
+        : costExists
         ? "Budget planning has started."
         : "Plan the whole Wild — not just the gear.",
 
-      status: costExists
+      status: totalBudgetExists
+        ? "BUDGET SET"
+        : costExists
         ? "IN PROGRESS"
-        : "COMING NEXT",
+        : "AVAILABLE",
 
-      progress: costExists
+      progress: totalBudgetExists
+        ? 100
+        : costExists
         ? 25
         : 0,
 
-      enabled: false,
+      enabled: true,
     },
 
     {
@@ -512,14 +583,114 @@ export default function WildPlanPage() {
     }
 
     if (module.key === "gear") {
-      /*
-       * Existing Gear Room remains untouched.
-       *
-       * V1 uses Current Wild as the persistent context,
-       * while the old URL-based planner continues working.
-       */
+      const params =
+        new URLSearchParams();
+
+      if (adventure?.vehicle?.type) {
+        params.set(
+          "vehicle",
+          adventure.vehicle.type
+        );
+      }
+
+      if (adventure?.tripStyle) {
+        params.set(
+          "trip",
+          adventure.tripStyle
+        );
+      }
+
+      if (adventure?.crew?.type) {
+        params.set(
+          "crew",
+          adventure.crew.type
+        );
+      }
+
+      if (adventure?.crew?.people) {
+        params.set(
+          "people",
+          String(
+            adventure.crew.people
+          )
+        );
+      }
+
+      if (
+        adventure?.schedule
+          ?.durationType
+      ) {
+        params.set(
+          "duration",
+          adventure.schedule
+            .durationType
+        );
+      }
+
+      const query =
+        params.toString();
+
       router.push(
-        "/ways-in/drive/gear"
+        query
+          ? `/ways-in/drive/gear?${query}`
+          : "/ways-in/drive/gear"
+      );
+
+      return;
+    }
+
+    if (module.key === "cost") {
+      const params =
+        new URLSearchParams();
+
+      if (adventure?.vehicle?.type) {
+        params.set(
+          "vehicle",
+          adventure.vehicle.type
+        );
+      }
+
+      if (adventure?.tripStyle) {
+        params.set(
+          "trip",
+          adventure.tripStyle
+        );
+      }
+
+      if (adventure?.crew?.type) {
+        params.set(
+          "crew",
+          adventure.crew.type
+        );
+      }
+
+      if (adventure?.crew?.people) {
+        params.set(
+          "people",
+          String(
+            adventure.crew.people
+          )
+        );
+      }
+
+      if (
+        adventure?.schedule
+          ?.durationType
+      ) {
+        params.set(
+          "duration",
+          adventure.schedule
+            .durationType
+        );
+      }
+
+      const query =
+        params.toString();
+
+      router.push(
+        query
+          ? `/ways-in/drive/budget?${query}`
+          : "/ways-in/drive/budget"
       );
 
       return;
@@ -861,7 +1032,17 @@ export default function WildPlanPage() {
                   "gear" &&
                 module.enabled ? (
                 <span className="openLabel">
-                  OPEN GEAR ROOM →
+                  {gearExists
+                    ? "VIEW GEAR SYSTEM →"
+                    : "OPEN GEAR ROOM →"}
+                </span>
+              ) : module.key ===
+                  "cost" &&
+                module.enabled ? (
+                <span className="openLabel">
+                  {totalBudgetExists
+                    ? "EDIT BUDGET →"
+                    : "SET BUDGET →"}
                 </span>
               ) : (
                 <span>
