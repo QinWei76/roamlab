@@ -874,6 +874,31 @@ export default function WildPlanPage() {
 
           <div className="contextItem">
             <span>
+              DESTINATION
+            </span>
+
+            <strong>
+              {adventure?.destination?.name ||
+                "Not set"}
+            </strong>
+          </div>
+
+
+          <div className="contextItem">
+            <span>
+              WILD TYPE
+            </span>
+
+            <strong>
+              {formatTripStyle(
+                adventure?.tripStyle
+              )}
+            </strong>
+          </div>
+
+
+          <div className="contextItem">
+            <span>
               WAY IN
             </span>
 
@@ -893,19 +918,6 @@ export default function WildPlanPage() {
             <strong>
               {formatVehicle(
                 adventure?.vehicle?.type
-              )}
-            </strong>
-          </div>
-
-
-          <div className="contextItem">
-            <span>
-              TRIP STYLE
-            </span>
-
-            <strong>
-              {formatTripStyle(
-                adventure?.tripStyle
               )}
             </strong>
           </div>
@@ -934,6 +946,20 @@ export default function WildPlanPage() {
               {formatDuration(
                 adventure?.schedule
                   ?.durationType
+              )}
+            </strong>
+          </div>
+
+
+          <div className="contextItem">
+            <span>
+              TOTAL WILD BUDGET
+            </span>
+
+            <strong>
+              {formatMoney(
+                totalWildBudget,
+                currency
               )}
             </strong>
           </div>
@@ -1415,7 +1441,7 @@ export default function WildPlanPage() {
 
           grid-template-columns:
             repeat(
-              5,
+              7,
               minmax(0, 1fr)
             );
 
@@ -2062,7 +2088,7 @@ export default function WildPlanPage() {
           .wildContext {
             grid-template-columns:
               repeat(
-                2,
+                3,
                 minmax(0, 1fr)
               );
           }
