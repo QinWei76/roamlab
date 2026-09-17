@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+
 import {
   getOrCreateCurrentWild,
   updateWildActivities,
@@ -8,171 +10,123 @@ import {
 } from "@/lib/wildStore";
 
 export default function WaysInPage() {
-  const startDrive = () => {
+  const router = useRouter();
+
+  function startDriveWild() {
     getOrCreateCurrentWild("My Wild");
+
     updateWildWayIn("drive");
     updateWildActivities(["drive"]);
-  };
+
+    router.push("/ways-in/drive");
+  }
 
   return (
-    <main className="waysin-page">
-      <section className="waysin-stage">
+    <main className="wv2-page">
+      <section className="wv2-stage">
         {/* BACKGROUND */}
         <img
           src="/ways-in-desk.jpg"
-          alt="RoamLab Ways In"
-          className="waysin-background"
+          alt="RoamLab — Ways In"
+          className="wv2-bg"
           draggable={false}
         />
 
-        {/* ==============================
-            DRIVE
-        ============================== */}
-        <Link
-          href="/ways-in/drive"
-          className="waysin-hotspot waysin-drive"
+        {/* TOP NAV */}
+        <nav className="wv2-nav">
+          <Link href="/" className="wv2-brand">
+            ROAMLAB
+          </Link>
+
+          <div className="wv2-nav-links">
+            <Link href="/explore">EXPLORE</Link>
+
+            <Link href="/wild-plan">
+              PLAN
+            </Link>
+
+            <Link href="/prepare">
+              PREPARE
+            </Link>
+
+            <Link href="/safety">
+              SAFETY
+            </Link>
+
+            <Link href="/learn">
+              LEARN
+            </Link>
+
+            <Link href="/journal">
+              JOURNAL
+            </Link>
+
+            <Link href="/stories">
+              STORIES
+            </Link>
+
+            <Link href="/badges">
+              BADGES
+            </Link>
+          </div>
+
+          <Link
+            href="/signin"
+            className="wv2-signin"
+          >
+            SIGN IN
+          </Link>
+
+          <Link
+            href="/ways-in"
+            className="wv2-start"
+          >
+            START YOUR WILD →
+          </Link>
+        </nav>
+
+        {/* DRIVE */}
+        <button
+          type="button"
+          onClick={startDriveWild}
+          className="wv2-zone wv2-drive"
           aria-label="Drive"
-          onClick={startDrive}
         />
 
-        {/* ==============================
-            HIKE
-        ============================== */}
-        <Link
-          href="/ways-in/hike"
-          className="waysin-hotspot waysin-hike"
+        {/* HIKE */}
+        <button
+          type="button"
+          className="wv2-zone wv2-hike"
           aria-label="Hike"
         />
 
-        {/* ==============================
-            RIDE
-        ============================== */}
-        <Link
-          href="/ways-in/ride"
-          className="waysin-hotspot waysin-ride"
+        {/* RIDE */}
+        <button
+          type="button"
+          className="wv2-zone wv2-ride"
           aria-label="Ride"
         />
 
-        {/* ==============================
-            PADDLE
-        ============================== */}
-        <Link
-          href="/ways-in/paddle"
-          className="waysin-hotspot waysin-paddle"
+        {/* PADDLE */}
+        <button
+          type="button"
+          className="wv2-zone wv2-paddle"
           aria-label="Paddle"
         />
 
-        {/* HOME / ROAMLAB LOGO */}
+        {/* NOT SURE */}
         <Link
-          href="/"
-          className="waysin-home"
-          aria-label="RoamLab Home"
+          href="/wild-plan"
+          className="wv2-zone wv2-unsure"
+          aria-label="Not sure? Plan your Wild"
         />
 
-        <style jsx global>{`
-          .waysin-page {
-            width: 100%;
-            min-height: 100vh;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            background: #090a08;
-          }
-
-          .waysin-stage {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
-            overflow: hidden;
-            background: #090a08;
-          }
-
-          .waysin-background {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            object-position: center;
-            user-select: none;
-            pointer-events: none;
-          }
-
-          .waysin-hotspot,
-          .waysin-home {
-            position: absolute;
-            z-index: 10;
-            display: block;
-            cursor: pointer;
-            border-radius: 18px;
-            transition:
-              background 180ms ease,
-              box-shadow 180ms ease,
-              transform 180ms ease;
-          }
-
-          .waysin-hotspot:hover {
-            background: rgba(214, 163, 91, 0.035);
-            box-shadow:
-              0 0 28px rgba(214, 163, 91, 0.08),
-              inset 0 0 24px rgba(214, 163, 91, 0.025);
-            transform: translateY(-1px);
-          }
-
-          /*
-           * Four physical-object interaction zones.
-           * Broad invisible hotspots are intentional.
-           */
-
-          .waysin-drive {
-            left: 4%;
-            top: 27%;
-            width: 22%;
-            height: 53%;
-          }
-
-          .waysin-hike {
-            left: 27%;
-            top: 27%;
-            width: 22%;
-            height: 53%;
-          }
-
-          .waysin-ride {
-            left: 51%;
-            top: 27%;
-            width: 22%;
-            height: 53%;
-          }
-
-          .waysin-paddle {
-            left: 74%;
-            top: 27%;
-            width: 22%;
-            height: 53%;
-          }
-
-          .waysin-home {
-            left: 1.5%;
-            top: 1.5%;
-            width: 14%;
-            height: 9%;
-          }
-
-          @media (max-width: 900px) {
-            .waysin-background {
-              object-position: center;
-            }
-
-            .waysin-drive,
-            .waysin-hike,
-            .waysin-ride,
-            .waysin-paddle {
-              top: 24%;
-              height: 58%;
-            }
-          }
-        `}</style>
+        {/* LOGO HOTSPOT */}
+        <Link
+          href="/"
+          className="wv2-logo"
+          aria-label="RoamLab Home"
+        />
       </section>
     </main>
   );
