@@ -36,47 +36,6 @@ type DurationKey =
   | "multi-day"
   | "extended";
 
-const vehicleLabels: Record<
-  VehicleKey,
-  string
-> = {
-  suv: "SUV",
-  truck: "TRUCK",
-  van: "VAN",
-  crossover: "CROSSOVER / AWD",
-  city: "2WD / CITY CAR",
-};
-
-const tripLabels: Record<
-  TripKey,
-  string
-> = {
-  weekend: "WEEKEND ESCAPE",
-  "road-trip": "ROAD TRIP",
-  basecamp: "BASECAMP",
-  remote: "REMOTE / OFF-GRID",
-};
-
-const crewLabels: Record<
-  CrewKey,
-  string
-> = {
-  solo: "SOLO",
-  couple: "COUPLE",
-  family: "FAMILY",
-  friends: "FRIENDS",
-};
-
-const durationLabels: Record<
-  DurationKey,
-  string
-> = {
-  overnight: "1 NIGHT",
-  weekend: "2–3 NIGHTS",
-  "multi-day": "4–7 NIGHTS",
-  extended: "8+ NIGHTS",
-};
-
 const isVehicleKey = (
   value: string | null
 ): value is VehicleKey =>
@@ -158,6 +117,11 @@ export default function BudgetPage() {
     const crewParam =
       params.get("crew");
 
+    const peopleParam =
+      Number(
+        params.get("people")
+      );
+
     const durationParam =
       params.get("duration");
 
@@ -167,29 +131,35 @@ export default function BudgetPage() {
       setVehicle(vehicleParam);
     }
 
-    if (isTripKey(tripParam)) {
+    if (
+      isTripKey(tripParam)
+    ) {
       setTrip(tripParam);
     }
 
-    if (isCrewKey(crewParam)) {
+    if (
+      isCrewKey(crewParam)
+    ) {
       setCrew(crewParam);
     }
 
     if (
-      isDurationKey(durationParam)
-    ) {
-      setDuration(durationParam);
-    }
-
-    const peopleParam = Number(
-      params.get("people")
-    );
-
-    if (
-      Number.isFinite(peopleParam) &&
+      Number.isFinite(
+        peopleParam
+      ) &&
       peopleParam > 0
     ) {
       setPeople(peopleParam);
+    }
+
+    if (
+      isDurationKey(
+        durationParam
+      )
+    ) {
+      setDuration(
+        durationParam
+      );
     }
 
     setReady(true);
@@ -211,9 +181,13 @@ export default function BudgetPage() {
     `&people=${people}`;
 
   const saveAndContinue = () => {
-    const amount = Number(
-      budget.replace(/,/g, "")
-    );
+    const amount =
+      Number(
+        budget.replace(
+          /,/g,
+          ""
+        )
+      );
 
     if (
       !Number.isFinite(amount) ||
@@ -248,99 +222,137 @@ export default function BudgetPage() {
   const formattedBudget =
     budget
       ? Number(
-          budget.replace(/,/g, "")
-        ).toLocaleString("en-US")
+          budget.replace(
+            /,/g,
+            ""
+          )
+        ).toLocaleString(
+          "en-US"
+        )
       : "";
 
   if (!ready) {
     return (
-      <main className="budget-page">
-        <div className="budget-loading" />
-
-        <style jsx>{`
-          .budget-page {
-            min-height: 100vh;
-            background: #11100d;
-          }
-        `}</style>
+      <main className="budget2-page">
+        <div className="budget2-loading" />
       </main>
     );
   }
 
   return (
-    <main className="budget-page">
-      <section className="budget-stage">
+    <main className="budget2-page">
+      <section className="budget2-stage">
 
         {/* =========================
-            TOP
+            TEMP BACKGROUND
+
+            Later replace:
+            /duration-desk-v2.jpg
+
+            with:
+            /budget-desk-v2.jpg
         ========================= */}
 
-        <header className="budget-top">
-          <Link
-            href="/"
-            className="budget-logo"
-          >
+        <img
+          src="/duration-desk-v2.jpg"
+          alt=""
+          className="budget2-bg"
+          draggable={false}
+        />
+
+        <div className="budget2-shade" />
+
+        {/* =========================
+            LOGO
+        ========================= */}
+
+        <Link
+          href="/"
+          className="budget2-logo"
+          aria-label="RoamLab home"
+        >
+          <span className="budget2-logo-main">
             ROAMLAB
+          </span>
+
+          <span className="budget2-logo-sub">
+            PLANS · GEAR · STORIES
+          </span>
+        </Link>
+
+        {/* =========================
+            GLOBAL NAV
+        ========================= */}
+
+        <nav className="budget2-nav">
+
+          <div className="budget2-nav-links">
+
+            <Link href="/explore">
+              EXPLORE
+            </Link>
+
+            <Link href="/plan">
+              PLAN
+            </Link>
+
+            <Link href="/prepare">
+              PREPARE
+            </Link>
+
+            <Link href="/safety">
+              SAFETY
+            </Link>
+
+            <Link href="/learn">
+              LEARN
+            </Link>
+
+            <Link href="/journal">
+              JOURNAL
+            </Link>
+
+            <Link href="/stories">
+              STORIES
+            </Link>
+
+            <Link href="/badges">
+              BADGES
+            </Link>
+
+          </div>
+
+          <Link
+            href="/signin"
+            className="budget2-signin"
+          >
+            SIGN IN
           </Link>
 
-          <div className="budget-context">
-            <span>
-              PLAN YOUR WILD
-            </span>
+          <Link
+            href="/start-here"
+            className="budget2-start"
+          >
+            START YOUR WILD →
+          </Link>
 
-            <strong>
-              DRIVE
-            </strong>
-          </div>
-        </header>
+        </nav>
 
         {/* =========================
-            LEFT PROGRESS
+            SMALL STEP LABEL
         ========================= */}
 
-        <aside className="budget-progress">
-          <div className="budget-progress-title">
-            YOUR WILD
-          </div>
-
-          <div className="budget-step done">
-            <span>✓</span>
-            VEHICLE
-          </div>
-
-          <div className="budget-step done">
-            <span>✓</span>
-            TRIP STYLE
-          </div>
-
-          <div className="budget-step done">
-            <span>✓</span>
-            CREW
-          </div>
-
-          <div className="budget-step done">
-            <span>✓</span>
-            DURATION
-          </div>
-
-          <div className="budget-step current">
-            <span>5</span>
-            BUDGET
-          </div>
-
-          <div className="budget-step future">
-            <span>6</span>
-            GEAR ROOM
-          </div>
-        </aside>
+        <div className="budget2-step">
+          DRIVE · STEP 5 OF 6
+        </div>
 
         {/* =========================
-            MAIN NOTEBOOK
+            MAIN BUDGET CARD
         ========================= */}
 
-        <section className="budget-book">
+        <section className="budget2-card">
 
-          <div className="budget-kicker">
+          <div className="budget2-kicker">
             TOTAL WILD BUDGET
           </div>
 
@@ -350,25 +362,26 @@ export default function BudgetPage() {
             WILD BUDGET?
           </h1>
 
-          <p className="budget-lead">
+          <p className="budget2-lead">
             For the whole Wild —
             not just gear.
           </p>
 
-          <p className="budget-copy">
+          <p className="budget2-copy">
             Give RoamLab one total
             budget for this adventure.
             We&apos;ll use it as a
-            planning constraint across
+            planning reference across
             travel, gear, food,
             campsites, activities and
             the unexpected.
           </p>
 
-          {/* INPUT */}
+          {/* BUDGET INPUT */}
 
-          <div className="budget-input-wrap">
-            <span className="budget-dollar">
+          <div className="budget2-input">
+
+            <span className="budget2-symbol">
               $
             </span>
 
@@ -376,11 +389,18 @@ export default function BudgetPage() {
               type="text"
               inputMode="numeric"
               placeholder="2,000"
-              value={formattedBudget}
-              onChange={(event) => {
+              value={
+                formattedBudget
+              }
+              onChange={(
+                event
+              ) => {
                 const raw =
                   event.target.value
-                    .replace(/,/g, "")
+                    .replace(
+                      /,/g,
+                      ""
+                    )
                     .replace(
                       /[^\d]/g,
                       ""
@@ -393,9 +413,12 @@ export default function BudgetPage() {
 
             <select
               value={currency}
-              onChange={(event) =>
+              onChange={(
+                event
+              ) =>
                 setCurrency(
-                  event.target.value
+                  event.target
+                    .value
                 )
               }
               aria-label="Currency"
@@ -419,112 +442,86 @@ export default function BudgetPage() {
               <option value="GBP">
                 GBP
               </option>
+
             </select>
+
           </div>
 
-          {/* WHAT IT INCLUDES */}
+          {/* COVERAGE */}
 
-          <div className="budget-includes">
-            <div className="budget-small-title">
-              WHAT THIS BUDGET COVERS
-            </div>
+          <div className="budget2-rule" />
 
-            <div className="budget-categories">
-              <span>TRANSPORT</span>
-              <span>GEAR</span>
-              <span>FOOD & WATER</span>
-              <span>CAMPSITES</span>
-              <span>PERMITS</span>
-              <span>ACTIVITIES</span>
-              <span>EMERGENCY</span>
-            </div>
+          <div className="budget2-covers-title">
+            THIS BUDGET GUIDES
           </div>
 
-          <div className="budget-principle">
+          <div className="budget2-covers">
+
+            <span>
+              TRAVEL
+            </span>
+
+            <i>•</i>
+
+            <span>
+              GEAR
+            </span>
+
+            <i>•</i>
+
+            <span>
+              FOOD
+            </span>
+
+            <i>•</i>
+
+            <span>
+              CAMPSITES
+            </span>
+
+            <i>•</i>
+
+            <span>
+              PERMITS
+            </span>
+
+            <i>•</i>
+
+            <span>
+              ACTIVITIES
+            </span>
+
+            <i>•</i>
+
+            <span>
+              RESERVE
+            </span>
+
+          </div>
+
+          <div className="budget2-note">
             <strong>
               ONE WILD.
               ONE TOTAL BUDGET.
             </strong>
 
-            <p>
-              RoamLab will use this
-              number throughout your
-              Wild Plan. It&apos;s a
-              ceiling to plan within —
-              not a target to spend.
-            </p>
+            <span>
+              A planning ceiling,
+              not a spending target.
+            </span>
           </div>
+
         </section>
-
-        {/* =========================
-            RIGHT CONTEXT
-        ========================= */}
-
-        <aside className="budget-summary">
-
-          <div className="budget-summary-label">
-            THIS WILD
-          </div>
-
-          <div className="budget-summary-row">
-            <span>VEHICLE</span>
-            <strong>
-              {vehicleLabels[vehicle]}
-            </strong>
-          </div>
-
-          <div className="budget-summary-row">
-            <span>TRIP STYLE</span>
-            <strong>
-              {tripLabels[trip]}
-            </strong>
-          </div>
-
-          <div className="budget-summary-row">
-            <span>CREW</span>
-            <strong>
-              {crewLabels[crew]}
-              {" · "}
-              {people}
-            </strong>
-          </div>
-
-          <div className="budget-summary-row">
-            <span>DURATION</span>
-            <strong>
-              {
-                durationLabels[
-                  duration
-                ]
-              }
-            </strong>
-          </div>
-
-          <div className="budget-summary-note">
-            <strong>
-              WHY ASK NOW?
-            </strong>
-
-            <p>
-              Your budget becomes a
-              reference point for the
-              rest of this Wild —
-              including gear choices,
-              travel costs and later
-              recommendations.
-            </p>
-          </div>
-        </aside>
 
         {/* =========================
             ACTIONS
         ========================= */}
 
-        <div className="budget-actions">
+        <div className="budget2-actions">
 
           <button
             type="button"
-            className="budget-skip"
+            className="budget2-skip"
             onClick={
               continueWithoutBudget
             }
@@ -534,9 +531,11 @@ export default function BudgetPage() {
 
           <button
             type="button"
-            className="budget-continue"
+            className="budget2-continue"
             disabled={!budget}
-            onClick={saveAndContinue}
+            onClick={
+              saveAndContinue
+            }
           >
             SAVE BUDGET &
             CONTINUE →
@@ -544,665 +543,817 @@ export default function BudgetPage() {
 
         </div>
 
+        {/* =========================
+            BACK
+        ========================= */}
+
         <Link
           href={durationUrl}
-          className="budget-back"
+          className="budget2-back"
         >
           ← DURATION
         </Link>
 
+        {/* =========================
+            BOTTOM PROGRESS
+        ========================= */}
+
+        <div className="budget2-progress">
+
+          <Link
+            href="/ways-in/drive"
+            className="budget2-progress-step done"
+          >
+            <b>✓</b>
+            VEHICLE
+          </Link>
+
+          <i />
+
+          <Link
+            href={
+              `/ways-in/drive/setup` +
+              `?vehicle=${vehicle}`
+            }
+            className="budget2-progress-step done"
+          >
+            <b>✓</b>
+            TRIP STYLE
+          </Link>
+
+          <i />
+
+          <Link
+            href={
+              `/ways-in/drive/crew` +
+              `?vehicle=${vehicle}` +
+              `&trip=${trip}`
+            }
+            className="budget2-progress-step done"
+          >
+            <b>✓</b>
+            CREW
+          </Link>
+
+          <i />
+
+          <Link
+            href={durationUrl}
+            className="budget2-progress-step done"
+          >
+            <b>✓</b>
+            DURATION
+          </Link>
+
+          <i />
+
+          <div className="budget2-progress-step current">
+            <b>5</b>
+            BUDGET
+          </div>
+
+          <i />
+
+          <div className="budget2-progress-step future">
+            <b>6</b>
+            GEAR
+          </div>
+
+        </div>
+
       </section>
 
       <style jsx>{`
-        .budget-page {
+
+        .budget2-page {
+          width: 100%;
           min-height: 100vh;
-          background:
-            radial-gradient(
-              circle at 50% 18%,
-              #40331f 0%,
-              #201b13 34%,
-              #11100d 76%
-            );
-          color: #e9dfcb;
-          overflow-x: hidden;
+          margin: 0;
+          background: #080806;
+          overflow: hidden;
+          color: #f0e7d5;
         }
 
-        .budget-stage {
+        .budget2-stage {
           position: relative;
+          width: 100%;
           min-height: 100vh;
-          max-width: 1600px;
-          margin: 0 auto;
-          padding:
-            30px 42px
-            120px;
-          box-sizing: border-box;
+          isolation: isolate;
+          overflow: hidden;
         }
 
-        .budget-stage::before {
-          content: "";
+        /* BACKGROUND */
+
+        .budget2-bg {
           position: absolute;
+          z-index: 0;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          pointer-events: none;
+          user-select: none;
+        }
+
+        .budget2-shade {
+          position: absolute;
+          z-index: 1;
           inset: 0;
           pointer-events: none;
-          opacity: 0.18;
-          background-image:
-            repeating-linear-gradient(
-              8deg,
-              transparent 0,
-              transparent 11px,
+          background:
+            radial-gradient(
+              circle at 50% 52%,
               rgba(
-                255,
-                255,
-                255,
-                0.025
-              ) 12px
+                0,
+                0,
+                0,
+                0.05
+              ) 0%,
+              rgba(
+                0,
+                0,
+                0,
+                0.2
+              ) 46%,
+              rgba(
+                0,
+                0,
+                0,
+                0.62
+              ) 100%
             );
         }
 
-        .budget-top {
-          position: relative;
-          z-index: 2;
+        /* LOGO */
+
+        .budget2-logo {
+          position: absolute;
+          z-index: 20;
+          left: 3.2%;
+          top: 3.2%;
+          color: #eee3cd;
+          text-decoration: none;
+          text-shadow:
+            0 2px 8px
+            rgba(
+              0,
+              0,
+              0,
+              0.7
+            );
+        }
+
+        .budget2-logo-main {
+          display: block;
+          font-size: 17px;
+          font-weight: 900;
+          letter-spacing:
+            0.13em;
+        }
+
+        .budget2-logo-sub {
+          display: block;
+          margin-top: 3px;
+          font-size: 6px;
+          letter-spacing:
+            0.18em;
+          opacity: 0.62;
+        }
+
+        /* NAV */
+
+        .budget2-nav {
+          position: absolute;
+          z-index: 20;
+          left: 20%;
+          right: 2.8%;
+          top: 3.4%;
           display: flex;
           align-items: center;
-          justify-content:
-            space-between;
-          padding-bottom: 24px;
-          border-bottom:
+          gap: 20px;
+          font-size: 8px;
+          font-weight: 800;
+          letter-spacing:
+            0.12em;
+        }
+
+        .budget2-nav-links {
+          display: flex;
+          align-items: center;
+          gap: 20px;
+          margin-right: auto;
+        }
+
+        .budget2-nav a {
+          color: #eee3cd;
+          text-decoration: none;
+          opacity: 0.76;
+          transition:
+            opacity 160ms ease,
+            text-shadow 160ms ease;
+        }
+
+        .budget2-nav a:hover {
+          opacity: 1;
+          text-shadow:
+            0 0 14px
+            rgba(
+              229,
+              165,
+              74,
+              0.45
+            );
+        }
+
+        .budget2-signin {
+          white-space: nowrap;
+        }
+
+        .budget2-start {
+          padding:
+            10px 13px;
+          border:
             1px solid
             rgba(
-              232,
-              215,
-              180,
-              0.18
+              229,
+              165,
+              74,
+              0.55
             );
+          white-space: nowrap;
         }
 
-        .budget-logo {
-          color: #f2eadb;
-          text-decoration: none;
-          font-weight: 900;
-          font-size: 20px;
-          letter-spacing: 0.13em;
-        }
+        /* STEP */
 
-        .budget-context {
-          display: flex;
-          align-items: center;
-          gap: 16px;
-          font-size: 10px;
-          letter-spacing: 0.16em;
-          opacity: 0.75;
-        }
-
-        .budget-context strong {
-          color: #e3a14a;
-        }
-
-        .budget-progress {
+        .budget2-step {
           position: absolute;
-          z-index: 2;
-          left: 42px;
-          top: 140px;
-          width: 190px;
-          padding:
-            20px 18px;
-          background:
+          z-index: 10;
+          left: 50%;
+          top: 12%;
+          transform:
+            translateX(-50%);
+          color:
             rgba(
-              10,
-              9,
-              7,
-              0.52
+              238,
+              227,
+              205,
+              0.72
             );
+          font-size: 8px;
+          font-weight: 900;
+          letter-spacing:
+            0.2em;
+          text-shadow:
+            0 2px 8px
+            rgba(
+              0,
+              0,
+              0,
+              0.8
+            );
+        }
+
+        /* CARD */
+
+        .budget2-card {
+          position: absolute;
+          z-index: 10;
+          left: 50%;
+          top: 48%;
+          width:
+            min(
+              560px,
+              52vw
+            );
+          transform:
+            translate(
+              -50%,
+              -50%
+            );
+          box-sizing:
+            border-box;
+          padding:
+            38px 46px 34px;
+
+          background:
+            linear-gradient(
+              135deg,
+              rgba(
+                29,
+                24,
+                17,
+                0.92
+              ),
+              rgba(
+                12,
+                10,
+                7,
+                0.95
+              )
+            );
+
           border:
             1px solid
             rgba(
               224,
-              201,
-              159,
-              0.14
+              198,
+              151,
+              0.22
             );
+
+          box-shadow:
+            0 24px 70px
+              rgba(
+                0,
+                0,
+                0,
+                0.58
+              ),
+            inset
+              0 0 35px
+              rgba(
+                224,
+                159,
+                65,
+                0.035
+              );
+
           backdrop-filter:
             blur(8px);
         }
 
-        .budget-progress-title {
-          margin-bottom: 17px;
-          font-size: 11px;
+        .budget2-kicker {
+          margin-bottom:
+            12px;
+          color: #dda04c;
+          font-size: 9px;
           font-weight: 900;
-          letter-spacing: 0.15em;
+          letter-spacing:
+            0.18em;
         }
 
-        .budget-step {
-          display: flex;
-          align-items: center;
-          gap: 11px;
-          padding: 11px 0;
-          border-bottom:
-            1px solid
-            rgba(
-              255,
-              255,
-              255,
-              0.06
-            );
-          font-size: 10px;
-          letter-spacing: 0.09em;
-        }
-
-        .budget-step span {
-          display: grid;
-          place-items: center;
-          width: 24px;
-          height: 24px;
-          flex: 0 0 24px;
-          border-radius: 50%;
-          border:
-            1px solid
-            rgba(
-              231,
-              216,
-              187,
-              0.35
-            );
-        }
-
-        .budget-step.done {
-          opacity: 0.68;
-        }
-
-        .budget-step.done span {
-          color: #e3a14a;
-        }
-
-        .budget-step.current {
-          color: #f0c377;
-          font-weight: 900;
-        }
-
-        .budget-step.current span {
-          background: #d99a42;
-          color: #15110b;
-          border-color:
-            #d99a42;
-        }
-
-        .budget-step.future {
-          opacity: 0.35;
-        }
-
-        .budget-book {
-          position: relative;
-          z-index: 2;
-          width:
-            min(
-              620px,
-              calc(
-                100% - 520px
-              )
-            );
-          min-height: 610px;
-          margin:
-            54px auto 0;
-          padding:
-            58px 64px;
-          box-sizing: border-box;
-          color: #211d17;
-          background:
-            linear-gradient(
-              90deg,
-              #d8c9a9 0%,
-              #eee1c5 8%,
-              #e9dcc0 50%,
-              #dfcfad 100%
-            );
-          box-shadow:
-            0 28px 80px
-              rgba(
-                0,
-                0,
-                0,
-                0.48
-              ),
-            inset 0 0 70px
-              rgba(
-                91,
-                64,
-                30,
-                0.13
-              );
-          transform:
-            rotate(-0.35deg);
-        }
-
-        .budget-book::before {
-          content: "";
-          position: absolute;
-          inset: 0;
-          pointer-events: none;
-          opacity: 0.16;
-          background-image:
-            repeating-linear-gradient(
-              0deg,
-              transparent 0,
-              transparent 27px,
-              #6f6149 28px
-            );
-        }
-
-        .budget-kicker,
-        .budget-book h1,
-        .budget-lead,
-        .budget-copy,
-        .budget-input-wrap,
-        .budget-includes,
-        .budget-principle {
-          position: relative;
-          z-index: 1;
-        }
-
-        .budget-kicker {
-          color: #98611e;
-          font-size: 11px;
-          font-weight: 900;
-          letter-spacing: 0.17em;
-          margin-bottom: 14px;
-        }
-
-        .budget-book h1 {
+        .budget2-card h1 {
           margin: 0;
+          color: #f0e7d5;
           font-family:
             Georgia,
             "Times New Roman",
             serif;
           font-size:
             clamp(
-              38px,
+              35px,
               4vw,
-              60px
+              54px
             );
           line-height: 0.94;
           letter-spacing:
             -0.035em;
+          text-shadow:
+            0 3px 16px
+            rgba(
+              0,
+              0,
+              0,
+              0.5
+            );
         }
 
-        .budget-lead {
+        .budget2-lead {
           margin:
-            22px 0 8px;
-          font-size: 17px;
-          font-weight: 800;
+            18px 0 7px;
+          color: #e8d7b8;
+          font-family:
+            Georgia,
+            "Times New Roman",
+            serif;
+          font-size: 14px;
+          font-weight: 700;
         }
 
-        .budget-copy {
-          max-width: 480px;
+        .budget2-copy {
+          max-width: 450px;
           margin: 0;
-          font-size: 13px;
-          line-height: 1.65;
-          opacity: 0.78;
+          color:
+            rgba(
+              236,
+              225,
+              204,
+              0.66
+            );
+          font-size: 10px;
+          line-height: 1.6;
         }
 
-        .budget-input-wrap {
+        /* INPUT */
+
+        .budget2-input {
           display: grid;
           grid-template-columns:
-            46px 1fr 90px;
+            42px
+            minmax(0, 1fr)
+            80px;
           align-items: center;
-          margin-top: 32px;
+          margin-top: 24px;
+          background:
+            rgba(
+              4,
+              4,
+              3,
+              0.48
+            );
           border:
             1px solid
             rgba(
-              35,
-              29,
-              20,
-              0.55
-            );
-          background:
-            rgba(
-              255,
-              250,
-              235,
+              225,
+              196,
+              145,
               0.34
             );
         }
 
-        .budget-dollar {
+        .budget2-symbol {
           text-align: center;
+          color: #dda04c;
           font-family: Georgia;
-          font-size: 30px;
+          font-size: 25px;
         }
 
-        .budget-input-wrap input {
+        .budget2-input input {
           width: 100%;
           min-width: 0;
-          box-sizing: border-box;
-          padding: 18px 8px;
+          box-sizing:
+            border-box;
+          padding:
+            15px 8px;
           border: 0;
           outline: 0;
-          background: transparent;
-          color: #1e1a14;
+          background:
+            transparent;
+          color: #f1e8d6;
           font-family: Georgia;
-          font-size: 32px;
+          font-size: 28px;
         }
 
-        .budget-input-wrap select {
-          height: 100%;
-          border: 0;
-          border-left:
-            1px solid
+        .budget2-input input::placeholder {
+          color:
             rgba(
-              35,
-              29,
-              20,
+              241,
+              232,
+              214,
               0.35
             );
+        }
+
+        .budget2-input select {
+          align-self: stretch;
+          border: 0;
+          border-left:
+            1px solid
+            rgba(
+              225,
+              196,
+              145,
+              0.22
+            );
           outline: 0;
-          background: transparent;
-          color: #211d17;
-          font-weight: 800;
+          background:
+            rgba(
+              0,
+              0,
+              0,
+              0.25
+            );
+          color: #eadfc9;
+          font-size: 9px;
+          font-weight: 900;
           cursor: pointer;
         }
 
-        .budget-includes {
-          margin-top: 25px;
-          padding: 18px;
+        /* COVERAGE */
+
+        .budget2-rule {
+          height: 1px;
+          margin: 23px 0 16px;
           background:
             rgba(
-              93,
-              71,
-              37,
-              0.08
-            );
-          border-top:
-            1px solid
-            rgba(
-              55,
-              43,
-              25,
-              0.17
-            );
-          border-bottom:
-            1px solid
-            rgba(
-              55,
-              43,
-              25,
-              0.17
+              225,
+              196,
+              145,
+              0.16
             );
         }
 
-        .budget-small-title {
-          margin-bottom: 13px;
-          font-size: 10px;
+        .budget2-covers-title {
+          color:
+            rgba(
+              238,
+              226,
+              203,
+              0.52
+            );
+          font-size: 7px;
           font-weight: 900;
-          letter-spacing: 0.13em;
+          letter-spacing:
+            0.17em;
         }
 
-        .budget-categories {
+        .budget2-covers {
           display: flex;
           flex-wrap: wrap;
+          align-items: center;
           gap: 8px;
-        }
-
-        .budget-categories span {
-          padding:
-            7px 9px;
-          border:
-            1px solid
+          margin-top: 10px;
+          color:
             rgba(
-              50,
-              40,
-              25,
-              0.18
+              240,
+              230,
+              211,
+              0.74
             );
-          font-size: 9px;
-          font-weight: 800;
-          letter-spacing: 0.05em;
-        }
-
-        .budget-principle {
-          margin-top: 25px;
-          padding-left: 15px;
-          border-left:
-            3px solid
-            #b77a2d;
-        }
-
-        .budget-principle strong {
-          font-size: 11px;
-          letter-spacing: 0.1em;
-        }
-
-        .budget-principle p {
-          margin:
-            7px 0 0;
-          font-size: 11px;
-          line-height: 1.55;
-          opacity: 0.68;
-        }
-
-        .budget-summary {
-          position: absolute;
-          z-index: 2;
-          right: 42px;
-          top: 140px;
-          width: 220px;
-          padding:
-            22px 20px;
-          background:
-            rgba(
-              12,
-              10,
-              7,
-              0.58
-            );
-          border:
-            1px solid
-            rgba(
-              224,
-              201,
-              159,
-              0.14
-            );
-          backdrop-filter:
-            blur(8px);
-        }
-
-        .budget-summary-label {
-          padding-bottom: 13px;
-          margin-bottom: 4px;
-          border-bottom:
-            1px solid
-            rgba(
-              255,
-              255,
-              255,
-              0.1
-            );
-          color: #dfa04a;
-          font-size: 10px;
-          font-weight: 900;
-          letter-spacing: 0.15em;
-        }
-
-        .budget-summary-row {
-          padding: 13px 0;
-          border-bottom:
-            1px solid
-            rgba(
-              255,
-              255,
-              255,
-              0.07
-            );
-        }
-
-        .budget-summary-row span,
-        .budget-summary-row strong {
-          display: block;
-        }
-
-        .budget-summary-row span {
-          margin-bottom: 5px;
           font-size: 8px;
-          letter-spacing: 0.13em;
-          opacity: 0.48;
+          font-weight: 800;
+          letter-spacing:
+            0.06em;
         }
 
-        .budget-summary-row strong {
-          font-size: 10px;
-          letter-spacing: 0.06em;
+        .budget2-covers i {
+          color: #d99b45;
+          font-style: normal;
+          opacity: 0.7;
         }
 
-        .budget-summary-note {
-          margin-top: 18px;
-          padding-top: 16px;
-        }
-
-        .budget-summary-note strong {
-          color: #dfa04a;
-          font-size: 9px;
-          letter-spacing: 0.12em;
-        }
-
-        .budget-summary-note p {
-          margin:
-            8px 0 0;
-          font-size: 10px;
-          line-height: 1.6;
-          opacity: 0.62;
-        }
-
-        .budget-actions {
-          position: relative;
-          z-index: 3;
+        .budget2-note {
           display: flex;
-          justify-content: center;
-          gap: 16px;
-          margin-top: 34px;
+          align-items:
+            baseline;
+          gap: 12px;
+          margin-top: 18px;
+          padding-left: 12px;
+          border-left:
+            2px solid
+            #c88b3d;
         }
 
-        .budget-actions button {
-          min-width: 230px;
+        .budget2-note strong {
+          color: #e0b36f;
+          font-size: 8px;
+          letter-spacing:
+            0.1em;
+        }
+
+        .budget2-note span {
+          color:
+            rgba(
+              235,
+              224,
+              203,
+              0.48
+            );
+          font-size: 8px;
+        }
+
+        /* ACTIONS */
+
+        .budget2-actions {
+          position: absolute;
+          z-index: 20;
+          left: 50%;
+          bottom: 13%;
+          transform:
+            translateX(-50%);
+          display: flex;
+          gap: 12px;
+        }
+
+        .budget2-actions button {
+          height: 43px;
           padding:
-            16px 24px;
-          font-size: 10px;
+            0 25px;
+          border-radius: 0;
+          font-size: 8px;
           font-weight: 900;
-          letter-spacing: 0.1em;
+          letter-spacing:
+            0.11em;
           cursor: pointer;
+          transition:
+            box-shadow
+              160ms ease,
+            background
+              160ms ease,
+            opacity
+              160ms ease;
         }
 
-        .budget-skip {
+        .budget2-skip {
+          min-width: 180px;
           border:
             1px solid
             rgba(
-              233,
-              223,
-              203,
-              0.45
+              235,
+              220,
+              192,
+              0.38
             );
           background:
             rgba(
-              0,
-              0,
-              0,
-              0.2
+              5,
+              5,
+              4,
+              0.7
             );
-          color: #e9dfcb;
+          color: #e9dfca;
         }
 
-        .budget-continue {
+        .budget2-continue {
+          min-width: 220px;
           border:
-            1px solid #d99a42;
-          background: #d99a42;
-          color: #17120b;
+            1px solid
+            #d99b45;
+          background:
+            rgba(
+              203,
+              139,
+              55,
+              0.9
+            );
+          color: #171108;
         }
 
-        .budget-continue:disabled {
+        .budget2-continue:disabled {
+          opacity: 0.34;
           cursor: not-allowed;
-          opacity: 0.35;
         }
 
-        .budget-actions button:not(
+        .budget2-actions
+          button:not(
             :disabled
           ):hover {
           box-shadow:
             0 0 24px
             rgba(
-              221,
+              222,
               158,
-              70,
-              0.2
+              68,
+              0.3
             );
         }
 
-        .budget-back {
+        /* BACK */
+
+        .budget2-back {
           position: absolute;
-          z-index: 3;
-          left: 42px;
-          bottom: 42px;
-          color: #e9dfcb;
+          z-index: 20;
+          left: 4%;
+          bottom: 5.5%;
+          color:
+            rgba(
+              239,
+              228,
+              207,
+              0.66
+            );
           text-decoration: none;
-          font-size: 10px;
-          letter-spacing: 0.11em;
-          opacity: 0.65;
+          font-size: 8px;
+          font-weight: 800;
+          letter-spacing:
+            0.12em;
+        }
+
+        /* PROGRESS */
+
+        .budget2-progress {
+          position: absolute;
+          z-index: 20;
+          left: 50%;
+          bottom: 4.5%;
+          transform:
+            translateX(-50%);
+          display: flex;
+          align-items: center;
+          gap: 9px;
+          white-space: nowrap;
+        }
+
+        .budget2-progress > i {
+          display: block;
+          width: 25px;
+          height: 1px;
+          background:
+            rgba(
+              235,
+              222,
+              197,
+              0.22
+            );
+        }
+
+        .budget2-progress-step {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          color:
+            rgba(
+              236,
+              224,
+              201,
+              0.58
+            );
+          text-decoration: none;
+          font-size: 7px;
+          font-weight: 800;
+          letter-spacing:
+            0.08em;
+        }
+
+        .budget2-progress-step b {
+          display: grid;
+          place-items: center;
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          border:
+            1px solid
+            rgba(
+              231,
+              213,
+              180,
+              0.34
+            );
+          font-size: 7px;
+        }
+
+        .budget2-progress-step.done b {
+          color: #dda04b;
+        }
+
+        .budget2-progress-step.current {
+          color: #e7b86f;
+        }
+
+        .budget2-progress-step.current b {
+          border-color:
+            #d99b45;
+          background: #d99b45;
+          color: #171108;
+        }
+
+        .budget2-progress-step.future {
+          opacity: 0.36;
         }
 
         @media (
-          max-width: 1050px
+          max-width: 900px
         ) {
-          .budget-progress,
-          .budget-summary {
-            position: relative;
-            left: auto;
-            right: auto;
-            top: auto;
-            width: auto;
-            margin-top: 24px;
-          }
-
-          .budget-book {
-            width: 100%;
-            margin-top: 24px;
-          }
-
-          .budget-stage {
-            padding-bottom:
-              110px;
-          }
-        }
-
-        @media (
-          max-width: 650px
-        ) {
-          .budget-stage {
-            padding:
-              20px 18px
-              100px;
-          }
-
-          .budget-context {
+          .budget2-nav-links {
             display: none;
           }
 
-          .budget-book {
+          .budget2-nav {
+            left: auto;
+          }
+
+          .budget2-card {
+            width: 76vw;
+          }
+
+          .budget2-progress {
+            display: none;
+          }
+        }
+
+        @media (
+          max-width: 620px
+        ) {
+          .budget2-card {
+            width: 88vw;
             padding:
-              40px 26px;
+              30px 24px;
           }
 
-          .budget-book h1 {
-            font-size: 40px;
+          .budget2-card h1 {
+            font-size: 38px;
           }
 
-          .budget-actions {
-            flex-direction: column;
+          .budget2-actions {
+            width: 88%;
+            flex-direction:
+              column;
+            bottom: 7%;
           }
 
-          .budget-actions button {
+          .budget2-actions button {
             width: 100%;
           }
 
-          .budget-back {
-            left: 18px;
-            bottom: 34px;
+          .budget2-back {
+            display: none;
+          }
+
+          .budget2-step {
+            top: 11%;
           }
         }
+
       `}</style>
     </main>
   );
