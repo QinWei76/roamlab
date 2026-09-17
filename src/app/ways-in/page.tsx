@@ -7,14 +7,12 @@ import {
   updateWildWayIn,
 } from "@/lib/wildStore";
 
-type WayIn = "drive" | "hike" | "ride" | "paddle";
-
 export default function WaysInPage() {
-  const startWayIn = (wayIn: WayIn) => {
+  const startDrive = () => {
     getOrCreateCurrentWild("My Wild");
 
-    updateWildWayIn(wayIn);
-    updateWildActivities([wayIn]);
+    updateWildWayIn("drive");
+    updateWildActivities(["drive"]);
   };
 
   return (
@@ -32,7 +30,7 @@ export default function WaysInPage() {
           href="/ways-in/drive"
           className="waysin-zone waysin-drive"
           aria-label="Drive"
-          onClick={() => startWayIn("drive")}
+          onClick={startDrive}
         />
 
         {/* HIKE */}
@@ -40,7 +38,6 @@ export default function WaysInPage() {
           href="/ways-in/hike"
           className="waysin-zone waysin-hike"
           aria-label="Hike"
-          onClick={() => startWayIn("hike")}
         />
 
         {/* RIDE */}
@@ -48,7 +45,6 @@ export default function WaysInPage() {
           href="/ways-in/ride"
           className="waysin-zone waysin-ride"
           aria-label="Ride"
-          onClick={() => startWayIn("ride")}
         />
 
         {/* PADDLE */}
@@ -56,7 +52,6 @@ export default function WaysInPage() {
           href="/ways-in/paddle"
           className="waysin-zone waysin-paddle"
           aria-label="Paddle"
-          onClick={() => startWayIn("paddle")}
         />
 
         {/* HOME */}
