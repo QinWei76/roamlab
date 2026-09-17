@@ -2,6 +2,10 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import {
+  getOrCreateCurrentWild,
+  updateWildGearSystem,
+} from "@/lib/wildStore";
 
 type VehicleKey = "suv" | "truck" | "van" | "crossover" | "city";
 type TripKey = "weekend" | "road-trip" | "basecamp" | "remote";
@@ -362,6 +366,40 @@ export default function GearPage() {
     reviewed.safety;
 
   /* -------------------------------------------------------
+     SAVE FINAL GEAR SYSTEM TO CURRENT WILD
+  ------------------------------------------------------- */
+
+  const saveGearSystemToCurrentWild = () => {
+    getOrCreateCurrentWild("My Wild");
+
+    const timestamp = new Date().toISOString();
+
+    const items = (
+      ["personal", "vehicle", "safety"] as GearSystemKey[]
+    ).flatMap((key) =>
+      selectedFor(key).map((item, index) => ({
+        id: `${key}-${index}-${item.name
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-|-$/g, "")}`,
+        name: item.name,
+        category: key,
+        ownershipStatus: "to-buy" as const,
+        priority: item.priority,
+        notes:
+          "Gear requirement identified by RoamLab; ownership/acquisition status not reviewed yet.",
+      }))
+    );
+
+    updateWildGearSystem({
+      items,
+      generatedAt: timestamp,
+      lastUpdatedAt: timestamp,
+    });
+  };
+
+
+  /* -------------------------------------------------------
      REVIEW / NEXT LOGIC
 
      Important:
@@ -412,6 +450,7 @@ export default function GearPage() {
     }
 
     if (completedAll) {
+      saveGearSystemToCurrentWild();
       setActiveSystem(null);
       setShowFinalSystem(true);
     }
