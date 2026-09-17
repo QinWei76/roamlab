@@ -854,13 +854,12 @@ export default function GearPage() {
                     : "Review the categories for this part of your trip system. You can return and edit it at any time."}
                 </div>
 
-                <button
-                  type="button"
-                  className="gearroom-checklist-build"
-                  onClick={reviewAndContinue}
-                >
-                  {actionLabel}
-                </button>
+               <Link
+  href="/wild-plan"
+  className="gearroom-checklist-build is-built"
+>
+  ✓ GEAR SYSTEM BUILT · VIEW WILD PLAN →
+</Link>
 
               </footer>
 
