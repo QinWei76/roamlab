@@ -4,6 +4,11 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import PlannerProgress from "@/components/PlannerProgress";
 
+import {
+  getOrCreateCurrentWild,
+  updateWildDuration,
+} from "@/lib/wildStore";
+
 type VehicleKey =
   | "suv"
   | "truck"
@@ -54,6 +59,39 @@ const durationLabels: Record<
   },
 };
 
+/*
+  Planning baselines.
+
+  These are not final trip dates.
+  They give later RoamLab planning engines
+  a useful working duration until the user
+  provides exact dates.
+*/
+const durationDefaults: Record<
+  DurationKey,
+  {
+    days?: number;
+    nights?: number;
+  }
+> = {
+  overnight: {
+    days: 2,
+    nights: 1,
+  },
+
+  weekend: {
+    days: 3,
+    nights: 2,
+  },
+
+  "multi-day": {
+    days: 7,
+    nights: 6,
+  },
+
+  extended: {},
+};
+
 export default function DurationPage() {
   const [vehicle, setVehicle] =
     useState<VehicleKey>("suv");
@@ -67,15 +105,22 @@ export default function DurationPage() {
   const [people, setPeople] =
     useState<number>(1);
 
-  const [selectedDuration, setSelectedDuration] =
-    useState<DurationKey | null>(null);
+  const [
+    selectedDuration,
+    setSelectedDuration,
+  ] =
+    useState<DurationKey | null>(
+      null
+    );
 
   const [ready, setReady] =
     useState(false);
 
   useEffect(() => {
     const params =
-      new URLSearchParams(window.location.search);
+      new URLSearchParams(
+        window.location.search
+      );
 
     const vehicleValue =
       params.get("vehicle");
@@ -121,10 +166,14 @@ export default function DurationPage() {
       Number(peopleValue);
 
     if (
-      Number.isFinite(parsedPeople) &&
+      Number.isFinite(
+        parsedPeople
+      ) &&
       parsedPeople > 0
     ) {
-      setPeople(parsedPeople);
+      setPeople(
+        parsedPeople
+      );
     }
 
     setReady(true);
@@ -133,11 +182,45 @@ export default function DurationPage() {
   const chooseDuration = (
     duration: DurationKey
   ) => {
-    setSelectedDuration(duration);
+    setSelectedDuration(
+      duration
+    );
   };
 
   const closeSelection = () => {
     setSelectedDuration(null);
+  };
+
+  /*
+    Save Duration into Current Wild
+    BEFORE moving to Total Wild Budget.
+  */
+  const continueToBudget = () => {
+    if (!selectedDuration) {
+      return;
+    }
+
+    getOrCreateCurrentWild(
+      "My Wild"
+    );
+
+    const defaults =
+      durationDefaults[
+        selectedDuration
+      ];
+
+    updateWildDuration(
+      selectedDuration,
+      defaults
+    );
+
+    window.location.href =
+      `/ways-in/drive/budget` +
+      `?vehicle=${vehicle}` +
+      `&trip=${trip}` +
+      `&crew=${crew}` +
+      `&people=${people}` +
+      `&duration=${selectedDuration}`;
   };
 
   if (!ready) {
@@ -153,6 +236,7 @@ export default function DurationPage() {
       <section className="duration2-stage">
 
         {/* BACKGROUND */}
+
         <img
           src="/duration-desk-v2.jpg"
           alt="RoamLab duration planning desk"
@@ -161,6 +245,7 @@ export default function DurationPage() {
         />
 
         {/* REAL HTML LOGO */}
+
         <Link
           href="/"
           className="duration2-logo"
@@ -176,8 +261,10 @@ export default function DurationPage() {
         </Link>
 
         {/* GLOBAL NAV */}
+
         <nav className="duration2-nav">
           <div className="duration2-nav-links">
+
             <Link href="/explore">
               EXPLORE
             </Link>
@@ -209,6 +296,7 @@ export default function DurationPage() {
             <Link href="/badges">
               BADGES
             </Link>
+
           </div>
 
           <Link
@@ -227,6 +315,7 @@ export default function DurationPage() {
         </nav>
 
         {/* PROGRESS */}
+
         <PlannerProgress
           currentStep={4}
           vehicle={vehicle}
@@ -234,86 +323,111 @@ export default function DurationPage() {
         />
 
         {/* HOTSPOTS */}
+
         <button
           type="button"
           className={`duration2-zone duration2-overnight ${
-            selectedDuration === "overnight"
+            selectedDuration ===
+            "overnight"
               ? "selected"
               : ""
           }`}
           onClick={() =>
-            chooseDuration("overnight")
+            chooseDuration(
+              "overnight"
+            )
           }
           aria-label="Choose Overnight"
           aria-pressed={
-            selectedDuration === "overnight"
+            selectedDuration ===
+            "overnight"
           }
         />
 
         <button
           type="button"
           className={`duration2-zone duration2-weekend ${
-            selectedDuration === "weekend"
+            selectedDuration ===
+            "weekend"
               ? "selected"
               : ""
           }`}
           onClick={() =>
-            chooseDuration("weekend")
+            chooseDuration(
+              "weekend"
+            )
           }
           aria-label="Choose Weekend"
           aria-pressed={
-            selectedDuration === "weekend"
+            selectedDuration ===
+            "weekend"
           }
         />
 
         <button
           type="button"
           className={`duration2-zone duration2-multiday ${
-            selectedDuration === "multi-day"
+            selectedDuration ===
+            "multi-day"
               ? "selected"
               : ""
           }`}
           onClick={() =>
-            chooseDuration("multi-day")
+            chooseDuration(
+              "multi-day"
+            )
           }
           aria-label="Choose Multi-Day"
           aria-pressed={
-            selectedDuration === "multi-day"
+            selectedDuration ===
+            "multi-day"
           }
         />
 
         <button
           type="button"
           className={`duration2-zone duration2-extended ${
-            selectedDuration === "extended"
+            selectedDuration ===
+            "extended"
               ? "selected"
               : ""
           }`}
           onClick={() =>
-            chooseDuration("extended")
+            chooseDuration(
+              "extended"
+            )
           }
           aria-label="Choose Extended"
           aria-pressed={
-            selectedDuration === "extended"
+            selectedDuration ===
+            "extended"
           }
         />
 
         {/* BACK */}
+
         <Link
-          href={`/ways-in/drive/crew?vehicle=${vehicle}&trip=${trip}`}
+          href={
+            `/ways-in/drive/crew` +
+            `?vehicle=${vehicle}` +
+            `&trip=${trip}`
+          }
           className="duration2-back"
         >
           ← CREW
         </Link>
 
         {/* SELECTED PANEL */}
+
         {selectedDuration && (
           <div className="duration2-panel">
 
             <button
               type="button"
               className="duration2-panel-close"
-              onClick={closeSelection}
+              onClick={
+                closeSelection
+              }
               aria-label="Close duration selection"
             >
               ×
@@ -341,16 +455,19 @@ export default function DurationPage() {
               </div>
 
               <small>
-                STEP 4 OF 5
+                STEP 4 OF 6
               </small>
             </div>
 
-            <Link
-              href={`/ways-in/drive/gear?vehicle=${vehicle}&trip=${trip}&crew=${crew}&people=${people}&duration=${selectedDuration}`}
+            <button
+              type="button"
               className="duration2-continue"
+              onClick={
+                continueToBudget
+              }
             >
               CONTINUE →
-            </Link>
+            </button>
 
           </div>
         )}
