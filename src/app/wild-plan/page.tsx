@@ -408,7 +408,7 @@ export default function WildPlanPage() {
         ? 25
         : 0,
 
-      enabled: false,
+      enabled: true,
     },
 
     {
@@ -579,6 +579,11 @@ export default function WildPlanPage() {
   ) {
     if (module.key === "adventure") {
       router.push("/ways-in");
+      return;
+    }
+
+    if (module.key === "route") {
+      router.push("/wild-plan/route");
       return;
     }
 
@@ -1060,6 +1065,14 @@ export default function WildPlanPage() {
               module.enabled ? (
                 <span className="openLabel">
                   EDIT ADVENTURE →
+                </span>
+              ) : module.key ===
+                  "route" &&
+                module.enabled ? (
+                <span className="openLabel">
+                  {routeExists
+                    ? "EDIT ROUTE →"
+                    : "BUILD ROUTE →"}
                 </span>
               ) : module.key ===
                   "gear" &&
