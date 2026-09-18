@@ -872,7 +872,14 @@ export default function WildPlanPage() {
       {wild && (
         <section className="wildContext">
 
-          <div className="contextItem">
+          <button
+            type="button"
+            className="contextItem contextItemButton"
+            onClick={() =>
+              router.push("/wild-plan/destination")
+            }
+            aria-label="Edit destination"
+          >
             <span>
               DESTINATION
             </span>
@@ -881,7 +888,7 @@ export default function WildPlanPage() {
               {adventure?.destination?.name ||
                 "Not set"}
             </strong>
-          </div>
+          </button>
 
 
           <div className="contextItem">
@@ -1482,6 +1489,35 @@ export default function WildPlanPage() {
 
         .contextItem:last-child {
           border-right: 0;
+        }
+
+
+        .contextItemButton {
+          width: 100%;
+          border-top: 0;
+          border-left: 0;
+          border-bottom: 0;
+          background: transparent;
+          color: inherit;
+          text-align: left;
+          cursor: pointer;
+          transition:
+            background 180ms ease,
+            box-shadow 180ms ease;
+        }
+
+
+        .contextItemButton:hover {
+          background:
+            rgba(201, 166, 107, 0.045);
+          box-shadow:
+            inset 0 -1px 0
+              rgba(201, 166, 107, 0.42);
+        }
+
+
+        .contextItemButton:hover strong {
+          color: #d1ad70;
         }
 
 
