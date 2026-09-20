@@ -1,5 +1,9 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { getOrCreateCurrentWild, updateWildIntent } from "@/lib/wildStore";
 
 const systems = [
   {
@@ -26,257 +30,73 @@ const systems = [
 ];
 
 export default function StartHerePage() {
+  const router = useRouter();
+
+  function chooseKnownDestination() {
+    getOrCreateCurrentWild("My Wild");
+    updateWildIntent({ destinationMode: "known" });
+    router.push("/wild-plan/destination");
+  }
+
+  function chooseDiscovery() {
+    getOrCreateCurrentWild("My Wild");
+    updateWildIntent({ destinationMode: "discover" });
+    router.push("/start-here/discover");
+  }
+
   return (
     <main className="startHerePage">
-      {/* ================= HERO ================= */}
-
       <section className="startHereHero">
         <Image
           src="/start-here-hero.jpg"
-          alt="Vehicle camping setup"
+          alt="RoamLab outdoor journey"
           fill
           priority
           className="startHereHeroImage"
         />
-
         <div className="startHereOverlay" />
 
         <div className="startHereHeader">
-          <Link href="/" className="startHereLogo">
-            ROAMLAB
-          </Link>
-
+          <Link href="/" className="startHereLogo">ROAMLAB</Link>
           <nav className="startHereNav">
-            <Link href="/">Home</Link>
-            <Link href="/start-here">Start Here</Link>
-            <Link href="/gear-builder">Gear Builder</Link>
-            <Link href="/gear/sleeping">Gear Lab</Link>
+            <Link href="/">HOME</Link>
+            <Link href="/wild-plan">YOUR WILD PLAN</Link>
           </nav>
         </div>
 
         <div className="startHereHeroContent">
-          <p className="startHereEyebrow">START HERE</p>
-
-          <h1>
-            Build Your First
-            <br />
-            Car Camping System
-          </h1>
-
+          <p className="startHereEyebrow">START YOUR WILD</p>
+          <h1>Where does your<br />Wild begin?</h1>
           <p>
-            Start simple. Build smart. Create your complete vehicle system.
+            Bring the place — or just bring the idea.
+            RoamLab can build from either.
           </p>
 
-          <Link
-            href="/gear-builder"
-            className="startHereHeroButton"
-          >
-            Start Building →
-          </Link>
-        </div>
-      </section>
+          <div className="wildEntryChoices">
+            <button type="button" className="wildEntryChoice" onClick={chooseKnownDestination}>
+              <span className="wildEntryNumber">01</span>
+              <span className="wildEntryCopy">
+                <strong>I KNOW WHERE I WANT TO GO</strong>
+                <small>Start with a place you already have in mind.</small>
+              </span>
+              <span className="wildEntryArrow">→</span>
+            </button>
 
-      {/* ================= INTRO ================= */}
+            <div className="wildEntryOr"><span />OR<span /></div>
 
-      <section className="startHereIntro">
-        <div className="startHereIntroLabel">
-          THE ROAMLAB METHOD
-        </div>
-
-        <div className="startHereIntroContent">
-          <h2>
-            Build your camping setup
-            <br />
-            one layer at a time.
-          </h2>
-
-          <p>
-            You do not need to buy everything at once.
-            Start with the essentials, learn what works for you,
-            and build your system as your adventures grow.
-          </p>
-        </div>
-      </section>
-
-      {/* ================= SYSTEM CARDS ================= */}
-
-      <section className="startHereSystems">
-        <div className="startHereSectionHeading">
-          <p>BUILD YOUR SYSTEM</p>
-
-          <h2>
-            Start simple.
-            <br />
-            Grow when you need to.
-          </h2>
-        </div>
-
-        <div className="startHereSystemGrid">
-          {systems.map((system) => (
-            <Link
-              href={system.href}
-              key={system.number}
-              className="startHereSystemCard"
-            >
-              <div className="startHereSystemImage">
-                <Image
-                  src={system.image}
-                  alt={system.title}
-                  fill
-                  className="startHereCardImage"
-                />
-              </div>
-
-              <div className="startHereSystemContent">
-                <span className="startHereSystemNumber">
-                  {system.number}
-                </span>
-
-                <h3>{system.title}</h3>
-
-                <p>{system.description}</p>
-
-                <span className="startHereSystemLink">
-                  Explore →
-                </span>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* ================= PHILOSOPHY ================= */}
-
-      <section className="startHerePhilosophy">
-        <div className="startHerePhilosophyImage">
-          <Image
-            src="/road-trip.jpg"
-            alt="Road trip camping"
-            fill
-            className="startHerePhilosophyPhoto"
-          />
-        </div>
-
-        <div className="startHerePhilosophyContent">
-          <p>BUILD WITH PURPOSE</p>
-
-          <h2>
-            Your vehicle is
-            <br />
-            the foundation.
-          </h2>
-
-          <div className="startHerePhilosophyText">
-            <p>
-              A good camping setup is not about owning
-              the most gear.
-            </p>
-
-            <p>
-              It is about choosing the right equipment
-              for your vehicle, your travel style,
-              and the way you actually camp.
-            </p>
+            <button type="button" className="wildEntryChoice" onClick={chooseDiscovery}>
+              <span className="wildEntryNumber">02</span>
+              <span className="wildEntryCopy">
+                <strong>HELP ME FIND A WILD</strong>
+                <small>Tell us what you want to do. We’ll help find where it could happen.</small>
+              </span>
+              <span className="wildEntryArrow">→</span>
+            </button>
           </div>
 
-          <Link
-            href="/gear-builder"
-            className="startHereTextButton"
-          >
-            Build your system →
-          </Link>
+          <div className="wildEntryNote">You can change any part of your Wild later.</div>
         </div>
       </section>
-
-      {/* ================= FINAL CTA ================= */}
-
-      <section className="startHereCTA">
-        <div className="startHereCTABg">
-          <Image
-            src="/complete-system.jpg"
-            alt="Complete camping system"
-            fill
-            className="startHereCTAImage"
-          />
-        </div>
-
-        <div className="startHereCTAOverlay" />
-
-        <div className="startHereCTAContent">
-          <p>READY TO BUILD?</p>
-
-          <h2>
-            Build Your
-            <br />
-            Complete System
-          </h2>
-
-          <span>
-            Start with your vehicle. Choose your gear.
-            Create your setup.
-          </span>
-
-          <Link
-            href="/gear-builder"
-            className="startHereCTAButton"
-          >
-            Start Building →
-          </Link>
-        </div>
-      </section>
-
-      {/* ================= FOOTER ================= */}
-
-      <footer className="startHereFooter">
-        <div className="startHereFooterBrand">
-          <h2>ROAMLAB</h2>
-
-          <p>Build smarter vehicle camping systems.</p>
-
-          <span>
-            Practical guides, gear research and simple systems
-            for better adventures on the road.
-          </span>
-        </div>
-
-        <div className="startHereFooterColumn">
-          <h4>EXPLORE</h4>
-
-          <Link href="/start-here">Start Here</Link>
-          <Link href="/gear-builder">Gear Builder</Link>
-          <Link href="/gear/sleeping">Gear Lab</Link>
-        </div>
-
-        <div className="startHereFooterColumn">
-          <h4>SYSTEMS</h4>
-
-          <Link href="/gear/sleeping">Sleeping</Link>
-          <Link href="/gear/power">Power</Link>
-          <Link href="/gear/cooking">Cooking</Link>
-          <Link href="/gear/storage">Storage</Link>
-          <Link href="/gear/lighting">Lighting</Link>
-        </div>
-
-        <div className="startHereFooterColumn">
-          <h4>LEGAL</h4>
-
-          <Link href="/affiliate-disclosure">
-            Affiliate Disclosure
-          </Link>
-
-          <Link href="/privacy">
-            Privacy Policy
-          </Link>
-
-          <Link href="/terms">
-            Terms of Use
-          </Link>
-        </div>
-      </footer>
-
-      <div className="startHereCopyright">
-        © 2026 RoamLab. All rights reserved.
-      </div>
 
       {/* ================= PAGE STYLES ================= */}
 
@@ -837,6 +657,93 @@ export default function StartHerePage() {
           font-size: 13px;
         }
 
+
+        /* WILD ENTRY */
+
+        .wildEntryChoices {
+          width: min(620px, calc(100vw - 48px));
+          margin-top: 38px;
+        }
+
+        .wildEntryChoice {
+          width: 100%;
+          min-height: 112px;
+          display: grid;
+          grid-template-columns: 42px 1fr 30px;
+          gap: 16px;
+          align-items: center;
+          padding: 24px 26px;
+          border: 1px solid rgba(235, 211, 164, 0.26);
+          border-radius: 3px;
+          background: rgba(18, 23, 19, 0.62);
+          color: white;
+          text-align: left;
+          cursor: pointer;
+          backdrop-filter: blur(5px);
+          transition: 0.2s ease;
+        }
+
+        .wildEntryChoice:hover {
+          transform: translateY(-2px);
+          border-color: rgba(235, 199, 128, 0.56);
+          background: rgba(31, 34, 25, 0.78);
+          box-shadow: 0 0 36px rgba(190, 142, 64, 0.10);
+        }
+
+        .wildEntryNumber {
+          align-self: start;
+          padding-top: 2px;
+          color: rgba(229, 199, 141, 0.58);
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 2px;
+        }
+
+        .wildEntryCopy {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .wildEntryCopy strong {
+          font-size: 13px;
+          letter-spacing: 1.6px;
+        }
+
+        .wildEntryCopy small {
+          color: rgba(255,255,255,0.62);
+          font-size: 13px;
+          line-height: 1.5;
+        }
+
+        .wildEntryArrow {
+          color: rgba(235, 207, 153, 0.78);
+          font-size: 20px;
+        }
+
+        .wildEntryOr {
+          height: 34px;
+          display: grid;
+          grid-template-columns: 1fr auto 1fr;
+          gap: 12px;
+          align-items: center;
+          padding: 0 16px;
+          color: rgba(255,255,255,0.35);
+          font-size: 8px;
+          font-weight: 700;
+          letter-spacing: 2px;
+        }
+
+        .wildEntryOr span {
+          height: 1px;
+          background: rgba(255,255,255,0.12);
+        }
+
+        .wildEntryNote {
+          margin-top: 18px;
+          color: rgba(255,255,255,0.42);
+          font-size: 11px;
+        }
 
         /* MOBILE */
 
