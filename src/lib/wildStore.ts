@@ -5,6 +5,7 @@ import type {
   WildDestination,
   WildDurationType,
   WildGearSystem,
+  WildIntent,
   WildPrepare,
   WildSafety,
   WildKnowledge,
@@ -248,6 +249,32 @@ export function updateWildIdentity(input: {
       input.visibility !== undefined
         ? input.visibility
         : wild.visibility,
+  }));
+}
+
+
+/* =========================================================
+   WILD INTENT / DESTINATION DISCOVERY
+   ========================================================= */
+
+export function updateWildIntent(
+  intent: Partial<WildIntent>
+): Wild {
+  return updateCurrentWild((wild) => ({
+    ...wild,
+
+    plan: {
+      ...wild.plan,
+
+      adventure: {
+        ...wild.plan.adventure,
+
+        intent: {
+          ...wild.plan.adventure.intent,
+          ...intent,
+        },
+      },
+    },
   }));
 }
 
