@@ -188,6 +188,69 @@ export interface WildSchedule {
 
 
 /* =========================================================
+   WILD INTENT / DESTINATION DISCOVERY
+
+   Wild Intent captures what the user wants from a Wild
+   BEFORE a destination is necessarily known.
+
+   It is discovery context, not a second copy of the full plan.
+   Canonical Crew, Schedule and Budget data remain in their
+   existing plan systems.
+   ========================================================= */
+
+export type WildDestinationMode =
+  | "known"
+  | "discover"
+  | "undecided";
+
+export type WildDifficulty =
+  | "easy"
+  | "moderate"
+  | "challenging"
+  | "not-sure";
+
+export type WildEnvironment =
+  | "mountain"
+  | "forest"
+  | "coast"
+  | "desert"
+  | "lake"
+  | "river"
+  | "grassland"
+  | "snow"
+  | "mixed"
+  | "not-sure";
+
+export type WildVibe =
+  | "quiet"
+  | "scenic"
+  | "remote"
+  | "social"
+  | "adventure"
+  | "relaxed"
+  | "not-sure";
+
+export interface WildIntentOrigin {
+  name: string;
+  region?: string;
+  country?: string;
+  coordinates?: WildCoordinates;
+}
+
+export interface WildIntent {
+  destinationMode?: WildDestinationMode;
+  activities?: WildActivity[];
+  difficulty?: WildDifficulty;
+  environments?: WildEnvironment[];
+  vibes?: WildVibe[];
+  startingFrom?: WildIntentOrigin;
+  maxTravelDistanceKm?: number;
+  prompt?: string;
+  notes?: string;
+}
+
+
+/* =========================================================
    CREW
    ========================================================= */
 
@@ -313,6 +376,13 @@ export interface WildConditions {
    ========================================================= */
 
 export interface WildAdventure {
+  /*
+   * A Wild can begin as an intent before a destination is known.
+   * Destination Discovery can later write the selected destination
+   * back into this same Adventure.
+   */
+  intent?: WildIntent;
+
   destination?: WildDestination;
 
   schedule?: WildSchedule;
@@ -906,6 +976,8 @@ export interface CreateWildInput {
   title?: string;
 
   visibility?: WildVisibility;
+
+  intent?: WildIntent;
 
   destination?: WildDestination;
 
