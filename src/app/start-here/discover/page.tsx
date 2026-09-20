@@ -261,16 +261,22 @@ export default function WildDiscoveryPage() {
             ))}
 
             <button
-              type="button"
-              className={
-                activity === null
-                  ? "discoverOption"
-                  : "discoverOption"
-              }
-              onClick={() => setActivity(null)}
-            >
-              I&apos;M NOT SURE
-            </button>
+  type="button"
+  className={
+    activity === "other"
+      ? "discoverOption active"
+      : "discoverOption"
+  }
+  onClick={() =>
+    setActivity(
+      activity === "other"
+        ? null
+        : "other"
+    )
+  }
+>
+  I&apos;M NOT SURE
+</button>
           </div>
         </section>
 
