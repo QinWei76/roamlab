@@ -7,12 +7,14 @@ import {
   getOrCreateCurrentWild,
   updateWildIntent,
   updateWildActivities,
+  updateWildSchedule,
 } from "@/lib/wildStore";
 import type {
   WildActivity,
   WildDifficulty,
   WildEnvironment,
   WildVibe,
+  WildTimingMode,
 } from "@/types/wild";
 
 const activityOptions: {
@@ -81,9 +83,35 @@ export default function WildDiscoveryPage() {
   const [travelDistance, setTravelDistance] =
     useState("");
 
+  const [timingMode, setTimingMode] =
+    useState<WildTimingMode>("undecided");
+
+  const [startDate, setStartDate] =
+    useState("");
+
+  const [endDate, setEndDate] =
+    useState("");
+
   useEffect(() => {
     const wild = getOrCreateCurrentWild("My Wild");
     const intent = wild.plan.adventure.intent;
+    const schedule = wild.plan.adventure.schedule;
+
+    if (schedule?.timingMode) {
+      setTimingMode(schedule.timingMode);
+    } else if (schedule?.startDate || schedule?.endDate) {
+      setTimingMode(
+        schedule.flexibleDates ? "flexible" : "exact"
+      );
+    }
+
+    if (schedule?.startDate) {
+      setStartDate(schedule.startDate);
+    }
+
+    if (schedule?.endDate) {
+      setEndDate(schedule.endDate);
+    }
 
     if (!intent) return;
 
@@ -159,6 +187,20 @@ export default function WildDiscoveryPage() {
     if (activity) {
       updateWildActivities([activity]);
     }
+
+    updateWildSchedule({
+      timingMode,
+      startDate:
+        timingMode === "undecided"
+          ? undefined
+          : startDate || undefined,
+      endDate:
+        timingMode === "undecided"
+          ? undefined
+          : endDate || undefined,
+      flexibleDates:
+        timingMode === "flexible",
+    });
 
     router.push("/start-here/discover/matches");
   }
@@ -442,6 +484,114 @@ export default function WildDiscoveryPage() {
               </div>
             </div>
           </div>
+        </section>
+
+        <section className="discoverSection">
+          <div className="discoverSectionTitle">
+            <span>06</span>
+
+            <div>
+              <p>WHEN DO YOU WANT TO GO?</p>
+              <small>
+                Timing helps us avoid Wilds that do not fit the season.
+              </small>
+            </div>
+          </div>
+
+          <div className="discoverOptions">
+            <button
+              type="button"
+              className={
+                timingMode === "exact"
+                  ? "discoverOption active"
+                  : "discoverOption"
+              }
+              onClick={() => setTimingMode("exact")}
+            >
+              EXACT DATES
+            </button>
+
+            <button
+              type="button"
+              className={
+                timingMode === "flexible"
+                  ? "discoverOption active"
+                  : "discoverOption"
+              }
+              onClick={() => setTimingMode("flexible")}
+            >
+              FLEXIBLE
+            </button>
+
+            <button
+              type="button"
+              className={
+                timingMode === "undecided"
+                  ? "discoverOption active"
+                  : "discoverOption"
+              }
+              onClick={() => {
+                setTimingMode("undecided");
+                setStartDate("");
+                setEndDate("");
+              }}
+            >
+              I&apos;M NOT SURE
+            </button>
+          </div>
+
+          {timingMode !== "undecided" && (
+            <div className="discoverTravelGrid discoverDateGrid">
+              <div className="discoverField">
+                <label htmlFor="startDate">
+                  {timingMode === "exact"
+                    ? "START DATE"
+                    : "EARLIEST DATE"}
+                </label>
+
+                <input
+                  id="startDate"
+                  type="date"
+                  value={startDate}
+                  onChange={(event) =>
+                    setStartDate(event.target.value)
+                  }
+                />
+              </div>
+
+              <div className="discoverField">
+                <label htmlFor="endDate">
+                  {timingMode === "exact"
+                    ? "END DATE"
+                    : "LATEST DATE"}
+                </label>
+
+                <input
+                  id="endDate"
+                  type="date"
+                  min={startDate || undefined}
+                  value={endDate}
+                  onChange={(event) =>
+                    setEndDate(event.target.value)
+                  }
+                />
+              </div>
+            </div>
+          )}
+
+          {timingMode === "flexible" && (
+            <p className="discoverTimingNote">
+              Dates can stay open for now. We will use any range you add
+              as a preference, not a fixed commitment.
+            </p>
+          )}
+
+          {timingMode === "undecided" && (
+            <p className="discoverTimingNote">
+              No date needed yet. We can still start with the kind of
+              Wild you want.
+            </p>
+          )}
         </section>
 
         <div className="discoverAction">
@@ -953,6 +1103,30 @@ export default function WildDiscoveryPage() {
           letter-spacing: 1.5px;
         }
 
+        .discoverDateGrid {
+          margin-top: 22px;
+        }
+
+        .discoverField input[type="date"] {
+          color-scheme: dark;
+        }
+
+        .discoverTimingNote {
+          max-width: 820px;
+          margin: 16px 0 0 53px;
+
+          color:
+            rgba(
+              235,
+              228,
+              214,
+              0.38
+            );
+
+          font-size: 11px;
+          line-height: 1.6;
+        }
+
         .discoverAction {
           display: flex;
 
@@ -1120,6 +1294,10 @@ export default function WildDiscoveryPage() {
             grid-template-columns:
               1fr;
 
+            margin-left: 0;
+          }
+
+          .discoverTimingNote {
             margin-left: 0;
           }
 
