@@ -1,4 +1,5 @@
 import type {
+  WildActivity,
   WildIntent,
   WildSchedule,
 } from "@/types/wild";
@@ -25,6 +26,11 @@ export type DestinationMatch =
     whyItFits: string;
   };
 
+type ActivityEvidence =
+  | "structured"
+  | "text"
+  | "none";
+
 /**
  * Normalize text so RIDB names/descriptions can be
  * searched consistently.
@@ -39,13 +45,10 @@ function normalizeText(
 }
 
 /**
- * Basic keyword vocabulary.
+ * Environment matching still uses textual evidence.
  *
- * Important:
- * These keywords are used only as textual evidence
- * from real RIDB names/descriptions.
- *
- * They do NOT invent destination attributes.
+ * We do not yet have a verified structured
+ * environment source equivalent to RIDB activities.
  */
 const ENVIRONMENT_KEYWORDS: Record<
   string,
@@ -107,9 +110,14 @@ const ENVIRONMENT_KEYWORDS: Record<
   ],
 };
 
-const ACTIVITY_KEYWORDS: Record<
-  string,
-  string[]
+/**
+ * Activity keywords are now fallback evidence only.
+ *
+ * If a candidate has been enriched with RIDB
+ * structured activities, these keywords are NOT used.
+ */
+const ACTIVITY_KEYWORDS: Partial<
+  Record<WildActivity, string[]>
 > = {
   drive: [
     "scenic drive",
@@ -349,32 +357,90 @@ function scoreEnvironment(
   };
 }
 
+/**
+ * Match requested activities against verified
+ * structured activity data when available.
+ *
+ * Important distinction:
+ *
+ * activities === undefined
+ * → candidate has not been enriched
+ * → textual fallback is allowed
+ *
+ * activities === []
+ * → candidate has been enriched but RIDB returned
+ *   no activity that maps to RoamLab
+ * → textual fallback is NOT allowed
+ *
+ * activities.length > 0
+ * → use structured activity evidence only
+ */
 function scoreActivities(
   candidate: DestinationCandidate,
   intent?: WildIntent
 ): {
   score: number;
   matched: boolean;
+  evidence: ActivityEvidence;
 } {
-  const activities =
+  const requestedActivities =
     intent?.activities?.filter(
       (activity) =>
         activity !== "other"
     ) ?? [];
 
-  if (activities.length === 0) {
+  if (
+    requestedActivities.length === 0
+  ) {
     return {
       score: 0,
       matched: false,
+      evidence: "none",
     };
   }
 
+  /**
+   * Structured evidence exists.
+   *
+   * This includes an empty array.
+   */
+  if (
+    candidate.activities !== undefined
+  ) {
+    let matches = 0;
+
+    for (
+      const activity of requestedActivities
+    ) {
+      if (
+        candidate.activities.includes(
+          activity
+        )
+      ) {
+        matches += 1;
+      }
+    }
+
+    return {
+      score: matches * 30,
+      matched: matches > 0,
+      evidence: "structured",
+    };
+  }
+
+  /**
+   * No structured activity evidence exists yet.
+   *
+   * Only now do we fall back to textual evidence.
+   */
   const text =
     getCandidateText(candidate);
 
   let matches = 0;
 
-  for (const activity of activities) {
+  for (
+    const activity of requestedActivities
+  ) {
     const keywords =
       ACTIVITY_KEYWORDS[activity];
 
@@ -392,22 +458,40 @@ function scoreActivities(
   return {
     score: matches * 30,
     matched: matches > 0,
+    evidence:
+      matches > 0
+        ? "text"
+        : "none",
   };
 }
 
 function buildWhyItFits(
   candidate: DestinationCandidate,
-  reasons: DestinationMatchReason[]
+  reasons: DestinationMatchReason[],
+  activityEvidence: ActivityEvidence
 ): string {
   const messages: string[] = [];
 
   if (reasons.includes("activity")) {
-    messages.push(
-      "Its recreation information aligns with your activity."
-    );
+    if (
+      activityEvidence ===
+      "structured"
+    ) {
+      messages.push(
+        "Verified recreation activity data matches what you want to do."
+      );
+    } else {
+      messages.push(
+        "Its recreation information suggests a match for your activity."
+      );
+    }
   }
 
-  if (reasons.includes("environment")) {
+  if (
+    reasons.includes(
+      "environment"
+    )
+  ) {
     messages.push(
       "Its landscape information matches the environment you are looking for."
     );
@@ -415,7 +499,8 @@ function buildWhyItFits(
 
   if (
     reasons.includes("distance") &&
-    typeof candidate.distanceKm === "number"
+    typeof candidate.distanceKm ===
+      "number"
   ) {
     messages.push(
       `It is about ${candidate.distanceKm} km from your starting point.`
@@ -442,7 +527,7 @@ function buildWhyItFits(
  * - season
  * - exact date suitability
  *
- * because our current RIDB candidate data does not yet
+ * because our current destination data does not yet
  * contain enough verified information for those claims.
  */
 export function matchDestinations(
@@ -453,9 +538,12 @@ export function matchDestinations(
     candidates,
   } = input;
 
-  const matches: DestinationMatch[] = [];
+  const matches:
+    DestinationMatch[] = [];
 
-  for (const originalCandidate of candidates) {
+  for (
+    const originalCandidate of candidates
+  ) {
     const candidate =
       applyDistance(
         originalCandidate,
@@ -477,10 +565,15 @@ export function matchDestinations(
         intent
       );
 
-    score += activityResult.score;
+    score +=
+      activityResult.score;
 
-    if (activityResult.matched) {
-      reasons.push("activity");
+    if (
+      activityResult.matched
+    ) {
+      reasons.push(
+        "activity"
+      );
     }
 
     const environmentResult =
@@ -489,17 +582,24 @@ export function matchDestinations(
         intent
       );
 
-    score += environmentResult.score;
+    score +=
+      environmentResult.score;
 
-    if (environmentResult.matched) {
-      reasons.push("environment");
+    if (
+      environmentResult.matched
+    ) {
+      reasons.push(
+        "environment"
+      );
     }
 
     if (
       typeof candidate.distanceKm ===
       "number"
     ) {
-      reasons.push("distance");
+      reasons.push(
+        "distance"
+      );
 
       /*
        * Small ranking preference for closer
@@ -508,7 +608,9 @@ export function matchDestinations(
        * Distance is not allowed to dominate
        * activity/environment relevance.
        */
-      if (candidate.distanceKm <= 50) {
+      if (
+        candidate.distanceKm <= 50
+      ) {
         score += 10;
       } else if (
         candidate.distanceKm <= 150
@@ -531,43 +633,49 @@ export function matchDestinations(
     matches.push({
       ...candidate,
 
-      matchScore: score,
+      matchScore:
+        score,
 
       matchReasons,
 
       whyItFits:
         buildWhyItFits(
           candidate,
-          matchReasons
+          matchReasons,
+          activityResult.evidence
         ),
     });
   }
 
-  return matches.sort((a, b) => {
-    if (
-      b.matchScore !==
-      a.matchScore
-    ) {
-      return (
-        b.matchScore -
+  return matches.sort(
+    (a, b) => {
+      if (
+        b.matchScore !==
         a.matchScore
+      ) {
+        return (
+          b.matchScore -
+          a.matchScore
+        );
+      }
+
+      if (
+        typeof a.distanceKm ===
+          "number" &&
+        typeof b.distanceKm ===
+          "number"
+      ) {
+        return (
+          a.distanceKm -
+          b.distanceKm
+        );
+      }
+
+      return a.name.localeCompare(
+        b.name
       );
     }
-
-    if (
-      typeof a.distanceKm === "number" &&
-      typeof b.distanceKm === "number"
-    ) {
-      return (
-        a.distanceKm -
-        b.distanceKm
-      );
-    }
-
-    return a.name.localeCompare(
-      b.name
-    );
-  });
+  );
 }
 
 /**
@@ -580,9 +688,16 @@ export function getTopDestinationMatches(
   const safeLimit =
     Math.max(
       1,
-      Math.min(limit, 10)
+      Math.min(
+        limit,
+        10
+      )
     );
 
-  return matchDestinations(input)
-    .slice(0, safeLimit);
+  return matchDestinations(
+    input
+  ).slice(
+    0,
+    safeLimit
+  );
 }
