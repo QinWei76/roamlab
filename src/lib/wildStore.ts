@@ -439,6 +439,7 @@ export function updateWildDuration(
 export function updateWildSchedule(input: {
   startDate?: string;
   endDate?: string;
+  timingMode?: "exact" | "flexible" | "undecided";
   flexibleDates?: boolean;
 }): Wild {
   return updateCurrentWild((wild) => ({
@@ -454,9 +455,8 @@ export function updateWildSchedule(input: {
           ...wild.plan.adventure.schedule,
 
           startDate: input.startDate,
-
           endDate: input.endDate,
-
+          timingMode: input.timingMode,
           flexibleDates: input.flexibleDates,
         },
       },
