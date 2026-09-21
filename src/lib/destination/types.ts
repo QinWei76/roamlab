@@ -1,3 +1,7 @@
+import type {
+  WildActivity,
+} from "@/types/wild";
+
 export type DestinationSource =
   | "ridb"
   | "nps"
@@ -37,10 +41,22 @@ export interface DestinationCandidate {
   distanceKm?: number;
 
   /**
-   * Destination characteristics.
-   * These will be enriched progressively.
+   * Verified destination activities.
+   *
+   * External provider activity vocabularies
+   * must be mapped into RoamLab WildActivity
+   * values before being stored here.
    */
-  activities?: string[];
+  activities?: WildActivity[];
+
+  /**
+   * Destination environments.
+   *
+   * This remains string[] for now because
+   * we do not yet have a verified structured
+   * environment source equivalent to RIDB
+   * structured activities.
+   */
   environments?: string[];
 
   /**
