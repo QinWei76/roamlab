@@ -174,9 +174,16 @@ export type WildDurationType =
   | "extended"
   | "custom";
 
+export type WildTimingMode =
+  | "exact"
+  | "flexible"
+  | "undecided";
+
 export interface WildSchedule {
   startDate?: string;
   endDate?: string;
+
+  timingMode?: WildTimingMode;
 
   durationType?: WildDurationType;
 
