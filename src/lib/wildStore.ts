@@ -432,7 +432,37 @@ export function updateWildDuration(
   }));
 }
 
+/* =========================================================
+   WILD SCHEDULE / DATES
+   ========================================================= */
 
+export function updateWildSchedule(input: {
+  startDate?: string;
+  endDate?: string;
+  flexibleDates?: boolean;
+}): Wild {
+  return updateCurrentWild((wild) => ({
+    ...wild,
+
+    plan: {
+      ...wild.plan,
+
+      adventure: {
+        ...wild.plan.adventure,
+
+        schedule: {
+          ...wild.plan.adventure.schedule,
+
+          startDate: input.startDate,
+
+          endDate: input.endDate,
+
+          flexibleDates: input.flexibleDates,
+        },
+      },
+    },
+  }));
+}
 /* =========================================================
    DESTINATION
    ========================================================= */
