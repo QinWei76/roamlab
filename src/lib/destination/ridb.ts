@@ -16,8 +16,15 @@ type RidbRecAreaRaw = {
   RecAreaFeeDescription?: string;
 };
 
+type RidbActivityRaw = {
+  ActivityID?: string;
+  ActivityName?: string;
+  ActivityLevel?: number;
+};
+
 type RidbResponse<T> = {
   RECDATA?: T[];
+
   METADATA?: {
     RESULTS?: {
       CURRENT_COUNT?: number;
@@ -37,8 +44,15 @@ export type RidbRecArea = {
   feeDescription?: string;
 };
 
+export type RidbActivity = {
+  id: string;
+  name: string;
+  level?: number;
+};
+
 function getApiKey(): string {
-  const apiKey = process.env.RIDB_API_KEY;
+  const apiKey =
+    process.env.RIDB_API_KEY;
 
   if (!apiKey) {
     throw new Error(
@@ -67,7 +81,8 @@ async function ridbFetch<T>(
   );
 
   if (!response.ok) {
-    const body = await response.text();
+    const body =
+      await response.text();
 
     throw new Error(
       `RIDB request failed: ${response.status} ${response.statusText} ${body}`
@@ -78,13 +93,11 @@ async function ridbFetch<T>(
 }
 
 /**
- * Convert RIDB HTML-rich text into plain text.
+ * RIDB descriptions and fee information
+ * can contain HTML.
  *
- * RIDB descriptions can contain:
- * <p>, <h2>, <a>, <ul>, <li>, etc.
- *
- * We keep the data layer independent from the DOM so this
- * remains safe to run inside Next.js server code.
+ * Convert them into clean plain text before
+ * the data reaches RoamLab.
  */
 function cleanRidbText(
   value?: string
@@ -137,56 +150,92 @@ function isValidLongitude(
 function normalizeRecArea(
   area: RidbRecAreaRaw
 ): RidbRecArea | null {
-  if (!area.RecAreaID || !area.RecAreaName) {
+  if (
+    !area.RecAreaID ||
+    !area.RecAreaName
+  ) {
     return null;
   }
 
   return {
     id: area.RecAreaID,
-    name: area.RecAreaName.trim(),
 
-    description: cleanRidbText(
-      area.RecAreaDescription
-    ),
+    name:
+      area.RecAreaName.trim(),
 
-    latitude: isValidLatitude(
-      area.RecAreaLatitude
-    )
-      ? area.RecAreaLatitude
-      : undefined,
+    description:
+      cleanRidbText(
+        area.RecAreaDescription
+      ),
 
-    longitude: isValidLongitude(
-      area.RecAreaLongitude
-    )
-      ? area.RecAreaLongitude
-      : undefined,
+    latitude:
+      isValidLatitude(
+        area.RecAreaLatitude
+      )
+        ? area.RecAreaLatitude
+        : undefined,
+
+    longitude:
+      isValidLongitude(
+        area.RecAreaLongitude
+      )
+        ? area.RecAreaLongitude
+        : undefined,
 
     mapUrl:
-      area.RecAreaMapURL || undefined,
+      area.RecAreaMapURL ||
+      undefined,
 
     reservationUrl:
       area.RecAreaReservationURL ||
       undefined,
 
-    feeDescription: cleanRidbText(
-      area.RecAreaFeeDescription
-    ),
+    feeDescription:
+      cleanRidbText(
+        area.RecAreaFeeDescription
+      ),
+  };
+}
+
+function normalizeActivity(
+  activity: RidbActivityRaw
+): RidbActivity | null {
+  if (
+    !activity.ActivityID ||
+    !activity.ActivityName
+  ) {
+    return null;
+  }
+
+  return {
+    id: activity.ActivityID,
+
+    name:
+      activity.ActivityName.trim(),
+
+    level:
+      typeof activity.ActivityLevel ===
+      "number"
+        ? activity.ActivityLevel
+        : undefined,
   };
 }
 
 /**
- * Convert normalized RIDB data into RoamLab's
- * provider-independent destination format.
- *
- * A destination candidate requires valid coordinates
- * because distance matching depends on them.
+ * Convert normalized RIDB recreation area
+ * data into RoamLab's provider-independent
+ * destination format.
  */
 export function ridbRecAreaToCandidate(
   area: RidbRecArea
 ): DestinationCandidate | null {
   if (
-    !isValidLatitude(area.latitude) ||
-    !isValidLongitude(area.longitude)
+    !isValidLatitude(
+      area.latitude
+    ) ||
+    !isValidLongitude(
+      area.longitude
+    )
   ) {
     return null;
   }
@@ -196,10 +245,14 @@ export function ridbRecAreaToCandidate(
     sourceId: area.id,
 
     name: area.name,
-    description: area.description,
+    description:
+      area.description,
 
-    latitude: area.latitude,
-    longitude: area.longitude,
+    latitude:
+      area.latitude,
+
+    longitude:
+      area.longitude,
 
     feeDescription:
       area.feeDescription,
@@ -219,23 +272,36 @@ export async function getRidbRecAreas(
     offset?: number;
   }
 ): Promise<RidbRecArea[]> {
-  const params = new URLSearchParams();
+  const params =
+    new URLSearchParams();
 
-  const limit = Math.min(
-    Math.max(options?.limit ?? 10, 1),
-    50
+  const limit =
+    Math.min(
+      Math.max(
+        options?.limit ?? 10,
+        1
+      ),
+      50
+    );
+
+  params.set(
+    "limit",
+    String(limit)
   );
-
-  params.set("limit", String(limit));
 
   params.set(
     "offset",
     String(
-      Math.max(options?.offset ?? 0, 0)
+      Math.max(
+        options?.offset ?? 0,
+        0
+      )
     )
   );
 
-  if (options?.query?.trim()) {
+  if (
+    options?.query?.trim()
+  ) {
     params.set(
       "query",
       options.query.trim()
@@ -249,7 +315,9 @@ export async function getRidbRecAreas(
       `/recareas?${params.toString()}`
     );
 
-  return (data.RECDATA ?? [])
+  return (
+    data.RECDATA ?? []
+  )
     .map(normalizeRecArea)
     .filter(
       (
@@ -260,8 +328,43 @@ export async function getRidbRecAreas(
 }
 
 /**
- * Fetch RIDB recreation areas and return only
- * candidates usable by RoamLab's matching engine.
+ * Retrieve the structured activities
+ * associated with one RIDB Recreation Area.
+ *
+ * Example:
+ * Hiking
+ * Camping
+ * Fishing
+ * Wildlife Viewing
+ */
+export async function getRidbRecAreaActivities(
+  recAreaId: string
+): Promise<RidbActivity[]> {
+  const data =
+    await ridbFetch<
+      RidbResponse<RidbActivityRaw>
+    >(
+      `/recareas/${encodeURIComponent(
+        recAreaId
+      )}/activities`
+    );
+
+  return (
+    data.RECDATA ?? []
+  )
+    .map(normalizeActivity)
+    .filter(
+      (
+        activity
+      ): activity is RidbActivity =>
+        activity !== null
+    );
+}
+
+/**
+ * Fetch recreation areas and convert
+ * them into candidates usable by
+ * RoamLab's matching engine.
  */
 export async function getRidbDestinationCandidates(
   options?: {
@@ -271,10 +374,14 @@ export async function getRidbDestinationCandidates(
   }
 ): Promise<DestinationCandidate[]> {
   const areas =
-    await getRidbRecAreas(options);
+    await getRidbRecAreas(
+      options
+    );
 
   return areas
-    .map(ridbRecAreaToCandidate)
+    .map(
+      ridbRecAreaToCandidate
+    )
     .filter(
       (
         candidate
@@ -293,5 +400,7 @@ export async function getRidbRecArea(
       )}`
     );
 
-  return normalizeRecArea(data);
+  return normalizeRecArea(
+    data
+  );
 }
