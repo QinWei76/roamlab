@@ -15,6 +15,74 @@ export type DestinationMatchReason =
   | "vibe"
   | "season";
 
+/**
+ * Strength / provenance of one piece of
+ * destination evidence.
+ *
+ * verified
+ * → comes from structured provider data
+ *
+ * derived
+ * → inferred by RoamLab from provider text
+ *   or other factual destination metadata
+ */
+export type DestinationEvidenceType =
+  | "verified"
+  | "derived";
+
+/**
+ * Evidence that supports one activity match.
+ */
+export interface DestinationActivityEvidence {
+  activity: WildActivity;
+  type: DestinationEvidenceType;
+  source: DestinationSource;
+}
+
+/**
+ * Evidence that supports one environment /
+ * landscape signal.
+ *
+ * Environment remains a string because RoamLab
+ * does not yet have a structured provider source
+ * equivalent to RIDB Activities.
+ */
+export interface DestinationEnvironmentEvidence {
+  environment: string;
+  type: "derived";
+  source: DestinationSource;
+
+  /**
+   * Short factual signal that caused RoamLab
+   * to identify this environment.
+   *
+   * Example:
+   * "mountain"
+   * "canyon"
+   * "lake"
+   *
+   * Do not store large provider text excerpts here.
+   */
+  signal?: string;
+}
+
+/**
+ * Evidence used to explain why a destination
+ * fits the current Wild.
+ *
+ * This is intentionally separate from matchScore.
+ *
+ * Evidence answers:
+ * "What do we actually know?"
+ *
+ * Ranking answers:
+ * "How should we order the candidates?"
+ */
+export interface DestinationEvidence {
+  activities?: DestinationActivityEvidence[];
+  environments?: DestinationEnvironmentEvidence[];
+}
+
 export interface DestinationCandidate {
   /**
    * Stable external source identity.
@@ -58,6 +126,18 @@ export interface DestinationCandidate {
    * structured activities.
    */
   environments?: string[];
+
+  /**
+   * Explainable evidence layer.
+   *
+   * This does not replace activities,
+   * environments, distanceKm, or matchScore.
+   *
+   * It records WHY RoamLab believes a factual
+   * match exists and where that evidence came
+   * from.
+   */
+  evidence?: DestinationEvidence;
 
   /**
    * Useful factual metadata.
