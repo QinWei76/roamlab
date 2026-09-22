@@ -111,7 +111,7 @@ const ENVIRONMENT_KEYWORDS: Record<
 };
 
 /**
- * Activity keywords are now fallback evidence only.
+ * Activity keywords are fallback evidence only.
  *
  * If a candidate has been enriched with RIDB
  * structured activities, these keywords are NOT used.
@@ -593,116 +593,74 @@ export function matchDestinations(
       );
     }
 
-   if (
-  typeof candidate.distanceKm ===
-    "number"
-) {
-  reasons.push("distance");
-
-  const maxDistance =
-    intent?.maxTravelDistanceKm;
-
-  /**
-   * Travel practicality score.
-   *
-   * When the user has chosen a travel range,
-   * score distance relative to that range
-   * instead of using fixed distance buckets.
-   *
-   * Example with a 500 km range:
-   *
-   * 0 km   → +15
-   * 100 km → +12
-   * 250 km → +8
-   * 400 km → +3
-   * 500 km → +0
-   *
-   * Activity and environment remain the
-   * primary relevance signals.
-   */
-  if (
-    typeof maxDistance === "number" &&
-    maxDistance > 0
-  ) {
-    const distanceRatio =
-      Math.min(
-        candidate.distanceKm /
-          maxDistance,
-        1
-      );
-
-    const distanceScore =
-      Math.round(
-        (1 - distanceRatio) * 15
-      );
-
-    score += distanceScore;
-  } else {
-    /**
-     * No user-selected travel range.
-     *
-     * Keep a small generic proximity bonus
-     * so distance can help break otherwise
-     * similar matches.
-     */
     if (
-      candidate.distanceKm <= 50
+      typeof candidate.distanceKm ===
+        "number"
     ) {
-      score += 10;
-    } else if (
-      candidate.distanceKm <= 150
-    ) {
-      score += 7;
-    } else if (
-      candidate.distanceKm <= 300
-    ) {
-      score += 4;
-    } else {
-      score += 1;
-    }
-  }
-}  if (
-    typeof maxDistance === "number" &&
-    maxDistance > 0
-  ) {
-    const distanceRatio =
-      Math.min(
-        candidate.distanceKm /
-          maxDistance,
-        1
-      );
+      reasons.push("distance");
 
-    const distanceScore =
-      Math.round(
-        (1 - distanceRatio) * 15
-      );
+      const maxDistance =
+        intent?.maxTravelDistanceKm;
 
-    score += distanceScore;
-  } else {
-    /**
-     * No user-selected travel range.
-     *
-     * Keep a small generic proximity bonus
-     * so distance can help break otherwise
-     * similar matches.
-     */
-    if (
-      candidate.distanceKm <= 50
-    ) {
-      score += 10;
-    } else if (
-      candidate.distanceKm <= 150
-    ) {
-      score += 7;
-    } else if (
-      candidate.distanceKm <= 300
-    ) {
-      score += 4;
-    } else {
-      score += 1;
+      /**
+       * Travel practicality score.
+       *
+       * When the user has selected a travel range,
+       * distance is scored relative to that range.
+       *
+       * Example with a 500 km range:
+       *
+       * 0 km   → +15
+       * 100 km → +12
+       * 250 km → about +8
+       * 400 km → +3
+       * 500 km → +0
+       *
+       * Activity and environment remain the
+       * primary relevance signals.
+       */
+      if (
+        typeof maxDistance === "number" &&
+        maxDistance > 0
+      ) {
+        const distanceRatio =
+          Math.min(
+            candidate.distanceKm /
+              maxDistance,
+            1
+          );
+
+        const distanceScore =
+          Math.round(
+            (1 - distanceRatio) * 15
+          );
+
+        score += distanceScore;
+      } else {
+        /**
+         * No user-selected travel range.
+         *
+         * Keep the original small proximity
+         * preference as a fallback.
+         */
+        if (
+          candidate.distanceKm <= 50
+        ) {
+          score += 10;
+        } else if (
+          candidate.distanceKm <= 150
+        ) {
+          score += 7;
+        } else if (
+          candidate.distanceKm <= 300
+        ) {
+          score += 4;
+        } else {
+          score += 1;
+        }
+      }
     }
-  }
-}
+
     const matchReasons =
       Array.from(
         new Set(reasons)
