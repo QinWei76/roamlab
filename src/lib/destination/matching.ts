@@ -6,6 +6,7 @@ import type {
 
 import type {
   DestinationCandidate,
+  DestinationEnvironmentEvidence,
   DestinationMatchReason,
 } from "@/lib/destination/types";
 
@@ -32,8 +33,8 @@ type ActivityEvidence =
   | "none";
 
 /**
- * Normalize text so RIDB names/descriptions can be
- * searched consistently.
+ * Normalize text so RIDB names/descriptions can
+ * be searched consistently.
  */
 function normalizeText(
   value?: string
@@ -45,12 +46,25 @@ function normalizeText(
 }
 
 /**
- * Environment matching still uses textual evidence.
+ * Environment evidence vocabulary.
  *
- * We do not yet have a verified structured
- * environment source equivalent to RIDB activities.
+ * These signals are intentionally conservative.
+ *
+ * We only record low-ambiguity landscape signals
+ * as derived evidence.
+ *
+ * Example:
+ *
+ * "mountain"
+ * → safe mountain signal
+ *
+ * "canyon"
+ * → NOT automatically treated as mountain/desert
+ *
+ * This prevents RoamLab from turning a loose
+ * heuristic into an apparent factual claim.
  */
-const ENVIRONMENT_KEYWORDS: Record<
+const ENVIRONMENT_EVIDENCE_KEYWORDS: Record<
   string,
   string[]
 > = {
@@ -73,17 +87,14 @@ const ENVIRONMENT_KEYWORDS: Record<
   coast: [
     "coast",
     "coastal",
-    "beach",
     "ocean",
     "seashore",
-    "shore",
   ],
 
   desert: [
     "desert",
     "dune",
     "dunes",
-    "canyon",
   ],
 
   lake: [
@@ -106,15 +117,15 @@ const ENVIRONMENT_KEYWORDS: Record<
   snow: [
     "snow",
     "snowfield",
-    "winter",
   ],
 };
 
 /**
  * Activity keywords are fallback evidence only.
  *
- * If a candidate has been enriched with RIDB
- * structured activities, these keywords are NOT used.
+ * If a candidate has already been enriched with
+ * RIDB structured activities, these keywords
+ * are NOT used.
  */
 const ACTIVITY_KEYWORDS: Partial<
   Record<WildActivity, string[]>
@@ -245,8 +256,26 @@ function containsAnyKeyword(
   text: string,
   keywords: string[]
 ): boolean {
-  return keywords.some((keyword) =>
-    text.includes(keyword)
+  return keywords.some(
+    (keyword) =>
+      text.includes(keyword)
+  );
+}
+
+/**
+ * Find the first explicit textual signal.
+ *
+ * We keep the actual matched signal so the
+ * evidence layer can explain what caused the
+ * environment classification.
+ */
+function findFirstKeyword(
+  text: string,
+  keywords: string[]
+): string | undefined {
+  return keywords.find(
+    (keyword) =>
+      text.includes(keyword)
   );
 }
 
@@ -264,11 +293,11 @@ function getCandidateText(
 }
 
 /**
- * Add distance when the user's origin already has
- * real coordinates.
+ * Calculate geographic distance from the
+ * user's starting point.
  *
- * If coordinates are unavailable, distance is simply
- * not used. Matching must still continue.
+ * Candidates outside the selected travel
+ * range are removed.
  */
 function applyDistance(
   candidate: DestinationCandidate,
@@ -284,12 +313,18 @@ function applyDistance(
   const distanceKm =
     calculateRoundedDistanceKm(
       {
-        latitude: origin.latitude,
-        longitude: origin.longitude,
+        latitude:
+          origin.latitude,
+
+        longitude:
+          origin.longitude,
       },
       {
-        latitude: candidate.latitude,
-        longitude: candidate.longitude,
+        latitude:
+          candidate.latitude,
+
+        longitude:
+          candidate.longitude,
       }
     );
 
@@ -297,7 +332,8 @@ function applyDistance(
     intent?.maxTravelDistanceKm;
 
   if (
-    typeof maxDistance === "number" &&
+    typeof maxDistance ===
+      "number" &&
     maxDistance >= 0 &&
     distanceKm > maxDistance
   ) {
@@ -310,24 +346,41 @@ function applyDistance(
   };
 }
 
+/**
+ * Match requested environments against
+ * explicit landscape signals found in the
+ * provider's destination name / description.
+ *
+ * Environment evidence is DERIVED rather
+ * than VERIFIED because RIDB currently does
+ * not provide us with a structured environment
+ * taxonomy equivalent to structured activities.
+ */
 function scoreEnvironment(
   candidate: DestinationCandidate,
   intent?: WildIntent
 ): {
   score: number;
   matched: boolean;
+  evidence:
+    DestinationEnvironmentEvidence[];
 } {
   const environments =
     intent?.environments?.filter(
       (environment) =>
-        environment !== "not-sure" &&
-        environment !== "mixed"
+        environment !==
+          "not-sure" &&
+        environment !==
+          "mixed"
     ) ?? [];
 
-  if (environments.length === 0) {
+  if (
+    environments.length === 0
+  ) {
     return {
       score: 0,
       matched: false,
+      evidence: [],
     };
   }
 
@@ -336,24 +389,51 @@ function scoreEnvironment(
 
   let matches = 0;
 
-  for (const environment of environments) {
-    const keywords =
-      ENVIRONMENT_KEYWORDS[environment];
+  const evidence:
+    DestinationEnvironmentEvidence[] =
+      [];
 
-    if (
-      keywords &&
-      containsAnyKeyword(
+  for (
+    const environment of environments
+  ) {
+    const keywords =
+      ENVIRONMENT_EVIDENCE_KEYWORDS[
+        environment
+      ];
+
+    if (!keywords) {
+      continue;
+    }
+
+    const signal =
+      findFirstKeyword(
         text,
         keywords
-      )
-    ) {
-      matches += 1;
+      );
+
+    if (!signal) {
+      continue;
     }
+
+    matches += 1;
+
+    evidence.push({
+      environment,
+      type: "derived",
+      source:
+        candidate.source,
+      signal,
+    });
   }
 
   return {
-    score: matches * 25,
-    matched: matches > 0,
+    score:
+      matches * 25,
+
+    matched:
+      matches > 0,
+
+    evidence,
   };
 }
 
@@ -364,16 +444,19 @@ function scoreEnvironment(
  * Important distinction:
  *
  * activities === undefined
- * → candidate has not been enriched
- * → textual fallback is allowed
+ *
+ * Candidate has not been enriched.
+ * Textual fallback is allowed.
  *
  * activities === []
- * → candidate has been enriched but RIDB returned
- *   no activity that maps to RoamLab
- * → textual fallback is NOT allowed
+ *
+ * Candidate WAS enriched but RIDB returned
+ * no activity that maps to RoamLab.
+ * Textual fallback is NOT allowed.
  *
  * activities.length > 0
- * → use structured activity evidence only
+ *
+ * Use structured activity evidence only.
  */
 function scoreActivities(
   candidate: DestinationCandidate,
@@ -402,15 +485,17 @@ function scoreActivities(
   /**
    * Structured evidence exists.
    *
-   * This includes an empty array.
+   * This intentionally includes [].
    */
   if (
-    candidate.activities !== undefined
+    candidate.activities !==
+    undefined
   ) {
     let matches = 0;
 
     for (
-      const activity of requestedActivities
+      const activity of
+        requestedActivities
     ) {
       if (
         candidate.activities.includes(
@@ -422,16 +507,23 @@ function scoreActivities(
     }
 
     return {
-      score: matches * 30,
-      matched: matches > 0,
-      evidence: "structured",
+      score:
+        matches * 30,
+
+      matched:
+        matches > 0,
+
+      evidence:
+        "structured",
     };
   }
 
   /**
-   * No structured activity evidence exists yet.
+   * No structured activity evidence
+   * exists yet.
    *
-   * Only now do we fall back to textual evidence.
+   * Only now may RoamLab use textual
+   * fallback evidence.
    */
   const text =
     getCandidateText(candidate);
@@ -439,10 +531,13 @@ function scoreActivities(
   let matches = 0;
 
   for (
-    const activity of requestedActivities
+    const activity of
+      requestedActivities
   ) {
     const keywords =
-      ACTIVITY_KEYWORDS[activity];
+      ACTIVITY_KEYWORDS[
+        activity
+      ];
 
     if (
       keywords &&
@@ -456,8 +551,12 @@ function scoreActivities(
   }
 
   return {
-    score: matches * 30,
-    matched: matches > 0,
+    score:
+      matches * 30,
+
+    matched:
+      matches > 0,
+
     evidence:
       matches > 0
         ? "text"
@@ -465,6 +564,13 @@ function scoreActivities(
   };
 }
 
+/**
+ * Human-readable explanation.
+ *
+ * This remains intentionally conservative.
+ * The richer evidence UI will later use the
+ * structured evidence object directly.
+ */
 function buildWhyItFits(
   candidate: DestinationCandidate,
   reasons: DestinationMatchReason[],
@@ -472,7 +578,11 @@ function buildWhyItFits(
 ): string {
   const messages: string[] = [];
 
-  if (reasons.includes("activity")) {
+  if (
+    reasons.includes(
+      "activity"
+    )
+  ) {
     if (
       activityEvidence ===
       "structured"
@@ -498,7 +608,9 @@ function buildWhyItFits(
   }
 
   if (
-    reasons.includes("distance") &&
+    reasons.includes(
+      "distance"
+    ) &&
     typeof candidate.distanceKm ===
       "number"
   ) {
@@ -507,7 +619,9 @@ function buildWhyItFits(
     );
   }
 
-  if (messages.length === 0) {
+  if (
+    messages.length === 0
+  ) {
     return (
       "This is a real recreation area candidate. " +
       "More destination data is needed before RoamLab can explain a stronger match."
@@ -518,7 +632,8 @@ function buildWhyItFits(
 }
 
 /**
- * Match real destination candidates against a Wild Intent.
+ * Match real destination candidates
+ * against a Wild Intent.
  *
  * V1 intentionally does NOT score:
  *
@@ -527,8 +642,9 @@ function buildWhyItFits(
  * - season
  * - exact date suitability
  *
- * because our current destination data does not yet
- * contain enough verified information for those claims.
+ * because our current destination data
+ * does not yet contain enough verified
+ * information for those claims.
  */
 export function matchDestinations(
   input: DestinationMatchInput
@@ -542,7 +658,8 @@ export function matchDestinations(
     DestinationMatch[] = [];
 
   for (
-    const originalCandidate of candidates
+    const originalCandidate of
+      candidates
   ) {
     const candidate =
       applyDistance(
@@ -557,8 +674,12 @@ export function matchDestinations(
     let score = 0;
 
     const reasons:
-      DestinationMatchReason[] = [];
+      DestinationMatchReason[] =
+        [];
 
+    /**
+     * ACTIVITY
+     */
     const activityResult =
       scoreActivities(
         candidate,
@@ -576,6 +697,9 @@ export function matchDestinations(
       );
     }
 
+    /**
+     * ENVIRONMENT
+     */
     const environmentResult =
       scoreEnvironment(
         candidate,
@@ -593,22 +717,29 @@ export function matchDestinations(
       );
     }
 
+    /**
+     * DISTANCE
+     */
     if (
       typeof candidate.distanceKm ===
         "number"
     ) {
-      reasons.push("distance");
+      reasons.push(
+        "distance"
+      );
 
       const maxDistance =
-        intent?.maxTravelDistanceKm;
+        intent
+          ?.maxTravelDistanceKm;
 
       /**
        * Travel practicality score.
        *
-       * When the user has selected a travel range,
-       * distance is scored relative to that range.
+       * When the user has selected a travel
+       * range, score distance relative to
+       * that range.
        *
-       * Example with a 500 km range:
+       * Example with 500 km:
        *
        * 0 km   → +15
        * 100 km → +12
@@ -616,11 +747,12 @@ export function matchDestinations(
        * 400 km → +3
        * 500 km → +0
        *
-       * Activity and environment remain the
-       * primary relevance signals.
+       * Activity and environment remain
+       * the primary relevance signals.
        */
       if (
-        typeof maxDistance === "number" &&
+        typeof maxDistance ===
+          "number" &&
         maxDistance > 0
       ) {
         const distanceRatio =
@@ -632,27 +764,32 @@ export function matchDestinations(
 
         const distanceScore =
           Math.round(
-            (1 - distanceRatio) * 15
+            (1 - distanceRatio) *
+              15
           );
 
-        score += distanceScore;
+        score +=
+          distanceScore;
       } else {
         /**
          * No user-selected travel range.
          *
-         * Keep the original small proximity
-         * preference as a fallback.
+         * Keep the original small generic
+         * proximity preference.
          */
         if (
-          candidate.distanceKm <= 50
+          candidate.distanceKm <=
+          50
         ) {
           score += 10;
         } else if (
-          candidate.distanceKm <= 150
+          candidate.distanceKm <=
+          150
         ) {
           score += 7;
         } else if (
-          candidate.distanceKm <= 300
+          candidate.distanceKm <=
+          300
         ) {
           score += 4;
         } else {
@@ -666,8 +803,26 @@ export function matchDestinations(
         new Set(reasons)
       );
 
+    /**
+     * Merge evidence rather than replacing it.
+     *
+     * Activity evidence was already created
+     * during RIDB enrichment.
+     *
+     * Environment evidence is created here
+     * from conservative textual signals.
+     */
+    const evidence = {
+      ...candidate.evidence,
+
+      environments:
+        environmentResult.evidence,
+    };
+
     matches.push({
       ...candidate,
+
+      evidence,
 
       matchScore:
         score,
@@ -685,6 +840,10 @@ export function matchDestinations(
 
   return matches.sort(
     (a, b) => {
+      /**
+       * Primary:
+       * overall relevance score.
+       */
       if (
         b.matchScore !==
         a.matchScore
@@ -695,6 +854,10 @@ export function matchDestinations(
         );
       }
 
+      /**
+       * Secondary:
+       * closer destination.
+       */
       if (
         typeof a.distanceKm ===
           "number" &&
@@ -707,6 +870,9 @@ export function matchDestinations(
         );
       }
 
+      /**
+       * Stable final fallback.
+       */
       return a.name.localeCompare(
         b.name
       );
@@ -715,7 +881,8 @@ export function matchDestinations(
 }
 
 /**
- * Convenience helper for the destination discovery UI.
+ * Convenience helper for the
+ * destination discovery UI.
  */
 export function getTopDestinationMatches(
   input: DestinationMatchInput,
