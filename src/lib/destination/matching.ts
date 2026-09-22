@@ -593,7 +593,7 @@ export function matchDestinations(
       );
     }
 
-    if (
+   if (
   typeof candidate.distanceKm ===
     "number"
 ) {
@@ -621,6 +621,47 @@ export function matchDestinations(
    * primary relevance signals.
    */
   if (
+    typeof maxDistance === "number" &&
+    maxDistance > 0
+  ) {
+    const distanceRatio =
+      Math.min(
+        candidate.distanceKm /
+          maxDistance,
+        1
+      );
+
+    const distanceScore =
+      Math.round(
+        (1 - distanceRatio) * 15
+      );
+
+    score += distanceScore;
+  } else {
+    /**
+     * No user-selected travel range.
+     *
+     * Keep a small generic proximity bonus
+     * so distance can help break otherwise
+     * similar matches.
+     */
+    if (
+      candidate.distanceKm <= 50
+    ) {
+      score += 10;
+    } else if (
+      candidate.distanceKm <= 150
+    ) {
+      score += 7;
+    } else if (
+      candidate.distanceKm <= 300
+    ) {
+      score += 4;
+    } else {
+      score += 1;
+    }
+  }
+}  if (
     typeof maxDistance === "number" &&
     maxDistance > 0
   ) {
