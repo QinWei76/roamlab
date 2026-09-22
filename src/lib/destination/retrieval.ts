@@ -12,16 +12,20 @@ import {
   getRidbDestinationCandidates,
 } from "@/lib/destination/ridb";
 
+import {
+  calculateRoundedDistanceKm,
+  isValidGeoPoint,
+} from "@/lib/destination/geo";
+
 export type DestinationRetrievalOptions = {
   /**
    * Maximum number of RIDB results requested
-   * for each retrieval query.
+   * for each retrieval page.
    */
   perQueryLimit?: number;
 
   /**
-   * Maximum size of the final candidate pool
-   * after merging and deduplication.
+   * Maximum size of the final candidate pool.
    */
   maxCandidates?: number;
 };
@@ -35,148 +39,72 @@ const DEFAULT_PER_QUERY_LIMIT = 20;
 const DEFAULT_MAX_CANDIDATES = 60;
 
 /**
- * Retrieval vocabulary.
+ * When we know where the Wild starts,
+ * search deeper into RIDB before applying
+ * RoamLab's geographic filter.
  *
- * These values are used only to FIND potentially
- * relevant real RIDB recreation areas.
- *
- * They are NOT treated as verified destination facts.
- *
- * Final matching still depends on structured evidence
- * and the matching engine.
+ * RIDB currently allows at most 50 results
+ * per request in our provider wrapper.
  */
+const GEO_PAGE_SIZE = 50;
+
+/**
+ * Number of RIDB pages checked for each
+ * retrieval query when geographic intent
+ * is available.
+ *
+ * 3 pages × 50 = up to 150 raw records
+ * per query before deduplication.
+ */
+const GEO_PAGE_COUNT = 3;
+
 const ACTIVITY_RETRIEVAL_TERMS: Partial<
   Record<WildActivity, string[]>
 > = {
-  drive: [
-    "scenic drive",
-  ],
-
-  camp: [
-    "camping",
-  ],
-
-  hike: [
-    "hiking",
-    "trail",
-  ],
-
+  drive: ["scenic drive"],
+  camp: ["camping"],
+  hike: ["hiking", "trail"],
   backpack: [
     "backpacking",
     "wilderness",
   ],
-
-  bike: [
-    "biking",
-    "cycling",
-  ],
-
-  bikepack: [
-    "bikepacking",
-  ],
-
-  kayak: [
-    "kayaking",
-  ],
-
-  canoe: [
-    "canoeing",
-  ],
-
-  paddle: [
-    "paddling",
-  ],
-
-  climb: [
-    "climbing",
-  ],
-
-  fish: [
-    "fishing",
-  ],
-
-  "trail-run": [
-    "trail running",
-  ],
-
-  ski: [
-    "skiing",
-  ],
-
-  snowboard: [
-    "snowboarding",
-  ],
-
-  snowshoe: [
-    "snowshoeing",
-  ],
-
-  overland: [
-    "off road",
-  ],
-
-  beach: [
-    "beach",
-  ],
-
+  bike: ["biking", "cycling"],
+  bikepack: ["bikepacking"],
+  kayak: ["kayaking"],
+  canoe: ["canoeing"],
+  paddle: ["paddling"],
+  climb: ["climbing"],
+  fish: ["fishing"],
+  "trail-run": ["trail running"],
+  ski: ["skiing"],
+  snowboard: ["snowboarding"],
+  snowshoe: ["snowshoeing"],
+  overland: ["off road"],
+  beach: ["beach"],
   photography: [
     "photography",
     "scenic",
   ],
-
-  wildlife: [
-    "wildlife",
-  ],
-
+  wildlife: ["wildlife"],
   "family-outdoors": [
     "family recreation",
   ],
-
-  "dog-outdoors": [
-    "dog",
-  ],
+  "dog-outdoors": ["dog"],
 };
 
 const ENVIRONMENT_RETRIEVAL_TERMS: Partial<
   Record<WildEnvironment, string[]>
 > = {
-  mountain: [
-    "mountain",
-  ],
-
-  forest: [
-    "forest",
-  ],
-
-  coast: [
-    "coast",
-  ],
-
-  desert: [
-    "desert",
-  ],
-
-  lake: [
-    "lake",
-  ],
-
-  river: [
-    "river",
-  ],
-
-  grassland: [
-    "grassland",
-  ],
-
-  snow: [
-    "snow",
-  ],
+  mountain: ["mountain"],
+  forest: ["forest"],
+  coast: ["coast"],
+  desert: ["desert"],
+  lake: ["lake"],
+  river: ["river"],
+  grassland: ["grassland"],
+  snow: ["snow"],
 };
 
-/**
- * Normalize a retrieval query so duplicate queries
- * can be removed reliably.
- */
 function normalizeQuery(
   value: string
 ): string {
@@ -185,10 +113,6 @@ function normalizeQuery(
     .replace(/\s+/g, " ");
 }
 
-/**
- * Add a query only when it is meaningful and has
- * not already been added.
- */
 function addQuery(
   queries: string[],
   seen: Set<string>,
@@ -216,22 +140,11 @@ function addQuery(
   queries.push(normalized);
 }
 
-/**
- * Build a small set of retrieval queries from
- * Wild Intent.
- *
- * Important:
- *
- * Retrieval queries improve candidate recall.
- * They do NOT prove that a destination actually
- * supports an activity or environment.
- */
 export function buildDestinationRetrievalQueries(
   intent?: WildIntent
 ): string[] {
   const queries: string[] = [];
-  const seen =
-    new Set<string>();
+  const seen = new Set<string>();
 
   if (!intent) {
     return queries;
@@ -251,15 +164,11 @@ export function buildDestinationRetrievalQueries(
     ) ?? [];
 
   /**
-   * First create combined queries.
+   * Most specific queries first.
    *
    * Example:
-   *
    * mountain + hiking
    * → "mountain hiking"
-   *
-   * This usually produces a more relevant initial
-   * candidate set than broad generic searches alone.
    */
   for (const environment of environments) {
     const environmentTerms =
@@ -292,12 +201,6 @@ export function buildDestinationRetrievalQueries(
     }
   }
 
-  /**
-   * Then add activity queries.
-   *
-   * These broaden recall when a combined query is
-   * too narrow.
-   */
   for (const activity of activities) {
     const terms =
       ACTIVITY_RETRIEVAL_TERMS[
@@ -313,9 +216,6 @@ export function buildDestinationRetrievalQueries(
     }
   }
 
-  /**
-   * Then add environment queries.
-   */
   for (const environment of environments) {
     const terms =
       ENVIRONMENT_RETRIEVAL_TERMS[
@@ -331,30 +231,15 @@ export function buildDestinationRetrievalQueries(
     }
   }
 
-  /**
-   * User free-text intent can also help retrieval.
-   *
-   * It remains retrieval evidence only.
-   */
   addQuery(
     queries,
     seen,
     intent.prompt
   );
 
-  /**
-   * Keep the MVP query set deliberately small.
-   *
-   * We do not want one Wild Intent to generate
-   * dozens of RIDB requests.
-   */
   return queries.slice(0, 6);
 }
 
-/**
- * Stable identity for deduplicating candidates
- * returned by multiple retrieval queries.
- */
 function getCandidateKey(
   candidate: DestinationCandidate
 ): string {
@@ -365,41 +250,31 @@ function getCandidateKey(
 }
 
 /**
- * Merge candidate groups while preserving the order
- * in which destinations were first discovered.
+ * Deduplicate without truncating.
+ *
+ * Geographic retrieval needs to see the
+ * complete retrieved pool before deciding
+ * which candidates should survive.
  */
-function mergeCandidateGroups(
-  groups: DestinationCandidate[][],
-  maxCandidates: number
+function deduplicateCandidateGroups(
+  groups: DestinationCandidate[][]
 ): DestinationCandidate[] {
   const candidates:
     DestinationCandidate[] = [];
 
-  const seen =
-    new Set<string>();
+  const seen = new Set<string>();
 
   for (const group of groups) {
     for (const candidate of group) {
       const key =
-        getCandidateKey(
-          candidate
-        );
+        getCandidateKey(candidate);
 
       if (seen.has(key)) {
         continue;
       }
 
       seen.add(key);
-      candidates.push(
-        candidate
-      );
-
-      if (
-        candidates.length >=
-        maxCandidates
-      ) {
-        return candidates;
-      }
+      candidates.push(candidate);
     }
   }
 
@@ -407,18 +282,155 @@ function mergeCandidateGroups(
 }
 
 /**
- * Retrieve a relevant pool of real RIDB destination
- * candidates for a Wild Intent.
+ * Determine whether this Wild has enough
+ * geographic information for retrieval-time
+ * distance filtering.
+ */
+function hasGeographicIntent(
+  intent?: WildIntent
+): boolean {
+  const coordinates =
+    intent?.startingFrom?.coordinates;
+
+  const maxDistance =
+    intent?.maxTravelDistanceKm;
+
+  if (
+    !coordinates ||
+    typeof maxDistance !== "number" ||
+    !Number.isFinite(maxDistance) ||
+    maxDistance < 0
+  ) {
+    return false;
+  }
+
+  return isValidGeoPoint({
+    latitude:
+      coordinates.latitude,
+    longitude:
+      coordinates.longitude,
+  });
+}
+
+/**
+ * Keep only candidates inside the user's
+ * geographic range.
  *
- * This function does NOT:
+ * This is retrieval filtering only.
  *
- * - score destinations
- * - claim activity support
- * - claim environment support
- * - enrich structured activities
- * - choose final matches
+ * matching.ts still performs the final
+ * authoritative distance check.
+ */
+function filterCandidatesByDistance(
+  candidates: DestinationCandidate[],
+  intent: WildIntent
+): DestinationCandidate[] {
+  const origin =
+    intent.startingFrom?.coordinates;
+
+  const maxDistance =
+    intent.maxTravelDistanceKm;
+
+  if (
+    !origin ||
+    typeof maxDistance !== "number"
+  ) {
+    return candidates;
+  }
+
+  return candidates
+    .map((candidate) => {
+      const destination = {
+        latitude:
+          candidate.latitude,
+        longitude:
+          candidate.longitude,
+      };
+
+      if (
+        !isValidGeoPoint(destination)
+      ) {
+        return null;
+      }
+
+      const distanceKm =
+        calculateRoundedDistanceKm(
+          {
+            latitude:
+              origin.latitude,
+            longitude:
+              origin.longitude,
+          },
+          destination
+        );
+
+      if (
+        distanceKm >
+        maxDistance
+      ) {
+        return null;
+      }
+
+      return {
+        ...candidate,
+        distanceKm,
+      };
+    })
+    .filter(
+      (
+        candidate
+      ): candidate is DestinationCandidate =>
+        candidate !== null
+    )
+    .sort(
+      (a, b) =>
+        (a.distanceKm ??
+          Number.POSITIVE_INFINITY) -
+        (b.distanceKm ??
+          Number.POSITIVE_INFINITY)
+    );
+}
+
+/**
+ * Retrieve several pages for one RIDB query.
  *
- * Its only job is candidate retrieval.
+ * We only do this when Starting From + Travel
+ * Range are available.
+ */
+async function retrieveGeoAwareQuery(
+  query: string
+): Promise<DestinationCandidate[]> {
+  const pages =
+    await Promise.all(
+      Array.from(
+        {
+          length: GEO_PAGE_COUNT,
+        },
+        (_, index) => {
+          return getRidbDestinationCandidates({
+            query,
+            limit: GEO_PAGE_SIZE,
+            offset:
+              index *
+              GEO_PAGE_SIZE,
+          });
+        }
+      )
+    );
+
+  return deduplicateCandidateGroups(
+    pages
+  );
+}
+
+/**
+ * Retrieve a relevant pool of real RIDB
+ * destination candidates.
+ *
+ * When Starting From + Travel Range exist,
+ * retrieval searches deeper and applies
+ * geographic filtering BEFORE the expensive
+ * activity enrichment stage.
  */
 export async function retrieveDestinationCandidates(
   intent?: WildIntent,
@@ -449,27 +461,36 @@ export async function retrieveDestinationCandidates(
       intent
     );
 
+  const useGeoRetrieval =
+    hasGeographicIntent(intent);
+
   /**
-   * If the Intent does not yet contain enough
-   * information to build a useful query, fall back
-   * to a small generic RIDB candidate set.
-   *
-   * This keeps the pipeline functional without
-   * pretending that the results are personalized.
+   * Generic fallback when there is not yet
+   * enough Intent to build retrieval queries.
    */
   if (queries.length === 0) {
     const candidates =
       await getRidbDestinationCandidates({
         limit: Math.min(
-          perQueryLimit,
-          maxCandidates
+          useGeoRetrieval
+            ? GEO_PAGE_SIZE
+            : perQueryLimit,
+          50
         ),
       });
+
+    const filtered =
+      useGeoRetrieval && intent
+        ? filterCandidatesByDistance(
+            candidates,
+            intent
+          )
+        : candidates;
 
     return {
       queries: [],
       candidates:
-        candidates.slice(
+        filtered.slice(
           0,
           maxCandidates
         ),
@@ -477,17 +498,26 @@ export async function retrieveDestinationCandidates(
   }
 
   /**
-   * Retrieval queries are independent, so they may
-   * run concurrently.
+   * Geographic mode:
    *
-   * buildDestinationRetrievalQueries() caps this at
-   * six requests.
+   * Search deeper into each query before
+   * applying the user's travel radius.
+   *
+   * Standard mode:
+   *
+   * Preserve the lighter V1 retrieval path.
    */
   const groups =
     await Promise.all(
       queries.map(
         async (query) => {
           try {
+            if (useGeoRetrieval) {
+              return await retrieveGeoAwareQuery(
+                query
+              );
+            }
+
             return await getRidbDestinationCandidates({
               query,
               limit:
@@ -505,14 +535,26 @@ export async function retrieveDestinationCandidates(
       )
     );
 
-  const candidates =
-    mergeCandidateGroups(
-      groups,
-      maxCandidates
+  const deduplicated =
+    deduplicateCandidateGroups(
+      groups
     );
+
+  const geographicallyFiltered =
+    useGeoRetrieval && intent
+      ? filterCandidatesByDistance(
+          deduplicated,
+          intent
+        )
+      : deduplicated;
 
   return {
     queries,
-    candidates,
+
+    candidates:
+      geographicallyFiltered.slice(
+        0,
+        maxCandidates
+      ),
   };
 }
