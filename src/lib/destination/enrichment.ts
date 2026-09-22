@@ -1,5 +1,6 @@
 import type {
   DestinationCandidate,
+  DestinationActivityEvidence,
 } from "@/lib/destination/types";
 
 import {
@@ -31,8 +32,33 @@ const DEFAULT_ENRICHMENT_LIMIT = 20;
 const DEFAULT_CONCURRENCY = 5;
 
 /**
- * Enrich one RIDB candidate with verified
- * structured activity data.
+ * Build verified activity evidence from
+ * normalized RoamLab activities.
+ *
+ * These activities came from RIDB's structured
+ * Recreation Area activity endpoint, so their
+ * evidence type is "verified".
+ */
+function buildRidbActivityEvidence(
+  activities: NonNullable<
+    DestinationCandidate["activities"]
+  >
+): DestinationActivityEvidence[] {
+  return activities.map(
+    (activity) => ({
+      activity,
+      type: "verified",
+      source: "ridb",
+    })
+  );
+}
+
+/**
+ * Enrich one RIDB candidate with:
+ *
+ * 1. normalized RoamLab activities
+ * 2. verified evidence describing where those
+ *    activity facts came from
  *
  * Non-RIDB candidates are returned unchanged.
  *
@@ -59,9 +85,34 @@ export async function enrichDestinationCandidate(
         ridbActivities
       );
 
+    const activityEvidence =
+      buildRidbActivityEvidence(
+        activities
+      );
+
     return {
       ...candidate,
+
+      /**
+       * Existing structured activity layer.
+       *
+       * matching.ts continues using this exactly
+       * as before.
+       */
       activities,
+
+      /**
+       * New explainable evidence layer.
+       *
+       * Preserve any evidence that may already
+       * exist on the candidate.
+       */
+      evidence: {
+        ...candidate.evidence,
+
+        activities:
+          activityEvidence,
+      },
     };
   } catch (error) {
     console.error(
@@ -130,7 +181,8 @@ async function enrichBatch(
 
 /**
  * Enrich a controlled subset of destination
- * candidates with verified RIDB activities.
+ * candidates with verified RIDB activities
+ * and their evidence provenance.
  *
  * Candidates outside the enrichment limit remain
  * in the result unchanged.
