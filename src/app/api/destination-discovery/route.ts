@@ -136,18 +136,55 @@ export async function POST(
             longitude:
               match.longitude,
 
+            /**
+             * Normalized destination activities.
+             */
             activities:
               match.activities,
 
+            /**
+             * Destination Evidence V2.
+             *
+             * Activity evidence:
+             * structured RIDB activities are
+             * recorded as verified evidence.
+             *
+             * Environment evidence:
+             * conservative landscape signals
+             * derived from provider destination
+             * information.
+             *
+             * This evidence is intentionally kept
+             * separate from matchScore.
+             */
+            evidence:
+              match.evidence,
+
+            /**
+             * Straight-line geographic distance
+             * calculated from the user's selected
+             * starting point to the destination's
+             * fixed coordinates.
+             */
             distanceKm:
               match.distanceKm,
 
+            /**
+             * RoamLab ranking output.
+             */
             matchScore:
               match.matchScore,
 
             matchReasons:
               match.matchReasons,
 
+            /**
+             * Legacy human-readable explanation.
+             *
+             * Kept for now while the Destination
+             * UI transitions to structured Evidence
+             * V2 presentation.
+             */
             whyItFits:
               match.whyItFits,
           })
