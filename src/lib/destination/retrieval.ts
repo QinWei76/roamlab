@@ -338,59 +338,52 @@ function filterCandidatesByDistance(
     return candidates;
   }
 
-  return candidates
-    .map((candidate) => {
-      const destination = {
-        latitude:
-          candidate.latitude,
-        longitude:
-          candidate.longitude,
-      };
+  const filteredCandidates:
+    DestinationCandidate[] = [];
 
-      if (
-        !isValidGeoPoint(destination)
-      ) {
-        return null;
-      }
+  for (const candidate of candidates) {
+    const destination = {
+      latitude: candidate.latitude,
+      longitude: candidate.longitude,
+    };
 
-      const distanceKm =
-        calculateRoundedDistanceKm(
-          {
-            latitude:
-              origin.latitude,
-            longitude:
-              origin.longitude,
-          },
-          destination
-        );
+    if (
+      !isValidGeoPoint(destination)
+    ) {
+      continue;
+    }
 
-      if (
-        distanceKm >
-        maxDistance
-      ) {
-        return null;
-      }
+    const distanceKm =
+      calculateRoundedDistanceKm(
+        {
+          latitude: origin.latitude,
+          longitude: origin.longitude,
+        },
+        destination
+      );
 
-      return {
-        ...candidate,
-        distanceKm,
-      };
-    })
-    .filter(
-      (
-        candidate
-      ): candidate is DestinationCandidate =>
-        candidate !== null
-    )
-    .sort(
-      (a, b) =>
-        (a.distanceKm ??
-          Number.POSITIVE_INFINITY) -
-        (b.distanceKm ??
-          Number.POSITIVE_INFINITY)
-    );
+    if (
+      distanceKm > maxDistance
+    ) {
+      continue;
+    }
+
+    filteredCandidates.push({
+      ...candidate,
+      distanceKm,
+    });
+  }
+
+  filteredCandidates.sort(
+    (a, b) =>
+      (a.distanceKm ??
+        Number.POSITIVE_INFINITY) -
+      (b.distanceKm ??
+        Number.POSITIVE_INFINITY)
+  );
+
+  return filteredCandidates;
 }
-
 /**
  * Retrieve several pages for one RIDB query.
  *
