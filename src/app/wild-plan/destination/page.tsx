@@ -14,10 +14,22 @@ import {
   updateWildIntent,
 } from "@/lib/wildStore";
 
+import {
+  getOriginLocationById,
+  getOriginLocationLabel,
+  originLocations,
+} from "@/data/originLocations";
+
 type DestinationMode =
   | "choose"
   | "known"
   | "discover";
+
+type TravelRadius =
+  | 150
+  | 300
+  | 500
+  | "anywhere";
 
 type DiscoveryMatch = {
   source: string;
@@ -40,6 +52,33 @@ type DiscoveryResponse = {
   error?: string;
 };
 
+const travelRadiusOptions: {
+  value: TravelRadius;
+  label: string;
+  detail: string;
+}[] = [
+  {
+    value: 150,
+    label: "~150 KM",
+    detail: "Close to home",
+  },
+  {
+    value: 300,
+    label: "~300 KM",
+    detail: "Weekend range",
+  },
+  {
+    value: 500,
+    label: "~500 KM",
+    detail: "Go farther",
+  },
+  {
+    value: "anywhere",
+    label: "ANYWHERE",
+    detail: "No distance limit",
+  },
+];
+
 export default function WildDestinationPage() {
   const router = useRouter();
 
@@ -55,10 +94,19 @@ export default function WildDestinationPage() {
   const [country, setCountry] =
     useState("");
 
+  const [selectedOriginId, setSelectedOriginId] =
+    useState("");
+
+  const [travelRadius, setTravelRadius] =
+    useState<TravelRadius>(300);
+
   const [loaded, setLoaded] =
     useState(false);
 
   const [discovering, setDiscovering] =
+    useState(false);
+
+  const [hasSearched, setHasSearched] =
     useState(false);
 
   const [matches, setMatches] =
@@ -85,6 +133,47 @@ export default function WildDestinationPage() {
       setCountry(
         currentDestination.country || ""
       );
+    }
+
+    const currentIntent =
+      wild?.plan.adventure.intent;
+
+    const currentOrigin =
+      currentIntent?.startingFrom;
+
+    if (currentOrigin) {
+      const existingOrigin =
+        originLocations.find(
+          (location) =>
+            location.name ===
+              currentOrigin.name &&
+            location.region ===
+              currentOrigin.region
+        );
+
+      if (existingOrigin) {
+        setSelectedOriginId(
+          existingOrigin.id
+        );
+      }
+    }
+
+    const currentDistance =
+      currentIntent?.maxTravelDistanceKm;
+
+    if (
+      currentDistance === 150 ||
+      currentDistance === 300 ||
+      currentDistance === 500
+    ) {
+      setTravelRadius(
+        currentDistance
+      );
+    } else if (
+      currentOrigin &&
+      currentDistance === undefined
+    ) {
+      setTravelRadius("anywhere");
     }
 
     setLoaded(true);
@@ -116,46 +205,89 @@ export default function WildDestinationPage() {
     router.push("/wild-plan");
   }
 
+  function openDiscovery() {
+    setMode("discover");
+    setMatches([]);
+    setHasSearched(false);
+    setDiscoveryError("");
+  }
+
   async function discoverDestinations() {
-    const wild = getCurrentWild();
-
-    if (!wild) {
+    if (!selectedOriginId) {
       setDiscoveryError(
-        "Start your Wild first, then come back to discover a destination."
+        "Choose where this Wild begins."
       );
-
       return;
     }
 
-    const intent =
+    const origin =
+      getOriginLocationById(
+        selectedOriginId
+      );
+
+    if (!origin) {
+      setDiscoveryError(
+        "We couldn't read that starting point."
+      );
+      return;
+    }
+
+    const wild =
+      getOrCreateCurrentWild(
+        "My Wild"
+      );
+
+    const existingIntent =
       wild.plan.adventure.intent;
 
-    const schedule =
-      wild.plan.adventure.schedule;
-
-    if (!intent) {
+    if (!existingIntent) {
       setDiscoveryError(
         "Your Wild needs a little more direction before we can find the right places."
       );
-
       return;
     }
 
     setDiscovering(true);
+    setHasSearched(true);
     setDiscoveryError("");
     setMatches([]);
 
     try {
       updateWildIntent({
         destinationMode: "discover",
+
+        startingFrom: {
+          name: origin.name,
+          region: origin.region,
+          country: origin.country,
+          coordinates: {
+            latitude:
+              origin.coordinates.latitude,
+            longitude:
+              origin.coordinates.longitude,
+          },
+        },
+
+        maxTravelDistanceKm:
+          travelRadius === "anywhere"
+            ? undefined
+            : travelRadius,
       });
 
       const latestWild =
         getCurrentWild();
 
       const latestIntent =
-        latestWild?.plan.adventure.intent ??
-        intent;
+        latestWild?.plan.adventure.intent;
+
+      const schedule =
+        latestWild?.plan.adventure.schedule;
+
+      if (!latestIntent) {
+        throw new Error(
+          "Wild intent could not be loaded."
+        );
+      }
 
       const response = await fetch(
         "/api/destination-discovery",
@@ -192,7 +324,7 @@ export default function WildDestinationPage() {
 
       if (nextMatches.length === 0) {
         setDiscoveryError(
-          "No strong matches surfaced yet. Try adjusting your Wild preferences."
+          "No strong matches surfaced inside this range. Try going farther."
         );
       }
     } catch (error) {
@@ -248,6 +380,13 @@ export default function WildDestinationPage() {
     setMode("choose");
     setDiscoveryError("");
     setMatches([]);
+    setHasSearched(false);
+  }
+
+  function editDiscovery() {
+    setMatches([]);
+    setHasSearched(false);
+    setDiscoveryError("");
   }
 
   if (!loaded) {
@@ -260,6 +399,13 @@ export default function WildDestinationPage() {
       />
     );
   }
+
+  const selectedOrigin =
+    selectedOriginId
+      ? getOriginLocationById(
+          selectedOriginId
+        )
+      : undefined;
 
   return (
     <main className="destinationPage">
@@ -354,10 +500,7 @@ export default function WildDestinationPage() {
               <button
                 type="button"
                 className="choiceCard featured"
-                onClick={() => {
-                  setMode("discover");
-                  void discoverDestinations();
-                }}
+                onClick={openDiscovery}
               >
                 <div className="choiceNumber">
                   02
@@ -375,10 +518,10 @@ export default function WildDestinationPage() {
                   </h2>
 
                   <p>
-                    Use the activities,
-                    landscape and direction
-                    already inside your Wild
-                    to surface real places.
+                    Start from home, choose
+                    how far you want to go,
+                    and surface real places
+                    that fit your Wild.
                   </p>
 
                   <span className="choiceAction">
@@ -535,12 +678,185 @@ export default function WildDestinationPage() {
             </h1>
 
             <p className="intro">
-              We are matching the direction
-              of your Wild with real
-              recreation areas. Choose the
-              place that feels like the
-              right beginning.
+              Tell us where this journey
+              begins and how far you want
+              to roam. We will use the
+              direction already inside your
+              Wild to find real places.
             </p>
+
+            {!hasSearched &&
+              !discovering && (
+                <div className="discoverySetup">
+                  <div className="setupBlock">
+                    <div className="setupHeading">
+                      <span className="setupNumber">
+                        01
+                      </span>
+
+                      <div>
+                        <span className="setupLabel">
+                          STARTING FROM
+                        </span>
+
+                        <h2>
+                          Where does this
+                          Wild begin?
+                        </h2>
+                      </div>
+                    </div>
+
+                    <div className="selectWrap">
+                      <select
+                        value={
+                          selectedOriginId
+                        }
+                        onChange={(event) => {
+                          setSelectedOriginId(
+                            event.target.value
+                          );
+                          setDiscoveryError(
+                            ""
+                          );
+                        }}
+                      >
+                        <option value="">
+                          Choose your starting
+                          city
+                        </option>
+
+                        {originLocations.map(
+                          (location) => (
+                            <option
+                              key={
+                                location.id
+                              }
+                              value={
+                                location.id
+                              }
+                            >
+                              {getOriginLocationLabel(
+                                location
+                              )}
+                            </option>
+                          )
+                        )}
+                      </select>
+
+                      <span
+                        className="selectArrow"
+                        aria-hidden="true"
+                      >
+                        ↓
+                      </span>
+                    </div>
+
+                    {selectedOrigin && (
+                      <p className="selectedHint">
+                        THIS WILD STARTS IN{" "}
+                        <strong>
+                          {getOriginLocationLabel(
+                            selectedOrigin
+                          ).toUpperCase()}
+                        </strong>
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="setupBlock radiusBlock">
+                    <div className="setupHeading">
+                      <span className="setupNumber">
+                        02
+                      </span>
+
+                      <div>
+                        <span className="setupLabel">
+                          TRAVEL RANGE
+                        </span>
+
+                        <h2>
+                          How far do you want
+                          to go?
+                        </h2>
+                      </div>
+                    </div>
+
+                    <div className="radiusGrid">
+                      {travelRadiusOptions.map(
+                        (option) => (
+                          <button
+                            type="button"
+                            key={String(
+                              option.value
+                            )}
+                            className={`radiusOption ${
+                              travelRadius ===
+                              option.value
+                                ? "selected"
+                                : ""
+                            }`}
+                            onClick={() =>
+                              setTravelRadius(
+                                option.value
+                              )
+                            }
+                          >
+                            <strong>
+                              {option.label}
+                            </strong>
+
+                            <span>
+                              {option.detail}
+                            </span>
+                          </button>
+                        )
+                      )}
+                    </div>
+
+                    <p className="rangeNote">
+                      RANGE IS BASED ON
+                      APPROXIMATE GEOGRAPHIC
+                      DISTANCE — NOT DRIVING
+                      ROUTE DISTANCE.
+                    </p>
+                  </div>
+
+                  {discoveryError && (
+                    <div className="inlineError">
+                      {discoveryError}
+                    </div>
+                  )}
+
+                  <div className="findAction">
+                    <div>
+                      <span>
+                        READY TO ROAM
+                      </span>
+
+                      <p>
+                        RoamLab will combine
+                        this range with your
+                        Wild&apos;s activities
+                        and landscape
+                        preferences.
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="primaryAction findButton"
+                      onClick={() =>
+                        void discoverDestinations()
+                      }
+                      disabled={
+                        !selectedOriginId
+                      }
+                    >
+                      FIND MY WILD →
+                    </button>
+                  </div>
+                </div>
+              )}
 
             {discovering && (
               <div className="findingPanel">
@@ -554,15 +870,17 @@ export default function WildDestinationPage() {
                   </span>
 
                   <p>
-                    Reading your activities
-                    and landscape
-                    preferences...
+                    Looking for places that
+                    fit your activities,
+                    landscape and travel
+                    range...
                   </p>
                 </div>
               </div>
             )}
 
             {!discovering &&
+              hasSearched &&
               discoveryError && (
                 <div className="errorPanel">
                   <span>
@@ -573,20 +891,67 @@ export default function WildDestinationPage() {
                     {discoveryError}
                   </p>
 
-                  <button
-                    type="button"
-                    onClick={() =>
-                      void discoverDestinations()
-                    }
-                  >
-                    TRY AGAIN →
-                  </button>
+                  <div className="errorActions">
+                    <button
+                      type="button"
+                      onClick={editDiscovery}
+                    >
+                      CHANGE RANGE →
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        void discoverDestinations()
+                      }
+                    >
+                      TRY AGAIN →
+                    </button>
+                  </div>
                 </div>
               )}
 
             {!discovering &&
               matches.length > 0 && (
                 <>
+                  <div className="searchSummary">
+                    <div>
+                      <span>
+                        STARTING FROM
+                      </span>
+
+                      <strong>
+                        {selectedOrigin
+                          ? getOriginLocationLabel(
+                              selectedOrigin
+                            )
+                          : "—"}
+                      </strong>
+                    </div>
+
+                    <div>
+                      <span>
+                        TRAVEL RANGE
+                      </span>
+
+                      <strong>
+                        {travelRadius ===
+                        "anywhere"
+                          ? "Anywhere"
+                          : `~${travelRadius} km`}
+                      </strong>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={
+                        editDiscovery
+                      }
+                    >
+                      CHANGE
+                    </button>
+                  </div>
+
                   <div className="resultsHeader">
                     <span>
                       PLACES FOR THIS WILD
@@ -664,7 +1029,8 @@ export default function WildDestinationPage() {
                                 {Math.round(
                                   match.distanceKm
                                 ).toLocaleString()}{" "}
-                                KM FROM YOUR START
+                                KM GEOGRAPHIC
+                                DISTANCE
                               </p>
                             )}
                           </div>
@@ -693,11 +1059,11 @@ export default function WildDestinationPage() {
                     <button
                       type="button"
                       className="secondaryAction"
-                      onClick={() =>
-                        void discoverDestinations()
+                      onClick={
+                        editDiscovery
                       }
                     >
-                      SEARCH AGAIN
+                      CHANGE START / RANGE
                     </button>
 
                     <button
@@ -764,7 +1130,8 @@ export default function WildDestinationPage() {
         }
 
         button,
-        input {
+        input,
+        select {
           font: inherit;
         }
 
@@ -1244,6 +1611,250 @@ export default function WildDestinationPage() {
           cursor: default;
         }
 
+        .discoverySetup {
+          border-top: 1px solid
+            rgba(255, 255, 255, 0.1);
+        }
+
+        .setupBlock {
+          padding: 34px 0 38px;
+          border-bottom: 1px solid
+            rgba(255, 255, 255, 0.08);
+        }
+
+        .setupHeading {
+          display: grid;
+          grid-template-columns:
+            48px minmax(0, 1fr);
+          gap: 18px;
+          align-items: start;
+        }
+
+        .setupNumber {
+          padding-top: 6px;
+          color: rgba(
+            209,
+            173,
+            112,
+            0.48
+          );
+          font-size: 9px;
+          font-weight: 700;
+          letter-spacing: 0.16em;
+        }
+
+        .setupLabel {
+          display: block;
+          margin-bottom: 8px;
+          color: #b89966;
+          font-size: 8px;
+          font-weight: 700;
+          letter-spacing: 0.2em;
+        }
+
+        .setupHeading h2 {
+          margin: 0;
+          font-family:
+            Georgia,
+            "Times New Roman",
+            serif;
+          font-size: clamp(
+            24px,
+            3vw,
+            34px
+          );
+          line-height: 1.1;
+          font-weight: 400;
+        }
+
+        .selectWrap {
+          position: relative;
+          margin: 28px 0 0 66px;
+          max-width: 610px;
+        }
+
+        .selectWrap select {
+          width: 100%;
+          padding: 18px 46px 18px 0;
+          appearance: none;
+          border: 0;
+          border-bottom: 1px solid
+            rgba(201, 166, 107, 0.4);
+          border-radius: 0;
+          outline: none;
+          background: transparent;
+          color: #f2eee4;
+          cursor: pointer;
+          font-family:
+            Georgia,
+            "Times New Roman",
+            serif;
+          font-size: 22px;
+        }
+
+        .selectWrap select option {
+          background: #171611;
+          color: #f2eee4;
+        }
+
+        .selectArrow {
+          position: absolute;
+          right: 4px;
+          top: 50%;
+          pointer-events: none;
+          color: #b89966;
+          transform: translateY(-50%);
+        }
+
+        .selectedHint {
+          margin: 14px 0 0 66px;
+          color: rgba(
+            242,
+            238,
+            228,
+            0.3
+          );
+          font-size: 7px;
+          font-weight: 700;
+          letter-spacing: 0.14em;
+        }
+
+        .selectedHint strong {
+          color: rgba(
+            209,
+            173,
+            112,
+            0.72
+          );
+          font-weight: 700;
+        }
+
+        .radiusGrid {
+          margin: 28px 0 0 66px;
+          display: grid;
+          grid-template-columns:
+            repeat(4, minmax(0, 1fr));
+          gap: 10px;
+        }
+
+        .radiusOption {
+          min-height: 92px;
+          padding: 16px 13px;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          align-items: flex-start;
+          border: 1px solid
+            rgba(255, 255, 255, 0.09);
+          background: rgba(
+            255,
+            255,
+            255,
+            0.012
+          );
+          color: #f2eee4;
+          cursor: pointer;
+          text-align: left;
+          transition:
+            border-color 160ms ease,
+            background 160ms ease;
+        }
+
+        .radiusOption strong {
+          color: rgba(
+            242,
+            238,
+            228,
+            0.72
+          );
+          font-size: 10px;
+          letter-spacing: 0.12em;
+        }
+
+        .radiusOption span {
+          color: rgba(
+            242,
+            238,
+            228,
+            0.3
+          );
+          font-size: 9px;
+        }
+
+        .radiusOption:hover,
+        .radiusOption.selected {
+          border-color: rgba(
+            209,
+            173,
+            112,
+            0.52
+          );
+          background: rgba(
+            201,
+            166,
+            107,
+            0.065
+          );
+        }
+
+        .radiusOption.selected strong {
+          color: #d1ad70;
+        }
+
+        .rangeNote {
+          margin: 15px 0 0 66px;
+          color: rgba(
+            242,
+            238,
+            228,
+            0.24
+          );
+          font-size: 7px;
+          font-weight: 700;
+          letter-spacing: 0.12em;
+        }
+
+        .inlineError {
+          margin-top: 20px;
+          padding: 14px 0;
+          border-bottom: 1px solid
+            rgba(255, 255, 255, 0.08);
+          color: #caa56b;
+          font-size: 10px;
+        }
+
+        .findAction {
+          padding: 30px 0;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 30px;
+        }
+
+        .findAction > div > span {
+          color: #b89966;
+          font-size: 8px;
+          font-weight: 700;
+          letter-spacing: 0.18em;
+        }
+
+        .findAction p {
+          max-width: 520px;
+          margin: 8px 0 0;
+          color: rgba(
+            242,
+            238,
+            228,
+            0.36
+          );
+          font-size: 10px;
+          line-height: 1.6;
+        }
+
+        .findButton {
+          flex: 0 0 auto;
+        }
+
         .findingPanel {
           min-height: 180px;
           padding: 34px 0;
@@ -1343,13 +1954,76 @@ export default function WildDestinationPage() {
           line-height: 1.7;
         }
 
-        .errorPanel button {
+        .errorActions {
+          display: flex;
+          gap: 24px;
+        }
+
+        .errorActions button {
           padding: 0;
           border: 0;
           background: transparent;
           color: #d1ad70;
           cursor: pointer;
           font-size: 9px;
+          font-weight: 700;
+          letter-spacing: 0.14em;
+        }
+
+        .searchSummary {
+          margin-bottom: 18px;
+          padding: 18px 0;
+          display: grid;
+          grid-template-columns:
+            1fr 1fr auto;
+          gap: 24px;
+          align-items: end;
+          border-top: 1px solid
+            rgba(255, 255, 255, 0.1);
+          border-bottom: 1px solid
+            rgba(255, 255, 255, 0.1);
+        }
+
+        .searchSummary div {
+          display: flex;
+          flex-direction: column;
+          gap: 7px;
+        }
+
+        .searchSummary div span {
+          color: rgba(
+            242,
+            238,
+            228,
+            0.28
+          );
+          font-size: 7px;
+          font-weight: 700;
+          letter-spacing: 0.16em;
+        }
+
+        .searchSummary strong {
+          color: rgba(
+            242,
+            238,
+            228,
+            0.75
+          );
+          font-family:
+            Georgia,
+            "Times New Roman",
+            serif;
+          font-size: 17px;
+          font-weight: 400;
+        }
+
+        .searchSummary button {
+          padding: 0 0 3px;
+          border: 0;
+          background: transparent;
+          color: #d1ad70;
+          cursor: pointer;
+          font-size: 8px;
           font-weight: 700;
           letter-spacing: 0.14em;
         }
@@ -1556,6 +2230,43 @@ export default function WildDestinationPage() {
 
           .secondaryFields {
             grid-template-columns: 1fr;
+          }
+
+          .setupHeading {
+            grid-template-columns:
+              34px minmax(0, 1fr);
+            gap: 12px;
+          }
+
+          .selectWrap,
+          .selectedHint,
+          .radiusGrid,
+          .rangeNote {
+            margin-left: 46px;
+          }
+
+          .radiusGrid {
+            grid-template-columns:
+              repeat(2, minmax(0, 1fr));
+          }
+
+          .findAction {
+            align-items: stretch;
+            flex-direction: column;
+          }
+
+          .findButton {
+            width: 100%;
+          }
+
+          .searchSummary {
+            grid-template-columns:
+              1fr 1fr;
+          }
+
+          .searchSummary button {
+            grid-column: 1 / -1;
+            text-align: left;
           }
 
           .actions,
