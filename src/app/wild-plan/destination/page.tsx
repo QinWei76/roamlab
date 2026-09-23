@@ -1040,40 +1040,6 @@ export default function WildDestinationPage() {
                     </div>
                   </div>
 
-                  <div className="destinationEvidence">
-                    {matches
-                      .slice(0, 5)
-                      .map(
-                        (match, index) => (
-                          <article
-                            key={`evidence-${match.source}-${match.sourceId}`}
-                            className="evidenceItem"
-                          >
-                            <div className="evidenceNumber">
-                              {(index + 1)
-                                .toString()
-                                .padStart(
-                                  2,
-                                  "0"
-                                )}
-                            </div>
-
-                            <div>
-                              <h3>
-                                {match.name}
-                              </h3>
-
-                              {match.whyItFits && (
-                                <p>
-                                  {match.whyItFits}
-                                </p>
-                              )}
-                            </div>
-                          </article>
-                        )
-                      )}
-                  </div>
-
                   <div className="discoverActions">
                     <button
                       type="button"
@@ -2068,7 +2034,7 @@ export default function WildDestinationPage() {
         .destinationBoard {
           position: relative;
           width: 100%;
-          aspect-ratio: 16 / 9;
+          aspect-ratio: 3 / 2;
           overflow: hidden;
 
           /*
@@ -2330,68 +2296,10 @@ export default function WildDestinationPage() {
           letter-spacing: 0.12em;
         }
 
-        .destinationEvidence {
-          width: min(1180px, 100%);
-          margin: 22px auto 0;
-          display: grid;
-          grid-template-columns:
-            repeat(
-              5,
-              minmax(0, 1fr)
-            );
-          border-top: 1px solid
-            rgba(255, 255, 255, 0.08);
-          border-bottom: 1px solid
-            rgba(255, 255, 255, 0.08);
-        }
-
-        .evidenceItem {
-          min-width: 0;
-          padding: 20px 18px;
-          display: grid;
-          grid-template-columns:
-            26px minmax(0, 1fr);
-          gap: 9px;
-          border-right: 1px solid
-            rgba(255, 255, 255, 0.06);
-        }
-
-        .evidenceItem:last-child {
-          border-right: 0;
-        }
-
-        .evidenceNumber {
-          padding-top: 3px;
-          color: rgba(209, 173, 112, 0.52);
-          font-size: 7px;
-          font-weight: 700;
-          letter-spacing: 0.1em;
-        }
-
-        .evidenceItem h3 {
-          margin: 0;
-          color: rgba(242, 238, 228, 0.76);
-          font-family:
-            Georgia,
-            "Times New Roman",
-            serif;
-          font-size: 13px;
-          font-weight: 400;
-          line-height: 1.15;
-        }
-
-        .evidenceItem p {
-          margin: 9px 0 0;
-          color: rgba(242, 238, 228, 0.34);
-          font-size: 8px;
-          line-height: 1.55;
-        }
-
         .destinationBoardSection
           .discoverActions {
           width: min(1180px, 100%);
-          margin-left: auto;
-          margin-right: auto;
+          margin: 26px auto 0;
         }
 
         @media (max-width: 980px) {
@@ -2410,19 +2318,6 @@ export default function WildDestinationPage() {
 
           .boardChange {
             text-align: right;
-          }
-
-          .destinationEvidence {
-            grid-template-columns:
-              repeat(
-                2,
-                minmax(0, 1fr)
-              );
-          }
-
-          .evidenceItem {
-            border-bottom: 1px solid
-              rgba(255, 255, 255, 0.06);
           }
         }
 
@@ -2539,15 +2434,6 @@ export default function WildDestinationPage() {
 
           .destinationBoard {
             min-width: 820px;
-          }
-
-          .destinationEvidence {
-            min-width: 0;
-            grid-template-columns: 1fr;
-          }
-
-          .evidenceItem {
-            border-right: 0;
           }
 
         }
