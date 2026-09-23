@@ -913,13 +913,10 @@ export default function WildDestinationPage() {
 
             {!discovering &&
               matches.length > 0 && (
-                <>
-                  <div className="searchSummary">
-                    <div>
-                      <span>
-                        STARTING FROM
-                      </span>
-
+                <div className="destinationBoardSection">
+                  <div className="boardToolbar">
+                    <div className="boardToolbarItem">
+                      <span>STARTING FROM</span>
                       <strong>
                         {selectedOrigin
                           ? getOriginLocationLabel(
@@ -929,139 +926,167 @@ export default function WildDestinationPage() {
                       </strong>
                     </div>
 
-                    <div>
-                      <span>
-                        TRAVEL RANGE
-                      </span>
-
+                    <div className="boardToolbarItem">
+                      <span>TRAVEL RANGE</span>
                       <strong>
-                        {travelRadius ===
-                        "anywhere"
+                        {travelRadius === "anywhere"
                           ? "Anywhere"
                           : `~${travelRadius} km`}
                       </strong>
                     </div>
 
+                    <div className="boardToolbarCount">
+                      <span>
+                        {matches.length
+                          .toString()
+                          .padStart(
+                            2,
+                            "0"
+                          )}{" "}
+                        PLACES FOUND
+                      </span>
+                    </div>
+
                     <button
                       type="button"
-                      onClick={
-                        editDiscovery
-                      }
+                      className="boardChange"
+                      onClick={editDiscovery}
                     >
-                      CHANGE
+                      CHANGE START / RANGE
                     </button>
                   </div>
 
-                  <div className="resultsHeader">
-                    <span>
-                      PLACES FOR THIS WILD
-                    </span>
+                  <div className="destinationBoard">
+                    <img
+                      src="/destination-board.jpg"
+                      alt=""
+                      aria-hidden="true"
+                      className="destinationBoardImage"
+                      draggable={false}
+                    />
 
-                    <span>
-                      {matches.length
-                        .toString()
-                        .padStart(2, "0")}{" "}
-                      MATCHES
-                    </span>
-                  </div>
+                    <div className="boardShade" />
 
-                  <div className="resultList">
-                    {matches.map(
-                      (match, index) => (
-                        <article
-                          className="resultCard"
-                          key={`${match.source}-${match.sourceId}`}
-                        >
-                          <div className="resultNumber">
-                            {(index + 1)
-                              .toString()
-                              .padStart(
-                                2,
-                                "0"
-                              )}
-                          </div>
+                    {matches
+                      .slice(0, 5)
+                      .map(
+                        (match, index) => (
+                          <button
+                            type="button"
+                            key={`${match.source}-${match.sourceId}`}
+                            className={`destinationPin destinationPin${
+                              index + 1
+                            }`}
+                            onClick={() =>
+                              selectDiscoveredDestination(
+                                match
+                              )
+                            }
+                            aria-label={`Choose ${match.name}`}
+                          >
+                            <span className="pinNumber">
+                              {(index + 1)
+                                .toString()
+                                .padStart(
+                                  2,
+                                  "0"
+                                )}
+                            </span>
 
-                          <div className="resultMain">
-                            <h2>
-                              {match.name}
-                            </h2>
+                            <span className="pinContent">
+                              <strong className="pinName">
+                                {match.name}
+                              </strong>
 
-                            {match.activities &&
-                              match.activities
-                                .length >
-                                0 && (
-                                <div className="activityRow">
-                                  {match.activities
-                                    .slice(0, 5)
-                                    .map(
-                                      (
-                                        activity
-                                      ) => (
-                                        <span
-                                          key={
-                                            activity
-                                          }
-                                        >
-                                          {activity
+                              {match.activities &&
+                                match.activities
+                                  .length > 0 && (
+                                  <span className="pinActivities">
+                                    {match.activities
+                                      .slice(0, 3)
+                                      .map(
+                                        (activity) =>
+                                          activity
                                             .replace(
                                               /-/g,
                                               " "
                                             )
-                                            .toUpperCase()}
-                                        </span>
+                                            .toUpperCase()
                                       )
-                                    )}
-                                </div>
+                                      .join(
+                                        " · "
+                                      )}
+                                  </span>
+                                )}
+
+                              {typeof match.distanceKm ===
+                                "number" && (
+                                <span className="pinDistance">
+                                  {Math.round(
+                                    match.distanceKm
+                                  ).toLocaleString()}{" "}
+                                  KM FROM START
+                                </span>
                               )}
 
-                            {match.whyItFits && (
-                              <p className="whyFit">
-                                {
-                                  match.whyItFits
-                                }
-                              </p>
-                            )}
+                              <span className="pinChoose">
+                                CHOOSE THIS WILD →
+                              </span>
+                            </span>
+                          </button>
+                        )
+                      )}
 
-                            {typeof match.distanceKm ===
-                              "number" && (
-                              <p className="distance">
-                                APPROX.{" "}
-                                {Math.round(
-                                  match.distanceKm
-                                ).toLocaleString()}{" "}
-                                KM GEOGRAPHIC
-                                DISTANCE
-                              </p>
-                            )}
-                          </div>
+                    <div className="boardLegend">
+                      <span>
+                        PLACES FOR THIS WILD
+                      </span>
+                      <span>
+                        REAL DESTINATIONS ·
+                        MATCHED TO YOUR WILD
+                      </span>
+                    </div>
+                  </div>
 
-                          <div className="resultSelect">
-                            <button
-                              type="button"
-                              onClick={() =>
-                                selectDiscoveredDestination(
-                                  match
-                                )
-                              }
-                            >
-                              CHOOSE
-                              <br />
-                              THIS WILD
-                              <span>→</span>
-                            </button>
-                          </div>
-                        </article>
-                      )
-                    )}
+                  <div className="destinationEvidence">
+                    {matches
+                      .slice(0, 5)
+                      .map(
+                        (match, index) => (
+                          <article
+                            key={`evidence-${match.source}-${match.sourceId}`}
+                            className="evidenceItem"
+                          >
+                            <div className="evidenceNumber">
+                              {(index + 1)
+                                .toString()
+                                .padStart(
+                                  2,
+                                  "0"
+                                )}
+                            </div>
+
+                            <div>
+                              <h3>
+                                {match.name}
+                              </h3>
+
+                              {match.whyItFits && (
+                                <p>
+                                  {match.whyItFits}
+                                </p>
+                              )}
+                            </div>
+                          </article>
+                        )
+                      )}
                   </div>
 
                   <div className="discoverActions">
                     <button
                       type="button"
                       className="secondaryAction"
-                      onClick={
-                        editDiscovery
-                      }
+                      onClick={editDiscovery}
                     >
                       CHANGE START / RANGE
                     </button>
@@ -1076,7 +1101,7 @@ export default function WildDestinationPage() {
                       ENTER A PLACE INSTEAD
                     </button>
                   </div>
-                </>
+                </div>
               )}
           </>
         )}
@@ -1970,209 +1995,443 @@ export default function WildDestinationPage() {
           letter-spacing: 0.14em;
         }
 
-        .searchSummary {
-          margin-bottom: 18px;
-          padding: 18px 0;
+        /* DESTINATION BOARD */
+
+        .destinationBoardSection {
+          position: relative;
+          width: min(
+            1380px,
+            calc(100vw - 64px)
+          );
+          left: 50%;
+          transform: translateX(-50%);
+          margin-top: 12px;
+        }
+
+        .boardToolbar {
+          width: min(1180px, 100%);
+          margin: 0 auto 18px;
+          padding: 14px 18px;
+          box-sizing: border-box;
           display: grid;
           grid-template-columns:
-            1fr 1fr auto;
-          gap: 24px;
-          align-items: end;
-          border-top: 1px solid
-            rgba(255, 255, 255, 0.1);
-          border-bottom: 1px solid
-            rgba(255, 255, 255, 0.1);
+            minmax(0, 1.2fr)
+            minmax(0, 0.8fr)
+            auto auto;
+          gap: 28px;
+          align-items: center;
+          border: 1px solid
+            rgba(210, 190, 154, 0.16);
+          background: rgba(15, 14, 11, 0.78);
+          backdrop-filter: blur(10px);
         }
 
-        .searchSummary div {
+        .boardToolbarItem {
+          min-width: 0;
           display: flex;
           flex-direction: column;
-          gap: 7px;
+          gap: 5px;
         }
 
-        .searchSummary div span {
-          color: rgba(
-            242,
-            238,
-            228,
-            0.28
-          );
+        .boardToolbarItem span,
+        .boardToolbarCount span {
+          color: rgba(230, 218, 194, 0.42);
           font-size: 7px;
           font-weight: 700;
           letter-spacing: 0.16em;
         }
 
-        .searchSummary strong {
-          color: rgba(
-            242,
-            238,
-            228,
-            0.75
-          );
+        .boardToolbarItem strong {
+          overflow: hidden;
+          color: rgba(244, 238, 224, 0.82);
           font-family:
             Georgia,
             "Times New Roman",
             serif;
-          font-size: 17px;
+          font-size: 15px;
           font-weight: 400;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
 
-        .searchSummary button {
-          padding: 0 0 3px;
+        .boardToolbarCount {
+          white-space: nowrap;
+        }
+
+        .boardChange {
+          padding: 0;
           border: 0;
           background: transparent;
-          color: #d1ad70;
+          color: #c7a46b;
           cursor: pointer;
           font-size: 8px;
           font-weight: 700;
-          letter-spacing: 0.14em;
+          letter-spacing: 0.13em;
         }
 
-        .resultsHeader {
-          padding: 14px 0;
-          display: flex;
-          justify-content: space-between;
-          border-top: 1px solid
-            rgba(255, 255, 255, 0.1);
-          border-bottom: 1px solid
-            rgba(255, 255, 255, 0.1);
-          color: rgba(
-            242,
-            238,
-            228,
-            0.35
+        .boardChange:hover {
+          color: #ead09b;
+        }
+
+        .destinationBoard {
+          position: relative;
+          width: 100%;
+          aspect-ratio: 16 / 9;
+          overflow: hidden;
+          background: #17130e;
+          box-shadow:
+            0 35px 100px
+              rgba(0, 0, 0, 0.52),
+            0 0 0 1px
+              rgba(255, 255, 255, 0.035);
+        }
+
+        .destinationBoardImage {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          display: block;
+          object-fit: cover;
+          user-select: none;
+          pointer-events: none;
+        }
+
+        .boardShade {
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+          background: linear-gradient(
+            180deg,
+            rgba(7, 6, 4, 0.05) 0%,
+            transparent 30%,
+            transparent 72%,
+            rgba(7, 6, 4, 0.16) 100%
           );
-          font-size: 8px;
-          font-weight: 700;
-          letter-spacing: 0.18em;
         }
 
-        .resultList {
-          border-bottom: 1px solid
-            rgba(255, 255, 255, 0.1);
+        .destinationPin {
+          position: absolute;
+          z-index: 4;
+          padding: 0;
+          border: 0;
+          outline: 0;
+          background: transparent;
+          color: #211d17;
+          cursor: pointer;
+          text-align: left;
+          transform-origin: center;
+          transition:
+            transform 180ms ease,
+            filter 180ms ease;
         }
 
-        .resultCard {
+        .destinationPin:hover {
+          z-index: 8;
+          filter: drop-shadow(
+            0 12px 12px
+              rgba(0, 0, 0, 0.28)
+          );
+        }
+
+        .destinationPin:focus-visible {
+          outline: 2px solid
+            rgba(238, 213, 165, 0.95);
+          outline-offset: 4px;
+        }
+
+        .destinationPin1 {
+          left: 27.1%;
+          top: 25.7%;
+          width: 16.8%;
+          height: 23.8%;
+          transform: rotate(-4.7deg);
+        }
+
+        .destinationPin1:hover {
+          transform:
+            rotate(-4.7deg)
+            translateY(-4px)
+            scale(1.025);
+        }
+
+        .destinationPin2 {
+          left: 62.2%;
+          top: 25.1%;
+          width: 17%;
+          height: 24.5%;
+          transform: rotate(4.7deg);
+        }
+
+        .destinationPin2:hover {
+          transform:
+            rotate(4.7deg)
+            translateY(-4px)
+            scale(1.025);
+        }
+
+        .destinationPin3 {
+          left: 42.6%;
+          top: 43.3%;
+          width: 17.1%;
+          height: 25%;
+          transform: rotate(1deg);
+        }
+
+        .destinationPin3:hover {
+          transform:
+            rotate(1deg)
+            translateY(-4px)
+            scale(1.025);
+        }
+
+        .destinationPin4 {
+          left: 20.8%;
+          top: 62.7%;
+          width: 17%;
+          height: 24.4%;
+          transform: rotate(4.2deg);
+        }
+
+        .destinationPin4:hover {
+          transform:
+            rotate(4.2deg)
+            translateY(-4px)
+            scale(1.025);
+        }
+
+        .destinationPin5 {
+          left: 64.5%;
+          top: 61.6%;
+          width: 17%;
+          height: 24.5%;
+          transform: rotate(5.8deg);
+        }
+
+        .destinationPin5:hover {
+          transform:
+            rotate(5.8deg)
+            translateY(-4px)
+            scale(1.025);
+        }
+
+        .pinNumber {
+          position: absolute;
+          left: 8%;
+          top: 6%;
           display: grid;
-          grid-template-columns:
-            54px minmax(0, 1fr)
-            130px;
-          gap: 24px;
-          padding: 30px 0;
-          border-bottom: 1px solid
-            rgba(255, 255, 255, 0.07);
+          place-items: center;
+          width: 22px;
+          height: 22px;
+          border-radius: 50%;
+          background: rgba(39, 33, 25, 0.88);
+          color: #f2e5c9;
+          font-size: 7px;
+          font-weight: 800;
+          letter-spacing: 0.08em;
+          box-shadow: 0 2px 7px
+            rgba(0, 0, 0, 0.22);
         }
 
-        .resultCard:last-child {
-          border-bottom: 0;
+        .pinContent {
+          position: absolute;
+          left: 8%;
+          right: 8%;
+          bottom: 4%;
+          min-height: 31%;
+          display: flex;
+          flex-direction: column;
+          padding: 5% 3% 1%;
+          box-sizing: border-box;
         }
 
-        .resultNumber {
-          padding-top: 5px;
-          color: rgba(
-            209,
-            173,
-            112,
-            0.5
-          );
-          font-size: 9px;
-          font-weight: 700;
-          letter-spacing: 0.16em;
-        }
-
-        .resultMain h2 {
-          margin: 0;
-          max-width: 600px;
+        .pinName {
+          display: -webkit-box;
+          overflow: hidden;
+          color: #29241d;
           font-family:
             Georgia,
             "Times New Roman",
             serif;
           font-size: clamp(
-            24px,
-            3vw,
-            34px
+            9px,
+            0.9vw,
+            15px
           );
-          line-height: 1.08;
-          font-weight: 400;
-        }
-
-        .activityRow {
-          margin-top: 15px;
-          display: flex;
-          flex-wrap: wrap;
-          gap: 7px;
-        }
-
-        .activityRow span {
-          padding: 6px 8px;
-          border: 1px solid
-            rgba(201, 166, 107, 0.2);
-          color: rgba(
-            209,
-            173,
-            112,
-            0.72
-          );
-          font-size: 7px;
           font-weight: 700;
+          line-height: 1.05;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 2;
+        }
+
+        .pinActivities {
+          margin-top: 4px;
+          overflow: hidden;
+          color: rgba(42, 36, 28, 0.65);
+          font-size: clamp(
+            5px,
+            0.45vw,
+            7px
+          );
+          font-weight: 800;
+          line-height: 1.3;
+          letter-spacing: 0.06em;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .pinDistance {
+          margin-top: 4px;
+          color: rgba(42, 36, 28, 0.55);
+          font-size: clamp(
+            5px,
+            0.42vw,
+            7px
+          );
+          font-weight: 700;
+          letter-spacing: 0.05em;
+        }
+
+        .pinChoose {
+          margin-top: auto;
+          padding-top: 4px;
+          color: #6d4c25;
+          font-size: clamp(
+            5px,
+            0.45vw,
+            7px
+          );
+          font-weight: 900;
+          letter-spacing: 0.07em;
+          opacity: 0;
+          transform: translateY(3px);
+          transition:
+            opacity 150ms ease,
+            transform 150ms ease;
+        }
+
+        .destinationPin:hover
+          .pinChoose,
+        .destinationPin:focus-visible
+          .pinChoose {
+          opacity: 1;
+          transform: translateY(0);
+        }
+
+        .boardLegend {
+          position: absolute;
+          left: 22.5%;
+          right: 18.5%;
+          bottom: 3.8%;
+          z-index: 3;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          pointer-events: none;
+          color: rgba(48, 39, 29, 0.56);
+          font-size: clamp(
+            5px,
+            0.48vw,
+            8px
+          );
+          font-weight: 800;
           letter-spacing: 0.12em;
         }
 
-        .whyFit {
-          max-width: 650px;
-          margin: 16px 0 0;
-          color: rgba(
-            242,
-            238,
-            228,
-            0.48
-          );
-          font-size: 11px;
-          line-height: 1.7;
+        .destinationEvidence {
+          width: min(1180px, 100%);
+          margin: 22px auto 0;
+          display: grid;
+          grid-template-columns:
+            repeat(
+              5,
+              minmax(0, 1fr)
+            );
+          border-top: 1px solid
+            rgba(255, 255, 255, 0.08);
+          border-bottom: 1px solid
+            rgba(255, 255, 255, 0.08);
         }
 
-        .distance {
-          margin: 13px 0 0;
-          color: rgba(
-            242,
-            238,
-            228,
-            0.28
-          );
+        .evidenceItem {
+          min-width: 0;
+          padding: 20px 18px;
+          display: grid;
+          grid-template-columns:
+            26px minmax(0, 1fr);
+          gap: 9px;
+          border-right: 1px solid
+            rgba(255, 255, 255, 0.06);
+        }
+
+        .evidenceItem:last-child {
+          border-right: 0;
+        }
+
+        .evidenceNumber {
+          padding-top: 3px;
+          color: rgba(209, 173, 112, 0.52);
           font-size: 7px;
           font-weight: 700;
-          letter-spacing: 0.14em;
+          letter-spacing: 0.1em;
         }
 
-        .resultSelect {
-          display: flex;
-          align-items: center;
-          justify-content: flex-end;
+        .evidenceItem h3 {
+          margin: 0;
+          color: rgba(242, 238, 228, 0.76);
+          font-family:
+            Georgia,
+            "Times New Roman",
+            serif;
+          font-size: 13px;
+          font-weight: 400;
+          line-height: 1.15;
         }
 
-        .resultSelect button {
-          padding: 12px 0 12px 12px;
-          border: 0;
-          background: transparent;
-          color: #d1ad70;
-          cursor: pointer;
-          text-align: right;
+        .evidenceItem p {
+          margin: 9px 0 0;
+          color: rgba(242, 238, 228, 0.34);
           font-size: 8px;
-          font-weight: 700;
-          line-height: 1.5;
-          letter-spacing: 0.13em;
+          line-height: 1.55;
         }
 
-        .resultSelect button span {
-          display: inline-block;
-          margin-left: 7px;
-          font-size: 14px;
-          transition:
-            transform 160ms ease;
+        .destinationBoardSection
+          .discoverActions {
+          width: min(1180px, 100%);
+          margin-left: auto;
+          margin-right: auto;
         }
 
-        .resultSelect button:hover span {
-          transform: translateX(4px);
+        @media (max-width: 980px) {
+          .destinationBoardSection {
+            width: calc(100vw - 32px);
+          }
+
+          .boardToolbar {
+            grid-template-columns:
+              1fr 1fr;
+          }
+
+          .boardToolbarCount {
+            align-self: center;
+          }
+
+          .boardChange {
+            text-align: right;
+          }
+
+          .destinationEvidence {
+            grid-template-columns:
+              repeat(
+                2,
+                minmax(0, 1fr)
+              );
+          }
+
+          .evidenceItem {
+            border-bottom: 1px solid
+              rgba(255, 255, 255, 0.06);
+          }
         }
 
         .destinationFooter {
@@ -2259,15 +2518,6 @@ export default function WildDestinationPage() {
             width: 100%;
           }
 
-          .searchSummary {
-            grid-template-columns:
-              1fr 1fr;
-          }
-
-          .searchSummary button {
-            grid-column: 1 / -1;
-            text-align: left;
-          }
 
           .actions,
           .discoverActions {
@@ -2280,21 +2530,34 @@ export default function WildDestinationPage() {
             width: 100%;
           }
 
-          .resultCard {
-            grid-template-columns:
-              34px minmax(0, 1fr);
-            gap: 14px;
+          .destinationBoardSection {
+            width: calc(100vw - 20px);
+            overflow-x: auto;
+            padding-bottom: 8px;
           }
 
-          .resultSelect {
-            grid-column: 2;
-            justify-content: flex-start;
+          .boardToolbar {
+            grid-template-columns: 1fr;
+            gap: 12px;
           }
 
-          .resultSelect button {
-            padding-left: 0;
+          .boardChange {
             text-align: left;
           }
+
+          .destinationBoard {
+            min-width: 820px;
+          }
+
+          .destinationEvidence {
+            min-width: 0;
+            grid-template-columns: 1fr;
+          }
+
+          .evidenceItem {
+            border-right: 0;
+          }
+
         }
       `}</style>
     </main>
