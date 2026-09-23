@@ -957,14 +957,6 @@ export default function WildDestinationPage() {
                   </div>
 
                   <div className="destinationBoard">
-                    <img
-                      src="/destination-board.jpg"
-                      alt=""
-                      aria-hidden="true"
-                      className="destinationBoardImage"
-                      draggable={false}
-                    />
-
                     <div className="boardShade" />
 
                     {matches
@@ -2078,23 +2070,23 @@ export default function WildDestinationPage() {
           width: 100%;
           aspect-ratio: 16 / 9;
           overflow: hidden;
-          background: #17130e;
+
+          /*
+           * The physical RoamLab destination desk is the board itself.
+           * The file lives at /public/destination-board.jpg, so Next.js
+           * serves it from /destination-board.jpg.
+           */
+          background-image: url("/destination-board.jpg");
+          background-size: cover;
+          background-position: center center;
+          background-repeat: no-repeat;
+          background-color: #17130e;
+
           box-shadow:
             0 35px 100px
               rgba(0, 0, 0, 0.52),
             0 0 0 1px
               rgba(255, 255, 255, 0.035);
-        }
-
-        .destinationBoardImage {
-          position: absolute;
-          inset: 0;
-          width: 100%;
-          height: 100%;
-          display: block;
-          object-fit: cover;
-          user-select: none;
-          pointer-events: none;
         }
 
         .boardShade {
