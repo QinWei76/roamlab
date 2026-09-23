@@ -92,7 +92,7 @@ export async function GET() {
      *
      * We do not return the entire candidate pool.
      * Instead we expose enough information to verify
-     * retrieval, enrichment and matching.
+     * retrieval, enrichment, evidence and matching.
      */
     return NextResponse.json({
       success: true,
@@ -110,17 +110,16 @@ export async function GET() {
         vibes:
           intent.vibes,
 
-        duration:
-          {
-            type:
-              schedule.durationType,
+        duration: {
+          type:
+            schedule.durationType,
 
-            days:
-              schedule.days,
+          days:
+            schedule.days,
 
-            nights:
-              schedule.nights,
-          },
+          nights:
+            schedule.nights,
+        },
       },
 
       retrievalQueries:
@@ -151,7 +150,7 @@ export async function GET() {
               match.longitude,
 
             /**
-             * This is especially important.
+             * Normalized destination activities.
              *
              * [] means the candidate was enriched
              * but no RIDB activity mapped to a
@@ -162,6 +161,32 @@ export async function GET() {
              */
             activities:
               match.activities,
+
+            /**
+             * Destination Evidence V2.
+             *
+             * This allows the test endpoint to
+             * verify exactly WHY RoamLab considers
+             * a destination relevant.
+             *
+             * Activity evidence should come from
+             * structured RIDB enrichment whenever
+             * available.
+             *
+             * Environment evidence is currently
+             * conservative derived evidence from
+             * explicit destination landscape text.
+             */
+            evidence:
+              match.evidence,
+
+            /**
+             * Calculated geographic distance from
+             * the selected starting point when an
+             * origin is available.
+             */
+            distanceKm:
+              match.distanceKm,
 
             matchScore:
               match.matchScore,
