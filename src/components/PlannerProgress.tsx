@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 type PlannerProgressProps = {
-  currentStep: 1 | 2 | 3 | 4 | 5;
+  currentStep: 1 | 2 | 3 | 4 | 5 | 6;
   vehicle?: string;
   trip?: string;
 };
@@ -24,6 +24,7 @@ export default function PlannerProgress({
     <div className="planner-progress">
       <div className="planner-progress-inner">
 
+        {/* 1 — VEHICLE */}
         <Link
           href="/ways-in/drive"
           className={`planner-step ${
@@ -45,6 +46,7 @@ export default function PlannerProgress({
 
         <span className="planner-line" />
 
+        {/* 2 — TRIP STYLE */}
         {tripHref ? (
           <Link
             href={tripHref}
@@ -65,9 +67,17 @@ export default function PlannerProgress({
             </span>
           </Link>
         ) : (
-          <div className="planner-step">
+          <div
+            className={`planner-step ${
+              currentStep === 2
+                ? "is-current"
+                : currentStep > 2
+                ? "is-done"
+                : ""
+            }`}
+          >
             <span className="planner-step-number">
-              2
+              {currentStep > 2 ? "✓" : "2"}
             </span>
 
             <span className="planner-step-label">
@@ -78,6 +88,7 @@ export default function PlannerProgress({
 
         <span className="planner-line" />
 
+        {/* 3 — CREW */}
         {crewHref ? (
           <Link
             href={crewHref}
@@ -100,11 +111,15 @@ export default function PlannerProgress({
         ) : (
           <div
             className={`planner-step ${
-              currentStep === 3 ? "is-current" : ""
+              currentStep === 3
+                ? "is-current"
+                : currentStep > 3
+                ? "is-done"
+                : ""
             }`}
           >
             <span className="planner-step-number">
-              3
+              {currentStep > 3 ? "✓" : "3"}
             </span>
 
             <span className="planner-step-label">
@@ -115,13 +130,18 @@ export default function PlannerProgress({
 
         <span className="planner-line" />
 
+        {/* 4 — DURATION */}
         <div
           className={`planner-step ${
-            currentStep === 4 ? "is-current" : ""
+            currentStep === 4
+              ? "is-current"
+              : currentStep > 4
+              ? "is-done"
+              : ""
           }`}
         >
           <span className="planner-step-number">
-            4
+            {currentStep > 4 ? "✓" : "4"}
           </span>
 
           <span className="planner-step-label">
@@ -131,13 +151,37 @@ export default function PlannerProgress({
 
         <span className="planner-line" />
 
+        {/* 5 — DESTINATION */}
         <div
           className={`planner-step ${
-            currentStep === 5 ? "is-current" : ""
+            currentStep === 5
+              ? "is-current"
+              : currentStep > 5
+              ? "is-done"
+              : ""
           }`}
         >
           <span className="planner-step-number">
-            5
+            {currentStep > 5 ? "✓" : "5"}
+          </span>
+
+          <span className="planner-step-label">
+            DESTINATION
+          </span>
+        </div>
+
+        <span className="planner-line" />
+
+        {/* 6 — GEAR */}
+        <div
+          className={`planner-step ${
+            currentStep === 6
+              ? "is-current"
+              : ""
+          }`}
+        >
+          <span className="planner-step-number">
+            6
           </span>
 
           <span className="planner-step-label">
