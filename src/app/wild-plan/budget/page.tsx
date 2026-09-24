@@ -11,17 +11,9 @@ import {
 
 import type { WildWayIn } from "@/types/wild";
 
-const BUDGET_PRESETS = [
-  500,
-  1000,
-  2000,
-  3000,
-  5000,
-];
+const BUDGET_PRESETS = [500, 1000, 2000, 3000, 5000];
 
-function getNextRoute(
-  wayIn?: WildWayIn
-): string {
+function getNextRoute(wayIn?: WildWayIn): string {
   switch (wayIn) {
     case "drive":
       return "/ways-in/drive";
@@ -43,9 +35,7 @@ function getNextRoute(
   }
 }
 
-function getWayInLabel(
-  wayIn?: WildWayIn
-): string {
+function getWayInLabel(wayIn?: WildWayIn): string {
   switch (wayIn) {
     case "drive":
       return "DRIVE";
@@ -70,14 +60,9 @@ function getWayInLabel(
 export default function WildBudgetPage() {
   const router = useRouter();
 
-  const [wayIn, setWayIn] =
-    useState<WildWayIn>();
-
-  const [budget, setBudget] =
-    useState("");
-
-  const [error, setError] =
-    useState("");
+  const [wayIn, setWayIn] = useState<WildWayIn>();
+  const [budget, setBudget] = useState("");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const wild = getCurrentWild();
@@ -87,47 +72,34 @@ export default function WildBudgetPage() {
       return;
     }
 
-    const selectedWayIn =
-      wild.plan.adventure.wayIn;
-
+    const selectedWayIn = wild.plan.adventure.wayIn;
     setWayIn(selectedWayIn);
 
-    const existingBudget =
-      wild.plan.cost?.totalWildBudget;
-
-    const budgetStatus =
-      wild.plan.cost?.budgetStatus;
+    const existingBudget = wild.plan.cost?.totalWildBudget;
+    const budgetStatus = wild.plan.cost?.budgetStatus;
 
     if (
       budgetStatus === "set" &&
       typeof existingBudget === "number"
     ) {
-      setBudget(
-        String(existingBudget)
-      );
+      setBudget(String(existingBudget));
     }
   }, [router]);
 
-  function choosePreset(
-    amount: number
-  ) {
+  function choosePreset(amount: number) {
     setBudget(String(amount));
     setError("");
   }
 
-  function handleBudgetChange(
-    value: string
-  ) {
-    const cleaned =
-      value.replace(/[^\d]/g, "");
+  function handleBudgetChange(value: string) {
+    const cleaned = value.replace(/[^\d]/g, "");
 
     setBudget(cleaned);
     setError("");
   }
 
   function continueWithBudget() {
-    const amount =
-      Number(budget);
+    const amount = Number(budget);
 
     if (
       !budget ||
@@ -137,7 +109,6 @@ export default function WildBudgetPage() {
       setError(
         "Enter your budget or choose I DON’T KNOW YET."
       );
-
       return;
     }
 
@@ -147,9 +118,7 @@ export default function WildBudgetPage() {
       currency: "USD",
     });
 
-    router.push(
-      getNextRoute(wayIn)
-    );
+    router.push(getNextRoute(wayIn));
   }
 
   function continueWithoutBudget() {
@@ -158,17 +127,12 @@ export default function WildBudgetPage() {
       currency: "USD",
     });
 
-    router.push(
-      getNextRoute(wayIn)
-    );
+    router.push(getNextRoute(wayIn));
   }
 
-  const formattedBudget =
-    budget
-      ? Number(
-          budget
-        ).toLocaleString("en-US")
-      : "";
+  const formattedBudget = budget
+    ? Number(budget).toLocaleString("en-US")
+    : "";
 
   return (
     <main className="budget-page">
@@ -181,11 +145,11 @@ export default function WildBudgetPage() {
       />
 
       <div
-        className="budget-vignette"
+        className="scene-overlay"
         aria-hidden="true"
       />
 
-      {/* TOP NAV */}
+      {/* NAVIGATION */}
       <nav className="budget-nav">
         <Link
           href="/"
@@ -239,20 +203,22 @@ export default function WildBudgetPage() {
           href="/ways-in"
           className="budget-start"
         >
-          START YOUR WILD →
+          START YOUR WILD
+          <span>→</span>
         </Link>
       </nav>
 
-      {/* BUDGET PANEL */}
+      {/* BUDGET INTERACTION AREA */}
       <section className="budget-panel">
-        <div className="budget-kicker">
-          <span className="budget-line" />
+        {/* CONTEXT */}
+        <div className="budget-context">
+          <span className="context-line" />
 
           <span>
             {getWayInLabel(wayIn)}
           </span>
 
-          <span className="budget-dot">
+          <span className="context-dot">
             •
           </span>
 
@@ -261,45 +227,52 @@ export default function WildBudgetPage() {
           </span>
         </div>
 
-        <h1>
-          TOTAL WILD
-          <br />
-          BUDGET
-        </h1>
+        {/* TITLE */}
+        <div className="budget-heading">
+          <p className="heading-label">
+            PLAN WITHIN YOUR LIMITS
+          </p>
 
-        <p className="budget-question">
-          How much are you comfortable
-          spending on this entire Wild?
-        </p>
+          <h1>
+            TOTAL WILD
+            <br />
+            BUDGET
+          </h1>
 
-        {/* AMOUNT */}
-        <div className="amount-field">
-          <span className="currency">
-            $
-          </span>
-
-          <input
-            type="text"
-            inputMode="numeric"
-            value={formattedBudget}
-            onChange={(event) =>
-              handleBudgetChange(
-                event.target.value
-              )
-            }
-            placeholder="2,000"
-            aria-label="Total Wild Budget"
-          />
-
-          <span className="currency-code">
-            USD
-          </span>
+          <p className="budget-question">
+            How much are you comfortable spending
+            on this entire Wild?
+          </p>
         </div>
 
-        {/* PRESETS */}
-        <div className="budget-presets">
-          {BUDGET_PRESETS.map(
-            (amount) => (
+        {/* MONEY INPUT */}
+        <div className="money-block">
+          <div className="amount-field">
+            <span className="currency">
+              $
+            </span>
+
+            <input
+              type="text"
+              inputMode="numeric"
+              value={formattedBudget}
+              onChange={(event) =>
+                handleBudgetChange(
+                  event.target.value
+                )
+              }
+              placeholder="2,000"
+              aria-label="Total Wild Budget"
+            />
+
+            <span className="currency-code">
+              USD
+            </span>
+          </div>
+
+          {/* PRESETS */}
+          <div className="budget-presets">
+            {BUDGET_PRESETS.map((amount) => (
               <button
                 key={amount}
                 type="button"
@@ -307,8 +280,7 @@ export default function WildBudgetPage() {
                   choosePreset(amount)
                 }
                 className={
-                  Number(budget) ===
-                  amount
+                  Number(budget) === amount
                     ? "preset active"
                     : "preset"
                 }
@@ -318,15 +290,30 @@ export default function WildBudgetPage() {
                   "en-US"
                 )}
               </button>
-            )
-          )}
+            ))}
+          </div>
         </div>
 
-        <p className="budget-description">
-          Travel · campsites · food ·
-          permits · activities · gear
-          you still need
-        </p>
+        {/* COST SCOPE */}
+        <div className="budget-scope">
+          <span className="scope-label">
+            INCLUDES
+          </span>
+
+          <p>
+            TRAVEL
+            <span>•</span>
+            CAMPSITES
+            <span>•</span>
+            FOOD
+            <span>•</span>
+            PERMITS
+            <span>•</span>
+            ACTIVITIES
+            <span>•</span>
+            GEAR GAPS
+          </p>
+        </div>
 
         {error && (
           <p
@@ -337,19 +324,18 @@ export default function WildBudgetPage() {
           </p>
         )}
 
+        {/* ACTIONS */}
         <div className="budget-actions">
           <button
             type="button"
             className="continue-button"
-            onClick={
-              continueWithBudget
-            }
+            onClick={continueWithBudget}
           >
             <span>
               CONTINUE
             </span>
 
-            <span className="arrow">
+            <span className="continue-arrow">
               →
             </span>
           </button>
@@ -365,20 +351,32 @@ export default function WildBudgetPage() {
           </button>
         </div>
 
-        <p className="budget-footnote">
-          Already-owned gear does not
-          count as new spending.
-        </p>
+        {/* NOTE */}
+        <div className="budget-note">
+          <span className="note-number">
+            01
+          </span>
+
+          <p>
+            Gear you already own does not count
+            as new spending.
+          </p>
+        </div>
 
         <Link
           href="/ways-in"
           className="change-way"
         >
-          ← CHANGE WAY IN
+          <span>←</span>
+          CHANGE WAY IN
         </Link>
       </section>
 
       <style jsx>{`
+        /* =====================================================
+           PAGE
+           ===================================================== */
+
         .budget-page {
           position: relative;
 
@@ -388,9 +386,9 @@ export default function WildBudgetPage() {
 
           overflow: hidden;
 
-          background: #090806;
+          background: #080705;
 
-          color: #eee7d8;
+          color: #d7c7a7;
 
           font-family:
             Arial,
@@ -398,9 +396,15 @@ export default function WildBudgetPage() {
             sans-serif;
         }
 
-        /* =========================
+        .budget-page *,
+        .budget-page *::before,
+        .budget-page *::after {
+          box-sizing: border-box;
+        }
+
+        /* =====================================================
            BACKGROUND
-           ========================= */
+           ===================================================== */
 
         .budget-bg {
           position: absolute;
@@ -416,69 +420,88 @@ export default function WildBudgetPage() {
           pointer-events: none;
         }
 
-        .budget-vignette {
+        .scene-overlay {
           position: absolute;
           inset: 0;
+
+          z-index: 1;
 
           pointer-events: none;
 
           background:
             linear-gradient(
               180deg,
-              rgba(0, 0, 0, 0.34)
-                0%,
-              rgba(0, 0, 0, 0.04)
-                20%,
-              rgba(0, 0, 0, 0.02)
-                72%,
-              rgba(0, 0, 0, 0.28)
-                100%
+              rgba(5, 4, 3, 0.48) 0%,
+              rgba(5, 4, 3, 0.06) 15%,
+              rgba(5, 4, 3, 0) 43%,
+              rgba(5, 4, 3, 0.08) 78%,
+              rgba(5, 4, 3, 0.32) 100%
+            ),
+            linear-gradient(
+              90deg,
+              rgba(0, 0, 0, 0) 50%,
+              rgba(6, 4, 2, 0.04) 63%,
+              rgba(6, 4, 2, 0.17) 100%
             );
         }
 
-        /* =========================
+        /* =====================================================
            NAVIGATION
-           ========================= */
+           ===================================================== */
 
         .budget-nav {
           position: absolute;
-          z-index: 20;
+
+          z-index: 30;
 
           top: 0;
           left: 0;
           right: 0;
 
-          height: 72px;
+          height: 68px;
 
           padding:
-            0 34px;
+            0 32px;
 
           display: flex;
           align-items: center;
 
-          box-sizing: border-box;
-
           background:
             linear-gradient(
               180deg,
-              rgba(4, 4, 3, 0.82),
-              rgba(4, 4, 3, 0.32),
-              transparent
+              rgba(4, 4, 3, 0.78) 0%,
+              rgba(4, 4, 3, 0.32) 55%,
+              transparent 100%
             );
         }
 
-        .budget-brand {
+        .budget-nav a,
+        .budget-nav a:link,
+        .budget-nav a:visited,
+        .budget-nav a:active {
+          text-decoration: none;
+        }
+
+        .budget-brand,
+        .budget-brand:link,
+        .budget-brand:visited {
           flex-shrink: 0;
 
-          margin-right: 44px;
+          margin-right: 45px;
 
-          color: #f0e9dc;
+          color: #d8c9aa !important;
 
-          text-decoration: none;
+          font-size: 17px;
+          font-weight: 700;
 
-          font-size: 18px;
-          font-weight: 800;
-          letter-spacing: 0.14em;
+          letter-spacing: 0.15em;
+
+          transition:
+            color 160ms ease;
+        }
+
+        .budget-brand:hover {
+          color: #e4d8bf !important;
         }
 
         .budget-nav-links {
@@ -489,296 +512,381 @@ export default function WildBudgetPage() {
         }
 
         .budget-nav-links a,
-        .budget-signin {
+        .budget-nav-links a:link,
+        .budget-nav-links a:visited {
           color:
             rgba(
-              238,
-              231,
-              216,
-              0.68
-            );
-
-          text-decoration: none;
+              211,
+              199,
+              173,
+              0.64
+            ) !important;
 
           font-size: 9px;
-          font-weight: 700;
+          font-weight: 600;
+
           letter-spacing: 0.14em;
 
           transition:
             color 160ms ease;
         }
 
-        .budget-nav-links a:hover,
-        .budget-signin:hover {
-          color: #f0e8d8;
+        .budget-nav-links a:hover {
+          color: #c7a666 !important;
         }
 
-        .budget-signin {
+        .budget-signin,
+        .budget-signin:link,
+        .budget-signin:visited {
           margin-left: auto;
+
+          color:
+            rgba(
+              211,
+              199,
+              173,
+              0.62
+            ) !important;
+
+          font-size: 9px;
+          font-weight: 600;
+
+          letter-spacing: 0.14em;
+
+          transition:
+            color 160ms ease;
         }
 
-        .budget-start {
-          flex-shrink: 0;
+        .budget-signin:hover {
+          color: #c7a666 !important;
+        }
+
+        .budget-start,
+        .budget-start:link,
+        .budget-start:visited {
+          height: 34px;
 
           margin-left: 25px;
 
           padding:
-            11px 15px;
+            0 14px;
+
+          display: flex;
+          align-items: center;
+
+          gap: 12px;
 
           border:
             1px solid
             rgba(
-              207,
-              171,
-              102,
-              0.48
+              188,
+              151,
+              85,
+              0.43
             );
 
           background:
             rgba(
+              23,
               16,
-              13,
-              9,
-              0.25
+              10,
+              0.24
             );
 
-          color: #d8bd87;
+          color: #c7a666 !important;
 
-          text-decoration: none;
+          font-size: 8px;
+          font-weight: 700;
 
-          font-size: 9px;
-          font-weight: 800;
-          letter-spacing: 0.12em;
+          letter-spacing: 0.13em;
+
+          transition:
+            background 160ms ease,
+            border-color 160ms ease,
+            color 160ms ease;
         }
 
-        /* =========================
-           INTERACTION PANEL
-           ========================= */
+        .budget-start:hover {
+          border-color:
+            rgba(
+              205,
+              169,
+              101,
+              0.7
+            );
+
+          background:
+            rgba(
+              83,
+              56,
+              27,
+              0.28
+            );
+
+          color: #ddc184 !important;
+        }
+
+        /* =====================================================
+           BUDGET PANEL
+
+           Designed around the leather pad in wild-budget.jpg
+           ===================================================== */
 
         .budget-panel {
           position: absolute;
+
           z-index: 10;
 
-          /*
-           * The leather planning pad in
-           * wild-budget.jpg occupies the
-           * right side of the composition.
-           */
-          left: 66.5%;
-          top: 53%;
+          left: 66.7%;
+          top: 51.5%;
 
           width:
             min(
-              430px,
-              29vw
+              390px,
+              29.5vw
             );
 
           transform:
             translateY(-50%);
 
+          color: #d0bf9e;
+
           text-align: left;
 
           text-shadow:
             0 2px 12px
-            rgba(0, 0, 0, 0.52);
+            rgba(0, 0, 0, 0.65);
         }
 
-        .budget-kicker {
+        /* =====================================================
+           CONTEXT
+           ===================================================== */
+
+        .budget-context {
+          height: 15px;
+
           display: flex;
           align-items: center;
 
           gap: 9px;
 
-          margin-bottom: 16px;
+          margin-bottom: 15px;
 
-          color:
-            rgba(
-              218,
-              183,
-              116,
-              0.78
-            );
+          color: #b89558;
 
-          font-size: 8px;
-          font-weight: 800;
-          letter-spacing: 0.19em;
+          font-size: 7px;
+          font-weight: 700;
+
+          letter-spacing: 0.2em;
         }
 
-        .budget-line {
-          width: 24px;
+        .context-line {
+          width: 25px;
           height: 1px;
 
           background:
             rgba(
-              218,
-              183,
-              116,
-              0.58
+              184,
+              149,
+              88,
+              0.55
             );
         }
 
-        .budget-dot {
-          opacity: 0.45;
-        }
-
-        h1 {
-          margin: 0;
-
-          color: #eee5d5;
-
-          font-family:
-            Georgia,
-            "Times New Roman",
-            serif;
-
-          font-size:
-            clamp(
-              34px,
-              3.4vw,
-              54px
+        .context-dot {
+          color:
+            rgba(
+              184,
+              149,
+              88,
+              0.42
             );
-
-          line-height: 0.91;
-
-          font-weight: 400;
-
-          letter-spacing:
-            -0.035em;
         }
 
-        .budget-question {
-          max-width: 350px;
+        /* =====================================================
+           HEADING
+           ===================================================== */
 
+        .heading-label {
           margin:
-            17px 0 23px;
+            0 0 8px;
 
           color:
             rgba(
-              239,
-              231,
-              216,
-              0.66
+              186,
+              157,
+              104,
+              0.58
             );
 
-          font-family:
-            Georgia,
-            "Times New Roman",
-            serif;
+          font-size: 6px;
+          font-weight: 700;
 
-          font-size: 13px;
-          line-height: 1.5;
+          letter-spacing: 0.22em;
         }
 
-        /* =========================
-           AMOUNT
-           ========================= */
+        .budget-heading h1 {
+          margin: 0;
+
+          color: #d4c3a2;
+
+          font-family:
+            Arial,
+            Helvetica,
+            sans-serif;
+
+          font-size:
+            clamp(
+              30px,
+              2.65vw,
+              43px
+            );
+
+          line-height: 0.92;
+
+          font-weight: 600;
+
+          letter-spacing: 0.025em;
+
+          text-transform: uppercase;
+
+          text-shadow:
+            0 3px 16px
+            rgba(0, 0, 0, 0.68);
+        }
+
+        .budget-question {
+          max-width: 340px;
+
+          margin:
+            14px 0 20px;
+
+          color:
+            rgba(
+              210,
+              196,
+              165,
+              0.68
+            );
+
+          font-size: 10px;
+          font-weight: 400;
+
+          line-height: 1.55;
+
+          letter-spacing: 0.02em;
+        }
+
+        /* =====================================================
+           MONEY
+           ===================================================== */
+
+        .money-block {
+          width: 100%;
+        }
 
         .amount-field {
-          position: relative;
-
           width: 100%;
 
           display: grid;
 
           grid-template-columns:
-            30px
+            28px
             minmax(0, 1fr)
-            34px;
+            31px;
 
           align-items: center;
+
+          padding-bottom: 7px;
 
           border-bottom:
             1px solid
             rgba(
-              210,
-              174,
-              105,
-              0.55
+              183,
+              143,
+              72,
+              0.48
             );
-
-          padding-bottom: 4px;
         }
 
         .currency {
-          color: #d6b36c;
+          color: #c39c56;
 
-          font-family:
-            Georgia,
-            "Times New Roman",
-            serif;
+          font-size: 23px;
+          font-weight: 500;
 
-          font-size: 26px;
+          line-height: 1;
         }
 
         .amount-field input {
           width: 100%;
           min-width: 0;
 
-          box-sizing: border-box;
+          padding:
+            0 8px 0 0;
 
           border: 0;
           outline: 0;
 
-          padding:
-            5px 8px 5px 0;
+          background: transparent;
 
-          background:
-            transparent;
-
-          color: #f1e8d8;
+          color: #d6bd8b;
 
           font-family:
-            Georgia,
-            "Times New Roman",
-            serif;
+            Arial,
+            Helvetica,
+            sans-serif;
 
           font-size:
             clamp(
-              38px,
-              3.6vw,
-              57px
+              36px,
+              3.25vw,
+              52px
             );
 
           line-height: 1;
 
-          text-align: left;
+          font-weight: 500;
+
+          letter-spacing: 0.015em;
 
           text-shadow:
             0 3px 14px
-            rgba(0, 0, 0, 0.4);
+            rgba(0, 0, 0, 0.65);
         }
 
         .amount-field input::placeholder {
           color:
             rgba(
-              238,
-              228,
-              208,
-              0.24
+              198,
+              170,
+              116,
+              0.28
             );
         }
 
         .currency-code {
-          align-self: center;
-
           color:
             rgba(
-              233,
-              221,
               198,
-              0.44
+              177,
+              135,
+              0.48
             );
 
-          font-size: 7px;
-          font-weight: 800;
-          letter-spacing: 0.15em;
+          font-size: 6px;
+          font-weight: 700;
+
+          letter-spacing: 0.17em;
         }
 
-        /* =========================
+        /* =====================================================
            PRESETS
-           ========================= */
+           ===================================================== */
 
         .budget-presets {
+          width: 100%;
+
           display: grid;
 
           grid-template-columns:
@@ -786,127 +894,193 @@ export default function WildBudgetPage() {
 
           gap: 6px;
 
-          margin-top: 13px;
+          margin-top: 12px;
         }
 
         .preset {
-          height: 30px;
+          height: 29px;
 
           padding: 0;
 
           border:
             1px solid
             rgba(
-              229,
-              216,
-              190,
-              0.15
+              180,
+              149,
+              94,
+              0.22
             );
 
           background:
             rgba(
-              17,
-              13,
-              9,
-              0.26
+              27,
+              18,
+              11,
+              0.28
             );
 
           color:
             rgba(
-              236,
-              225,
-              204,
-              0.56
+              207,
+              191,
+              157,
+              0.62
             );
 
           cursor: pointer;
 
-          font-size: 7px;
-          font-weight: 800;
-          letter-spacing: 0.08em;
+          font-family:
+            Arial,
+            Helvetica,
+            sans-serif;
+
+          font-size: 6px;
+          font-weight: 700;
+
+          letter-spacing: 0.07em;
 
           transition:
-            160ms ease;
+            border-color 150ms ease,
+            background 150ms ease,
+            color 150ms ease;
         }
 
         .preset:hover {
           border-color:
             rgba(
-              214,
-              179,
-              108,
-              0.6
+              198,
+              158,
+              87,
+              0.58
             );
 
-          color: #dfc58f;
+          background:
+            rgba(
+              105,
+              70,
+              31,
+              0.18
+            );
+
+          color: #d2b372;
         }
 
         .preset.active {
           border-color:
             rgba(
-              214,
-              179,
-              108,
-              0.72
+              200,
+              160,
+              88,
+              0.7
             );
 
           background:
             rgba(
-              199,
-              157,
-              83,
-              0.13
+              118,
+              78,
+              33,
+              0.22
             );
 
-          color: #e1c78f;
+          color: #d9ba77;
         }
 
-        .budget-description {
-          margin:
-            13px 0 0;
+        /* =====================================================
+           SCOPE
+           ===================================================== */
+
+        .budget-scope {
+          margin-top: 13px;
+
+          display: flex;
+          align-items: baseline;
+
+          gap: 10px;
+        }
+
+        .scope-label {
+          flex-shrink: 0;
 
           color:
             rgba(
-              235,
-              224,
-              203,
-              0.4
+              186,
+              151,
+              89,
+              0.66
             );
 
-          font-size: 7px;
-          line-height: 1.55;
-          letter-spacing: 0.055em;
+          font-size: 5px;
+          font-weight: 700;
+
+          letter-spacing: 0.16em;
         }
 
-        /* =========================
-           ACTIONS
-           ========================= */
+        .budget-scope p {
+          margin: 0;
+
+          color:
+            rgba(
+              199,
+              184,
+              153,
+              0.43
+            );
+
+          font-size: 5px;
+          font-weight: 600;
+
+          line-height: 1.6;
+
+          letter-spacing: 0.045em;
+        }
+
+        .budget-scope p span {
+          margin:
+            0 4px;
+
+          color:
+            rgba(
+              184,
+              149,
+              88,
+              0.4
+            );
+        }
+
+        /* =====================================================
+           ERROR
+           ===================================================== */
 
         .budget-error {
           margin:
             10px 0 0;
 
-          color: #e0a88d;
+          color: #d7a184;
 
-          font-size: 8px;
-          line-height: 1.4;
+          font-size: 7px;
+
+          line-height: 1.45;
         }
 
+        /* =====================================================
+           ACTIONS
+           ===================================================== */
+
         .budget-actions {
+          margin-top: 20px;
+
           display: flex;
           align-items: center;
 
-          gap: 18px;
-
-          margin-top: 21px;
+          gap: 19px;
         }
 
         .continue-button {
-          min-width: 165px;
-          height: 40px;
+          width: 162px;
+          height: 39px;
 
           padding:
-            0 17px;
+            0 15px;
 
           display: flex;
           align-items: center;
@@ -916,48 +1090,87 @@ export default function WildBudgetPage() {
           border:
             1px solid
             rgba(
-              218,
-              183,
-              116,
-              0.67
+              193,
+              153,
+              82,
+              0.58
             );
 
           background:
-            rgba(
-              24,
-              18,
-              11,
-              0.36
+            linear-gradient(
+              180deg,
+              rgba(
+                74,
+                49,
+                23,
+                0.32
+              ),
+              rgba(
+                29,
+                19,
+                11,
+                0.32
+              )
             );
 
-          color: #e2c68e;
+          color: #d1ae68;
 
           cursor: pointer;
 
-          font-size: 8px;
-          font-weight: 800;
-          letter-spacing: 0.18em;
+          font-family:
+            Arial,
+            Helvetica,
+            sans-serif;
+
+          font-size: 7px;
+          font-weight: 700;
+
+          letter-spacing: 0.19em;
+
+          box-shadow:
+            inset 0 0 18px
+            rgba(
+              190,
+              134,
+              54,
+              0.025
+            );
 
           transition:
             background 160ms ease,
+            border-color 160ms ease,
+            color 160ms ease,
             transform 160ms ease;
         }
 
         .continue-button:hover {
+          border-color:
+            rgba(
+              214,
+              174,
+              99,
+              0.8
+            );
+
           background:
             rgba(
-              203,
-              161,
-              88,
-              0.15
+              106,
+              70,
+              31,
+              0.34
             );
+
+          color: #dfc07f;
 
           transform:
             translateY(-1px);
         }
 
-        .arrow {
-          font-size: 14px;
+        .continue-arrow {
+          color: #cda65c;
+
+          font-size: 13px;
+          font-weight: 400;
         }
 
         .unknown-button {
@@ -968,104 +1181,174 @@ export default function WildBudgetPage() {
           border-bottom:
             1px solid
             rgba(
-              235,
-              223,
-              199,
+              186,
+              155,
+              101,
               0.18
             );
 
-          background:
-            transparent;
+          background: transparent;
 
           color:
             rgba(
-              237,
-              225,
               202,
-              0.48
+              188,
+              158,
+              0.52
             );
 
           cursor: pointer;
 
-          font-size: 7px;
-          font-weight: 800;
-          letter-spacing: 0.13em;
+          font-family:
+            Arial,
+            Helvetica,
+            sans-serif;
+
+          font-size: 6px;
+          font-weight: 700;
+
+          letter-spacing: 0.14em;
+
+          transition:
+            color 150ms ease,
+            border-color 150ms ease;
         }
 
         .unknown-button:hover {
-          color: #d7bd88;
-        }
+          color: #c8aa6e;
 
-        .budget-footnote {
-          margin:
-            15px 0 0;
-
-          color:
+          border-color:
             rgba(
-              230,
-              217,
-              192,
-              0.34
+              199,
+              166,
+              102,
+              0.45
             );
-
-          font-size: 7px;
-          line-height: 1.45;
-          letter-spacing: 0.045em;
         }
 
-        .change-way {
-          display: inline-block;
+        /* =====================================================
+           NOTE
+           ===================================================== */
 
+        .budget-note {
           margin-top: 16px;
 
+          padding-top: 11px;
+
+          display: grid;
+
+          grid-template-columns:
+            18px 1fr;
+
+          gap: 8px;
+
+          border-top:
+            1px solid
+            rgba(
+              180,
+              148,
+              92,
+              0.13
+            );
+        }
+
+        .note-number {
           color:
             rgba(
-              231,
-              218,
-              193,
-              0.35
+              187,
+              151,
+              88,
+              0.52
             );
+
+          font-size: 5px;
+          font-weight: 700;
+
+          letter-spacing: 0.1em;
+        }
+
+        .budget-note p {
+          margin: 0;
+
+          color:
+            rgba(
+              198,
+              184,
+              154,
+              0.39
+            );
+
+          font-size: 6px;
+          line-height: 1.5;
+
+          letter-spacing: 0.035em;
+        }
+
+        /* =====================================================
+           BACK
+           ===================================================== */
+
+        .change-way,
+        .change-way:link,
+        .change-way:visited {
+          display: inline-flex;
+          align-items: center;
+
+          gap: 7px;
+
+          margin-top: 13px;
+
+          color:
+            rgba(
+              193,
+              173,
+              135,
+              0.42
+            ) !important;
 
           text-decoration: none;
 
-          font-size: 7px;
-          font-weight: 800;
-          letter-spacing: 0.12em;
+          font-size: 6px;
+          font-weight: 700;
+
+          letter-spacing: 0.13em;
+
+          transition:
+            color 150ms ease;
         }
 
         .change-way:hover {
-          color:
-            rgba(
-              231,
-              218,
-              193,
-              0.72
-            );
+          color: #c2a366 !important;
         }
 
-        /* =========================
-           RESPONSIVE
-           ========================= */
+        /* =====================================================
+           MEDIUM
+           ===================================================== */
 
         @media (
-          max-width: 1100px
+          max-width: 1120px
         ) {
           .budget-nav-links {
             display: none;
           }
 
           .budget-panel {
-            left: 61%;
+            left: 62%;
 
             width: 34vw;
           }
         }
+
+        /* =====================================================
+           MOBILE
+           ===================================================== */
 
         @media (
           max-width: 760px
         ) {
           .budget-page {
             min-height: 760px;
+
             overflow-y: auto;
           }
 
@@ -1073,16 +1356,16 @@ export default function WildBudgetPage() {
             position: fixed;
 
             object-position:
-              58% center;
+              55% center;
           }
 
-          .budget-vignette {
+          .scene-overlay {
             position: fixed;
 
             background:
               rgba(
+                7,
                 5,
-                4,
                 3,
                 0.58
               );
@@ -1091,7 +1374,7 @@ export default function WildBudgetPage() {
           .budget-nav {
             position: fixed;
 
-            height: 64px;
+            height: 62px;
 
             padding:
               0 18px;
@@ -1100,7 +1383,7 @@ export default function WildBudgetPage() {
           .budget-brand {
             margin-right: 0;
 
-            font-size: 16px;
+            font-size: 15px;
           }
 
           .budget-signin {
@@ -1110,10 +1393,12 @@ export default function WildBudgetPage() {
           .budget-start {
             margin-left: auto;
 
-            padding:
-              10px 11px;
+            height: 32px;
 
-            font-size: 7px;
+            padding:
+              0 10px;
+
+            font-size: 6px;
           }
 
           .budget-panel {
@@ -1124,53 +1409,58 @@ export default function WildBudgetPage() {
 
             width:
               calc(
-                100% - 42px
+                100% - 38px
               );
 
-            max-width: 440px;
+            max-width: 430px;
+
+            margin:
+              105px auto 50px;
+
+            padding:
+              27px 24px 24px;
 
             transform: none;
 
-            margin:
-              118px auto 60px;
-
-            padding:
-              30px 26px;
-
-            box-sizing: border-box;
-
             background:
               rgba(
+                27,
                 18,
-                13,
-                9,
-                0.72
+                11,
+                0.76
               );
 
             border:
               1px solid
               rgba(
-                218,
-                183,
-                116,
-                0.18
+                187,
+                151,
+                88,
+                0.22
               );
 
             backdrop-filter:
               blur(8px);
           }
 
-          h1 {
-            font-size: 44px;
+          .budget-heading h1 {
+            font-size: 38px;
+          }
+
+          .budget-question {
+            font-size: 10px;
           }
 
           .amount-field input {
-            font-size: 45px;
+            font-size: 42px;
           }
 
           .budget-actions {
             flex-direction: column;
+
             align-items: stretch;
+
+            gap: 13px;
           }
 
           .continue-button {
