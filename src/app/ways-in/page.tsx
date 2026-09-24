@@ -9,16 +9,56 @@ import {
   updateWildWayIn,
 } from "@/lib/wildStore";
 
+import type {
+  WildActivity,
+  WildWayIn,
+} from "@/types/wild";
+
 export default function WaysInPage() {
   const router = useRouter();
 
-  function startDriveWild() {
+  function startWild(
+    wayIn: WildWayIn,
+    activities: WildActivity[]
+  ) {
+    /*
+     * Every Way In starts / continues the SAME Current Wild.
+     */
     getOrCreateCurrentWild("My Wild");
 
-    updateWildWayIn("drive");
-    updateWildActivities(["drive"]);
+    /*
+     * Save the selected entry mode.
+     */
+    updateWildWayIn(wayIn);
 
-    router.push("/ways-in/drive");
+    /*
+     * Seed the Wild with its primary activity.
+     * More activities can be added later in the planning flow.
+     */
+    updateWildActivities(activities);
+
+    /*
+     * Budget belongs to the whole Wild, not to Drive / Hike /
+     * Ride / Paddle, so every Way In goes through the same
+     * Total Wild Budget step first.
+     */
+    router.push("/wild-plan/budget");
+  }
+
+  function startDriveWild() {
+    startWild("drive", ["drive"]);
+  }
+
+  function startHikeWild() {
+    startWild("hike", ["hike"]);
+  }
+
+  function startRideWild() {
+    startWild("ride", ["bike"]);
+  }
+
+  function startPaddleWild() {
+    startWild("paddle", ["paddle"]);
   }
 
   return (
@@ -39,7 +79,9 @@ export default function WaysInPage() {
           </Link>
 
           <div className="wv2-nav-links">
-            <Link href="/explore">EXPLORE</Link>
+            <Link href="/explore">
+              EXPLORE
+            </Link>
 
             <Link href="/wild-plan">
               PLAN
@@ -96,6 +138,7 @@ export default function WaysInPage() {
         {/* HIKE */}
         <button
           type="button"
+          onClick={startHikeWild}
           className="wv2-zone wv2-hike"
           aria-label="Hike"
         />
@@ -103,6 +146,7 @@ export default function WaysInPage() {
         {/* RIDE */}
         <button
           type="button"
+          onClick={startRideWild}
           className="wv2-zone wv2-ride"
           aria-label="Ride"
         />
@@ -110,6 +154,7 @@ export default function WaysInPage() {
         {/* PADDLE */}
         <button
           type="button"
+          onClick={startPaddleWild}
           className="wv2-zone wv2-paddle"
           aria-label="Paddle"
         />
