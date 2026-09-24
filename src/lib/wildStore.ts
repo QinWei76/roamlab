@@ -10,6 +10,12 @@ import type {
   WildSafety,
   WildKnowledge,
   WildCostSystem,
+  WildBudgetStatus,
+  WildPlanningSystem,
+  WildDriveContext,
+  WildHikeContext,
+  WildRideContext,
+  WildPaddleContext,
   WildReadiness,
   WildRoute,
   WildConditions,
@@ -296,6 +302,83 @@ export function updateWildWayIn(
         ...wild.plan.adventure,
 
         wayIn,
+      },
+    },
+  }));
+}
+
+
+/* =========================================================
+   WAY-IN SPECIFIC PLANNING CONTEXT
+   ========================================================= */
+
+export function updateWildDriveContext(
+  drive: Partial<WildDriveContext>
+): Wild {
+  return updateCurrentWild((wild) => ({
+    ...wild,
+    plan: {
+      ...wild.plan,
+      adventure: {
+        ...wild.plan.adventure,
+        drive: {
+          ...wild.plan.adventure.drive,
+          ...drive,
+        },
+      },
+    },
+  }));
+}
+
+export function updateWildHikeContext(
+  hike: Partial<WildHikeContext>
+): Wild {
+  return updateCurrentWild((wild) => ({
+    ...wild,
+    plan: {
+      ...wild.plan,
+      adventure: {
+        ...wild.plan.adventure,
+        hike: {
+          ...wild.plan.adventure.hike,
+          ...hike,
+        },
+      },
+    },
+  }));
+}
+
+export function updateWildRideContext(
+  ride: Partial<WildRideContext>
+): Wild {
+  return updateCurrentWild((wild) => ({
+    ...wild,
+    plan: {
+      ...wild.plan,
+      adventure: {
+        ...wild.plan.adventure,
+        ride: {
+          ...wild.plan.adventure.ride,
+          ...ride,
+        },
+      },
+    },
+  }));
+}
+
+export function updateWildPaddleContext(
+  paddle: Partial<WildPaddleContext>
+): Wild {
+  return updateCurrentWild((wild) => ({
+    ...wild,
+    plan: {
+      ...wild.plan,
+      adventure: {
+        ...wild.plan.adventure,
+        paddle: {
+          ...wild.plan.adventure.paddle,
+          ...paddle,
+        },
       },
     },
   }));
@@ -644,10 +727,71 @@ export function updateTotalWildBudget(
 
         budgetMode: "total-wild-budget",
 
+        budgetStatus: "set",
+
         totalWildBudget,
       },
     },
   }));
+}
+
+/*
+ * Explicit "I DON'T KNOW YET" path.
+ * Keep the Wild moving without inventing a budget value.
+ */
+export function setTotalWildBudgetUnknown(
+  currency = "USD"
+): Wild {
+  return updateCurrentWild((wild) => ({
+    ...wild,
+
+    plan: {
+      ...wild.plan,
+
+      cost: {
+        ...wild.plan.cost,
+
+        currency,
+
+        budgetMode: "total-wild-budget",
+
+        budgetStatus: "unknown",
+
+        totalWildBudget: undefined,
+      },
+    },
+  }));
+}
+
+/*
+ * Shared helper for UI that already knows whether the budget is set
+ * or intentionally unknown.
+ */
+export function updateWildBudget(input: {
+  status: WildBudgetStatus;
+  totalWildBudget?: number;
+  currency?: string;
+}): Wild {
+  const currency = input.currency ?? "USD";
+
+  if (input.status === "unknown") {
+    return setTotalWildBudgetUnknown(currency);
+  }
+
+  if (
+    input.totalWildBudget === undefined ||
+    !Number.isFinite(input.totalWildBudget) ||
+    input.totalWildBudget < 0
+  ) {
+    throw new Error(
+      "RoamLab: a valid Total Wild Budget is required when budget status is set."
+    );
+  }
+
+  return updateTotalWildBudget(
+    input.totalWildBudget,
+    currency
+  );
 }
 
 
@@ -684,6 +828,28 @@ export function updateGearBudget(
       },
     };
   });
+}
+
+
+/* =========================================================
+   PLANNING / FEASIBILITY
+   ========================================================= */
+
+export function updateWildPlanning(
+  planning: Partial<WildPlanningSystem>
+): Wild {
+  return updateCurrentWild((wild) => ({
+    ...wild,
+
+    plan: {
+      ...wild.plan,
+
+      planning: {
+        ...wild.plan.planning,
+        ...planning,
+      },
+    },
+  }));
 }
 
 
