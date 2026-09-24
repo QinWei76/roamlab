@@ -6,7 +6,6 @@ import {
   useState,
 } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import PlannerProgress from "@/components/PlannerProgress";
 
 import {
@@ -84,9 +83,6 @@ const travelRadiusOptions: {
 export default function WildDestinationPage() {
   const router = useRouter();
 
-  const [vehicle, setVehicle] = useState("suv");
-  const [trip, setTrip] = useState("weekend");
-
   const [mode, setMode] =
     useState<DestinationMode>("choose");
 
@@ -120,10 +116,13 @@ export default function WildDestinationPage() {
   const [discoveryError, setDiscoveryError] =
     useState("");
 
+  const [vehicle, setVehicle] = useState("");
+  const [trip, setTrip] = useState("");
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    setVehicle(params.get("vehicle") || "suv");
-    setTrip(params.get("trip") || "weekend");
+    setVehicle(params.get("vehicle") || "");
+    setTrip(params.get("trip") || "");
 
     const wild = getCurrentWild();
 
@@ -424,32 +423,27 @@ export default function WildDestinationPage() {
       />
 
       <header className="destinationHeader">
-        <Link href="/" className="destinationBrand">
-          <strong>ROAMLAB</strong>
-          <span>PLANS · GEAR · STORIES</span>
-        </Link>
+        <div className="headerLeft">
+          <button type="button" className="brand" onClick={() => router.push("/")}>
+            ROAMLAB
+          </button>
+          <span className="brandSub">PLANS · GEAR · STORIES</span>
+        </div>
 
-        <nav className="destinationNav">
-          <Link href="/explore">EXPLORE</Link>
-          <Link href="/plan">PLAN</Link>
-          <Link href="/prepare">PREPARE</Link>
-          <Link href="/safety">SAFETY</Link>
-          <Link href="/learn">LEARN</Link>
-          <Link href="/journal">JOURNAL</Link>
-          <Link href="/stories">STORIES</Link>
-          <Link href="/badges">BADGES</Link>
-          <Link href="/signin">SIGN IN</Link>
-          <Link href="/start-here" className="destinationStart">
+        <nav className="topNav" aria-label="RoamLab navigation">
+          <button type="button" onClick={() => router.push("/")}>EXPLORE</button>
+          <button type="button" onClick={() => router.push("/wild-plan")}>PLAN</button>
+          <button type="button">PREPARE</button>
+          <button type="button">SIGN IN</button>
+          <button type="button" className="startWild" onClick={() => router.push("/ways-in")}>
             START YOUR WILD →
-          </Link>
+          </button>
         </nav>
       </header>
 
-      <PlannerProgress
-        currentStep={5}
-        vehicle={vehicle}
-        trip={trip}
-      />
+      <div className="progressWrap">
+        <PlannerProgress currentStep={5} vehicle={vehicle} trip={trip} />
+      </div>
 
       <section className="destinationStage">
         <div className="destinationCompass">
@@ -1013,3 +1007,1685 @@ export default function WildDestinationPage() {
                                       .slice(0, 3)
                                       .map(
                                         (activity) =>
+                                          activity
+                                            .replace(
+                                              /-/g,
+                                              " "
+                                            )
+                                            .toUpperCase()
+                                      )
+                                      .join(
+                                        " · "
+                                      )}
+                                  </span>
+                                )}
+
+                              {typeof match.distanceKm ===
+                                "number" && (
+                                <span className="pinDistance">
+                                  {Math.round(
+                                    match.distanceKm
+                                  ).toLocaleString()}{" "}
+                                  KM FROM START
+                                </span>
+                              )}
+
+                              <span className="pinChoose">
+                                CHOOSE THIS WILD →
+                              </span>
+                            </span>
+                          </button>
+                        )
+                      )}
+
+                    <div className="boardLegend">
+                      <span>
+                        PLACES FOR THIS WILD
+                      </span>
+                      <span>
+                        REAL DESTINATIONS ·
+                        MATCHED TO YOUR WILD
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="discoverActions">
+                    <button
+                      type="button"
+                      className="secondaryAction"
+                      onClick={editDiscovery}
+                    >
+                      CHANGE START / RANGE
+                    </button>
+
+                    <button
+                      type="button"
+                      className="secondaryAction"
+                      onClick={() =>
+                        setMode("known")
+                      }
+                    >
+                      ENTER A PLACE INSTEAD
+                    </button>
+                  </div>
+                </div>
+              )}
+          </>
+        )}
+      </section>
+
+      <footer className="destinationFooter">
+        <span>GO WILD.</span>
+        <span className="footerLine" />
+        <span>SHOW IT.</span>
+      </footer>
+
+      <style jsx>{`
+        .destinationPage {
+          position: relative;
+          min-height: 100vh;
+          overflow-x: hidden;
+          padding: 0 56px 50px;
+          background:
+            radial-gradient(
+              circle at 50% 24%,
+              rgba(151, 119, 69, 0.14),
+              transparent 38%
+            ),
+            linear-gradient(
+              180deg,
+              #171611 0%,
+              #0d0e0b 58%,
+              #090a08 100%
+            );
+          color: #f2eee4;
+        }
+
+        .destinationBackground {
+          position: fixed;
+          inset: 0;
+          pointer-events: none;
+          opacity: 0.2;
+          background-image:
+            linear-gradient(
+              rgba(255, 255, 255, 0.018)
+                1px,
+              transparent 1px
+            ),
+            linear-gradient(
+              90deg,
+              rgba(255, 255, 255, 0.018)
+                1px,
+              transparent 1px
+            );
+          background-size: 48px 48px;
+        }
+
+        button,
+        input,
+        select {
+          font: inherit;
+        }
+
+        button {
+          -webkit-tap-highlight-color:
+            transparent;
+        }
+
+        .destinationHeader {
+          position: relative;
+          z-index: 5;
+          height: 92px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          border-bottom: 1px solid
+            rgba(255, 255, 255, 0.1);
+        }
+
+        .brand,
+        .backToPlan {
+          border: 0;
+          background: transparent;
+          cursor: pointer;
+        }
+
+        .brand {
+          color: #f4f0e7;
+          font-size: 18px;
+          font-weight: 700;
+          letter-spacing: 0.18em;
+        }
+
+        .backToPlan {
+          color: rgba(
+            242,
+            238,
+            228,
+            0.58
+          );
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.14em;
+        }
+
+        .backToPlan:hover,
+        .modeBack:hover {
+          color: #d1ad70;
+        }
+
+        .destinationStage {
+          position: relative;
+          z-index: 2;
+          width: min(980px, 100%);
+          margin: 64px auto 0;
+        }
+
+        .destinationCompass {
+          width: 54px;
+          height: 54px;
+          margin-bottom: 30px;
+          display: grid;
+          place-items: center;
+          border: 1px solid
+            rgba(212, 178, 117, 0.55);
+          border-radius: 50%;
+          box-shadow:
+            0 0 0 8px
+              rgba(212, 178, 117, 0.025),
+            0 0 40px
+              rgba(212, 178, 117, 0.08);
+        }
+
+        .destinationCompass span {
+          color: #c8a66c;
+          font-size: 21px;
+          transform: rotate(45deg);
+        }
+
+        .eyebrow {
+          margin: 0 0 16px;
+          color: #b89966;
+          font-size: 9px;
+          font-weight: 700;
+          letter-spacing: 0.24em;
+        }
+
+        h1 {
+          margin: 0;
+          font-family:
+            Georgia,
+            "Times New Roman",
+            serif;
+          font-size: clamp(
+            48px,
+            6vw,
+            76px
+          );
+          line-height: 0.98;
+          font-weight: 400;
+          letter-spacing: -0.035em;
+        }
+
+        .intro {
+          max-width: 590px;
+          margin: 24px 0 46px;
+          color: rgba(
+            242,
+            238,
+            228,
+            0.55
+          );
+          font-size: 14px;
+          line-height: 1.75;
+        }
+
+        .modeBack {
+          margin: 0 0 28px;
+          padding: 0;
+          border: 0;
+          background: transparent;
+          color: rgba(
+            242,
+            238,
+            228,
+            0.4
+          );
+          cursor: pointer;
+          font-size: 8px;
+          font-weight: 700;
+          letter-spacing: 0.18em;
+        }
+
+        .choiceGrid {
+          display: grid;
+          grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+          gap: 18px;
+          border-top: 1px solid
+            rgba(255, 255, 255, 0.1);
+          padding-top: 24px;
+        }
+
+        .choiceCard {
+          position: relative;
+          min-height: 330px;
+          padding: 28px;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          text-align: left;
+          border: 1px solid
+            rgba(255, 255, 255, 0.1);
+          background: rgba(
+            255,
+            255,
+            255,
+            0.018
+          );
+          color: #f2eee4;
+          cursor: pointer;
+          transition:
+            border-color 180ms ease,
+            background 180ms ease,
+            transform 180ms ease;
+        }
+
+        .choiceCard:hover {
+          transform: translateY(-2px);
+          border-color: rgba(
+            201,
+            166,
+            107,
+            0.48
+          );
+          background: rgba(
+            201,
+            166,
+            107,
+            0.045
+          );
+        }
+
+        .choiceCard.featured {
+          border-color: rgba(
+            201,
+            166,
+            107,
+            0.28
+          );
+          background:
+            linear-gradient(
+              135deg,
+              rgba(
+                201,
+                166,
+                107,
+                0.07
+              ),
+              rgba(
+                255,
+                255,
+                255,
+                0.012
+              )
+            );
+        }
+
+        .choiceNumber {
+          color: rgba(
+            209,
+            173,
+            112,
+            0.55
+          );
+          font-size: 9px;
+          font-weight: 700;
+          letter-spacing: 0.18em;
+        }
+
+        .choiceLabel {
+          display: block;
+          margin-bottom: 14px;
+          color: #b89966;
+          font-size: 8px;
+          font-weight: 700;
+          letter-spacing: 0.2em;
+        }
+
+        .choiceContent h2 {
+          margin: 0;
+          font-family:
+            Georgia,
+            "Times New Roman",
+            serif;
+          font-size: clamp(
+            27px,
+            3vw,
+            38px
+          );
+          line-height: 1.05;
+          font-weight: 400;
+        }
+
+        .choiceContent p {
+          max-width: 330px;
+          min-height: 54px;
+          margin: 20px 0 28px;
+          color: rgba(
+            242,
+            238,
+            228,
+            0.45
+          );
+          font-size: 11px;
+          line-height: 1.7;
+        }
+
+        .choiceAction {
+          color: #d1ad70;
+          font-size: 9px;
+          font-weight: 700;
+          letter-spacing: 0.14em;
+        }
+
+        .choiceFootnote {
+          margin-top: 26px;
+          padding: 18px 0;
+          display: flex;
+          align-items: center;
+          gap: 24px;
+          border-bottom: 1px solid
+            rgba(255, 255, 255, 0.07);
+        }
+
+        .choiceFootnote span {
+          flex: 0 0 auto;
+          color: #a98a58;
+          font-size: 8px;
+          font-weight: 700;
+          letter-spacing: 0.18em;
+        }
+
+        .choiceFootnote p {
+          margin: 0;
+          color: rgba(
+            242,
+            238,
+            228,
+            0.38
+          );
+          font-size: 11px;
+        }
+
+        .destinationForm {
+          border-top: 1px solid
+            rgba(255, 255, 255, 0.12);
+          padding-top: 32px;
+        }
+
+        label {
+          display: block;
+        }
+
+        label > span {
+          display: block;
+          margin-bottom: 11px;
+          color: rgba(
+            242,
+            238,
+            228,
+            0.4
+          );
+          font-size: 8px;
+          font-weight: 700;
+          letter-spacing: 0.2em;
+        }
+
+        input {
+          width: 100%;
+          box-sizing: border-box;
+          border: 0;
+          border-bottom: 1px solid
+            rgba(201, 166, 107, 0.32);
+          outline: 0;
+          border-radius: 0;
+          background: transparent;
+          color: #f2eee4;
+        }
+
+        .primaryField input {
+          padding: 8px 0 18px;
+          font-family:
+            Georgia,
+            "Times New Roman",
+            serif;
+          font-size: clamp(
+            28px,
+            4vw,
+            44px
+          );
+          font-weight: 400;
+        }
+
+        input::placeholder {
+          color: rgba(
+            242,
+            238,
+            228,
+            0.18
+          );
+        }
+
+        input:focus {
+          border-bottom-color: rgba(
+            209,
+            173,
+            112,
+            0.8
+          );
+        }
+
+        .secondaryFields {
+          display: grid;
+          grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+          gap: 34px;
+          margin-top: 38px;
+        }
+
+        .secondaryFields input {
+          padding: 7px 0 13px;
+          font-family:
+            Georgia,
+            "Times New Roman",
+            serif;
+          font-size: 17px;
+        }
+
+        .destinationHint {
+          margin-top: 38px;
+          padding: 20px 0;
+          display: flex;
+          align-items: flex-start;
+          gap: 26px;
+          border-top: 1px solid
+            rgba(255, 255, 255, 0.07);
+          border-bottom: 1px solid
+            rgba(255, 255, 255, 0.07);
+        }
+
+        .destinationHint span {
+          flex: 0 0 auto;
+          color: #a98a58;
+          font-size: 8px;
+          font-weight: 700;
+          letter-spacing: 0.18em;
+        }
+
+        .destinationHint p {
+          margin: 0;
+          color: rgba(
+            242,
+            238,
+            228,
+            0.42
+          );
+          font-size: 11px;
+          line-height: 1.65;
+        }
+
+        .actions,
+        .discoverActions {
+          margin-top: 30px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 18px;
+        }
+
+        .secondaryAction,
+        .primaryAction {
+          min-height: 46px;
+          padding: 0 20px;
+          cursor: pointer;
+          font-size: 9px;
+          font-weight: 700;
+          letter-spacing: 0.14em;
+        }
+
+        .secondaryAction {
+          border: 0;
+          background: transparent;
+          color: rgba(
+            242,
+            238,
+            228,
+            0.42
+          );
+        }
+
+        .secondaryAction:hover {
+          color: #f2eee4;
+        }
+
+        .primaryAction {
+          border: 1px solid
+            rgba(201, 166, 107, 0.5);
+          background: rgba(
+            201,
+            166,
+            107,
+            0.08
+          );
+          color: #d1ad70;
+        }
+
+        .primaryAction:hover:not(
+            :disabled
+          ) {
+          border-color: rgba(
+            209,
+            173,
+            112,
+            0.85
+          );
+          background: rgba(
+            201,
+            166,
+            107,
+            0.13
+          );
+        }
+
+        .primaryAction:disabled {
+          opacity: 0.3;
+          cursor: default;
+        }
+
+        .discoverySetup {
+          border-top: 1px solid
+            rgba(255, 255, 255, 0.1);
+        }
+
+        .setupBlock {
+          padding: 34px 0 38px;
+          border-bottom: 1px solid
+            rgba(255, 255, 255, 0.08);
+        }
+
+        .setupHeading {
+          display: grid;
+          grid-template-columns:
+            48px minmax(0, 1fr);
+          gap: 18px;
+          align-items: start;
+        }
+
+        .setupNumber {
+          padding-top: 6px;
+          color: rgba(
+            209,
+            173,
+            112,
+            0.48
+          );
+          font-size: 9px;
+          font-weight: 700;
+          letter-spacing: 0.16em;
+        }
+
+        .setupLabel {
+          display: block;
+          margin-bottom: 8px;
+          color: #b89966;
+          font-size: 8px;
+          font-weight: 700;
+          letter-spacing: 0.2em;
+        }
+
+        .setupHeading h2 {
+          margin: 0;
+          font-family:
+            Georgia,
+            "Times New Roman",
+            serif;
+          font-size: clamp(
+            24px,
+            3vw,
+            34px
+          );
+          line-height: 1.1;
+          font-weight: 400;
+        }
+
+        .selectWrap {
+          position: relative;
+          margin: 28px 0 0 66px;
+          max-width: 610px;
+        }
+
+        .selectWrap select {
+          width: 100%;
+          padding: 18px 46px 18px 0;
+          appearance: none;
+          border: 0;
+          border-bottom: 1px solid
+            rgba(201, 166, 107, 0.4);
+          border-radius: 0;
+          outline: none;
+          background: transparent;
+          color: #f2eee4;
+          cursor: pointer;
+          font-family:
+            Georgia,
+            "Times New Roman",
+            serif;
+          font-size: 22px;
+        }
+
+        .selectWrap select option {
+          background: #171611;
+          color: #f2eee4;
+        }
+
+        .selectArrow {
+          position: absolute;
+          right: 4px;
+          top: 50%;
+          pointer-events: none;
+          color: #b89966;
+          transform: translateY(-50%);
+        }
+
+        .selectedHint {
+          margin: 14px 0 0 66px;
+          color: rgba(
+            242,
+            238,
+            228,
+            0.3
+          );
+          font-size: 7px;
+          font-weight: 700;
+          letter-spacing: 0.14em;
+        }
+
+        .selectedHint strong {
+          color: rgba(
+            209,
+            173,
+            112,
+            0.72
+          );
+          font-weight: 700;
+        }
+
+        .radiusGrid {
+          margin: 28px 0 0 66px;
+          display: grid;
+          grid-template-columns:
+            repeat(4, minmax(0, 1fr));
+          gap: 10px;
+        }
+
+        .radiusOption {
+          min-height: 92px;
+          padding: 16px 13px;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          align-items: flex-start;
+          border: 1px solid
+            rgba(255, 255, 255, 0.09);
+          background: rgba(
+            255,
+            255,
+            255,
+            0.012
+          );
+          color: #f2eee4;
+          cursor: pointer;
+          text-align: left;
+          transition:
+            border-color 160ms ease,
+            background 160ms ease;
+        }
+
+        .radiusOption strong {
+          color: rgba(
+            242,
+            238,
+            228,
+            0.72
+          );
+          font-size: 10px;
+          letter-spacing: 0.12em;
+        }
+
+        .radiusOption span {
+          color: rgba(
+            242,
+            238,
+            228,
+            0.3
+          );
+          font-size: 9px;
+        }
+
+        .radiusOption:hover,
+        .radiusOption.selected {
+          border-color: rgba(
+            209,
+            173,
+            112,
+            0.52
+          );
+          background: rgba(
+            201,
+            166,
+            107,
+            0.065
+          );
+        }
+
+        .radiusOption.selected strong {
+          color: #d1ad70;
+        }
+
+        .rangeNote {
+          margin: 15px 0 0 66px;
+          color: rgba(
+            242,
+            238,
+            228,
+            0.24
+          );
+          font-size: 7px;
+          font-weight: 700;
+          letter-spacing: 0.12em;
+        }
+
+        .inlineError {
+          margin-top: 20px;
+          padding: 14px 0;
+          border-bottom: 1px solid
+            rgba(255, 255, 255, 0.08);
+          color: #caa56b;
+          font-size: 10px;
+        }
+
+        .findAction {
+          padding: 30px 0;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 30px;
+        }
+
+        .findAction > div > span {
+          color: #b89966;
+          font-size: 8px;
+          font-weight: 700;
+          letter-spacing: 0.18em;
+        }
+
+        .findAction p {
+          max-width: 520px;
+          margin: 8px 0 0;
+          color: rgba(
+            242,
+            238,
+            228,
+            0.36
+          );
+          font-size: 10px;
+          line-height: 1.6;
+        }
+
+        .findButton {
+          flex: 0 0 auto;
+        }
+
+        .findingPanel {
+          min-height: 180px;
+          padding: 34px 0;
+          display: flex;
+          align-items: center;
+          gap: 28px;
+          border-top: 1px solid
+            rgba(255, 255, 255, 0.1);
+          border-bottom: 1px solid
+            rgba(255, 255, 255, 0.1);
+        }
+
+        .findingMark {
+          width: 56px;
+          height: 56px;
+          flex: 0 0 auto;
+          display: grid;
+          place-items: center;
+          border: 1px solid
+            rgba(201, 166, 107, 0.5);
+          border-radius: 50%;
+          animation: pulse 1.6s
+            ease-in-out infinite;
+        }
+
+        .findingMark span {
+          color: #d1ad70;
+          transform: rotate(45deg);
+        }
+
+        .findingLabel {
+          color: #d1ad70;
+          font-size: 9px;
+          font-weight: 700;
+          letter-spacing: 0.2em;
+        }
+
+        .findingPanel p {
+          margin: 10px 0 0;
+          color: rgba(
+            242,
+            238,
+            228,
+            0.42
+          );
+          font-size: 12px;
+        }
+
+        @keyframes pulse {
+          0%,
+          100% {
+            box-shadow: 0 0 0 0
+              rgba(
+                201,
+                166,
+                107,
+                0.08
+              );
+          }
+
+          50% {
+            box-shadow: 0 0 0 14px
+              rgba(
+                201,
+                166,
+                107,
+                0.025
+              );
+          }
+        }
+
+        .errorPanel {
+          padding: 30px 0;
+          border-top: 1px solid
+            rgba(255, 255, 255, 0.1);
+          border-bottom: 1px solid
+            rgba(255, 255, 255, 0.1);
+        }
+
+        .errorPanel > span {
+          color: #b89966;
+          font-size: 8px;
+          font-weight: 700;
+          letter-spacing: 0.2em;
+        }
+
+        .errorPanel p {
+          max-width: 600px;
+          margin: 12px 0 20px;
+          color: rgba(
+            242,
+            238,
+            228,
+            0.52
+          );
+          font-size: 13px;
+          line-height: 1.7;
+        }
+
+        .errorActions {
+          display: flex;
+          gap: 24px;
+        }
+
+        .errorActions button {
+          padding: 0;
+          border: 0;
+          background: transparent;
+          color: #d1ad70;
+          cursor: pointer;
+          font-size: 9px;
+          font-weight: 700;
+          letter-spacing: 0.14em;
+        }
+
+        /* DESTINATION BOARD */
+
+        .destinationBoardSection {
+          position: relative;
+          width: min(
+            1380px,
+            calc(100vw - 64px)
+          );
+          left: 50%;
+          transform: translateX(-50%);
+          margin-top: 12px;
+        }
+
+        .boardToolbar {
+          width: min(1180px, 100%);
+          margin: 0 auto 18px;
+          padding: 14px 18px;
+          box-sizing: border-box;
+          display: grid;
+          grid-template-columns:
+            minmax(0, 1.2fr)
+            minmax(0, 0.8fr)
+            auto auto;
+          gap: 28px;
+          align-items: center;
+          border: 1px solid
+            rgba(210, 190, 154, 0.16);
+          background: rgba(15, 14, 11, 0.78);
+          backdrop-filter: blur(10px);
+        }
+
+        .boardToolbarItem {
+          min-width: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 5px;
+        }
+
+        .boardToolbarItem span,
+        .boardToolbarCount span {
+          color: rgba(230, 218, 194, 0.42);
+          font-size: 7px;
+          font-weight: 700;
+          letter-spacing: 0.16em;
+        }
+
+        .boardToolbarItem strong {
+          overflow: hidden;
+          color: rgba(244, 238, 224, 0.82);
+          font-family:
+            Georgia,
+            "Times New Roman",
+            serif;
+          font-size: 15px;
+          font-weight: 400;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .boardToolbarCount {
+          white-space: nowrap;
+        }
+
+        .boardChange {
+          padding: 0;
+          border: 0;
+          background: transparent;
+          color: #c7a46b;
+          cursor: pointer;
+          font-size: 8px;
+          font-weight: 700;
+          letter-spacing: 0.13em;
+        }
+
+        .boardChange:hover {
+          color: #ead09b;
+        }
+
+        .destinationBoard {
+          position: relative;
+          width: 100%;
+          aspect-ratio: 3 / 2;
+          overflow: hidden;
+
+          /*
+           * The physical RoamLab destination desk is the board itself.
+           * The file lives at /public/destination-board.jpg, so Next.js
+           * serves it from /destination-board.jpg.
+           */
+          background-image: url("/destination-board.jpg");
+          background-size: cover;
+          background-position: center center;
+          background-repeat: no-repeat;
+          background-color: #17130e;
+
+          box-shadow:
+            0 35px 100px
+              rgba(0, 0, 0, 0.52),
+            0 0 0 1px
+              rgba(255, 255, 255, 0.035);
+        }
+
+        .boardShade {
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+          background: linear-gradient(
+            180deg,
+            rgba(7, 6, 4, 0.05) 0%,
+            transparent 30%,
+            transparent 72%,
+            rgba(7, 6, 4, 0.16) 100%
+          );
+        }
+
+        .destinationPin {
+          position: absolute;
+          z-index: 4;
+          padding: 0;
+          border: 0;
+          outline: 0;
+          background: transparent;
+          color: #211d17;
+          cursor: pointer;
+          text-align: left;
+          transform-origin: center;
+          transition:
+            transform 180ms ease,
+            filter 180ms ease;
+        }
+
+        .destinationPin:hover {
+          z-index: 8;
+          filter: drop-shadow(
+            0 12px 12px
+              rgba(0, 0, 0, 0.28)
+          );
+        }
+
+        .destinationPin:focus-visible {
+          outline: 2px solid
+            rgba(238, 213, 165, 0.95);
+          outline-offset: 4px;
+        }
+
+        .destinationPin1 {
+          left: 27.1%;
+          top: 25.7%;
+          width: 16.8%;
+          height: 23.8%;
+          transform: rotate(-4.7deg);
+        }
+
+        .destinationPin1:hover {
+          transform:
+            rotate(-4.7deg)
+            translateY(-4px)
+            scale(1.025);
+        }
+
+        .destinationPin2 {
+          left: 62.2%;
+          top: 25.1%;
+          width: 17%;
+          height: 24.5%;
+          transform: rotate(4.7deg);
+        }
+
+        .destinationPin2:hover {
+          transform:
+            rotate(4.7deg)
+            translateY(-4px)
+            scale(1.025);
+        }
+
+        .destinationPin3 {
+          left: 42.6%;
+          top: 43.3%;
+          width: 17.1%;
+          height: 25%;
+          transform: rotate(1deg);
+        }
+
+        .destinationPin3:hover {
+          transform:
+            rotate(1deg)
+            translateY(-4px)
+            scale(1.025);
+        }
+
+        .destinationPin4 {
+          left: 20.8%;
+          top: 62.7%;
+          width: 17%;
+          height: 24.4%;
+          transform: rotate(4.2deg);
+        }
+
+        .destinationPin4:hover {
+          transform:
+            rotate(4.2deg)
+            translateY(-4px)
+            scale(1.025);
+        }
+
+        .destinationPin5 {
+          left: 64.5%;
+          top: 61.6%;
+          width: 17%;
+          height: 24.5%;
+          transform: rotate(5.8deg);
+        }
+
+        .destinationPin5:hover {
+          transform:
+            rotate(5.8deg)
+            translateY(-4px)
+            scale(1.025);
+        }
+
+        .pinNumber {
+          position: absolute;
+          left: 8%;
+          top: 6%;
+          display: grid;
+          place-items: center;
+          width: 22px;
+          height: 22px;
+          border-radius: 50%;
+          background: rgba(39, 33, 25, 0.88);
+          color: #f2e5c9;
+          font-size: 7px;
+          font-weight: 800;
+          letter-spacing: 0.08em;
+          box-shadow: 0 2px 7px
+            rgba(0, 0, 0, 0.22);
+        }
+
+        .pinContent {
+          position: absolute;
+          left: 8%;
+          right: 8%;
+          bottom: 4%;
+          min-height: 31%;
+          display: flex;
+          flex-direction: column;
+          padding: 5% 3% 1%;
+          box-sizing: border-box;
+        }
+
+        .pinName {
+          display: -webkit-box;
+          overflow: hidden;
+          color: #29241d;
+          font-family:
+            Georgia,
+            "Times New Roman",
+            serif;
+          font-size: clamp(
+            9px,
+            0.9vw,
+            15px
+          );
+          font-weight: 700;
+          line-height: 1.05;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 2;
+        }
+
+        .pinActivities {
+          margin-top: 4px;
+          overflow: hidden;
+          color: rgba(42, 36, 28, 0.65);
+          font-size: clamp(
+            5px,
+            0.45vw,
+            7px
+          );
+          font-weight: 800;
+          line-height: 1.3;
+          letter-spacing: 0.06em;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .pinDistance {
+          margin-top: 4px;
+          color: rgba(42, 36, 28, 0.55);
+          font-size: clamp(
+            5px,
+            0.42vw,
+            7px
+          );
+          font-weight: 700;
+          letter-spacing: 0.05em;
+        }
+
+        .pinChoose {
+          margin-top: auto;
+          padding-top: 4px;
+          color: #6d4c25;
+          font-size: clamp(
+            5px,
+            0.45vw,
+            7px
+          );
+          font-weight: 900;
+          letter-spacing: 0.07em;
+          opacity: 0;
+          transform: translateY(3px);
+          transition:
+            opacity 150ms ease,
+            transform 150ms ease;
+        }
+
+        .destinationPin:hover
+          .pinChoose,
+        .destinationPin:focus-visible
+          .pinChoose {
+          opacity: 1;
+          transform: translateY(0);
+        }
+
+        .boardLegend {
+          position: absolute;
+          left: 22.5%;
+          right: 18.5%;
+          bottom: 3.8%;
+          z-index: 3;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          pointer-events: none;
+          color: rgba(48, 39, 29, 0.56);
+          font-size: clamp(
+            5px,
+            0.48vw,
+            8px
+          );
+          font-weight: 800;
+          letter-spacing: 0.12em;
+        }
+
+        .destinationBoardSection
+          .discoverActions {
+          width: min(1180px, 100%);
+          margin: 26px auto 0;
+        }
+
+        @media (max-width: 980px) {
+          .destinationBoardSection {
+            width: calc(100vw - 32px);
+          }
+
+          .boardToolbar {
+            grid-template-columns:
+              1fr 1fr;
+          }
+
+          .boardToolbarCount {
+            align-self: center;
+          }
+
+          .boardChange {
+            text-align: right;
+          }
+        }
+
+        .destinationFooter {
+          position: relative;
+          z-index: 2;
+          width: min(980px, 100%);
+          margin: 68px auto 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 18px;
+          color: rgba(
+            242,
+            238,
+            228,
+            0.26
+          );
+          font-size: 8px;
+          font-weight: 700;
+          letter-spacing: 0.22em;
+        }
+
+        .footerLine {
+          width: 48px;
+          height: 1px;
+          background: rgba(
+            242,
+            238,
+            228,
+            0.14
+          );
+        }
+
+        @media (max-width: 760px) {
+          .destinationPage {
+            padding-left: 20px;
+            padding-right: 20px;
+          }
+
+          .destinationHeader {
+            height: 76px;
+          }
+
+          .destinationStage {
+            margin-top: 46px;
+          }
+
+          .choiceGrid {
+            grid-template-columns: 1fr;
+          }
+
+          .choiceCard {
+            min-height: 280px;
+          }
+
+          .secondaryFields {
+            grid-template-columns: 1fr;
+          }
+
+          .setupHeading {
+            grid-template-columns:
+              34px minmax(0, 1fr);
+            gap: 12px;
+          }
+
+          .selectWrap,
+          .selectedHint,
+          .radiusGrid,
+          .rangeNote {
+            margin-left: 46px;
+          }
+
+          .radiusGrid {
+            grid-template-columns:
+              repeat(2, minmax(0, 1fr));
+          }
+
+          .findAction {
+            align-items: stretch;
+            flex-direction: column;
+          }
+
+          .findButton {
+            width: 100%;
+          }
+
+
+          .actions,
+          .discoverActions {
+            align-items: stretch;
+            flex-direction: column-reverse;
+          }
+
+          .primaryAction,
+          .secondaryAction {
+            width: 100%;
+          }
+
+          .destinationBoardSection {
+            width: calc(100vw - 20px);
+            overflow-x: auto;
+            padding-bottom: 8px;
+          }
+
+          .boardToolbar {
+            grid-template-columns: 1fr;
+            gap: 12px;
+          }
+
+          .boardChange {
+            text-align: left;
+          }
+
+          .destinationBoard {
+            min-width: 820px;
+          }
+
+        }
+
+
+        /* ROAMLAB CINEMATIC DESTINATION OVERRIDES */
+        .destinationPage {
+          padding: 0 42px 44px;
+          background: #0b0b09;
+        }
+
+        .destinationBackground {
+          position: fixed;
+          inset: 0;
+          opacity: 1;
+          background:
+            linear-gradient(180deg, rgba(5,5,4,.30), rgba(5,5,4,.58)),
+            url("/destination-board.jpg") center / cover no-repeat;
+          filter: saturate(.9) brightness(.72);
+        }
+
+        .destinationHeader {
+          position: relative;
+          z-index: 20;
+          height: 72px;
+          border-bottom: 0;
+        }
+
+        .headerLeft {
+          display: flex;
+          align-items: baseline;
+          gap: 18px;
+        }
+
+        .brand {
+          color: #fffaf0;
+          font-size: 18px;
+          font-weight: 900;
+          letter-spacing: .14em;
+        }
+
+        .brandSub {
+          color: rgba(255,255,255,.46);
+          font-size: 8px;
+          font-weight: 800;
+          letter-spacing: .18em;
+        }
+
+        .topNav {
+          display: flex;
+          align-items: center;
+          gap: 24px;
+        }
+
+        .topNav button {
+          padding: 0;
+          border: 0;
+          background: transparent;
+          color: rgba(255,255,255,.72);
+          cursor: pointer;
+          font-size: 8px;
+          font-weight: 800;
+          letter-spacing: .14em;
+        }
+
+        .topNav .startWild {
+          padding: 11px 15px;
+          background: #d76524;
+          color: #fff8ee;
+        }
+
+        .progressWrap {
+          position: relative;
+          z-index: 18;
+          width: min(920px, calc(100vw - 84px));
+          margin: 4px auto 0;
+        }
+
+        .destinationStage {
+          width: min(1120px, 100%);
+          margin: 42px auto 0;
+          padding: 36px 42px 42px;
+          box-sizing: border-box;
+          background: rgba(12, 11, 8, .64);
+          border: 1px solid rgba(235, 214, 177, .13);
+          box-shadow: 0 28px 90px rgba(0,0,0,.38);
+          backdrop-filter: blur(8px);
+        }
+
+        .destinationCompass { display: none; }
+
+        .eyebrow {
+          color: #d57936;
+          font-family: Arial, Helvetica, sans-serif;
+          letter-spacing: .22em;
+        }
+
+        h1,
+        .choiceContent h2,
+        .setupHeading h2,
+        .primaryField input,
+        .secondaryFields input,
+        .selectWrap select {
+          font-family: Arial, Helvetica, sans-serif;
+        }
+
+        h1 {
+          max-width: 760px;
+          font-size: clamp(48px, 6vw, 82px);
+          font-weight: 900;
+          line-height: .9;
+          letter-spacing: -.055em;
+          text-transform: uppercase;
+        }
+
+        .intro {
+          max-width: 620px;
+          margin-bottom: 34px;
+          color: rgba(255,255,255,.62);
+        }
+
+        .choiceGrid {
+          gap: 14px;
+          padding-top: 16px;
+          border-top-color: rgba(255,255,255,.13);
+        }
+
+        .choiceCard {
+          min-height: 250px;
+          background: rgba(8,8,6,.64);
+          border-color: rgba(255,255,255,.16);
+          backdrop-filter: blur(5px);
+        }
+
+        .choiceCard.featured,
+        .choiceCard:hover {
+          border-color: rgba(224,111,43,.75);
+          background: rgba(19,14,9,.76);
+        }
+
+        .choiceLabel,
+        .choiceAction,
+        .setupLabel,
+        .findingLabel,
+        .boardChange {
+          color: #e07836;
+        }
+
+        .choiceContent h2,
+        .setupHeading h2 {
+          font-weight: 800;
+          letter-spacing: -.03em;
+        }
+
+        .primaryAction {
+          border-color: #d76524;
+          background: #d76524;
+          color: #fff9ef;
+        }
+
+        .primaryAction:hover:not(:disabled) {
+          border-color: #e67b39;
+          background: #e67b39;
+        }
+
+        .radiusOption.selected {
+          border-color: #d76524;
+          background: rgba(215,101,36,.16);
+        }
+
+        .radiusOption.selected strong { color: #ef9a61; }
+
+        .destinationBoardSection {
+          width: min(1340px, calc(100vw - 44px));
+          margin-top: 6px;
+        }
+
+        .boardToolbar {
+          width: min(1160px, 100%);
+          border-color: rgba(255,255,255,.12);
+          background: rgba(8,8,6,.78);
+        }
+
+        .destinationBoard {
+          aspect-ratio: 1340 / 754;
+          background-size: 100% 100%;
+          background-position: center;
+        }
+
+        /* The five click areas follow the five blank Polaroids in destination-board.jpg. */
+        .destinationPin1 {
+          left: 16.7%; top: 28.1%; width: 14.3%; height: 25.5%;
+          transform: rotate(-4.5deg);
+        }
+        .destinationPin2 {
+          left: 67.3%; top: 28.8%; width: 16.4%; height: 25.4%;
+          transform: rotate(4.5deg);
+        }
+        .destinationPin3 {
+          left: 41.9%; top: 59%; width: 17.9%; height: 29.7%;
+          transform: rotate(1deg);
+        }
+        .destinationPin4 {
+          left: 12.7%; top: 56.1%; width: 16.9%; height: 31.3%;
+          transform: rotate(4deg);
+        }
+        .destinationPin5 {
+          left: 71.4%; top: 57.3%; width: 17.5%; height: 32%;
+          transform: rotate(5.5deg);
+        }
+
+        .destinationPin1:hover { transform: rotate(-4.5deg) translateY(-3px) scale(1.015); }
+        .destinationPin2:hover { transform: rotate(4.5deg) translateY(-3px) scale(1.015); }
+        .destinationPin3:hover { transform: rotate(1deg) translateY(-3px) scale(1.015); }
+        .destinationPin4:hover { transform: rotate(4deg) translateY(-3px) scale(1.015); }
+        .destinationPin5:hover { transform: rotate(5.5deg) translateY(-3px) scale(1.015); }
+
+        .pinContent {
+          left: 7%;
+          right: 7%;
+          bottom: 5%;
+          min-height: 29%;
+          padding: 3% 2% 1%;
+        }
+
+        .pinName {
+          font-family: Arial, Helvetica, sans-serif;
+          font-weight: 900;
+          letter-spacing: -.025em;
+        }
+
+        .boardLegend { display: none; }
+        .destinationFooter { display: none; }
+
+        @media (max-width: 900px) {
+          .destinationPage { padding: 0 18px 36px; }
+          .brandSub, .topNav button:not(.startWild) { display: none; }
+          .topNav { gap: 10px; }
+          .progressWrap { width: calc(100vw - 36px); }
+          .destinationStage { padding: 28px 24px 32px; }
+        }
+
+      `}</style>
+    </main>
+  );
+}
