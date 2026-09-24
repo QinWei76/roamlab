@@ -80,8 +80,16 @@ export type WildActivity =
    WAYS IN
    ========================================================= */
 
+/*
+ * Canonical Ways In: drive | hike | ride | paddle.
+ * Legacy walk | bike | kayak remain temporarily so existing saved Wilds
+ * do not break. New UI should write only the four canonical values.
+ */
 export type WildWayIn =
   | "drive"
+  | "hike"
+  | "ride"
+  | "paddle"
   | "walk"
   | "bike"
   | "kayak"
@@ -94,6 +102,46 @@ export type WildTripStyle =
   | "basecamp"
   | "remote"
   | "custom";
+
+
+/* =========================================================
+   WAY-IN SPECIFIC PLANNING CONTEXT
+
+   Ways In selects the planning path. Every path still builds the
+   same Wild and flows into the same Wild Plan. Shared Budget, Crew,
+   Schedule and Destination data stay canonical elsewhere.
+   ========================================================= */
+
+export interface WildDriveContext {
+  vehicleReady?: boolean;
+  sleepingInVehicle?: boolean;
+  towing?: boolean;
+  notes?: string;
+}
+
+export interface WildHikeContext {
+  hikeType?: "day-hike" | "overnight" | "backpacking" | "custom";
+  terrainPreference?: string[];
+  targetDistanceKm?: number;
+  targetElevationGainM?: number;
+  notes?: string;
+}
+
+export interface WildRideContext {
+  rideType?: "road" | "gravel" | "mountain" | "bikepacking" | "custom";
+  bikeType?: string;
+  targetDistanceKm?: number;
+  targetElevationGainM?: number;
+  notes?: string;
+}
+
+export interface WildPaddleContext {
+  paddleType?: "kayak" | "canoe" | "sup" | "packraft" | "custom";
+  waterType?: "lake" | "river" | "coast" | "mixed" | "custom";
+  craftOwned?: boolean;
+  targetDistanceKm?: number;
+  notes?: string;
+}
 
 
 /* =========================================================
@@ -396,10 +444,26 @@ export interface WildAdventure {
 
   activities: WildActivity[];
 
+  /*
+   * Selected Ways In entry.
+   * New UI should use: drive | hike | ride | paddle.
+   */
   wayIn?: WildWayIn;
 
   tripStyle?: WildTripStyle;
 
+  /*
+   * Mode-specific planning context.
+   */
+  drive?: WildDriveContext;
+  hike?: WildHikeContext;
+  ride?: WildRideContext;
+  paddle?: WildPaddleContext;
+
+  /*
+   * Vehicle remains canonical for Drive Wilds and can also represent
+   * a support / access vehicle in another kind of Wild.
+   */
   vehicle?: WildVehicle;
 
   crew?: WildCrew;
@@ -609,6 +673,10 @@ export type WildBudgetMode =
   | "gear-budget-only"
   | "no-budget";
 
+export type WildBudgetStatus =
+  | "set"
+  | "unknown";
+
 export type WildCostCategory =
   | "transportation"
   | "gear"
@@ -684,6 +752,11 @@ export interface WildCostSystem {
   budgetMode: WildBudgetMode;
 
   /*
+   * Supports the explicit "I DON'T KNOW YET" path.
+   */
+  budgetStatus?: WildBudgetStatus;
+
+  /*
    * User's total budget for the entire Wild.
    * This must NEVER be treated automatically as Gear Budget.
    */
@@ -711,6 +784,85 @@ export interface WildCostSystem {
 
   overBudgetBy?: number;
 
+  notes?: string;
+}
+
+
+/* =========================================================
+   PLANNING / FEASIBILITY
+
+   RoamLab can identify conflicts across budget, crew, duration,
+   destination, gear, logistics and safety; explain why they matter;
+   and offer alternatives. The user keeps the final decision.
+   ========================================================= */
+
+export type WildPlanningArea =
+  | "budget"
+  | "gear"
+  | "crew"
+  | "duration"
+  | "destination"
+  | "route"
+  | "capacity"
+  | "food-water"
+  | "logistics"
+  | "safety"
+  | "experience"
+  | "other";
+
+export type WildPlanningSeverity =
+  | "info"
+  | "attention"
+  | "important"
+  | "critical";
+
+export type WildPlanningIssueStatus =
+  | "open"
+  | "accepted"
+  | "resolved"
+  | "dismissed";
+
+export type WildPlanningSuggestionAction =
+  | "reduce-crew"
+  | "shorten-duration"
+  | "increase-budget"
+  | "change-destination"
+  | "change-route"
+  | "change-gear"
+  | "rent-or-borrow"
+  | "use-existing-gear"
+  | "change-campsite"
+  | "reduce-demand"
+  | "keep-current-plan"
+  | "custom";
+
+export interface WildPlanningSuggestion {
+  id: string;
+  action: WildPlanningSuggestionAction;
+  title: string;
+  description?: string;
+  estimatedBudgetChange?: number;
+  estimatedCostAfterChange?: number;
+  proposedChanges?: Record<string, unknown>;
+}
+
+export interface WildPlanningIssue {
+  id: string;
+  area: WildPlanningArea;
+  severity: WildPlanningSeverity;
+  status: WildPlanningIssueStatus;
+  title: string;
+  explanation: string;
+  evidence?: string[];
+  suggestions?: WildPlanningSuggestion[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface WildPlanningSystem {
+  issues?: WildPlanningIssue[];
+  projectedWildCost?: number;
+  lastCheckedAt?: string;
   notes?: string;
 }
 
@@ -771,6 +923,12 @@ export interface WildPlan {
   knowledge?: WildKnowledge;
 
   cost?: WildCostSystem;
+
+  /*
+   * Planning asks: "Does this Wild make sense?"
+   * Readiness asks: "Are we ready to go?"
+   */
+  planning?: WildPlanningSystem;
 
   readiness?: WildReadiness;
 
@@ -996,6 +1154,11 @@ export interface CreateWildInput {
 
   tripStyle?: WildTripStyle;
 
+  drive?: WildDriveContext;
+  hike?: WildHikeContext;
+  ride?: WildRideContext;
+  paddle?: WildPaddleContext;
+
   vehicle?: WildVehicle;
 
   crew?: WildCrew;
@@ -1005,6 +1168,8 @@ export interface CreateWildInput {
    * Gear Budget is optional and separate.
    */
   totalWildBudget?: number;
+
+  budgetStatus?: WildBudgetStatus;
 
   gearBudget?: number;
 
