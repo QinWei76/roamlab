@@ -74,11 +74,8 @@ export default function WildBudgetPage() {
 
     setWayIn(wild.plan.adventure.wayIn);
 
-    const existingBudget =
-      wild.plan.cost?.totalWildBudget;
-
-    const budgetStatus =
-      wild.plan.cost?.budgetStatus;
+    const existingBudget = wild.plan.cost?.totalWildBudget;
+    const budgetStatus = wild.plan.cost?.budgetStatus;
 
     if (
       budgetStatus === "set" &&
@@ -103,7 +100,11 @@ export default function WildBudgetPage() {
   function continueWithBudget() {
     const amount = Number(budget);
 
-    if (!budget || !Number.isFinite(amount) || amount <= 0) {
+    if (
+      !budget ||
+      !Number.isFinite(amount) ||
+      amount <= 0
+    ) {
       setError(
         "ENTER A BUDGET OR CHOOSE I DON'T KNOW YET."
       );
@@ -134,10 +135,7 @@ export default function WildBudgetPage() {
 
   return (
     <main className="budget-page">
-      {/* =====================================================
-          SCENE
-      ===================================================== */}
-
+      {/* BACKGROUND */}
       <img
         src="/wild-budget.jpg"
         alt=""
@@ -147,55 +145,23 @@ export default function WildBudgetPage() {
 
       <div className="scene-overlay" />
 
-      {/* =====================================================
-          HEADER — SAME LANGUAGE AS VEHICLE PAGE
-      ===================================================== */}
-
+      {/* HEADER */}
       <header className="site-header">
         <Link href="/" className="roamlab-brand">
           <strong>ROAMLAB</strong>
-
-          <span>
-            PLANS · GEAR · STORIES
-          </span>
+          <span>PLANS · GEAR · STORIES</span>
         </Link>
 
         <nav className="site-nav">
-          <Link href="/explore">
-            EXPLORE
-          </Link>
-
-          <Link href="/wild-plan">
-            PLAN
-          </Link>
-
-          <Link href="/prepare">
-            PREPARE
-          </Link>
-
-          <Link href="/safety">
-            SAFETY
-          </Link>
-
-          <Link href="/learn">
-            LEARN
-          </Link>
-
-          <Link href="/journal">
-            JOURNAL
-          </Link>
-
-          <Link href="/stories">
-            STORIES
-          </Link>
-
-          <Link href="/badges">
-            BADGES
-          </Link>
-
-          <Link href="/signin">
-            SIGN IN
-          </Link>
+          <Link href="/explore">EXPLORE</Link>
+          <Link href="/wild-plan">PLAN</Link>
+          <Link href="/prepare">PREPARE</Link>
+          <Link href="/safety">SAFETY</Link>
+          <Link href="/learn">LEARN</Link>
+          <Link href="/journal">JOURNAL</Link>
+          <Link href="/stories">STORIES</Link>
+          <Link href="/badges">BADGES</Link>
+          <Link href="/signin">SIGN IN</Link>
 
           <Link
             href="/ways-in"
@@ -206,25 +172,16 @@ export default function WildBudgetPage() {
         </nav>
       </header>
 
-      {/* =====================================================
-          BUDGET PANEL
-      ===================================================== */}
-
+      {/* BUDGET */}
       <section className="budget-panel">
         <div className="step-context">
           <span className="context-line" />
 
-          <span>
-            {getWayInLabel(wayIn)}
-          </span>
+          <span>{getWayInLabel(wayIn)}</span>
 
-          <span className="context-dot">
-            •
-          </span>
+          <span className="context-dot">•</span>
 
-          <span>
-            WILD BUDGET
-          </span>
+          <span>WILD BUDGET</span>
         </div>
 
         <h1>
@@ -239,87 +196,66 @@ export default function WildBudgetPage() {
           SPENDING ON THIS WILD?
         </p>
 
-        {/* =====================================================
-            MAIN NUMBER
-        ===================================================== */}
-
+        {/* MAIN AMOUNT */}
         <div className="budget-number">
-          <span className="currency-symbol">
-            $
-          </span>
+          <span className="currency-symbol">$</span>
 
           <input
             type="text"
             inputMode="numeric"
             value={formattedBudget}
             onChange={(event) =>
-              handleBudgetChange(
-                event.target.value
-              )
+              handleBudgetChange(event.target.value)
             }
             placeholder="2,000"
             aria-label="Total Wild Budget"
           />
 
-          <span className="currency-code">
-            USD
-          </span>
+          <span className="currency-code">USD</span>
         </div>
 
         <div className="orange-rule" />
 
-        {/* =====================================================
-            PRESETS
-        ===================================================== */}
-
+        {/* PRESETS */}
         <div className="preset-row">
           {BUDGET_PRESETS.map((amount) => {
-            const active =
-              Number(budget) === amount;
+            const active = Number(budget) === amount;
 
             return (
               <button
                 key={amount}
                 type="button"
-                onClick={() =>
-                  choosePreset(amount)
-                }
+                onClick={() => choosePreset(amount)}
                 className={
                   active
                     ? "preset-button active"
                     : "preset-button"
                 }
               >
-                $
-                {amount.toLocaleString(
-                  "en-US"
-                )}
+                ${amount.toLocaleString("en-US")}
               </button>
             );
           })}
         </div>
 
-        {/* =====================================================
-            BUDGET CONTENT
-        ===================================================== */}
-
+        {/* BUDGET SCOPE */}
         <div className="budget-covers">
           <span className="covers-label">
             BUDGET COVERS
           </span>
 
           <p>
-            TRAVEL
+            <span>TRAVEL</span>
             <i>•</i>
-            CAMPSITES
+            <span>CAMPSITES</span>
             <i>•</i>
-            FOOD
+            <span>FOOD</span>
             <i>•</i>
-            PERMITS
+            <span>PERMITS</span>
             <i>•</i>
-            ACTIVITIES
+            <span>ACTIVITIES</span>
             <i>•</i>
-            GEAR GAPS
+            <span>GEAR GAPS</span>
           </p>
         </div>
 
@@ -332,28 +268,17 @@ export default function WildBudgetPage() {
           </p>
         )}
 
-        {/* =====================================================
-            PRIMARY ACTION
-        ===================================================== */}
-
+        {/* PRIMARY ACTION */}
         <button
           type="button"
           className="continue-button"
           onClick={continueWithBudget}
         >
-          <span>
-            CONTINUE
-          </span>
-
-          <span className="button-arrow">
-            →
-          </span>
+          <span>CONTINUE</span>
+          <span className="button-arrow">→</span>
         </button>
 
-        {/* =====================================================
-            SECONDARY ACTION
-        ===================================================== */}
-
+        {/* SECONDARY ACTION */}
         <button
           type="button"
           className="unknown-button"
@@ -362,19 +287,12 @@ export default function WildBudgetPage() {
           I DON&apos;T KNOW YET
         </button>
 
-        {/* =====================================================
-            FOOT NOTE
-        ===================================================== */}
-
+        {/* NOTE */}
         <div className="planning-note">
-          <span className="note-number">
-            01
-          </span>
+          <span className="note-number">01</span>
 
           <div>
-            <strong>
-              ALREADY OWNED GEAR
-            </strong>
+            <strong>ALREADY OWNED GEAR</strong>
 
             <p>
               Gear you already own does not count
@@ -392,23 +310,15 @@ export default function WildBudgetPage() {
       </section>
 
       <style jsx>{`
-        /* =====================================================
-           BASE
-        ===================================================== */
-
         .budget-page {
           position: relative;
-
           width: 100vw;
           height: 100vh;
-
           min-width: 100%;
           min-height: 720px;
-
           overflow: hidden;
 
           background: #080604;
-
           color: #f1eee6;
 
           font-family:
@@ -430,7 +340,6 @@ export default function WildBudgetPage() {
 
         .scene-image {
           position: absolute;
-
           inset: 0;
 
           width: 100%;
@@ -445,7 +354,6 @@ export default function WildBudgetPage() {
 
         .scene-overlay {
           position: absolute;
-
           inset: 0;
 
           pointer-events: none;
@@ -473,7 +381,6 @@ export default function WildBudgetPage() {
 
         .site-header {
           position: absolute;
-
           z-index: 50;
 
           top: 0;
@@ -482,8 +389,7 @@ export default function WildBudgetPage() {
 
           height: 73px;
 
-          padding:
-            11px 26px 9px;
+          padding: 11px 20px 9px;
 
           display: flex;
           align-items: flex-start;
@@ -506,20 +412,16 @@ export default function WildBudgetPage() {
         :global(.roamlab-brand:visited),
         :global(.roamlab-brand:active) {
           display: flex;
-
           flex-direction: column;
-
           flex-shrink: 0;
 
           gap: 4px;
 
           color: #eee8dd !important;
-
           text-decoration: none !important;
 
           text-shadow:
-            0 2px 7px
-            rgba(0, 0, 0, 0.72);
+            0 2px 7px rgba(0, 0, 0, 0.72);
         }
 
         :global(.roamlab-brand strong) {
@@ -529,36 +431,24 @@ export default function WildBudgetPage() {
           line-height: 1;
 
           font-weight: 900;
+          letter-spacing: 0.08em;
 
-          letter-spacing:
-            0.08em;
-
-          transform:
-            scaleX(0.86);
-
-          transform-origin:
-            left center;
+          transform: scaleX(0.86);
+          transform-origin: left center;
         }
 
         :global(.roamlab-brand span) {
           font-size: 9px;
-
           font-weight: 800;
 
-          letter-spacing:
-            0.15em;
+          letter-spacing: 0.15em;
 
           color:
-            rgba(
-              239,
-              233,
-              222,
-              0.78
-            );
+            rgba(239, 233, 222, 0.78);
         }
 
         /* =====================================================
-           NAV
+           NAVIGATION
         ===================================================== */
 
         .site-nav {
@@ -577,15 +467,9 @@ export default function WildBudgetPage() {
         :global(.site-nav a:visited),
         :global(.site-nav a:active) {
           color:
-            rgba(
-              245,
-              240,
-              230,
-              0.88
-            ) !important;
+            rgba(245, 240, 230, 0.88) !important;
 
-          text-decoration:
-            none !important;
+          text-decoration: none !important;
 
           font-family:
             Georgia,
@@ -596,18 +480,14 @@ export default function WildBudgetPage() {
           line-height: 1;
 
           font-weight: 700;
-
-          letter-spacing:
-            0.055em;
+          letter-spacing: 0.055em;
 
           white-space: nowrap;
 
           text-shadow:
-            0 2px 5px
-            rgba(0, 0, 0, 0.75);
+            0 2px 5px rgba(0, 0, 0, 0.75);
 
-          transition:
-            color 150ms ease;
+          transition: color 150ms ease;
         }
 
         :global(.site-nav a:hover) {
@@ -624,10 +504,7 @@ export default function WildBudgetPage() {
         :global(.site-nav .header-cta:active) {
           height: 39px;
 
-          margin-left: 1px;
-
-          padding:
-            0 18px;
+          padding: 0 18px;
 
           display: flex;
           align-items: center;
@@ -635,13 +512,7 @@ export default function WildBudgetPage() {
           background: #eea326;
 
           border:
-            1px solid
-            rgba(
-              255,
-              186,
-              65,
-              0.92
-            );
+            1px solid rgba(255, 186, 65, 0.92);
 
           border-radius: 5px;
 
@@ -653,22 +524,14 @@ export default function WildBudgetPage() {
             serif;
 
           font-size: 8px;
-
           font-weight: 800;
 
-          letter-spacing:
-            0.035em;
+          letter-spacing: 0.035em;
 
           text-shadow: none;
 
           box-shadow:
-            0 4px 14px
-            rgba(
-              0,
-              0,
-              0,
-              0.2
-            );
+            0 4px 14px rgba(0, 0, 0, 0.2);
 
           transition:
             background 150ms ease,
@@ -677,46 +540,31 @@ export default function WildBudgetPage() {
 
         :global(.site-nav .header-cta:hover) {
           background: #f6ae35;
-
           color: #171108 !important;
 
-          transform:
-            translateY(-1px);
+          transform: translateY(-1px);
         }
 
         /* =====================================================
-           BUDGET PANEL
+           PANEL
         ===================================================== */
 
         .budget-panel {
           position: absolute;
-
           z-index: 20;
 
-          /*
-           * Leather work pad in wild-budget.jpg.
-           * Keep this area visually open.
-           */
-
           left: 65.7%;
-          top: 53%;
+          top: 52%;
 
-          width:
-            min(
-              510px,
-              32vw
-            );
+          width: min(510px, 32vw);
 
-          transform:
-            translateY(-50%);
+          transform: translateY(-50%);
 
           color: #f2ede3;
-
           text-align: left;
 
           text-shadow:
-            0 2px 9px
-            rgba(0, 0, 0, 0.78);
+            0 2px 9px rgba(0, 0, 0, 0.78);
         }
 
         /* =====================================================
@@ -725,21 +573,18 @@ export default function WildBudgetPage() {
 
         .step-context {
           display: flex;
-
           align-items: center;
 
           gap: 10px;
 
-          margin-bottom: 12px;
+          margin-bottom: 11px;
 
           color: #eea326;
 
-          font-size: 8px;
-
+          font-size: 9px;
           font-weight: 900;
 
-          letter-spacing:
-            0.17em;
+          letter-spacing: 0.16em;
         }
 
         .context-line {
@@ -769,57 +614,38 @@ export default function WildBudgetPage() {
             Arial,
             sans-serif;
 
-          font-size:
-            clamp(
-              48px,
-              4vw,
-              65px
-            );
-
+          font-size: clamp(48px, 4vw, 65px);
           line-height: 0.84;
 
           font-weight: 900;
 
-          letter-spacing:
-            -0.035em;
+          letter-spacing: -0.035em;
 
           text-transform: uppercase;
 
-          transform:
-            scaleX(0.9);
-
-          transform-origin:
-            left center;
+          transform: scaleX(0.9);
+          transform-origin: left center;
 
           text-shadow:
-            0 4px 16px
-            rgba(0, 0, 0, 0.8);
+            0 4px 16px rgba(0, 0, 0, 0.8);
         }
 
         .subtitle {
-          margin:
-            17px 0 17px;
+          margin: 17px 0 14px;
 
           color:
-            rgba(
-              241,
-              236,
-              226,
-              0.73
-            );
+            rgba(245, 240, 230, 0.86);
 
-          font-size: 9px;
-
-          line-height: 1.55;
+          font-size: 10px;
+          line-height: 1.5;
 
           font-weight: 800;
 
-          letter-spacing:
-            0.07em;
+          letter-spacing: 0.065em;
         }
 
         /* =====================================================
-           BIG BUDGET NUMBER
+           MAIN AMOUNT
         ===================================================== */
 
         .budget-number {
@@ -845,27 +671,36 @@ export default function WildBudgetPage() {
             sans-serif;
 
           font-size: 43px;
-
           line-height: 1;
 
           font-weight: 900;
+
+          text-shadow:
+            0 3px 12px rgba(0, 0, 0, 0.75);
         }
 
         .budget-number input {
           width: 100%;
-
           min-width: 0;
 
-          padding:
-            0 10px 0 0;
+          padding: 0 10px 0 0;
 
           border: 0;
-
           outline: none;
 
-          background: transparent;
+          background: transparent !important;
 
-          color: #f5f0e7;
+          /*
+           * Force the entered number to remain warm white.
+           * Safari/WebKit can otherwise render input text
+           * much darker than normal page text.
+           */
+          color: #f3eee4 !important;
+          -webkit-text-fill-color: #f3eee4 !important;
+
+          opacity: 1 !important;
+
+          caret-color: #eea326;
 
           font-family:
             "Arial Narrow",
@@ -874,57 +709,46 @@ export default function WildBudgetPage() {
             Arial,
             sans-serif;
 
-          font-size:
-            clamp(
-              74px,
-              6.1vw,
-              100px
-            );
-
+          font-size: clamp(74px, 6.1vw, 100px);
           line-height: 0.9;
 
           font-weight: 900;
 
-          letter-spacing:
-            -0.04em;
+          letter-spacing: -0.04em;
 
           text-shadow:
-            0 5px 20px
-            rgba(0, 0, 0, 0.86);
+            0 5px 20px rgba(0, 0, 0, 0.86);
+        }
+
+        .budget-number input:focus {
+          color: #fffaf0 !important;
+
+          -webkit-text-fill-color:
+            #fffaf0 !important;
         }
 
         .budget-number input::placeholder {
           color:
-            rgba(
-              245,
-              240,
-              231,
-              0.32
-            );
+            rgba(245, 240, 231, 0.38) !important;
+
+          -webkit-text-fill-color:
+            rgba(245, 240, 231, 0.38) !important;
 
           opacity: 1;
         }
 
         .currency-code {
           color:
-            rgba(
-              240,
-              234,
-              222,
-              0.62
-            );
+            rgba(245, 239, 227, 0.76);
 
-          font-size: 8px;
-
+          font-size: 9px;
           font-weight: 900;
 
-          letter-spacing:
-            0.14em;
+          letter-spacing: 0.14em;
         }
 
         .orange-rule {
           width: 100%;
-
           height: 2px;
 
           margin-top: 5px;
@@ -933,23 +757,13 @@ export default function WildBudgetPage() {
             linear-gradient(
               90deg,
               #eea326 0%,
-              rgba(
-                238,
-                163,
-                38,
-                0.62
-              ) 58%,
-              rgba(
-                238,
-                163,
-                38,
-                0.12
-              ) 100%
+              rgba(238, 163, 38, 0.62) 58%,
+              rgba(238, 163, 38, 0.12) 100%
             );
         }
 
         /* =====================================================
-           PRESET BUTTONS
+           PRESETS
         ===================================================== */
 
         .preset-row {
@@ -966,57 +780,40 @@ export default function WildBudgetPage() {
         }
 
         .preset-button {
-          height: 37px;
+          height: 39px;
 
           padding: 0;
 
           border:
-            1px solid
-            rgba(
-              242,
-              237,
-              227,
-              0.3
-            );
+            1px solid rgba(242, 237, 227, 0.34);
 
           background:
-            rgba(
-              7,
-              7,
-              6,
-              0.64
-            );
+            rgba(7, 7, 6, 0.66);
 
           color:
-            rgba(
-              242,
-              237,
-              227,
-              0.78
-            );
+            rgba(246, 241, 232, 0.9);
 
           cursor: pointer;
 
           font-family:
             "Arial Narrow",
+            "Helvetica Neue",
             Arial,
             sans-serif;
 
-          font-size: 8px;
-
+          /*
+           * Increased from 8px to 11px.
+           */
+          font-size: 11px;
           font-weight: 900;
 
-          letter-spacing:
-            0.055em;
+          letter-spacing: 0.035em;
+
+          text-shadow:
+            0 2px 6px rgba(0, 0, 0, 0.7);
 
           box-shadow:
-            0 3px 10px
-            rgba(
-              0,
-              0,
-              0,
-              0.18
-            );
+            0 3px 10px rgba(0, 0, 0, 0.18);
 
           transition:
             border-color 150ms ease,
@@ -1027,31 +824,23 @@ export default function WildBudgetPage() {
 
         .preset-button:hover {
           border-color:
-            rgba(
-              238,
-              163,
-              38,
-              0.9
-            );
+            rgba(238, 163, 38, 0.9);
 
           color: #ffffff;
 
-          transform:
-            translateY(-1px);
+          background:
+            rgba(15, 12, 8, 0.8);
+
+          transform: translateY(-1px);
         }
 
         .preset-button.active {
           border-color: #eea326;
 
           background:
-            rgba(
-              238,
-              163,
-              38,
-              0.18
-            );
+            rgba(238, 163, 38, 0.2);
 
-          color: #eea326;
+          color: #f7b23c;
         }
 
         /* =====================================================
@@ -1059,29 +848,26 @@ export default function WildBudgetPage() {
         ===================================================== */
 
         .budget-covers {
-          margin-top: 14px;
+          margin-top: 13px;
         }
 
         .covers-label {
           display: block;
 
-          margin-bottom: 6px;
+          margin-bottom: 5px;
 
           color: #eea326;
 
-          font-size: 7px;
-
+          font-size: 8px;
           font-weight: 900;
 
-          letter-spacing:
-            0.14em;
+          letter-spacing: 0.13em;
         }
 
         .budget-covers p {
           margin: 0;
 
           display: flex;
-
           flex-wrap: wrap;
 
           align-items: center;
@@ -1089,31 +875,19 @@ export default function WildBudgetPage() {
           gap: 6px;
 
           color:
-            rgba(
-              239,
-              233,
-              221,
-              0.56
-            );
+            rgba(242, 237, 227, 0.7);
 
-          font-size: 6px;
-
+          font-size: 7px;
           font-weight: 800;
 
           line-height: 1.5;
 
-          letter-spacing:
-            0.055em;
+          letter-spacing: 0.045em;
         }
 
         .budget-covers i {
           color:
-            rgba(
-              238,
-              163,
-              38,
-              0.65
-            );
+            rgba(238, 163, 38, 0.75);
 
           font-style: normal;
         }
@@ -1123,17 +897,14 @@ export default function WildBudgetPage() {
         ===================================================== */
 
         .budget-error {
-          margin:
-            10px 0 0;
+          margin: 9px 0 0;
 
           color: #ffc090;
 
-          font-size: 8px;
-
+          font-size: 9px;
           font-weight: 700;
 
-          letter-spacing:
-            0.03em;
+          letter-spacing: 0.03em;
         }
 
         /* =====================================================
@@ -1142,29 +913,18 @@ export default function WildBudgetPage() {
 
         .continue-button {
           width: 100%;
-
           height: 52px;
 
-          margin-top: 22px;
+          margin-top: 20px;
 
-          padding:
-            0 20px;
+          padding: 0 20px;
 
           display: flex;
-
           align-items: center;
-
-          justify-content:
-            space-between;
+          justify-content: space-between;
 
           border:
-            1px solid
-            rgba(
-              255,
-              184,
-              55,
-              0.96
-            );
+            1px solid rgba(255, 184, 55, 0.96);
 
           border-radius: 2px;
 
@@ -1181,22 +941,14 @@ export default function WildBudgetPage() {
             sans-serif;
 
           font-size: 11px;
-
           font-weight: 900;
 
-          letter-spacing:
-            0.11em;
+          letter-spacing: 0.11em;
 
           text-shadow: none;
 
           box-shadow:
-            0 6px 18px
-            rgba(
-              0,
-              0,
-              0,
-              0.25
-            );
+            0 6px 18px rgba(0, 0, 0, 0.25);
 
           transition:
             background 150ms ease,
@@ -1207,22 +959,14 @@ export default function WildBudgetPage() {
         .continue-button:hover {
           background: #f7ae31;
 
-          transform:
-            translateY(-1px);
+          transform: translateY(-1px);
 
           box-shadow:
-            0 8px 22px
-            rgba(
-              0,
-              0,
-              0,
-              0.3
-            );
+            0 8px 22px rgba(0, 0, 0, 0.3);
         }
 
         .button-arrow {
           font-size: 20px;
-
           line-height: 1;
         }
 
@@ -1233,32 +977,19 @@ export default function WildBudgetPage() {
         .unknown-button {
           display: block;
 
-          margin:
-            13px auto 0;
+          margin: 11px auto 0;
 
-          padding:
-            7px 2px;
+          padding: 7px 2px;
 
           border: 0;
 
           border-bottom:
-            1px solid
-            rgba(
-              240,
-              234,
-              222,
-              0.28
-            );
+            1px solid rgba(240, 234, 222, 0.32);
 
           background: transparent;
 
           color:
-            rgba(
-              244,
-              239,
-              229,
-              0.74
-            );
+            rgba(246, 241, 232, 0.82);
 
           cursor: pointer;
 
@@ -1267,21 +998,13 @@ export default function WildBudgetPage() {
             Arial,
             sans-serif;
 
-          font-size: 8px;
-
+          font-size: 9px;
           font-weight: 900;
 
-          letter-spacing:
-            0.11em;
+          letter-spacing: 0.1em;
 
           text-shadow:
-            0 2px 8px
-            rgba(
-              0,
-              0,
-              0,
-              0.75
-            );
+            0 2px 8px rgba(0, 0, 0, 0.75);
 
           transition:
             color 150ms ease,
@@ -1292,12 +1015,7 @@ export default function WildBudgetPage() {
           color: #eea326;
 
           border-color:
-            rgba(
-              238,
-              163,
-              38,
-              0.75
-            );
+            rgba(238, 163, 38, 0.75);
         }
 
         /* =====================================================
@@ -1305,37 +1023,27 @@ export default function WildBudgetPage() {
         ===================================================== */
 
         .planning-note {
-          margin-top: 18px;
-
-          padding-top: 13px;
+          margin-top: 13px;
+          padding-top: 10px;
 
           display: grid;
 
           grid-template-columns:
-            27px
-            1fr;
+            27px 1fr;
 
           gap: 10px;
 
           border-top:
-            1px solid
-            rgba(
-              244,
-              239,
-              229,
-              0.16
-            );
+            1px solid rgba(244, 239, 229, 0.18);
         }
 
         .note-number {
           color: #eea326;
 
-          font-size: 7px;
-
+          font-size: 8px;
           font-weight: 900;
 
-          letter-spacing:
-            0.08em;
+          letter-spacing: 0.08em;
         }
 
         .planning-note strong {
@@ -1344,42 +1052,29 @@ export default function WildBudgetPage() {
           margin-bottom: 3px;
 
           color:
-            rgba(
-              244,
-              239,
-              229,
-              0.78
-            );
+            rgba(246, 241, 232, 0.86);
 
-          font-size: 7px;
-
+          font-size: 8px;
           font-weight: 900;
 
-          letter-spacing:
-            0.09em;
+          letter-spacing: 0.085em;
         }
 
         .planning-note p {
           margin: 0;
 
           color:
-            rgba(
-              239,
-              233,
-              221,
-              0.5
-            );
+            rgba(242, 237, 227, 0.64);
 
-          font-size: 7px;
+          font-size: 8px;
 
-          line-height: 1.5;
+          line-height: 1.45;
 
-          letter-spacing:
-            0.02em;
+          letter-spacing: 0.015em;
         }
 
         /* =====================================================
-           CHANGE WAY IN
+           CHANGE WAY
         ===================================================== */
 
         :global(.change-way),
@@ -1388,33 +1083,24 @@ export default function WildBudgetPage() {
         :global(.change-way:active) {
           display: inline-block;
 
-          margin-top: 13px;
+          margin-top: 10px;
 
           color:
-            rgba(
-              242,
-              237,
-              227,
-              0.62
-            ) !important;
+            rgba(244, 239, 229, 0.72) !important;
 
-          text-decoration:
-            none !important;
+          text-decoration: none !important;
 
           font-family:
             "Arial Narrow",
             Arial,
             sans-serif;
 
-          font-size: 7px;
-
+          font-size: 8px;
           font-weight: 900;
 
-          letter-spacing:
-            0.1em;
+          letter-spacing: 0.095em;
 
-          transition:
-            color 150ms ease;
+          transition: color 150ms ease;
         }
 
         :global(.change-way:hover) {
@@ -1422,7 +1108,7 @@ export default function WildBudgetPage() {
         }
 
         /* =====================================================
-           FORCE REMOVE BROWSER PURPLE LINKS
+           LINK RESET
         ===================================================== */
 
         :global(.budget-page a),
@@ -1433,7 +1119,7 @@ export default function WildBudgetPage() {
         }
 
         /* =====================================================
-           RESPONSIVE
+           TABLET
         ===================================================== */
 
         @media (max-width: 1180px) {
@@ -1447,12 +1133,15 @@ export default function WildBudgetPage() {
 
           .budget-panel {
             left: 61%;
-
             width: 36vw;
           }
 
           .budget-number input {
             font-size: 72px;
+          }
+
+          .preset-button {
+            font-size: 10px;
           }
         }
 
@@ -1464,35 +1153,30 @@ export default function WildBudgetPage() {
 
           .budget-panel {
             left: 56%;
-
             width: 40vw;
           }
         }
 
+        /* =====================================================
+           MOBILE
+        ===================================================== */
+
         @media (max-width: 760px) {
           .budget-page {
             min-height: 820px;
-
             overflow-y: auto;
           }
 
           .scene-image {
             position: fixed;
-
-            object-position:
-              58% center;
+            object-position: 58% center;
           }
 
           .scene-overlay {
             position: fixed;
 
             background:
-              rgba(
-                5,
-                4,
-                3,
-                0.6
-              );
+              rgba(5, 4, 3, 0.6);
           }
 
           .site-header {
@@ -1500,8 +1184,7 @@ export default function WildBudgetPage() {
 
             height: 67px;
 
-            padding:
-              11px 17px;
+            padding: 11px 17px;
           }
 
           :global(.roamlab-brand strong) {
@@ -1518,8 +1201,7 @@ export default function WildBudgetPage() {
             padding:
               0 11px !important;
 
-            font-size:
-              7px !important;
+            font-size: 7px !important;
           }
 
           .budget-panel {
@@ -1528,40 +1210,22 @@ export default function WildBudgetPage() {
             left: auto;
             top: auto;
 
-            width:
-              calc(
-                100% - 36px
-              );
-
+            width: calc(100% - 36px);
             max-width: 470px;
 
-            margin:
-              100px auto 50px;
+            margin: 100px auto 50px;
 
-            padding:
-              27px 23px 24px;
+            padding: 27px 23px 24px;
 
             transform: none;
 
             background:
-              rgba(
-                8,
-                7,
-                5,
-                0.82
-              );
+              rgba(8, 7, 5, 0.82);
 
             border:
-              1px solid
-              rgba(
-                244,
-                239,
-                229,
-                0.2
-              );
+              1px solid rgba(244, 239, 229, 0.2);
 
-            backdrop-filter:
-              blur(7px);
+            backdrop-filter: blur(7px);
           }
 
           h1 {
@@ -1588,7 +1252,8 @@ export default function WildBudgetPage() {
           }
 
           .preset-button {
-            font-size: 7px;
+            height: 38px;
+            font-size: 9px;
           }
         }
       `}</style>
