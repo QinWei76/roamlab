@@ -45,14 +45,17 @@ const durationLabels: Record<
     title: "Overnight",
     detail: "1 Night",
   },
+
   weekend: {
     title: "Weekend",
     detail: "2–3 Nights",
   },
+
   "multi-day": {
     title: "Multi-Day",
     detail: "4–7 Nights",
   },
+
   extended: {
     title: "Extended",
     detail: "8+ Nights",
@@ -63,6 +66,7 @@ const durationLabels: Record<
   Planning baselines.
 
   These are not final trip dates.
+
   They give later RoamLab planning engines
   a useful working duration until the user
   provides exact dates.
@@ -108,10 +112,9 @@ export default function DurationPage() {
   const [
     selectedDuration,
     setSelectedDuration,
-  ] =
-    useState<DurationKey | null>(
-      null
-    );
+  ] = useState<DurationKey | null>(
+    null
+  );
 
   const [ready, setReady] =
     useState(false);
@@ -166,14 +169,10 @@ export default function DurationPage() {
       Number(peopleValue);
 
     if (
-      Number.isFinite(
-        parsedPeople
-      ) &&
+      Number.isFinite(parsedPeople) &&
       parsedPeople > 0
     ) {
-      setPeople(
-        parsedPeople
-      );
+      setPeople(parsedPeople);
     }
 
     setReady(true);
@@ -182,9 +181,7 @@ export default function DurationPage() {
   const chooseDuration = (
     duration: DurationKey
   ) => {
-    setSelectedDuration(
-      duration
-    );
+    setSelectedDuration(duration);
   };
 
   const closeSelection = () => {
@@ -193,9 +190,13 @@ export default function DurationPage() {
 
   /*
     Save Duration into Current Wild
-    BEFORE moving to Total Wild Budget.
+    BEFORE moving to Destination.
+
+    Budget has already been collected
+    immediately after Ways In, so it
+    should not appear again here.
   */
-  const continueToBudget = () => {
+  const continueToDestination = () => {
     if (!selectedDuration) {
       return;
     }
@@ -215,7 +216,7 @@ export default function DurationPage() {
     );
 
     window.location.href =
-      `/ways-in/drive/budget` +
+      `/wild-plan/destination` +
       `?vehicle=${vehicle}` +
       `&trip=${trip}` +
       `&crew=${crew}` +
@@ -322,7 +323,7 @@ export default function DurationPage() {
           trip={trip}
         />
 
-        {/* HOTSPOTS */}
+        {/* OVERNIGHT */}
 
         <button
           type="button"
@@ -344,6 +345,8 @@ export default function DurationPage() {
           }
         />
 
+        {/* WEEKEND */}
+
         <button
           type="button"
           className={`duration2-zone duration2-weekend ${
@@ -364,6 +367,8 @@ export default function DurationPage() {
           }
         />
 
+        {/* MULTI-DAY */}
+
         <button
           type="button"
           className={`duration2-zone duration2-multiday ${
@@ -383,6 +388,8 @@ export default function DurationPage() {
             "multi-day"
           }
         />
+
+        {/* EXTENDED */}
 
         <button
           type="button"
@@ -463,7 +470,7 @@ export default function DurationPage() {
               type="button"
               className="duration2-continue"
               onClick={
-                continueToBudget
+                continueToDestination
               }
             >
               CONTINUE →
