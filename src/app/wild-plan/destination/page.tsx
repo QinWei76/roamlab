@@ -510,23 +510,121 @@ export default function WildDestinationPage() {
 
         {!discovering && matches.length > 0 && (
           <>
-            <div className="resultTool">
-              <div><span>STARTING FROM</span><strong>{selectedOrigin ? getOriginLocationLabel(selectedOrigin) : "—"}</strong></div>
-              <div><span>RANGE</span><strong>{travelRadius === "anywhere" ? "Anywhere" : `~${travelRadius} km`}</strong></div>
-              <div><span>FOUND</span><strong>{matches.length.toString().padStart(2, "0")} PLACES</strong></div>
-              <button type="button" onClick={editDiscovery}>CHANGE START / RANGE</button>
-            </div>
+            <div className="briefSheet">
+              <div className="briefTopline">
+                <div>
+                  <span className="briefEyebrow">ROAMLAB / WILD PLANNING</span>
+                  <strong>DESTINATION BRIEF</strong>
+                </div>
+                <button type="button" onClick={editDiscovery}>CHANGE START / RANGE</button>
+              </div>
 
-            {matches.slice(0, 5).map((match, index) => (
-              <button type="button" key={`${match.source}-${match.sourceId}`} className={`polaroidHit polaroidHit${index + 1}`} onClick={() => selectDiscoveredDestination(match)} aria-label={`Choose ${match.name}`}>
-                <span className="photoNumber">{(index + 1).toString().padStart(2, "0")}</span>
-                <span className="photoCaption">
-                  <strong>{match.name}</strong>
-                  {typeof match.distanceKm === "number" && <small>{Math.round(match.distanceKm).toLocaleString()} KM FROM START</small>}
-                  <em>CHOOSE →</em>
-                </span>
-              </button>
-            ))}
+              <div className="briefContext">
+                <div>
+                  <span>STARTING FROM</span>
+                  <strong>{selectedOrigin ? getOriginLocationLabel(selectedOrigin) : "—"}</strong>
+                </div>
+                <div>
+                  <span>TRAVEL RANGE</span>
+                  <strong>{travelRadius === "anywhere" ? "ANYWHERE" : `~${travelRadius} KM`}</strong>
+                </div>
+                <div>
+                  <span>MATCHES</span>
+                  <strong>{matches.length.toString().padStart(2, "0")}</strong>
+                </div>
+              </div>
+
+              {matches[0] && (
+                <section className="primaryMatch">
+                  <div className="rankBlock">
+                    <span>01</span>
+                    <small>BEST MATCH</small>
+                  </div>
+
+                  <div className="primaryBody">
+                    <span className="sectionLabel">RECOMMENDED DESTINATION</span>
+                    <h1>{matches[0].name}</h1>
+
+                    <div className="primaryMetrics">
+                      {typeof matches[0].matchScore === "number" && (
+                        <div>
+                          <span>MATCH SCORE</span>
+                          <strong>{Math.round(matches[0].matchScore)}</strong>
+                        </div>
+                      )}
+                      {typeof matches[0].distanceKm === "number" && (
+                        <div>
+                          <span>DISTANCE</span>
+                          <strong>{Math.round(matches[0].distanceKm).toLocaleString()} KM</strong>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="fitReason">
+                      <span>WHY IT FITS</span>
+                      <p>
+                        {matches[0].whyItFits ||
+                          matches[0].matchReasons?.slice(0, 3).join(" · ") ||
+                          "Strong alignment with your current Wild setup."}
+                      </p>
+                    </div>
+
+                    {matches[0].activities && matches[0].activities.length > 0 && (
+                      <div className="activityLine">
+                        {matches[0].activities.slice(0, 4).map((activity) => (
+                          <span key={activity}>{activity}</span>
+                        ))}
+                      </div>
+                    )}
+
+                    <button
+                      type="button"
+                      className="selectPrimary"
+                      onClick={() => selectDiscoveredDestination(matches[0])}
+                    >
+                      SELECT THIS DESTINATION →
+                    </button>
+                  </div>
+                </section>
+              )}
+
+              <section className="alternatives">
+                <div className="alternativesHeading">
+                  <span>ALTERNATIVE MATCHES</span>
+                  <small>RANKED FOR THIS WILD</small>
+                </div>
+
+                <div className="alternativeList">
+                  {matches.slice(1, 5).map((match, index) => (
+                    <button
+                      type="button"
+                      key={`${match.source}-${match.sourceId}`}
+                      className="alternativeRow"
+                      onClick={() => selectDiscoveredDestination(match)}
+                    >
+                      <span className="altRank">{String(index + 2).padStart(2, "0")}</span>
+                      <span className="altName">{match.name}</span>
+                      <span className="altDistance">
+                        {typeof match.distanceKm === "number"
+                          ? `${Math.round(match.distanceKm).toLocaleString()} KM`
+                          : "—"}
+                      </span>
+                      <span className="altScore">
+                        {typeof match.matchScore === "number"
+                          ? `${Math.round(match.matchScore)} MATCH`
+                          : "VIEW"}
+                      </span>
+                      <span className="altArrow">→</span>
+                    </button>
+                  ))}
+                </div>
+              </section>
+
+              <div className="briefFooter">
+                <span>DESTINATION STATUS · REVIEW</span>
+                <span>GEOGRAPHIC DISTANCE · NOT DRIVING ROUTE DISTANCE</span>
+              </div>
+            </div>
           </>
         )}
       </section>
@@ -534,7 +632,7 @@ export default function WildDestinationPage() {
       <style jsx>{`
         :global(html), :global(body) { margin: 0; background: #0a0907; }
         .destinationPage { position: relative; min-height: 100vh; overflow: hidden; color: #f6f0e5; background: #0a0907; font-family: Arial, Helvetica, sans-serif; }
-        .scene { position: fixed; inset: 0; z-index: 0; background: url("/destination-board.jpg") center center / cover no-repeat; }
+        .scene { position: fixed; inset: 0; z-index: 0; background: url("/destination-brief.jpg") center center / cover no-repeat; }
         .sceneShade { position: fixed; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(180deg, rgba(4,4,3,.18) 0%, rgba(4,4,3,.03) 42%, rgba(4,4,3,.14) 100%); }
         button, input, select { font: inherit; }
         button { -webkit-tap-highlight-color: transparent; }
@@ -546,7 +644,7 @@ export default function WildDestinationPage() {
         .topNav { display: flex; align-items: center; gap: 25px; }
         .topNav button { padding: 0; color: rgba(255,255,255,.76); font-family: Georgia, "Times New Roman", serif; font-size: 8px; font-weight: 800; letter-spacing: .13em; }
         .topNav .startWild { padding: 11px 16px; background: #d66524; color: #fff9ef; }
-        .progressWrap { position: relative; z-index: 20; width: min(890px, calc(100vw - 220px)); margin: 30px auto 0; }
+        .progressWrap { position: fixed; z-index: 40; left: 50%; bottom: 14px; width: min(890px, calc(100vw - 220px)); transform: translateX(-50%); }
         .boardStage { position: relative; z-index: 10; width: min(1220px, calc(100vw - 100px)); height: calc(100vh - 130px); min-height: 610px; margin: -58px auto 0; }
 
         .entryTools { position: absolute; left: 50%; bottom: 7.5%; transform: translateX(-50%); display: flex; gap: 12px; }
@@ -589,42 +687,61 @@ export default function WildDestinationPage() {
         .errorButtons { display: flex; gap: 16px; }
         @keyframes pulse { 50% { opacity: .35; transform: scale(.82); } }
 
-        .resultTool { left: 50%; top: 92px; width: min(780px, 76vw); padding: 10px 14px; display: grid; grid-template-columns: 1.3fr .8fr .7fr auto; gap: 18px; align-items: center; transform: translateX(-50%); }
-        .resultTool div { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
-        .resultTool span { color: rgba(255,255,255,.36); font-size: 6px; font-weight: 900; letter-spacing: .14em; }
-        .resultTool strong { overflow: hidden; color: rgba(255,255,255,.82); font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
-
-        .polaroidHit { position: absolute; z-index: 15; padding: 0; border: 0; background: transparent; color: #241e17; cursor: pointer; text-align: left; transform-origin: center; transition: filter .16s ease, transform .16s ease; }
-        .polaroidHit:hover { z-index: 19; filter: drop-shadow(0 10px 9px rgba(0,0,0,.34)); }
-        .polaroidHit1 { left: 12.5%; top: 25.5%; width: 17.3%; height: 25.5%; transform: rotate(-4deg); }
-        .polaroidHit2 { left: 67.2%; top: 26.5%; width: 17.2%; height: 25.5%; transform: rotate(4deg); }
-        .polaroidHit3 { left: 42.1%; top: 52.5%; width: 18.1%; height: 28.5%; transform: rotate(1deg); }
-        .polaroidHit4 { left: 9.0%; top: 54.5%; width: 18.0%; height: 29%; transform: rotate(4deg); }
-        .polaroidHit5 { left: 72.0%; top: 54.5%; width: 17.8%; height: 29%; transform: rotate(5deg); }
-        .polaroidHit1:hover { transform: rotate(-4deg) translateY(-3px) scale(1.015); }
-        .polaroidHit2:hover { transform: rotate(4deg) translateY(-3px) scale(1.015); }
-        .polaroidHit3:hover { transform: rotate(1deg) translateY(-3px) scale(1.015); }
-        .polaroidHit4:hover { transform: rotate(4deg) translateY(-3px) scale(1.015); }
-        .polaroidHit5:hover { transform: rotate(5deg) translateY(-3px) scale(1.015); }
-        .photoNumber { position: absolute; left: 8%; top: 7%; width: 21px; height: 21px; display: grid; place-items: center; border-radius: 50%; background: rgba(35,29,22,.87); color: #f6ead0; font-size: 6px; font-weight: 900; }
-        .photoCaption { position: absolute; left: 8%; right: 8%; bottom: 5%; min-height: 26%; display: flex; flex-direction: column; justify-content: flex-end; }
-        .photoCaption strong { display: -webkit-box; overflow: hidden; color: #2b251e; font-family: Georgia, "Times New Roman", serif; font-size: clamp(9px, .9vw, 14px); line-height: 1.03; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
-        .photoCaption small { margin-top: 4px; color: rgba(43,37,30,.58); font-size: 6px; font-weight: 800; letter-spacing: .05em; }
-        .photoCaption em { margin-top: 4px; color: #7b4c23; font-size: 6px; font-style: normal; font-weight: 900; letter-spacing: .08em; opacity: 0; }
-        .polaroidHit:hover .photoCaption em { opacity: 1; }
+        .briefSheet { position: absolute; z-index: 20; left: 50%; top: 6.5%; width: min(690px, 58vw); min-height: 69%; padding: 24px 28px 20px; box-sizing: border-box; transform: translateX(-50%); color: #292720; background: rgba(242,239,224,.055); font-family: Arial, Helvetica, sans-serif; }
+        .briefTopline { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; padding-bottom: 10px; border-bottom: 1px solid rgba(48,44,35,.34); }
+        .briefTopline > div { display: flex; flex-direction: column; gap: 3px; }
+        .briefEyebrow { color: rgba(45,42,34,.54); font-size: 6px; font-weight: 900; letter-spacing: .18em; }
+        .briefTopline strong { font-family: Georgia, "Times New Roman", serif; font-size: 16px; letter-spacing: .08em; }
+        .briefTopline button { padding: 4px 0; border: 0; border-bottom: 1px solid rgba(112,67,31,.45); background: transparent; color: #75451f; cursor: pointer; font-size: 6px; font-weight: 900; letter-spacing: .13em; }
+        .briefContext { display: grid; grid-template-columns: 1.6fr 1fr .55fr; gap: 16px; padding: 11px 0 12px; border-bottom: 1px solid rgba(48,44,35,.26); }
+        .briefContext > div { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+        .briefContext span, .primaryMetrics span, .fitReason > span { color: rgba(45,42,34,.5); font-size: 6px; font-weight: 900; letter-spacing: .14em; }
+        .briefContext strong { overflow: hidden; color: #302d25; font-size: 9px; font-weight: 900; text-overflow: ellipsis; white-space: nowrap; }
+        .primaryMatch { display: grid; grid-template-columns: 70px 1fr; gap: 20px; padding: 18px 0 17px; border-bottom: 1px solid rgba(48,44,35,.32); }
+        .rankBlock { display: flex; flex-direction: column; align-items: flex-start; padding-top: 1px; }
+        .rankBlock > span { color: #b45d27; font-family: Georgia, "Times New Roman", serif; font-size: 37px; font-weight: 900; line-height: .9; }
+        .rankBlock small { margin-top: 7px; color: #75451f; font-size: 6px; font-weight: 900; letter-spacing: .12em; }
+        .primaryBody { min-width: 0; }
+        .sectionLabel { color: rgba(45,42,34,.48); font-size: 6px; font-weight: 900; letter-spacing: .17em; }
+        .primaryBody h1 { max-width: 480px; margin: 5px 0 10px; color: #24221c; font-family: Georgia, "Times New Roman", serif; font-size: clamp(20px,2vw,31px); line-height: .98; letter-spacing: -.025em; }
+        .primaryMetrics { display: flex; gap: 34px; margin-bottom: 11px; }
+        .primaryMetrics > div { display: flex; flex-direction: column; gap: 2px; }
+        .primaryMetrics strong { color: #2b2922; font-family: Georgia, "Times New Roman", serif; font-size: 15px; }
+        .fitReason { max-width: 500px; padding-top: 9px; border-top: 1px solid rgba(48,44,35,.16); }
+        .fitReason p { margin: 4px 0 0; color: rgba(39,36,29,.74); font-family: Georgia, "Times New Roman", serif; font-size: 9px; line-height: 1.35; }
+        .activityLine { margin-top: 9px; display: flex; flex-wrap: wrap; gap: 5px; }
+        .activityLine span { padding: 4px 6px; border: 1px solid rgba(63,57,45,.2); color: rgba(48,44,35,.65); font-size: 5px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+        .selectPrimary { margin-top: 12px; padding: 8px 12px; border: 0; background: #a95122; color: #fff7e8; cursor: pointer; font-size: 6px; font-weight: 900; letter-spacing: .12em; }
+        .selectPrimary:hover { background: #8f431b; }
+        .alternatives { padding-top: 12px; }
+        .alternativesHeading { display: flex; align-items: baseline; justify-content: space-between; padding-bottom: 6px; }
+        .alternativesHeading > span { color: #37332a; font-size: 7px; font-weight: 900; letter-spacing: .15em; }
+        .alternativesHeading small { color: rgba(45,42,34,.42); font-size: 5px; font-weight: 900; letter-spacing: .13em; }
+        .alternativeList { border-top: 1px solid rgba(48,44,35,.24); }
+        .alternativeRow { width: 100%; min-height: 31px; padding: 0 2px; display: grid; grid-template-columns: 34px minmax(0,1fr) 70px 72px 12px; gap: 8px; align-items: center; border: 0; border-bottom: 1px solid rgba(48,44,35,.17); background: transparent; color: #302d25; cursor: pointer; text-align: left; }
+        .alternativeRow:hover { background: rgba(112,67,31,.055); }
+        .altRank { color: #a95122; font-family: Georgia, "Times New Roman", serif; font-size: 12px; font-weight: 900; }
+        .altName { overflow: hidden; font-family: Georgia, "Times New Roman", serif; font-size: 9px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+        .altDistance, .altScore { color: rgba(45,42,34,.55); font-size: 5px; font-weight: 900; letter-spacing: .07em; text-align: right; }
+        .altScore { color: #75451f; }
+        .altArrow { color: #a95122; font-size: 10px; text-align: right; }
+        .briefFooter { margin-top: 11px; padding-top: 7px; display: flex; justify-content: space-between; gap: 16px; border-top: 1px solid rgba(48,44,35,.3); color: rgba(45,42,34,.43); font-size: 5px; font-weight: 900; letter-spacing: .11em; }
 
         @media (max-width: 900px) {
           .destinationHeader { padding: 0 18px; }
           .brandSub, .topNav button:not(.startWild) { display: none; }
           .topNav { gap: 8px; }
-          .progressWrap { width: calc(100vw - 36px); margin-top: 18px; }
-          .boardStage { width: 100vw; height: calc(100vh - 110px); margin-left: calc(50% - 50vw); min-height: 600px; }
+          .progressWrap { width: calc(100vw - 36px); bottom: 10px; }
+          .boardStage { width: 100vw; height: calc(100vh - 90px); margin-left: calc(50% - 50vw); min-height: 650px; }
           .discoveryRow { grid-template-columns: 1fr; gap: 12px; }
-          .discoveryTool { bottom: 2%; }
+          .discoveryTool { bottom: 8%; }
           .rangeChoices { grid-template-columns: repeat(4, 1fr); }
-          .resultTool { top: 82px; grid-template-columns: 1fr 1fr; }
-          .resultTool button { text-align: left; }
-          .entryTools { bottom: 4%; }
+          .entryTools { bottom: 10%; }
+          .briefSheet { top: 4%; width: min(680px,92vw); min-height: 0; padding: 18px 20px 16px; }
+          .primaryMatch { grid-template-columns: 56px 1fr; gap: 14px; }
+          .rankBlock > span { font-size: 30px; }
+          .primaryBody h1 { font-size: 20px; }
+          .alternativeRow { grid-template-columns: 30px minmax(0,1fr) 58px 58px 10px; gap: 5px; }
         }
       `}</style>
     </main>
