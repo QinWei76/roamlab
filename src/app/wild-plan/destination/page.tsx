@@ -755,7 +755,7 @@ export default function WildDestinationPage() {
           left: 0;
           top: 0;
           width: 59.2%;
-          height: 54.1%;
+          height: 53.7%;
           padding: 4.5% 5.2% 4%;
         }
 
@@ -830,9 +830,13 @@ export default function WildDestinationPage() {
           font-size: 11px;
           line-height: 1.42;
           -webkit-box-orient: vertical;
-          -webkit-line-clamp: 4;
+          -webkit-line-clamp: 3;
         }
-        .activityBlock { margin-top: 14px; }
+        .activityBlock {
+          margin-top: 10px;
+          max-height: 38px;
+          overflow: hidden;
+        }
         .activityLine {
           display: flex;
           flex-wrap: wrap;
@@ -848,7 +852,10 @@ export default function WildDestinationPage() {
           text-transform: uppercase;
         }
         .selectPrimary {
-          margin-top: 15px;
+          position: absolute;
+          left: 5.2%;
+          bottom: 15px;
+          margin-top: 0;
           padding: 9px 12px;
           border: 0;
           background: #a95122;
@@ -893,9 +900,9 @@ export default function WildDestinationPage() {
 
         .assessmentPanel {
           left: 59.2%;
-          top: 8.6%;
+          top: 8.7%;
           width: 40.8%;
-          height: 36.9%;
+          height: 35.5%;
           padding: 16px 14px;
         }
         .assessmentList { margin-top: 14px; }
@@ -921,9 +928,9 @@ export default function WildDestinationPage() {
 
         .alternatives {
           left: 59.2%;
-          top: 45.5%;
+          top: 44.2%;
           width: 40.8%;
-          height: 30.4%;
+          height: 39.2%;
           padding: 14px;
         }
         .alternativesHeading {
@@ -986,14 +993,14 @@ export default function WildDestinationPage() {
 
         .fieldNote {
           left: 0;
-          top: 54.1%;
+          top: 53.7%;
           width: 59.2%;
-          height: 21.8%;
-          padding: 15px 5.2%;
+          height: 29.7%;
+          padding: 18px 5.2%;
         }
         .fieldNote p {
-          max-width: 92%;
-          margin: 10px 0 0;
+          max-width: 88%;
+          margin: 12px 0 0;
           color: rgba(39,36,29,.72);
           font-family: Georgia, "Times New Roman", serif;
           font-size: 11px;
@@ -1002,9 +1009,9 @@ export default function WildDestinationPage() {
 
         .briefFooter {
           left: 0;
-          top: 75.9%;
+          top: 83.4%;
           width: 100%;
-          height: 24.1%;
+          height: 16.6%;
           padding: 18px 3.2%;
           display: flex;
           align-items: flex-start;
