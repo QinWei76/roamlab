@@ -665,48 +665,6 @@ export default function WildDestinationPage() {
           );
         })()}
       </section>
-              )}
-
-              <section className="alternatives">
-                <div className="alternativesHeading">
-                  <span>ALTERNATIVE MATCHES</span>
-                  <small>RANKED FOR THIS WILD</small>
-                </div>
-
-                <div className="alternativeList">
-                  {matches.slice(1, 5).map((match, index) => (
-                    <button
-                      type="button"
-                      key={`${match.source}-${match.sourceId}`}
-                      className="alternativeRow"
-                      onClick={() => selectDiscoveredDestination(match)}
-                    >
-                      <span className="altRank">{String(index + 2).padStart(2, "0")}</span>
-                      <span className="altName">{match.name}</span>
-                      <span className="altDistance">
-                        {typeof match.distanceKm === "number"
-                          ? `${Math.round(match.distanceKm).toLocaleString()} KM`
-                          : "—"}
-                      </span>
-                      <span className="altScore">
-                        {typeof match.matchScore === "number"
-                          ? `${Math.round(match.matchScore)} MATCH`
-                          : "VIEW"}
-                      </span>
-                      <span className="altArrow">→</span>
-                    </button>
-                  ))}
-                </div>
-              </section>
-
-              <div className="briefFooter">
-                <span>DESTINATION STATUS · REVIEW</span>
-                <span>GEOGRAPHIC DISTANCE · NOT DRIVING ROUTE DISTANCE</span>
-              </div>
-            </div>
-          </>
-        )}
-      </section>
 
       <style jsx>{`
         :global(html), :global(body) { margin: 0; background: #0a0907; }
