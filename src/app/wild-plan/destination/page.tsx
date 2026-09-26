@@ -511,15 +511,10 @@ export default function WildDestinationPage() {
         {!discovering && matches.length > 0 && (
           <>
             <div className="briefSheet">
-              <div className="briefTopline">
-                <div>
-                  <span className="briefEyebrow">ROAMLAB / WILD PLANNING</span>
-                  <strong>DESTINATION BRIEF</strong>
-                </div>
-                <button type="button" onClick={editDiscovery}>CHANGE START / RANGE</button>
-              </div>
-
               <div className="briefContext">
+                <button type="button" className="changeBrief" onClick={editDiscovery}>
+                  CHANGE START / RANGE
+                </button>
                 <div>
                   <span>STARTING FROM</span>
                   <strong>{selectedOrigin ? getOriginLocationLabel(selectedOrigin) : "—"}</strong>
@@ -687,45 +682,242 @@ export default function WildDestinationPage() {
         .errorButtons { display: flex; gap: 16px; }
         @keyframes pulse { 50% { opacity: .35; transform: scale(.82); } }
 
-        .briefSheet { position: absolute; z-index: 20; left: 50%; top: 6.5%; width: min(690px, 58vw); min-height: 69%; padding: 24px 28px 20px; box-sizing: border-box; transform: translateX(-50%); color: #292720; background: rgba(242,239,224,.055); font-family: Arial, Helvetica, sans-serif; }
-        .briefTopline { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; padding-bottom: 10px; border-bottom: 1px solid rgba(48,44,35,.34); }
-        .briefTopline > div { display: flex; flex-direction: column; gap: 3px; }
-        .briefEyebrow { color: rgba(45,42,34,.54); font-size: 6px; font-weight: 900; letter-spacing: .18em; }
-        .briefTopline strong { font-family: Georgia, "Times New Roman", serif; font-size: 16px; letter-spacing: .08em; }
-        .briefTopline button { padding: 4px 0; border: 0; border-bottom: 1px solid rgba(112,67,31,.45); background: transparent; color: #75451f; cursor: pointer; font-size: 6px; font-weight: 900; letter-spacing: .13em; }
-        .briefContext { display: grid; grid-template-columns: 1.6fr 1fr .55fr; gap: 16px; padding: 11px 0 12px; border-bottom: 1px solid rgba(48,44,35,.26); }
+        /*
+         * DESTINATION BRIEF ALIGNMENT
+         * The background artwork is 16:9. The live content is deliberately
+         * constrained to the printed inner sheet instead of using a free-floating card.
+         */
+        .briefSheet {
+          position: fixed;
+          z-index: 20;
+          left: 50.65%;
+          top: 18.55%;
+          width: 38.55vw;
+          height: 69.7vh;
+          padding: 0;
+          box-sizing: border-box;
+          transform: translateX(-50%);
+          color: #292720;
+          background: transparent;
+          font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .briefContext {
+          position: relative;
+          height: 16.5%;
+          display: grid;
+          grid-template-columns: 1.55fr 1fr .55fr;
+          gap: 14px;
+          align-items: end;
+          padding: 0 2.8% 3.2%;
+          box-sizing: border-box;
+          border-bottom: 1px solid rgba(48,44,35,.22);
+        }
+        .changeBrief {
+          position: absolute;
+          right: 2.8%;
+          top: 8%;
+          padding: 0 0 3px;
+          border: 0;
+          border-bottom: 1px solid rgba(112,67,31,.38);
+          background: transparent;
+          color: #75451f;
+          cursor: pointer;
+          font-size: 5px;
+          font-weight: 900;
+          letter-spacing: .12em;
+        }
         .briefContext > div { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-        .briefContext span, .primaryMetrics span, .fitReason > span { color: rgba(45,42,34,.5); font-size: 6px; font-weight: 900; letter-spacing: .14em; }
-        .briefContext strong { overflow: hidden; color: #302d25; font-size: 9px; font-weight: 900; text-overflow: ellipsis; white-space: nowrap; }
-        .primaryMatch { display: grid; grid-template-columns: 70px 1fr; gap: 20px; padding: 18px 0 17px; border-bottom: 1px solid rgba(48,44,35,.32); }
-        .rankBlock { display: flex; flex-direction: column; align-items: flex-start; padding-top: 1px; }
-        .rankBlock > span { color: #b45d27; font-family: Georgia, "Times New Roman", serif; font-size: 37px; font-weight: 900; line-height: .9; }
-        .rankBlock small { margin-top: 7px; color: #75451f; font-size: 6px; font-weight: 900; letter-spacing: .12em; }
+        .briefContext span, .primaryMetrics span, .fitReason > span {
+          color: rgba(45,42,34,.50);
+          font-size: 5px;
+          font-weight: 900;
+          letter-spacing: .14em;
+        }
+        .briefContext strong {
+          overflow: hidden;
+          color: #302d25;
+          font-size: 8px;
+          font-weight: 900;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .primaryMatch {
+          height: 47%;
+          display: grid;
+          grid-template-columns: 15% 1fr;
+          gap: 3.5%;
+          padding: 4.2% 3% 3.6%;
+          box-sizing: border-box;
+          border-bottom: 1px solid rgba(48,44,35,.28);
+        }
+        .rankBlock {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          padding-top: 1px;
+        }
+        .rankBlock > span {
+          color: #b45d27;
+          font-family: Georgia, "Times New Roman", serif;
+          font-size: clamp(25px,2.25vw,35px);
+          font-weight: 900;
+          line-height: .9;
+        }
+        .rankBlock small {
+          margin-top: 6px;
+          color: #75451f;
+          font-size: 5px;
+          font-weight: 900;
+          letter-spacing: .1em;
+        }
         .primaryBody { min-width: 0; }
-        .sectionLabel { color: rgba(45,42,34,.48); font-size: 6px; font-weight: 900; letter-spacing: .17em; }
-        .primaryBody h1 { max-width: 480px; margin: 5px 0 10px; color: #24221c; font-family: Georgia, "Times New Roman", serif; font-size: clamp(20px,2vw,31px); line-height: .98; letter-spacing: -.025em; }
-        .primaryMetrics { display: flex; gap: 34px; margin-bottom: 11px; }
-        .primaryMetrics > div { display: flex; flex-direction: column; gap: 2px; }
-        .primaryMetrics strong { color: #2b2922; font-family: Georgia, "Times New Roman", serif; font-size: 15px; }
-        .fitReason { max-width: 500px; padding-top: 9px; border-top: 1px solid rgba(48,44,35,.16); }
-        .fitReason p { margin: 4px 0 0; color: rgba(39,36,29,.74); font-family: Georgia, "Times New Roman", serif; font-size: 9px; line-height: 1.35; }
-        .activityLine { margin-top: 9px; display: flex; flex-wrap: wrap; gap: 5px; }
-        .activityLine span { padding: 4px 6px; border: 1px solid rgba(63,57,45,.2); color: rgba(48,44,35,.65); font-size: 5px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
-        .selectPrimary { margin-top: 12px; padding: 8px 12px; border: 0; background: #a95122; color: #fff7e8; cursor: pointer; font-size: 6px; font-weight: 900; letter-spacing: .12em; }
+        .sectionLabel {
+          color: rgba(45,42,34,.48);
+          font-size: 5px;
+          font-weight: 900;
+          letter-spacing: .15em;
+        }
+        .primaryBody h1 {
+          max-width: 100%;
+          margin: 4px 0 8px;
+          color: #24221c;
+          font-family: Georgia, "Times New Roman", serif;
+          font-size: clamp(16px,1.55vw,24px);
+          line-height: 1.02;
+          letter-spacing: -.02em;
+        }
+        .primaryMetrics { display: flex; gap: 28px; margin-bottom: 8px; }
+        .primaryMetrics > div { display: flex; flex-direction: column; gap: 1px; }
+        .primaryMetrics strong {
+          color: #2b2922;
+          font-family: Georgia, "Times New Roman", serif;
+          font-size: 12px;
+        }
+        .fitReason {
+          max-width: 100%;
+          padding-top: 7px;
+          border-top: 1px solid rgba(48,44,35,.14);
+        }
+        .fitReason p {
+          margin: 3px 0 0;
+          display: -webkit-box;
+          overflow: hidden;
+          color: rgba(39,36,29,.74);
+          font-family: Georgia, "Times New Roman", serif;
+          font-size: 7px;
+          line-height: 1.32;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 3;
+        }
+        .activityLine {
+          margin-top: 7px;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 4px;
+        }
+        .activityLine span {
+          padding: 3px 5px;
+          border: 1px solid rgba(63,57,45,.18);
+          color: rgba(48,44,35,.65);
+          font-size: 4px;
+          font-weight: 900;
+          letter-spacing: .07em;
+          text-transform: uppercase;
+        }
+        .selectPrimary {
+          margin-top: 8px;
+          padding: 7px 10px;
+          border: 0;
+          background: #a95122;
+          color: #fff7e8;
+          cursor: pointer;
+          font-size: 5px;
+          font-weight: 900;
+          letter-spacing: .11em;
+        }
         .selectPrimary:hover { background: #8f431b; }
-        .alternatives { padding-top: 12px; }
-        .alternativesHeading { display: flex; align-items: baseline; justify-content: space-between; padding-bottom: 6px; }
-        .alternativesHeading > span { color: #37332a; font-size: 7px; font-weight: 900; letter-spacing: .15em; }
-        .alternativesHeading small { color: rgba(45,42,34,.42); font-size: 5px; font-weight: 900; letter-spacing: .13em; }
-        .alternativeList { border-top: 1px solid rgba(48,44,35,.24); }
-        .alternativeRow { width: 100%; min-height: 31px; padding: 0 2px; display: grid; grid-template-columns: 34px minmax(0,1fr) 70px 72px 12px; gap: 8px; align-items: center; border: 0; border-bottom: 1px solid rgba(48,44,35,.17); background: transparent; color: #302d25; cursor: pointer; text-align: left; }
-        .alternativeRow:hover { background: rgba(112,67,31,.055); }
-        .altRank { color: #a95122; font-family: Georgia, "Times New Roman", serif; font-size: 12px; font-weight: 900; }
-        .altName { overflow: hidden; font-family: Georgia, "Times New Roman", serif; font-size: 9px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
-        .altDistance, .altScore { color: rgba(45,42,34,.55); font-size: 5px; font-weight: 900; letter-spacing: .07em; text-align: right; }
+
+        .alternatives {
+          height: 28.5%;
+          padding: 2.8% 3% 0;
+          box-sizing: border-box;
+        }
+        .alternativesHeading {
+          display: flex;
+          align-items: baseline;
+          justify-content: space-between;
+          padding-bottom: 4px;
+        }
+        .alternativesHeading > span {
+          color: #37332a;
+          font-size: 5px;
+          font-weight: 900;
+          letter-spacing: .14em;
+        }
+        .alternativesHeading small {
+          color: rgba(45,42,34,.42);
+          font-size: 4px;
+          font-weight: 900;
+          letter-spacing: .11em;
+        }
+        .alternativeList { border-top: 1px solid rgba(48,44,35,.22); }
+        .alternativeRow {
+          width: 100%;
+          height: 24px;
+          padding: 0 1px;
+          display: grid;
+          grid-template-columns: 28px minmax(0,1fr) 58px 58px 9px;
+          gap: 6px;
+          align-items: center;
+          border: 0;
+          border-bottom: 1px solid rgba(48,44,35,.15);
+          background: transparent;
+          color: #302d25;
+          cursor: pointer;
+          text-align: left;
+        }
+        .alternativeRow:hover { background: rgba(112,67,31,.05); }
+        .altRank {
+          color: #a95122;
+          font-family: Georgia, "Times New Roman", serif;
+          font-size: 10px;
+          font-weight: 900;
+        }
+        .altName {
+          overflow: hidden;
+          font-family: Georgia, "Times New Roman", serif;
+          font-size: 7px;
+          font-weight: 700;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .altDistance, .altScore {
+          color: rgba(45,42,34,.55);
+          font-size: 4px;
+          font-weight: 900;
+          letter-spacing: .06em;
+          text-align: right;
+        }
         .altScore { color: #75451f; }
-        .altArrow { color: #a95122; font-size: 10px; text-align: right; }
-        .briefFooter { margin-top: 11px; padding-top: 7px; display: flex; justify-content: space-between; gap: 16px; border-top: 1px solid rgba(48,44,35,.3); color: rgba(45,42,34,.43); font-size: 5px; font-weight: 900; letter-spacing: .11em; }
+        .altArrow { color: #a95122; font-size: 8px; text-align: right; }
+
+        .briefFooter {
+          position: absolute;
+          left: 3%;
+          right: 3%;
+          bottom: 1.8%;
+          padding-top: 5px;
+          display: flex;
+          justify-content: space-between;
+          gap: 12px;
+          border-top: 1px solid rgba(48,44,35,.24);
+          color: rgba(45,42,34,.43);
+          font-size: 4px;
+          font-weight: 900;
+          letter-spacing: .09em;
+        }
 
         @media (max-width: 900px) {
           .destinationHeader { padding: 0 18px; }
@@ -737,11 +929,19 @@ export default function WildDestinationPage() {
           .discoveryTool { bottom: 8%; }
           .rangeChoices { grid-template-columns: repeat(4, 1fr); }
           .entryTools { bottom: 10%; }
-          .briefSheet { top: 4%; width: min(680px,92vw); min-height: 0; padding: 18px 20px 16px; }
-          .primaryMatch { grid-template-columns: 56px 1fr; gap: 14px; }
-          .rankBlock > span { font-size: 30px; }
-          .primaryBody h1 { font-size: 20px; }
-          .alternativeRow { grid-template-columns: 30px minmax(0,1fr) 58px 58px 10px; gap: 5px; }
+
+          .briefSheet {
+            left: 50.6%;
+            top: 18.5%;
+            width: 57vw;
+            height: 68vh;
+          }
+          .primaryMatch { grid-template-columns: 14% 1fr; gap: 3%; }
+          .primaryBody h1 { font-size: clamp(14px,2.5vw,20px); }
+          .alternativeRow {
+            grid-template-columns: 24px minmax(0,1fr) 48px 48px 8px;
+            gap: 4px;
+          }
         }
       `}</style>
     </main>
