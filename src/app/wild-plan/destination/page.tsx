@@ -113,6 +113,9 @@ export default function WildDestinationPage() {
   const [matches, setMatches] =
     useState<DiscoveryMatch[]>([]);
 
+  const [activeMatchIndex, setActiveMatchIndex] =
+    useState(0);
+
   const [discoveryError, setDiscoveryError] =
     useState("");
 
@@ -216,6 +219,7 @@ export default function WildDestinationPage() {
   function openDiscovery() {
     setMode("discover");
     setMatches([]);
+    setActiveMatchIndex(0);
     setHasSearched(false);
     setDiscoveryError("");
   }
@@ -388,11 +392,13 @@ export default function WildDestinationPage() {
     setMode("choose");
     setDiscoveryError("");
     setMatches([]);
+    setActiveMatchIndex(0);
     setHasSearched(false);
   }
 
   function editDiscovery() {
     setMatches([]);
+    setActiveMatchIndex(0);
     setHasSearched(false);
     setDiscoveryError("");
   }
@@ -508,13 +514,84 @@ export default function WildDestinationPage() {
           </div>
         )}
 
-        {!discovering && matches.length > 0 && (
-          <>
+        {!discovering && matches.length > 0 && (() => {
+          const activeMatch = matches[activeMatchIndex] ?? matches[0];
+          const activeRank = Math.min(activeMatchIndex + 1, matches.length);
+          const fitPoints =
+            activeMatch.matchReasons && activeMatch.matchReasons.length > 0
+              ? activeMatch.matchReasons.slice(0, 3)
+              : activeMatch.whyItFits
+                ? [activeMatch.whyItFits]
+                : ["Strong alignment with your current Wild setup."];
+
+          return (
             <div className="briefSheet">
-              <div className="briefContext">
-                <button type="button" className="changeBrief" onClick={editDiscovery}>
-                  CHANGE START / RANGE
+              <section className="briefMain">
+                <div className="mainTopline">
+                  <div>
+                    <span className="rankNumber">{String(activeRank).padStart(2, "0")}</span>
+                    <span className="rankStatus">
+                      {activeMatchIndex === 0 ? "BEST MATCH" : "VIEWING"}
+                    </span>
+                  </div>
+                  <button type="button" className="changeBrief" onClick={editDiscovery}>
+                    CHANGE SEARCH
+                  </button>
+                </div>
+
+                <span className="sectionLabel">DESTINATION</span>
+                <h1>{activeMatch.name}</h1>
+
+                <div className="primaryMetrics">
+                  <div>
+                    <span>MATCH</span>
+                    <strong>
+                      {typeof activeMatch.matchScore === "number"
+                        ? Math.round(activeMatch.matchScore)
+                        : "—"}
+                    </strong>
+                  </div>
+                  <div>
+                    <span>DISTANCE</span>
+                    <strong>
+                      {typeof activeMatch.distanceKm === "number"
+                        ? `${Math.round(activeMatch.distanceKm).toLocaleString()} KM`
+                        : "—"}
+                    </strong>
+                  </div>
+                </div>
+
+                <div className="fitReason">
+                  <span>WHY THIS FITS YOUR WILD</span>
+                  <p>
+                    {activeMatch.whyItFits ||
+                      activeMatch.matchReasons?.slice(0, 3).join(" · ") ||
+                      "Strong alignment with your current Wild setup."}
+                  </p>
+                </div>
+
+                {activeMatch.activities && activeMatch.activities.length > 0 && (
+                  <div className="activityBlock">
+                    <span className="sectionLabel">ACTIVITIES</span>
+                    <div className="activityLine">
+                      {activeMatch.activities.slice(0, 5).map((activity) => (
+                        <span key={activity}>{activity}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  className="selectPrimary"
+                  onClick={() => selectDiscoveredDestination(activeMatch)}
+                >
+                  SET AS MY DESTINATION →
                 </button>
+              </section>
+
+              <aside className="briefContext">
+                <span className="panelLabel">WILD CONTEXT</span>
                 <div>
                   <span>STARTING FROM</span>
                   <strong>{selectedOrigin ? getOriginLocationLabel(selectedOrigin) : "—"}</strong>
@@ -527,60 +604,67 @@ export default function WildDestinationPage() {
                   <span>MATCHES</span>
                   <strong>{matches.length.toString().padStart(2, "0")}</strong>
                 </div>
-              </div>
+              </aside>
 
-              {matches[0] && (
-                <section className="primaryMatch">
-                  <div className="rankBlock">
-                    <span>01</span>
-                    <small>BEST MATCH</small>
-                  </div>
+              <aside className="assessmentPanel">
+                <span className="panelLabel">FIELD ASSESSMENT</span>
+                <div className="assessmentList">
+                  {fitPoints.map((point, index) => (
+                    <p key={`${point}-${index}`}>
+                      <span>✓</span>{point}
+                    </p>
+                  ))}
+                </div>
+                <small>ENVIRONMENT DATA · COMING NEXT</small>
+              </aside>
 
-                  <div className="primaryBody">
-                    <span className="sectionLabel">RECOMMENDED DESTINATION</span>
-                    <h1>{matches[0].name}</h1>
+              <aside className="alternatives">
+                <div className="alternativesHeading">
+                  <span>DESTINATION MATCHES</span>
+                  <small>CLICK TO VIEW</small>
+                </div>
 
-                    <div className="primaryMetrics">
-                      {typeof matches[0].matchScore === "number" && (
-                        <div>
-                          <span>MATCH SCORE</span>
-                          <strong>{Math.round(matches[0].matchScore)}</strong>
-                        </div>
-                      )}
-                      {typeof matches[0].distanceKm === "number" && (
-                        <div>
-                          <span>DISTANCE</span>
-                          <strong>{Math.round(matches[0].distanceKm).toLocaleString()} KM</strong>
-                        </div>
-                      )}
-                    </div>
+                <div className="alternativeList">
+                  {matches.slice(0, 5).map((match, index) => {
+                    const isActive = index === activeMatchIndex;
+                    return (
+                      <button
+                        type="button"
+                        key={`${match.source}-${match.sourceId}`}
+                        className={`alternativeRow ${isActive ? "active" : ""}`}
+                        onClick={() => setActiveMatchIndex(index)}
+                      >
+                        <span className="altRank">{String(index + 1).padStart(2, "0")}</span>
+                        <span className="altName">{match.name}</span>
+                        <span className="altMeta">
+                          {index === 0 ? "BEST MATCH" : isActive ? "VIEWING" : "VIEW"}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </aside>
 
-                    <div className="fitReason">
-                      <span>WHY IT FITS</span>
-                      <p>
-                        {matches[0].whyItFits ||
-                          matches[0].matchReasons?.slice(0, 3).join(" · ") ||
-                          "Strong alignment with your current Wild setup."}
-                      </p>
-                    </div>
+              <section className="fieldNote">
+                <span className="panelLabel">PLANNING NOTE</span>
+                <p>
+                  Review the destination fit before confirming. Weather, elevation,
+                  topography and land-cover intelligence will appear here in the next
+                  enrichment step.
+                </p>
+              </section>
 
-                    {matches[0].activities && matches[0].activities.length > 0 && (
-                      <div className="activityLine">
-                        {matches[0].activities.slice(0, 4).map((activity) => (
-                          <span key={activity}>{activity}</span>
-                        ))}
-                      </div>
-                    )}
-
-                    <button
-                      type="button"
-                      className="selectPrimary"
-                      onClick={() => selectDiscoveredDestination(matches[0])}
-                    >
-                      SELECT THIS DESTINATION →
-                    </button>
-                  </div>
-                </section>
+              <footer className="briefFooter">
+                <div>
+                  <strong>WILD DESTINATION BRIEF</strong>
+                  <span>PRE-DEPARTURE PLANNING DOCUMENT</span>
+                </div>
+                <span>DESTINATION · REVIEW</span>
+              </footer>
+            </div>
+          );
+        })()}
+      </section>
               )}
 
               <section className="alternatives">
@@ -627,7 +711,7 @@ export default function WildDestinationPage() {
       <style jsx>{`
         :global(html), :global(body) { margin: 0; background: #0a0907; }
         .destinationPage { position: relative; min-height: 100vh; overflow: hidden; color: #f6f0e5; background: #0a0907; font-family: Arial, Helvetica, sans-serif; }
-        .scene { position: fixed; inset: 0; z-index: 0; background: url("/destination-brief.jpg") center center / cover no-repeat; }
+        .scene { position: fixed; inset: 0; z-index: 0; background: url("/destination-brief-v2.jpg") center center / cover no-repeat; }
         .sceneShade { position: fixed; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(180deg, rgba(4,4,3,.18) 0%, rgba(4,4,3,.03) 42%, rgba(4,4,3,.14) 100%); }
         button, input, select { font: inherit; }
         button { -webkit-tap-highlight-color: transparent; }
@@ -683,240 +767,302 @@ export default function WildDestinationPage() {
         @keyframes pulse { 50% { opacity: .35; transform: scale(.82); } }
 
         /*
-         * DESTINATION BRIEF ALIGNMENT
-         * The background artwork is 16:9. The live content is deliberately
-         * constrained to the printed inner sheet instead of using a free-floating card.
+         * WILD DESTINATION BRIEF V2
+         * Coordinates follow destination-brief-v2.jpg's printed grid.
          */
         .briefSheet {
           position: fixed;
           z-index: 20;
-          left: 50.65%;
-          top: 18.55%;
-          width: 38.55vw;
-          height: 69.7vh;
-          padding: 0;
-          box-sizing: border-box;
+          left: 50.55%;
+          top: 20.35%;
+          width: 37.05vw;
+          height: 70.1vh;
           transform: translateX(-50%);
-          color: #292720;
-          background: transparent;
+          color: #2c2922;
           font-family: Arial, Helvetica, sans-serif;
         }
 
-        .briefContext {
-          position: relative;
-          height: 16.5%;
-          display: grid;
-          grid-template-columns: 1.55fr 1fr .55fr;
-          gap: 14px;
-          align-items: end;
-          padding: 0 2.8% 3.2%;
-          box-sizing: border-box;
-          border-bottom: 1px solid rgba(48,44,35,.22);
-        }
-        .changeBrief {
+        .briefMain,
+        .briefContext,
+        .assessmentPanel,
+        .alternatives,
+        .fieldNote,
+        .briefFooter {
           position: absolute;
-          right: 2.8%;
-          top: 8%;
-          padding: 0 0 3px;
-          border: 0;
-          border-bottom: 1px solid rgba(112,67,31,.38);
+          box-sizing: border-box;
           background: transparent;
-          color: #75451f;
-          cursor: pointer;
-          font-size: 5px;
+        }
+
+        .briefMain {
+          left: 0;
+          top: 0;
+          width: 59.2%;
+          height: 54.1%;
+          padding: 4.5% 5.2% 4%;
+        }
+
+        .mainTopline {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 15px;
+        }
+        .mainTopline > div { display: flex; align-items: baseline; gap: 9px; }
+        .rankNumber {
+          color: #aa5224;
+          font-family: Georgia, "Times New Roman", serif;
+          font-size: clamp(29px, 2.25vw, 38px);
+          font-weight: 900;
+          line-height: .9;
+        }
+        .rankStatus {
+          color: #8a4a27;
+          font-size: 9px;
           font-weight: 900;
           letter-spacing: .12em;
         }
-        .briefContext > div { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-        .briefContext span, .primaryMetrics span, .fitReason > span {
-          color: rgba(45,42,34,.50);
-          font-size: 5px;
+        .changeBrief {
+          padding: 0 0 3px;
+          border: 0;
+          border-bottom: 1px solid rgba(122,70,36,.35);
+          background: transparent;
+          color: #75451f;
+          cursor: pointer;
+          font-size: 9px;
           font-weight: 900;
-          letter-spacing: .14em;
+          letter-spacing: .08em;
         }
-        .briefContext strong {
+        .sectionLabel, .panelLabel,
+        .primaryMetrics span, .fitReason > span,
+        .briefContext div > span {
+          color: rgba(45,42,34,.57);
+          font-size: 9px;
+          font-weight: 900;
+          letter-spacing: .11em;
+        }
+        .briefMain h1 {
+          max-width: 100%;
+          margin: 7px 0 15px;
+          color: #24211c;
+          font-family: Georgia, "Times New Roman", serif;
+          font-size: clamp(23px, 1.9vw, 31px);
+          line-height: 1.02;
+          letter-spacing: -.025em;
+        }
+        .primaryMetrics {
+          display: flex;
+          gap: 34px;
+          margin-bottom: 16px;
+        }
+        .primaryMetrics > div { display: flex; flex-direction: column; gap: 3px; }
+        .primaryMetrics strong {
+          font-family: Georgia, "Times New Roman", serif;
+          font-size: 16px;
+        }
+        .fitReason {
+          padding-top: 12px;
+          border-top: 1px solid rgba(48,44,35,.16);
+        }
+        .fitReason p {
+          margin: 6px 0 0;
+          display: -webkit-box;
           overflow: hidden;
-          color: #302d25;
+          color: rgba(39,36,29,.78);
+          font-family: Georgia, "Times New Roman", serif;
+          font-size: 11px;
+          line-height: 1.42;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 4;
+        }
+        .activityBlock { margin-top: 14px; }
+        .activityLine {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 5px;
+          margin-top: 6px;
+        }
+        .activityLine span {
+          padding: 4px 6px;
+          border: 1px solid rgba(63,57,45,.22);
           font-size: 8px;
           font-weight: 900;
+          letter-spacing: .05em;
+          text-transform: uppercase;
+        }
+        .selectPrimary {
+          margin-top: 15px;
+          padding: 9px 12px;
+          border: 0;
+          background: #a95122;
+          color: #fff8ec;
+          cursor: pointer;
+          font-size: 9px;
+          font-weight: 900;
+          letter-spacing: .08em;
+        }
+        .selectPrimary:hover { background: #8f431b; }
+
+        .briefContext {
+          left: 59.2%;
+          top: 0;
+          width: 40.8%;
+          height: 8.6%;
+          padding: 10px 14px 7px;
+          display: grid;
+          grid-template-columns: 1.35fr 1fr .65fr;
+          gap: 9px;
+          align-items: end;
+        }
+        .briefContext .panelLabel {
+          position: absolute;
+          left: 14px;
+          top: 8px;
+        }
+        .briefContext div {
+          display: flex;
+          min-width: 0;
+          flex-direction: column;
+          gap: 2px;
+          padding-top: 14px;
+        }
+        .briefContext div > span { font-size: 7px; }
+        .briefContext strong {
+          overflow: hidden;
+          font-size: 10px;
           text-overflow: ellipsis;
           white-space: nowrap;
         }
 
-        .primaryMatch {
-          height: 47%;
-          display: grid;
-          grid-template-columns: 15% 1fr;
-          gap: 3.5%;
-          padding: 4.2% 3% 3.6%;
-          box-sizing: border-box;
-          border-bottom: 1px solid rgba(48,44,35,.28);
+        .assessmentPanel {
+          left: 59.2%;
+          top: 8.6%;
+          width: 40.8%;
+          height: 36.9%;
+          padding: 16px 14px;
         }
-        .rankBlock {
+        .assessmentList { margin-top: 14px; }
+        .assessmentList p {
+          margin: 0 0 10px;
           display: flex;
-          flex-direction: column;
-          align-items: flex-start;
-          padding-top: 1px;
-        }
-        .rankBlock > span {
-          color: #b45d27;
+          gap: 7px;
+          color: rgba(39,36,29,.78);
           font-family: Georgia, "Times New Roman", serif;
-          font-size: clamp(25px,2.25vw,35px);
-          font-weight: 900;
-          line-height: .9;
+          font-size: 10.5px;
+          line-height: 1.38;
         }
-        .rankBlock small {
-          margin-top: 6px;
-          color: #75451f;
-          font-size: 5px;
-          font-weight: 900;
-          letter-spacing: .1em;
-        }
-        .primaryBody { min-width: 0; }
-        .sectionLabel {
-          color: rgba(45,42,34,.48);
-          font-size: 5px;
-          font-weight: 900;
-          letter-spacing: .15em;
-        }
-        .primaryBody h1 {
-          max-width: 100%;
-          margin: 4px 0 8px;
-          color: #24221c;
-          font-family: Georgia, "Times New Roman", serif;
-          font-size: clamp(16px,1.55vw,24px);
-          line-height: 1.02;
-          letter-spacing: -.02em;
-        }
-        .primaryMetrics { display: flex; gap: 28px; margin-bottom: 8px; }
-        .primaryMetrics > div { display: flex; flex-direction: column; gap: 1px; }
-        .primaryMetrics strong {
-          color: #2b2922;
-          font-family: Georgia, "Times New Roman", serif;
-          font-size: 12px;
-        }
-        .fitReason {
-          max-width: 100%;
-          padding-top: 7px;
-          border-top: 1px solid rgba(48,44,35,.14);
-        }
-        .fitReason p {
-          margin: 3px 0 0;
-          display: -webkit-box;
-          overflow: hidden;
-          color: rgba(39,36,29,.74);
-          font-family: Georgia, "Times New Roman", serif;
+        .assessmentList p span { color: #9a5129; font-weight: 900; }
+        .assessmentPanel small {
+          position: absolute;
+          left: 14px;
+          bottom: 12px;
+          color: rgba(45,42,34,.42);
           font-size: 7px;
-          line-height: 1.32;
-          -webkit-box-orient: vertical;
-          -webkit-line-clamp: 3;
-        }
-        .activityLine {
-          margin-top: 7px;
-          display: flex;
-          flex-wrap: wrap;
-          gap: 4px;
-        }
-        .activityLine span {
-          padding: 3px 5px;
-          border: 1px solid rgba(63,57,45,.18);
-          color: rgba(48,44,35,.65);
-          font-size: 4px;
           font-weight: 900;
-          letter-spacing: .07em;
-          text-transform: uppercase;
+          letter-spacing: .08em;
         }
-        .selectPrimary {
-          margin-top: 8px;
-          padding: 7px 10px;
-          border: 0;
-          background: #a95122;
-          color: #fff7e8;
-          cursor: pointer;
-          font-size: 5px;
-          font-weight: 900;
-          letter-spacing: .11em;
-        }
-        .selectPrimary:hover { background: #8f431b; }
 
         .alternatives {
-          height: 28.5%;
-          padding: 2.8% 3% 0;
-          box-sizing: border-box;
+          left: 59.2%;
+          top: 45.5%;
+          width: 40.8%;
+          height: 30.4%;
+          padding: 14px;
         }
         .alternativesHeading {
           display: flex;
           align-items: baseline;
           justify-content: space-between;
-          padding-bottom: 4px;
+          margin-bottom: 8px;
         }
         .alternativesHeading > span {
-          color: #37332a;
-          font-size: 5px;
+          font-size: 9px;
           font-weight: 900;
-          letter-spacing: .14em;
+          letter-spacing: .10em;
         }
         .alternativesHeading small {
-          color: rgba(45,42,34,.42);
-          font-size: 4px;
+          color: rgba(45,42,34,.48);
+          font-size: 7px;
           font-weight: 900;
-          letter-spacing: .11em;
+          letter-spacing: .08em;
         }
-        .alternativeList { border-top: 1px solid rgba(48,44,35,.22); }
+        .alternativeList { border-top: 1px solid rgba(48,44,35,.18); }
         .alternativeRow {
           width: 100%;
-          height: 24px;
-          padding: 0 1px;
+          min-height: 31px;
+          padding: 4px 2px;
           display: grid;
-          grid-template-columns: 28px minmax(0,1fr) 58px 58px 9px;
-          gap: 6px;
+          grid-template-columns: 28px minmax(0,1fr) auto;
+          gap: 7px;
           align-items: center;
           border: 0;
-          border-bottom: 1px solid rgba(48,44,35,.15);
+          border-bottom: 1px solid rgba(48,44,35,.14);
           background: transparent;
           color: #302d25;
           cursor: pointer;
           text-align: left;
         }
-        .alternativeRow:hover { background: rgba(112,67,31,.05); }
+        .alternativeRow:hover,
+        .alternativeRow.active { background: rgba(142,78,37,.07); }
         .altRank {
           color: #a95122;
           font-family: Georgia, "Times New Roman", serif;
-          font-size: 10px;
+          font-size: 12px;
           font-weight: 900;
         }
         .altName {
           overflow: hidden;
           font-family: Georgia, "Times New Roman", serif;
-          font-size: 7px;
+          font-size: 10px;
           font-weight: 700;
+          line-height: 1.1;
           text-overflow: ellipsis;
           white-space: nowrap;
         }
-        .altDistance, .altScore {
-          color: rgba(45,42,34,.55);
-          font-size: 4px;
+        .altMeta {
+          color: #75451f;
+          font-size: 7px;
           font-weight: 900;
           letter-spacing: .06em;
-          text-align: right;
+          white-space: nowrap;
         }
-        .altScore { color: #75451f; }
-        .altArrow { color: #a95122; font-size: 8px; text-align: right; }
+
+        .fieldNote {
+          left: 0;
+          top: 54.1%;
+          width: 59.2%;
+          height: 21.8%;
+          padding: 15px 5.2%;
+        }
+        .fieldNote p {
+          max-width: 92%;
+          margin: 10px 0 0;
+          color: rgba(39,36,29,.72);
+          font-family: Georgia, "Times New Roman", serif;
+          font-size: 11px;
+          line-height: 1.45;
+        }
 
         .briefFooter {
-          position: absolute;
-          left: 3%;
-          right: 3%;
-          bottom: 1.8%;
-          padding-top: 5px;
+          left: 0;
+          top: 75.9%;
+          width: 100%;
+          height: 24.1%;
+          padding: 18px 3.2%;
           display: flex;
+          align-items: flex-start;
           justify-content: space-between;
-          gap: 12px;
-          border-top: 1px solid rgba(48,44,35,.24);
-          color: rgba(45,42,34,.43);
-          font-size: 4px;
+        }
+        .briefFooter > div { display: flex; flex-direction: column; gap: 4px; }
+        .briefFooter strong {
+          font-family: Georgia, "Times New Roman", serif;
+          font-size: 13px;
+          letter-spacing: .04em;
+        }
+        .briefFooter span {
+          color: rgba(45,42,34,.52);
+          font-size: 8px;
           font-weight: 900;
-          letter-spacing: .09em;
+          letter-spacing: .10em;
         }
 
         @media (max-width: 900px) {
@@ -931,17 +1077,16 @@ export default function WildDestinationPage() {
           .entryTools { bottom: 10%; }
 
           .briefSheet {
-            left: 50.6%;
-            top: 18.5%;
-            width: 57vw;
+            left: 50.55%;
+            top: 20.35%;
+            width: 55.5vw;
             height: 68vh;
           }
-          .primaryMatch { grid-template-columns: 14% 1fr; gap: 3%; }
-          .primaryBody h1 { font-size: clamp(14px,2.5vw,20px); }
-          .alternativeRow {
-            grid-template-columns: 24px minmax(0,1fr) 48px 48px 8px;
-            gap: 4px;
-          }
+          .briefMain h1 { font-size: clamp(18px, 3vw, 25px); }
+          .fitReason p, .fieldNote p { font-size: 9px; }
+          .assessmentList p { font-size: 8.5px; }
+          .altName { font-size: 8px; }
+          .alternativeRow { min-height: 26px; }
         }
       `}</style>
     </main>
