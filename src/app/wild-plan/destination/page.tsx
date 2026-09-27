@@ -1826,6 +1826,52 @@ export default function WildDestinationPage() {
           .fullDestinationStub { grid-column: 1 / -1; }
         }
 
+        /* FINAL topo overlay fit: overlay owns the viewport while open */
+        .topoOverlay {
+          z-index: 500;
+          padding: 20px 28px;
+        }
+        .topoSheet {
+          width: min(1080px, calc(100vw - 56px));
+          height: min(760px, calc(100vh - 40px));
+          max-height: calc(100vh - 40px);
+          display: grid;
+          grid-template-rows: auto minmax(0, 1fr) auto;
+          overflow: hidden;
+          padding: 22px 24px 18px;
+        }
+        .topoSheetHeader {
+          margin-bottom: 12px;
+        }
+        .topoLargeMap {
+          min-height: 0;
+          height: 100%;
+          aspect-ratio: auto;
+        }
+        .topoLargeMap img {
+          object-fit: cover;
+        }
+        .topoSheetFooter {
+          grid-template-columns: .7fr 1fr 1.25fr auto;
+          margin-top: 12px;
+          padding-top: 0;
+        }
+        .fullDestinationStub {
+          align-self: end;
+        }
+        @media (max-height: 760px) and (min-width: 761px) {
+          .topoOverlay { padding-top: 12px; padding-bottom: 12px; }
+          .topoSheet {
+            height: calc(100vh - 24px);
+            max-height: calc(100vh - 24px);
+            padding-top: 18px;
+            padding-bottom: 14px;
+          }
+          .topoSheetHeader h2 { font-size: 30px; }
+          .topoSheetHeader { margin-bottom: 9px; }
+          .topoSheetFooter { margin-top: 9px; }
+        }
+
         /* FINAL desktop header rule: viewport is the coordinate system, not the background image */
         @media (min-width: 901px) {
           .destinationHeader {
