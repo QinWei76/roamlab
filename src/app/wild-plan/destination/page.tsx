@@ -721,7 +721,7 @@ export default function WildDestinationPage() {
                 </p>
 
                 <div className="assessmentReasons">
-                  <span>MATCH REASONS</span>
+                  <span>FIELD ASSESSMENT</span>
                   {reasons.map((reason, index) => (
                     <p key={`${reason}-${index}`}>
                       <b>✓</b>
@@ -1419,6 +1419,77 @@ export default function WildDestinationPage() {
             max-width: none;
             padding-left: 15px;
             padding-right: 15px;
+            white-space: nowrap;
+          }
+        }
+
+        /* Stepwise Brief refactor: release the existing right-upper assessment cell only */
+        .assessmentPanel {
+          color: transparent;
+        }
+        .assessmentPanel > * {
+          visibility: hidden;
+        }
+        .assessmentPanel::before {
+          content: "TOPOGRAPHIC OVERVIEW";
+          visibility: visible;
+          display: block;
+          color: rgba(45, 42, 34, .52);
+          font-size: 9px;
+          font-weight: 900;
+          letter-spacing: .10em;
+        }
+        .assessmentPanel::after {
+          content: "LIVE TERRAIN DATA · RESERVED";
+          visibility: visible;
+          position: absolute;
+          left: 14px;
+          bottom: 14px;
+          color: rgba(45, 42, 34, .34);
+          font-size: 6px;
+          font-weight: 900;
+          letter-spacing: .08em;
+        }
+
+        /* FINAL desktop header rule: viewport is the coordinate system, not the background image */
+        @media (min-width: 901px) {
+          .destinationHeader {
+            position: fixed;
+            z-index: 80;
+            top: 0;
+            left: 0;
+            right: 0;
+            width: auto;
+            height: 58px;
+            margin: 0;
+            padding: 0 24px 0 34px;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            overflow: visible;
+          }
+          .headerLeft {
+            flex: 0 1 auto;
+            min-width: 0;
+          }
+          .topNav {
+            flex: 0 0 auto;
+            margin: 0 0 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 18px;
+            min-width: 0;
+          }
+          .topNav .startWild {
+            flex: 0 0 auto;
+            margin: 0;
+            min-height: 38px;
+            padding: 0 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             white-space: nowrap;
           }
         }
