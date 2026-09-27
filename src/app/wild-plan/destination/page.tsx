@@ -127,6 +127,8 @@ export default function WildDestinationPage() {
     useState(0);
   const [confirmDestinationOpen, setConfirmDestinationOpen] = useState(false);
   const [assessmentOpen, setAssessmentOpen] = useState(false);
+  const [activeElevation, setActiveElevation] = useState<number | null>(null);
+  const [elevationLoading, setElevationLoading] = useState(false);
 
   const [discoveryError, setDiscoveryError] =
     useState("");
@@ -366,6 +368,37 @@ export default function WildDestinationPage() {
       setDiscovering(false);
     }
   }
+
+  useEffect(() => {
+    const activeMatch = matches[activeMatchIndex] ?? matches[0];
+
+    if (!activeMatch || typeof activeMatch.lat !== "number" || typeof activeMatch.lon !== "number") {
+      setActiveElevation(null);
+      return;
+    }
+
+    const controller = new AbortController();
+    setElevationLoading(true);
+
+    fetch(
+      `https://api.open-meteo.com/v1/elevation?latitude=${activeMatch.lat}&longitude=${activeMatch.lon}`,
+      { signal: controller.signal }
+    )
+      .then((response) => {
+        if (!response.ok) throw new Error("Elevation request failed");
+        return response.json();
+      })
+      .then((data) => {
+        const value = Array.isArray(data?.elevation) ? data.elevation[0] : null;
+        setActiveElevation(typeof value === "number" ? Math.round(value) : null);
+      })
+      .catch((error) => {
+        if (error?.name !== "AbortError") setActiveElevation(null);
+      })
+      .finally(() => setElevationLoading(false));
+
+    return () => controller.abort();
+  }, [matches, activeMatchIndex]);
 
   function selectDiscoveredDestination(
     match: DiscoveryMatch
@@ -621,16 +654,63 @@ export default function WildDestinationPage() {
                 </div>
               </aside>
 
-              <aside className="assessmentPanel">
-                <span className="panelLabel">FIELD ASSESSMENT</span>
-                <div className="assessmentList">
-                  {fitPoints.map((point, index) => (
-                    <p key={`${point}-${index}`}>
-                      <span>✓</span>{point}
-                    </p>
-                  ))}
-                </div>
-                <small>ENVIRONMENT DATA · COMING NEXT</small>
+              <aside className="assessmentPanel topoLivePanel">
+                {(() => {
+                  const current = matches[activeMatchIndex] ?? matches[0];
+
+                  if (!current || typeof current.lat !== "number" || typeof current.lon !== "number") {
+                    return (
+                      <>
+                        <span className="topoLiveTitle">TOPOGRAPHIC OVERVIEW</span>
+                        <div className="topoUnavailable">MAP DATA UNAVAILABLE</div>
+                      </>
+                    );
+                  }
+
+                  const lonSpan = 0.12;
+                  const latSpan = 0.08;
+                  const bbox = [
+                    current.lon - lonSpan,
+                    current.lat - latSpan,
+                    current.lon + lonSpan,
+                    current.lat + latSpan,
+                  ].join(",");
+
+                  const topoUrl =
+                    `https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/export` +
+                    `?bbox=${bbox}&bboxSR=4326&imageSR=4326&size=420,260&format=png32&transparent=false&f=image`;
+
+                  return (
+                    <>
+                      <div className="topoLiveHeading">
+                        <span>TOPOGRAPHIC OVERVIEW</span>
+                        <small>USGS · TNM</small>
+                      </div>
+
+                      <div className="topoMapFrame">
+                        <img src={topoUrl} alt={`USGS topographic map around ${current.name}`} />
+                        <span className="topoMarker" aria-hidden="true" />
+                      </div>
+
+                      <div className="topoLiveMeta">
+                        <div>
+                          <span>ELEVATION</span>
+                          <strong>
+                            {elevationLoading
+                              ? "…"
+                              : activeElevation !== null
+                                ? `${activeElevation.toLocaleString()} M`
+                                : "—"}
+                          </strong>
+                        </div>
+                        <div>
+                          <span>LOCATION</span>
+                          <strong>{current.lat.toFixed(2)}°, {current.lon.toFixed(2)}°</strong>
+                        </div>
+                      </div>
+                    </>
+                  );
+                })()}
               </aside>
 
               <aside className="alternatives">
@@ -1449,6 +1529,89 @@ export default function WildDestinationPage() {
           font-size: 6px;
           font-weight: 900;
           letter-spacing: .08em;
+        }
+
+        /* Live topo content inside the already-locked right-upper cell */
+        .assessmentPanel.topoLivePanel {
+          color: #2d2a22;
+          padding: 10px 12px 8px;
+          overflow: hidden;
+        }
+        .assessmentPanel.topoLivePanel > * { visibility: visible; }
+        .assessmentPanel.topoLivePanel::before,
+        .assessmentPanel.topoLivePanel::after { content: none; display: none; }
+        .topoLiveHeading {
+          display: flex;
+          justify-content: space-between;
+          align-items: baseline;
+          gap: 6px;
+          margin-bottom: 6px;
+        }
+        .topoLiveHeading span, .topoLiveTitle {
+          font-size: 7.5px;
+          font-weight: 900;
+          letter-spacing: .08em;
+        }
+        .topoLiveHeading small {
+          color: rgba(45,42,34,.43);
+          font-size: 5px;
+          font-weight: 900;
+          letter-spacing: .06em;
+          white-space: nowrap;
+        }
+        .topoMapFrame {
+          position: relative;
+          width: 100%;
+          height: 105px;
+          overflow: hidden;
+          border: 1px solid rgba(48,44,35,.18);
+          background: rgba(65,58,45,.06);
+        }
+        .topoMapFrame img {
+          width: 100%;
+          height: 100%;
+          display: block;
+          object-fit: cover;
+          filter: sepia(.13) saturate(.78) contrast(.94);
+        }
+        .topoMarker {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          width: 8px;
+          height: 8px;
+          transform: translate(-50%,-50%);
+          border: 2px solid #f4ecdc;
+          border-radius: 50%;
+          background: #a64f22;
+          box-shadow: 0 0 0 1px rgba(52,42,31,.55);
+        }
+        .topoLiveMeta {
+          display: grid;
+          grid-template-columns: .72fr 1.28fr;
+          gap: 8px;
+          margin-top: 6px;
+        }
+        .topoLiveMeta div { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+        .topoLiveMeta span {
+          color: rgba(45,42,34,.48);
+          font-size: 5.5px;
+          font-weight: 900;
+          letter-spacing: .08em;
+        }
+        .topoLiveMeta strong {
+          overflow: hidden;
+          font-size: 7.5px;
+          line-height: 1.15;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .topoUnavailable {
+          margin-top: 12px;
+          color: rgba(45,42,34,.42);
+          font-size: 7px;
+          font-weight: 900;
+          letter-spacing: .07em;
         }
 
         /* FINAL desktop header rule: viewport is the coordinate system, not the background image */
