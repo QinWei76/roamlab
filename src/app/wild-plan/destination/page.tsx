@@ -127,6 +127,7 @@ export default function WildDestinationPage() {
     useState(0);
   const [confirmDestinationOpen, setConfirmDestinationOpen] = useState(false);
   const [assessmentOpen, setAssessmentOpen] = useState(false);
+  const [topoOpen, setTopoOpen] = useState(false);
   const [activeElevation, setActiveElevation] = useState<number | null>(null);
   const [elevationLoading, setElevationLoading] = useState(false);
 
@@ -687,10 +688,19 @@ export default function WildDestinationPage() {
                         <small>USGS · TNM</small>
                       </div>
 
-                      <div className="topoMapFrame">
-                        <img src={topoUrl} alt={`USGS topographic map around ${current.name}`} />
+                      <button
+                        type="button"
+                        className="topoMapFrame topoMapButton"
+                        onClick={() => setTopoOpen(true)}
+                        aria-label={`Explore topographic map for ${current.name}`}
+                      >
+                        <img
+                          src={topoUrl.replace("size=420,260", "size=1260,780")}
+                          alt={`USGS topographic map around ${current.name}`}
+                        />
                         <span className="topoMarker" aria-hidden="true" />
-                      </div>
+                        <span className="topoExplore">EXPLORE MAP →</span>
+                      </button>
 
                       <div className="topoLiveMeta">
                         <div>
@@ -818,6 +828,73 @@ export default function WildDestinationPage() {
                   ← BACK TO DESTINATION BRIEF
                 </button>
               </div>
+            </div>
+          );
+        })()}
+
+        {topoOpen && matches.length > 0 && (() => {
+          const activeMatch = matches[activeMatchIndex] ?? matches[0];
+
+          if (typeof activeMatch.latitude !== "number" || typeof activeMatch.longitude !== "number") {
+            return null;
+          }
+
+          const largeBbox = [
+            activeMatch.longitude - 0.06,
+            activeMatch.latitude - 0.04,
+            activeMatch.longitude + 0.06,
+            activeMatch.latitude + 0.04,
+          ].join(",");
+
+          const largeTopoUrl =
+            `https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/export` +
+            `?bbox=${largeBbox}&bboxSR=4326&imageSR=4326&size=1600,1000&format=png32&transparent=false&f=image`;
+
+          return (
+            <div
+              className="topoOverlay"
+              role="presentation"
+              onMouseDown={(event) => {
+                if (event.target === event.currentTarget) setTopoOpen(false);
+              }}
+            >
+              <section className="topoSheet" role="dialog" aria-modal="true" aria-labelledby="topo-map-title">
+                <header className="topoSheetHeader">
+                  <div>
+                    <span className="topoKicker">ROAMLAB · DESTINATION INTELLIGENCE</span>
+                    <h2 id="topo-map-title">{activeMatch.name}</h2>
+                  </div>
+                  <button type="button" className="topoClose" onClick={() => setTopoOpen(false)}>CLOSE ×</button>
+                </header>
+
+                <div className="topoLargeMap">
+                  <img src={largeTopoUrl} alt={`Detailed USGS topographic map around ${activeMatch.name}`} />
+                  <span className="topoLargeMarker" aria-hidden="true" />
+                </div>
+
+                <footer className="topoSheetFooter">
+                  <div>
+                    <span>ELEVATION</span>
+                    <strong>{elevationLoading ? "…" : activeElevation !== null ? `${activeElevation.toLocaleString()} M` : "—"}</strong>
+                  </div>
+                  <div>
+                    <span>LOCATION</span>
+                    <strong>{activeMatch.latitude.toFixed(3)}°, {activeMatch.longitude.toFixed(3)}°</strong>
+                  </div>
+                  <div>
+                    <span>MAP SOURCE</span>
+                    <strong>USGS · THE NATIONAL MAP</strong>
+                  </div>
+                  <button
+                    type="button"
+                    className="fullDestinationStub"
+                    disabled
+                    title="Full Destination page is the next build step"
+                  >
+                    VIEW FULL DESTINATION →
+                  </button>
+                </footer>
+              </section>
             </div>
           );
         })()}
@@ -1612,6 +1689,141 @@ export default function WildDestinationPage() {
           font-size: 7px;
           font-weight: 900;
           letter-spacing: .07em;
+        }
+
+        /* Topographic interaction: preserve all locked Brief coordinates */
+        .topoMapButton {
+          padding: 0;
+          appearance: none;
+          cursor: pointer;
+          text-align: left;
+        }
+        .topoExplore {
+          position: absolute;
+          right: 6px;
+          bottom: 5px;
+          padding: 3px 5px;
+          background: rgba(31,27,22,.80);
+          color: #f4ead8;
+          font-size: 5px;
+          font-weight: 900;
+          letter-spacing: .08em;
+        }
+        .topoOverlay {
+          position: fixed;
+          inset: 0;
+          z-index: 120;
+          display: grid;
+          place-items: center;
+          padding: 34px;
+          background: rgba(13,11,8,.78);
+          backdrop-filter: blur(5px);
+        }
+        .topoSheet {
+          width: min(1080px, 92vw);
+          max-height: 90vh;
+          box-sizing: border-box;
+          padding: 24px;
+          overflow: auto;
+          border: 1px solid rgba(86,67,43,.38);
+          background: #e9dfca;
+          color: #29241d;
+          box-shadow: 0 30px 90px rgba(0,0,0,.55);
+        }
+        .topoSheetHeader {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 24px;
+          margin-bottom: 14px;
+        }
+        .topoKicker {
+          display: block;
+          margin-bottom: 5px;
+          color: #a84f22;
+          font-size: 9px;
+          font-weight: 900;
+          letter-spacing: .12em;
+        }
+        .topoSheetHeader h2 {
+          margin: 0;
+          max-width: 760px;
+          font-family: Georgia, serif;
+          font-size: clamp(24px, 3vw, 42px);
+          line-height: .98;
+        }
+        .topoClose {
+          border: 0;
+          background: transparent;
+          color: #5c5042;
+          font-size: 10px;
+          font-weight: 900;
+          letter-spacing: .08em;
+          cursor: pointer;
+          white-space: nowrap;
+        }
+        .topoLargeMap {
+          position: relative;
+          width: 100%;
+          aspect-ratio: 16 / 9;
+          overflow: hidden;
+          border: 1px solid rgba(61,52,40,.3);
+          background: #d7ccb6;
+        }
+        .topoLargeMap img {
+          width: 100%;
+          height: 100%;
+          display: block;
+          object-fit: cover;
+        }
+        .topoLargeMarker {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          width: 16px;
+          height: 16px;
+          transform: translate(-50%,-50%);
+          border: 3px solid #f4ecdc;
+          border-radius: 50%;
+          background: #a64f22;
+          box-shadow: 0 0 0 2px rgba(52,42,31,.58);
+        }
+        .topoSheetFooter {
+          display: grid;
+          grid-template-columns: .7fr 1fr 1.25fr auto;
+          align-items: end;
+          gap: 18px;
+          margin-top: 14px;
+        }
+        .topoSheetFooter > div {
+          display: flex;
+          flex-direction: column;
+          gap: 3px;
+        }
+        .topoSheetFooter span {
+          color: rgba(45,42,34,.52);
+          font-size: 7px;
+          font-weight: 900;
+          letter-spacing: .1em;
+        }
+        .topoSheetFooter strong { font-size: 12px; }
+        .fullDestinationStub {
+          min-height: 42px;
+          padding: 0 16px;
+          border: 1px solid rgba(62,51,38,.22);
+          background: rgba(55,46,35,.08);
+          color: rgba(45,42,34,.42);
+          font-size: 8px;
+          font-weight: 900;
+          letter-spacing: .07em;
+          white-space: nowrap;
+          cursor: not-allowed;
+        }
+        @media (max-width: 760px) {
+          .topoOverlay { padding: 14px; }
+          .topoSheet { width: 100%; padding: 16px; }
+          .topoSheetFooter { grid-template-columns: 1fr 1fr; }
+          .fullDestinationStub { grid-column: 1 / -1; }
         }
 
         /* FINAL desktop header rule: viewport is the coordinate system, not the background image */
