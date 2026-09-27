@@ -126,6 +126,7 @@ export default function WildDestinationPage() {
   const [activeMatchIndex, setActiveMatchIndex] =
     useState(0);
   const [confirmDestinationOpen, setConfirmDestinationOpen] = useState(false);
+  const [assessmentOpen, setAssessmentOpen] = useState(false);
 
   const [discoveryError, setDiscoveryError] =
     useState("");
@@ -593,6 +594,13 @@ export default function WildDestinationPage() {
                       activeMatch.matchReasons?.slice(0, 3).join(" · ") ||
                       "Strong alignment with your current Wild setup."}
                   </p>
+                  <button
+                    type="button"
+                    className="readAssessment"
+                    onClick={() => setAssessmentOpen(true)}
+                  >
+                    VIEW FULL ASSESSMENT →
+                  </button>
                 </div>
 
               </section>
@@ -668,6 +676,68 @@ export default function WildDestinationPage() {
                 </div>
                 <span>DESTINATION · REVIEW</span>
               </footer>
+            </div>
+          );
+        })()}
+
+        {assessmentOpen && matches.length > 0 && (() => {
+          const activeMatch = matches[activeMatchIndex] ?? matches[0];
+          const reasons =
+            activeMatch.matchReasons?.length
+              ? activeMatch.matchReasons
+              : [activeMatch.whyItFits || "Strong alignment with your current Wild setup."];
+
+          return (
+            <div
+              className="confirmBackdrop"
+              role="presentation"
+              onMouseDown={(event) => {
+                if (event.target === event.currentTarget) {
+                  setAssessmentOpen(false);
+                }
+              }}
+            >
+              <div
+                className="assessmentModal"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="assessment-title"
+              >
+                <button
+                  type="button"
+                  className="confirmClose"
+                  aria-label="Close full assessment"
+                  onClick={() => setAssessmentOpen(false)}
+                >
+                  ×
+                </button>
+
+                <span className="confirmEyebrow">DESTINATION FIT ASSESSMENT</span>
+                <h2 id="assessment-title">{activeMatch.name}</h2>
+
+                <span className="assessmentSectionLabel">WHY IT MATCHES YOUR WILD</span>
+                <p className="assessmentFullText">
+                  {activeMatch.whyItFits || reasons.join(" · ")}
+                </p>
+
+                <div className="assessmentReasons">
+                  <span>MATCH REASONS</span>
+                  {reasons.map((reason, index) => (
+                    <p key={`${reason}-${index}`}>
+                      <b>✓</b>
+                      {reason}
+                    </p>
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  className="backToBrief"
+                  onClick={() => setAssessmentOpen(false)}
+                >
+                  ← BACK TO DESTINATION BRIEF
+                </button>
+              </div>
             </div>
           );
         })()}
@@ -1174,6 +1244,94 @@ export default function WildDestinationPage() {
         .destinationTitleSlot { height: 82px; display: flex; align-items: flex-start; overflow: hidden; }
         .briefMain .destinationTitleSlot h1 { margin: 7px 0 0; display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
         .briefMain .destinationTitleSlot h1.longTitle { font-size: clamp(20px, 1.62vw, 27px); line-height: 1.02; }
+
+        /* Why This Fits stays inside its existing Brief cell */
+        .fitReason p {
+          display: -webkit-box;
+          max-height: 31px;
+          margin-bottom: 0;
+          overflow: hidden;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 2;
+        }
+        .readAssessment {
+          margin-top: 5px;
+          padding: 0 0 2px;
+          border: 0;
+          border-bottom: 1px solid rgba(140, 75, 37, .34);
+          background: transparent;
+          color: #8c4b25;
+          cursor: pointer;
+          font-size: 7px;
+          font-weight: 900;
+          letter-spacing: .08em;
+          line-height: 1.2;
+        }
+
+        /* Expanded reading view; closes back to the same active destination */
+        .assessmentModal {
+          position: relative;
+          width: min(610px, calc(100vw - 40px));
+          max-height: calc(100vh - 80px);
+          overflow: auto;
+          padding: 34px 36px 30px;
+          border: 1px solid rgba(185, 133, 79, .42);
+          background: linear-gradient(
+            rgba(241, 234, 218, .99),
+            rgba(232, 222, 201, .99)
+          );
+          box-shadow: 0 22px 70px rgba(0, 0, 0, .42);
+          color: #2a2720;
+        }
+        .assessmentModal h2 {
+          margin: 10px 42px 22px 0;
+          font-family: Georgia, "Times New Roman", serif;
+          font-size: 29px;
+          line-height: 1.04;
+        }
+        .assessmentSectionLabel,
+        .assessmentReasons > span {
+          color: rgba(42, 39, 32, .50);
+          font-size: 9px;
+          font-weight: 900;
+          letter-spacing: .11em;
+        }
+        .assessmentFullText {
+          margin: 8px 0 0;
+          color: rgba(42, 39, 32, .76);
+          font-family: Georgia, "Times New Roman", serif;
+          font-size: 14px;
+          line-height: 1.55;
+        }
+        .assessmentReasons {
+          margin-top: 22px;
+          padding: 17px 0;
+          border-top: 1px solid rgba(65, 58, 45, .20);
+          border-bottom: 1px solid rgba(65, 58, 45, .20);
+        }
+        .assessmentReasons p {
+          margin: 10px 0 0;
+          display: flex;
+          gap: 8px;
+          font-family: Georgia, "Times New Roman", serif;
+          font-size: 13px;
+          line-height: 1.35;
+        }
+        .assessmentReasons b {
+          color: #9a5129;
+        }
+        .backToBrief {
+          margin-top: 22px;
+          min-height: 40px;
+          padding: 0 14px;
+          border: 1px solid rgba(65, 58, 45, .30);
+          background: transparent;
+          color: #4b4539;
+          cursor: pointer;
+          font-size: 9px;
+          font-weight: 900;
+          letter-spacing: .08em;
+        }
 
         /* Final destination confirmation */
         .confirmBackdrop { position: fixed; z-index: 100; inset: 0; display: grid; place-items: center; padding: 24px; background: rgba(10,9,7,.68); backdrop-filter: blur(3px); }
