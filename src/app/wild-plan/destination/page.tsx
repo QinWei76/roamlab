@@ -1393,6 +1393,36 @@ export default function WildDestinationPage() {
         .confirmDestination { border: 1px solid #9b4d21; background: #a95122; color: #fff8ec; }
         .confirmDestination:hover { background: #8f431b; }
 
+        /* Desktop header: keep the complete destination CTA inside the viewport */
+        @media (min-width: 901px) {
+          .destinationHeader {
+            box-sizing: border-box;
+            width: 100%;
+            padding-left: 34px;
+            padding-right: 34px;
+          }
+          .headerLeft {
+            flex: 0 1 auto;
+            min-width: 0;
+          }
+          .topNav {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 18px;
+            min-width: 0;
+          }
+          .topNav .startWild {
+            flex: 0 0 auto;
+            margin-left: 4px;
+            max-width: none;
+            padding-left: 15px;
+            padding-right: 15px;
+            white-space: nowrap;
+          }
+        }
+
         @media (max-width: 900px) {
           .destinationHeader { padding: 0 18px; }
           .brandSub, .topNav button:not(.startWild) { display: none; }
