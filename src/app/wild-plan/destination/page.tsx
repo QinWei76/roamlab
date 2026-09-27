@@ -436,7 +436,17 @@ export default function WildDestinationPage() {
           <button type="button" onClick={() => router.push("/wild-plan")}>PLAN</button>
           <button type="button">PREPARE</button>
           <button type="button">SIGN IN</button>
-          <button type="button" className="startWild" onClick={() => router.push("/ways-in")}>START YOUR WILD →</button>
+          <button
+            type="button"
+            className="startWild"
+            disabled={matches.length === 0}
+            onClick={() => {
+              const activeMatch = matches[activeMatchIndex] ?? matches[0];
+              if (activeMatch) selectDiscoveredDestination(activeMatch);
+            }}
+          >
+            {matches.length > 0 ? "SET AS MY DESTINATION →" : "START YOUR WILD →"}
+          </button>
         </nav>
       </header>
 
@@ -570,24 +580,6 @@ export default function WildDestinationPage() {
                   </p>
                 </div>
 
-                {activeMatch.activities && activeMatch.activities.length > 0 && (
-                  <div className="activityBlock">
-                    <span className="sectionLabel">ACTIVITIES</span>
-                    <div className="activityLine">
-                      {activeMatch.activities.slice(0, 5).map((activity) => (
-                        <span key={activity}>{activity}</span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                <button
-                  type="button"
-                  className="selectPrimary"
-                  onClick={() => selectDiscoveredDestination(activeMatch)}
-                >
-                  SET AS MY DESTINATION →
-                </button>
               </section>
 
               <aside className="briefContext">
@@ -1097,6 +1089,21 @@ export default function WildDestinationPage() {
         .fieldNote {
           top: 55.5%;
           padding-top: 26px;
+        }
+
+        /* Result-page cleanup: no Activities/CTA inside the paper */
+        .briefMain { padding-bottom: 4%; }
+        .fitReason { max-height: 160px; overflow: hidden; }
+        .fitReason p {
+          max-height: 118px;
+          overflow: hidden;
+          -webkit-line-clamp: 7;
+        }
+        .startWild:disabled { opacity: .65; cursor: default; }
+
+        /* Final WILD CONTEXT label alignment */
+        .briefContext .panelLabel {
+          top: 18px;
         }
 
         @media (max-width: 900px) {
