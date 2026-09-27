@@ -372,7 +372,7 @@ export default function WildDestinationPage() {
   useEffect(() => {
     const activeMatch = matches[activeMatchIndex] ?? matches[0];
 
-    if (!activeMatch || typeof activeMatch.lat !== "number" || typeof activeMatch.lon !== "number") {
+    if (!activeMatch || typeof activeMatch.latitude !== "number" || typeof activeMatch.longitude !== "number") {
       setActiveElevation(null);
       return;
     }
@@ -381,7 +381,7 @@ export default function WildDestinationPage() {
     setElevationLoading(true);
 
     fetch(
-      `https://api.open-meteo.com/v1/elevation?latitude=${activeMatch.lat}&longitude=${activeMatch.lon}`,
+      `https://api.open-meteo.com/v1/elevation?latitude=${activeMatch.latitude}&longitude=${activeMatch.longitude}`,
       { signal: controller.signal }
     )
       .then((response) => {
@@ -658,7 +658,7 @@ export default function WildDestinationPage() {
                 {(() => {
                   const current = matches[activeMatchIndex] ?? matches[0];
 
-                  if (!current || typeof current.lat !== "number" || typeof current.lon !== "number") {
+                  if (!current || typeof current.latitude !== "number" || typeof current.longitude !== "number") {
                     return (
                       <>
                         <span className="topoLiveTitle">TOPOGRAPHIC OVERVIEW</span>
@@ -670,10 +670,10 @@ export default function WildDestinationPage() {
                   const lonSpan = 0.12;
                   const latSpan = 0.08;
                   const bbox = [
-                    current.lon - lonSpan,
-                    current.lat - latSpan,
-                    current.lon + lonSpan,
-                    current.lat + latSpan,
+                    current.longitude - lonSpan,
+                    current.latitude - latSpan,
+                    current.longitude + lonSpan,
+                    current.latitude + latSpan,
                   ].join(",");
 
                   const topoUrl =
@@ -705,7 +705,7 @@ export default function WildDestinationPage() {
                         </div>
                         <div>
                           <span>LOCATION</span>
-                          <strong>{current.lat.toFixed(2)}°, {current.lon.toFixed(2)}°</strong>
+                          <strong>{current.latitude.toFixed(2)}°, {current.longitude.toFixed(2)}°</strong>
                         </div>
                       </div>
                     </>
