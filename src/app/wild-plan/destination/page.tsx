@@ -115,6 +115,7 @@ export default function WildDestinationPage() {
 
   const [activeMatchIndex, setActiveMatchIndex] =
     useState(0);
+  const [confirmDestinationOpen, setConfirmDestinationOpen] = useState(false);
 
   const [discoveryError, setDiscoveryError] =
     useState("");
@@ -442,7 +443,7 @@ export default function WildDestinationPage() {
             disabled={matches.length === 0}
             onClick={() => {
               const activeMatch = matches[activeMatchIndex] ?? matches[0];
-              if (activeMatch) selectDiscoveredDestination(activeMatch);
+              if (activeMatch) setConfirmDestinationOpen(true);
             }}
           >
             {matches.length > 0 ? "SET AS MY DESTINATION →" : "START YOUR WILD →"}
@@ -550,7 +551,9 @@ export default function WildDestinationPage() {
                 </div>
 
                 <span className="sectionLabel">DESTINATION</span>
-                <h1>{activeMatch.name}</h1>
+                <div className="destinationTitleSlot">
+                  <h1 className={activeMatch.name.length > 34 ? "longTitle" : ""}>{activeMatch.name}</h1>
+                </div>
 
                 <div className="primaryMetrics">
                   <div>
@@ -653,6 +656,36 @@ export default function WildDestinationPage() {
                 </div>
                 <span>DESTINATION · REVIEW</span>
               </footer>
+            </div>
+          );
+        })()}
+
+        {confirmDestinationOpen && matches.length > 0 && (() => {
+          const activeMatch = matches[activeMatchIndex] ?? matches[0];
+          return (
+            <div className="confirmBackdrop" role="presentation" onMouseDown={(e) => {
+              if (e.target === e.currentTarget) setConfirmDestinationOpen(false);
+            }}>
+              <div className="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirm-destination-title">
+                <button type="button" className="confirmClose" aria-label="Close" onClick={() => setConfirmDestinationOpen(false)}>×</button>
+                <span className="confirmEyebrow">CONFIRM DESTINATION</span>
+                <h2 id="confirm-destination-title">{activeMatch.name}</h2>
+                <p className="confirmIntro">
+                  You’re setting this as the destination for your Wild. It will become the starting point for the rest of your Wild planning.
+                </p>
+                <div className="confirmFacts">
+                  <div><span>STARTING FROM</span><strong>{selectedOrigin ? getOriginLocationLabel(selectedOrigin) : "—"}</strong></div>
+                  <div><span>DISTANCE</span><strong>{typeof activeMatch.distanceKm === "number" ? `${Math.round(activeMatch.distanceKm).toLocaleString()} KM` : "—"}</strong></div>
+                  <div><span>MATCH</span><strong>{typeof activeMatch.matchScore === "number" ? Math.round(activeMatch.matchScore) : "—"}</strong></div>
+                </div>
+                <div className="confirmActions">
+                  <button type="button" className="keepExploring" onClick={() => setConfirmDestinationOpen(false)}>KEEP EXPLORING</button>
+                  <button type="button" className="confirmDestination" onClick={() => {
+                    setConfirmDestinationOpen(false);
+                    selectDiscoveredDestination(activeMatch);
+                  }}>CONFIRM DESTINATION →</button>
+                </div>
+              </div>
             </div>
           );
         })()}
@@ -1105,6 +1138,28 @@ export default function WildDestinationPage() {
         .briefContext .panelLabel {
           top: 18px;
         }
+
+        /* Stable 1–3 line destination title */
+        .destinationTitleSlot { height: 82px; display: flex; align-items: flex-start; overflow: hidden; }
+        .briefMain .destinationTitleSlot h1 { margin: 7px 0 0; display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
+        .briefMain .destinationTitleSlot h1.longTitle { font-size: clamp(20px, 1.62vw, 27px); line-height: 1.02; }
+
+        /* Final destination confirmation */
+        .confirmBackdrop { position: fixed; z-index: 100; inset: 0; display: grid; place-items: center; padding: 24px; background: rgba(10,9,7,.68); backdrop-filter: blur(3px); }
+        .confirmModal { position: relative; width: min(560px, calc(100vw - 40px)); padding: 34px 36px 30px; border: 1px solid rgba(185,133,79,.42); background: linear-gradient(rgba(241,234,218,.98),rgba(232,222,201,.98)); box-shadow: 0 22px 70px rgba(0,0,0,.42); color: #2a2720; }
+        .confirmClose { position: absolute; top: 14px; right: 16px; width: 34px; height: 34px; border: 0; background: transparent; color: rgba(42,39,32,.65); cursor: pointer; font-size: 25px; }
+        .confirmEyebrow { color: #995126; font-size: 10px; font-weight: 900; letter-spacing: .16em; }
+        .confirmModal h2 { margin: 10px 42px 12px 0; font-family: Georgia,"Times New Roman",serif; font-size: 30px; line-height: 1.03; }
+        .confirmIntro { max-width: 470px; margin: 0; color: rgba(42,39,32,.70); font-family: Georgia,"Times New Roman",serif; font-size: 14px; line-height: 1.5; }
+        .confirmFacts { margin-top: 24px; padding: 17px 0; display: grid; grid-template-columns: 1.45fr .8fr .55fr; gap: 18px; border-top: 1px solid rgba(65,58,45,.20); border-bottom: 1px solid rgba(65,58,45,.20); }
+        .confirmFacts div { display: flex; flex-direction: column; gap: 5px; }
+        .confirmFacts span { color: rgba(42,39,32,.48); font-size: 9px; font-weight: 900; letter-spacing: .10em; }
+        .confirmFacts strong { font-size: 13px; line-height: 1.25; }
+        .confirmActions { margin-top: 24px; display: flex; justify-content: flex-end; gap: 10px; }
+        .keepExploring,.confirmDestination { min-height: 42px; padding: 0 15px; cursor: pointer; font-size: 10px; font-weight: 900; letter-spacing: .08em; }
+        .keepExploring { border: 1px solid rgba(65,58,45,.30); background: transparent; color: #4b4539; }
+        .confirmDestination { border: 1px solid #9b4d21; background: #a95122; color: #fff8ec; }
+        .confirmDestination:hover { background: #8f431b; }
 
         @media (max-width: 900px) {
           .destinationHeader { padding: 0 18px; }
