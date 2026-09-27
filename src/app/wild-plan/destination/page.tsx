@@ -1049,6 +1049,56 @@ export default function WildDestinationPage() {
         .fieldNote p { margin-top: 12px; max-width: 88%; }
         .briefFooter { top: 83.8%; height: 16.2%; }
 
+
+        /* V2 alignment pass 3 — fixes from the 07:48 screenshots */
+        .changeBrief {
+          transform: translateY(14px);
+        }
+
+        .briefContext {
+          top: 3.0%;
+          height: 6.7%;
+          padding-top: 11px;
+        }
+        .briefContext .panelLabel {
+          top: 8px;
+        }
+        .briefContext div {
+          padding-top: 15px;
+        }
+
+        .assessmentPanel {
+          top: 11.6%;
+          height: 32.0%;
+        }
+
+        .fitReason {
+          max-height: 68px;
+          overflow: hidden;
+        }
+        .fitReason p {
+          max-height: 46px;
+          overflow: hidden;
+          -webkit-line-clamp: 2;
+        }
+
+        .activityBlock {
+          bottom: 58px;
+          max-height: 31px;
+          overflow: hidden;
+          background: rgba(244, 239, 229, .92);
+        }
+
+        .selectPrimary {
+          bottom: 12px;
+          z-index: 3;
+        }
+
+        .fieldNote {
+          top: 55.5%;
+          padding-top: 26px;
+        }
+
         @media (max-width: 900px) {
           .destinationHeader { padding: 0 18px; }
           .brandSub, .topNav button:not(.startWild) { display: none; }
