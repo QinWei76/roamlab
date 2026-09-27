@@ -758,7 +758,13 @@ export default function WildDestinationPage() {
                 <div className="confirmFacts">
                   <div><span>STARTING FROM</span><strong>{selectedOrigin ? getOriginLocationLabel(selectedOrigin) : "—"}</strong></div>
                   <div><span>DISTANCE</span><strong>{typeof activeMatch.distanceKm === "number" ? `${Math.round(activeMatch.distanceKm).toLocaleString()} KM` : "—"}</strong></div>
-                  <div><span>MATCH</span><strong>{typeof activeMatch.matchScore === "number" ? Math.round(activeMatch.matchScore) : "—"}</strong></div>
+                  <div>
+                    <span>WILD MATCH</span>
+                    <strong className="confirmMatchStars" aria-label={`${getWildMatchStars(activeMatch.matchScore)} out of 5 match`}>
+                      {"★".repeat(getWildMatchStars(activeMatch.matchScore))}
+                      <i>{"☆".repeat(5 - getWildMatchStars(activeMatch.matchScore))}</i>
+                    </strong>
+                  </div>
                 </div>
                 <div className="confirmActions">
                   <button type="button" className="keepExploring" onClick={() => setConfirmDestinationOpen(false)}>KEEP EXPLORING</button>
@@ -1245,6 +1251,40 @@ export default function WildDestinationPage() {
         .briefMain .destinationTitleSlot h1 { margin: 7px 0 0; display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
         .briefMain .destinationTitleSlot h1.longTitle { font-size: clamp(20px, 1.62vw, 27px); line-height: 1.02; }
 
+        /* Interaction + header alignment fix only */
+        .fitReason {
+          position: relative;
+          z-index: 8;
+          overflow: visible;
+        }
+        .fitReason p {
+          pointer-events: none;
+        }
+        .readAssessment {
+          position: relative;
+          z-index: 10;
+          display: inline-block;
+          pointer-events: auto;
+        }
+
+        /* Keep the nav and destination CTA inside one aligned header row */
+        .destinationHeader {
+          padding-left: 30px;
+          padding-right: 30px;
+        }
+        .topNav {
+          gap: 19px;
+          flex-shrink: 0;
+        }
+        .topNav .startWild {
+          min-height: 36px;
+          padding: 0 13px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          white-space: nowrap;
+        }
+
         /* Why This Fits stays inside its existing Brief cell */
         .fitReason p {
           display: -webkit-box;
@@ -1332,6 +1372,9 @@ export default function WildDestinationPage() {
           font-weight: 900;
           letter-spacing: .08em;
         }
+
+        .confirmMatchStars { color: #a65325; font-family: Georgia, "Times New Roman", serif; font-size: 15px !important; letter-spacing: .025em; white-space: nowrap; }
+        .confirmMatchStars i { color: rgba(45,42,34,.24); font-style: normal; }
 
         /* Final destination confirmation */
         .confirmBackdrop { position: fixed; z-index: 100; inset: 0; display: grid; place-items: center; padding: 24px; background: rgba(10,9,7,.68); backdrop-filter: blur(3px); }
