@@ -116,6 +116,7 @@ export default function WildDestinationPage() {
   const [activeMatchIndex, setActiveMatchIndex] =
     useState(0);
   const [confirmDestinationOpen, setConfirmDestinationOpen] = useState(false);
+  const [assessmentOpen, setAssessmentOpen] = useState(false);
 
   const [discoveryError, setDiscoveryError] =
     useState("");
@@ -556,13 +557,13 @@ export default function WildDestinationPage() {
                 </div>
 
                 <div className="primaryMetrics">
-                  <div>
-                    <span>MATCH</span>
-                    <strong>
-                      {typeof activeMatch.matchScore === "number"
-                        ? Math.round(activeMatch.matchScore)
-                        : "—"}
+                  <div className="wildMatchMetric">
+                    <span>WILD MATCH</span>
+                    <strong className="matchStars" aria-label={`${Math.max(1, 6 - activeRank)} out of 5 relative match`}>
+                      {"★".repeat(Math.max(1, 6 - activeRank))}
+                      <i>{"☆".repeat(Math.min(4, activeRank - 1))}</i>
                     </strong>
+                    <small>{activeRank === 1 ? "BEST OF THESE MATCHES" : `RANKED #${activeRank} OF ${matches.length}`}</small>
                   </div>
                   <div>
                     <span>DISTANCE</span>
@@ -581,36 +582,37 @@ export default function WildDestinationPage() {
                       activeMatch.matchReasons?.slice(0, 3).join(" · ") ||
                       "Strong alignment with your current Wild setup."}
                   </p>
+                  <button type="button" className="readAssessment" onClick={() => setAssessmentOpen(true)}>
+                    VIEW FULL ASSESSMENT →
+                  </button>
                 </div>
 
+                <div className="inlineAssessment">
+                  <span className="panelLabel">FIELD ASSESSMENT</span>
+                  <div>
+                    {fitPoints.map((point, index) => (
+                      <p key={`${point}-${index}`}><span>✓</span>{point}</p>
+                    ))}
+                  </div>
+                </div>
               </section>
 
-              <aside className="briefContext">
-                <span className="panelLabel">WILD CONTEXT</span>
-                <div>
-                  <span>STARTING FROM</span>
-                  <strong>{selectedOrigin ? getOriginLocationLabel(selectedOrigin) : "—"}</strong>
+              <aside className="topoPanel">
+                <div className="topoHeading">
+                  <span>TOPOGRAPHIC OVERVIEW</span>
+                  <small>RESERVED FOR LIVE TERRAIN DATA</small>
                 </div>
-                <div>
-                  <span>TRAVEL RANGE</span>
-                  <strong>{travelRadius === "anywhere" ? "ANYWHERE" : `~${travelRadius} KM`}</strong>
+                <div className="topoPlaceholder" aria-label="Topographic map data coming next">
+                  <div className="contour contourA" />
+                  <div className="contour contourB" />
+                  <div className="contour contourC" />
+                  <span>TOPO MAP</span>
+                  <small>LIVE DATA · NEXT ENRICHMENT</small>
                 </div>
-                <div>
-                  <span>MATCHES</span>
-                  <strong>{matches.length.toString().padStart(2, "0")}</strong>
+                <div className="topoStats">
+                  <div><span>ELEVATION</span><strong>—</strong></div>
+                  <div><span>TERRAIN</span><strong>—</strong></div>
                 </div>
-              </aside>
-
-              <aside className="assessmentPanel">
-                <span className="panelLabel">FIELD ASSESSMENT</span>
-                <div className="assessmentList">
-                  {fitPoints.map((point, index) => (
-                    <p key={`${point}-${index}`}>
-                      <span>✓</span>{point}
-                    </p>
-                  ))}
-                </div>
-                <small>ENVIRONMENT DATA · COMING NEXT</small>
               </aside>
 
               <aside className="alternatives">
@@ -618,7 +620,6 @@ export default function WildDestinationPage() {
                   <span>DESTINATION MATCHES</span>
                   <small>CLICK TO VIEW</small>
                 </div>
-
                 <div className="alternativeList">
                   {matches.slice(0, 5).map((match, index) => {
                     const isActive = index === activeMatchIndex;
@@ -640,13 +641,25 @@ export default function WildDestinationPage() {
                 </div>
               </aside>
 
-              <section className="fieldNote">
-                <span className="panelLabel">PLANNING NOTE</span>
-                <p>
-                  Review the destination fit before confirming. Weather, elevation,
-                  topography and land-cover intelligence will appear here in the next
-                  enrichment step.
-                </p>
+              <section className="terrainPanel">
+                <span className="panelLabel">TERRAIN & LAND COVER</span>
+                <div className="reservedData">
+                  <span>ELEVATION</span><strong>—</strong>
+                  <span>LAND COVER</span><strong>—</strong>
+                  <span>VEGETATION</span><strong>—</strong>
+                </div>
+                <small>LIVE ENVIRONMENT DATA · RESERVED</small>
+              </section>
+
+              <section className="weatherPanel">
+                <span className="panelLabel">WEATHER WINDOW</span>
+                <div className="weatherGrid">
+                  <div><span>HIGH / LOW</span><strong>—</strong></div>
+                  <div><span>RAIN</span><strong>—</strong></div>
+                  <div><span>WIND</span><strong>—</strong></div>
+                  <div><span>CONDITIONS</span><strong>—</strong></div>
+                </div>
+                <small>FORECAST DATA · RESERVED</small>
               </section>
 
               <footer className="briefFooter">
@@ -656,6 +669,37 @@ export default function WildDestinationPage() {
                 </div>
                 <span>DESTINATION · REVIEW</span>
               </footer>
+            </div>
+          );
+        })()}
+
+        {assessmentOpen && matches.length > 0 && (() => {
+          const activeMatch = matches[activeMatchIndex] ?? matches[0];
+          const reasons = activeMatch.matchReasons?.length
+            ? activeMatch.matchReasons
+            : [activeMatch.whyItFits || "Strong alignment with your current Wild setup."];
+
+          return (
+            <div className="confirmBackdrop" role="presentation" onMouseDown={(e) => {
+              if (e.target === e.currentTarget) setAssessmentOpen(false);
+            }}>
+              <div className="assessmentModal" role="dialog" aria-modal="true" aria-labelledby="assessment-title">
+                <button type="button" className="confirmClose" aria-label="Close" onClick={() => setAssessmentOpen(false)}>×</button>
+                <span className="confirmEyebrow">DESTINATION FIT ASSESSMENT</span>
+                <h2 id="assessment-title">{activeMatch.name}</h2>
+                <p className="assessmentFullText">
+                  {activeMatch.whyItFits || reasons.join(" · ")}
+                </p>
+                <div className="assessmentReasons">
+                  <span>MATCH REASONS</span>
+                  {reasons.map((reason, index) => (
+                    <p key={`${reason}-${index}`}><b>✓</b>{reason}</p>
+                  ))}
+                </div>
+                <button type="button" className="backToBrief" onClick={() => setAssessmentOpen(false)}>
+                  ← BACK TO DESTINATION BRIEF
+                </button>
+              </div>
             </div>
           );
         })()}
@@ -1143,6 +1187,179 @@ export default function WildDestinationPage() {
         .destinationTitleSlot { height: 82px; display: flex; align-items: flex-start; overflow: hidden; }
         .briefMain .destinationTitleSlot h1 { margin: 7px 0 0; display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
         .briefMain .destinationTitleSlot h1.longTitle { font-size: clamp(20px, 1.62vw, 27px); line-height: 1.02; }
+
+        /* Locked Destination Brief information architecture */
+        .briefMain {
+          left: 0; top: 0; width: 59.2%; height: 55.5%;
+          padding: 4.5% 5.2% 3.5%;
+        }
+        .primaryMetrics { gap: 30px; margin: 3px 0 11px; align-items: flex-start; }
+        .wildMatchMetric { min-width: 128px; }
+        .matchStars {
+          color: #9d4d22;
+          font-family: Georgia, "Times New Roman", serif;
+          font-size: 17px !important;
+          letter-spacing: .04em;
+          white-space: nowrap;
+        }
+        .matchStars i { color: rgba(45,42,34,.25); font-style: normal; }
+        .wildMatchMetric small {
+          margin-top: 1px;
+          color: rgba(45,42,34,.44);
+          font-size: 6px;
+          font-weight: 900;
+          letter-spacing: .07em;
+        }
+        .fitReason { max-height: none; padding-top: 9px; }
+        .fitReason p {
+          margin-top: 6px;
+          max-height: 31px;
+          -webkit-line-clamp: 2;
+          font-size: 10.5px;
+          line-height: 1.4;
+        }
+        .readAssessment {
+          margin-top: 5px;
+          padding: 0;
+          border: 0;
+          border-bottom: 1px solid rgba(117,69,31,.32);
+          background: transparent;
+          color: #8c4b25;
+          cursor: pointer;
+          font-size: 7px;
+          font-weight: 900;
+          letter-spacing: .08em;
+        }
+        .inlineAssessment {
+          margin-top: 11px;
+          padding-top: 9px;
+          border-top: 1px solid rgba(48,44,35,.15);
+        }
+        .inlineAssessment > div {
+          margin-top: 6px;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 3px 10px;
+        }
+        .inlineAssessment p {
+          margin: 0;
+          display: flex;
+          min-width: 0;
+          gap: 5px;
+          overflow: hidden;
+          color: rgba(39,36,29,.72);
+          font-family: Georgia, "Times New Roman", serif;
+          font-size: 8.5px;
+          line-height: 1.25;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .inlineAssessment p span { color: #9a5129; font-weight: 900; }
+
+        .briefContext, .assessmentPanel, .fieldNote { display: none; }
+
+        .topoPanel {
+          position: absolute;
+          box-sizing: border-box;
+          left: 59.2%; top: 0; width: 40.8%; height: 44.2%;
+          padding: 15px 14px 11px;
+        }
+        .topoHeading { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+        .topoHeading > span { font-size: 9px; font-weight: 900; letter-spacing: .10em; }
+        .topoHeading small { color: rgba(45,42,34,.42); font-size: 6px; font-weight: 900; letter-spacing: .06em; text-align: right; }
+        .topoPlaceholder {
+          position: relative;
+          height: 104px;
+          margin-top: 10px;
+          overflow: hidden;
+          border: 1px solid rgba(48,44,35,.16);
+          background: rgba(85,76,59,.035);
+        }
+        .topoPlaceholder > span, .topoPlaceholder > small {
+          position: absolute; left: 10px; z-index: 2; font-weight: 900;
+        }
+        .topoPlaceholder > span { bottom: 23px; color: rgba(45,42,34,.55); font-size: 8px; letter-spacing: .11em; }
+        .topoPlaceholder > small { bottom: 10px; color: rgba(45,42,34,.36); font-size: 6px; letter-spacing: .08em; }
+        .contour { position: absolute; border: 1px solid rgba(107,79,51,.15); border-radius: 48% 52% 44% 56%; transform: rotate(-12deg); }
+        .contourA { width: 125px; height: 65px; left: 45px; top: 17px; }
+        .contourB { width: 92px; height: 46px; left: 63px; top: 27px; }
+        .contourC { width: 58px; height: 28px; left: 80px; top: 36px; }
+        .topoStats { margin-top: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .topoStats div { display: flex; flex-direction: column; gap: 2px; }
+        .topoStats span, .reservedData span, .weatherGrid span { color: rgba(45,42,34,.48); font-size: 6.5px; font-weight: 900; letter-spacing: .08em; }
+        .topoStats strong { font-size: 10px; }
+
+        .alternatives { left: 59.2%; top: 44.2%; width: 40.8%; height: 39.2%; padding: 14px; }
+
+        .terrainPanel, .weatherPanel {
+          position: absolute;
+          box-sizing: border-box;
+          top: 55.5%; height: 27.9%;
+          padding: 16px 14px 10px;
+        }
+        .terrainPanel { left: 0; width: 59.2%; padding-left: 5.2%; padding-right: 5.2%; }
+        .weatherPanel { left: 59.2%; width: 40.8%; }
+        .reservedData {
+          margin-top: 12px;
+          display: grid;
+          grid-template-columns: auto 1fr;
+          gap: 6px 14px;
+          align-items: baseline;
+        }
+        .reservedData strong { font-family: Georgia, "Times New Roman", serif; font-size: 10px; }
+        .terrainPanel > small, .weatherPanel > small {
+          position: absolute; left: 14px; bottom: 10px;
+          color: rgba(45,42,34,.36); font-size: 6px; font-weight: 900; letter-spacing: .07em;
+        }
+        .terrainPanel > small { left: 5.2%; }
+        .weatherGrid {
+          margin-top: 12px;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 10px 12px;
+        }
+        .weatherGrid div { display: flex; flex-direction: column; gap: 2px; }
+        .weatherGrid strong { font-family: Georgia, "Times New Roman", serif; font-size: 10px; }
+
+        .briefFooter { top: 83.8%; height: 16.2%; }
+
+        .assessmentModal {
+          position: relative;
+          width: min(610px, calc(100vw - 40px));
+          max-height: calc(100vh - 80px);
+          overflow: auto;
+          padding: 34px 36px 30px;
+          border: 1px solid rgba(185,133,79,.42);
+          background: linear-gradient(rgba(241,234,218,.99),rgba(232,222,201,.99));
+          box-shadow: 0 22px 70px rgba(0,0,0,.42);
+          color: #2a2720;
+        }
+        .assessmentModal h2 {
+          margin: 10px 42px 14px 0;
+          font-family: Georgia, "Times New Roman", serif;
+          font-size: 28px;
+          line-height: 1.04;
+        }
+        .assessmentFullText {
+          margin: 0;
+          color: rgba(42,39,32,.76);
+          font-family: Georgia, "Times New Roman", serif;
+          font-size: 14px;
+          line-height: 1.55;
+        }
+        .assessmentReasons {
+          margin-top: 22px; padding: 17px 0;
+          border-top: 1px solid rgba(65,58,45,.20);
+          border-bottom: 1px solid rgba(65,58,45,.20);
+        }
+        .assessmentReasons > span { color: rgba(42,39,32,.48); font-size: 9px; font-weight: 900; letter-spacing: .11em; }
+        .assessmentReasons p { margin: 10px 0 0; display: flex; gap: 8px; font-family: Georgia, "Times New Roman", serif; font-size: 13px; }
+        .assessmentReasons b { color: #9a5129; }
+        .backToBrief {
+          margin-top: 22px; min-height: 40px; padding: 0 14px;
+          border: 1px solid rgba(65,58,45,.30); background: transparent;
+          color: #4b4539; cursor: pointer; font-size: 9px; font-weight: 900; letter-spacing: .08em;
+        }
 
         /* Final destination confirmation */
         .confirmBackdrop { position: fixed; z-index: 100; inset: 0; display: grid; place-items: center; padding: 24px; background: rgba(10,9,7,.68); backdrop-filter: blur(3px); }
