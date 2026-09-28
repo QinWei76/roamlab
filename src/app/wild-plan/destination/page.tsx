@@ -16,12 +16,6 @@ import {
   updateWildIntent,
 } from "@/lib/wildStore";
 
-import {
-  getOriginLocationById,
-  getOriginLocationLabel,
-  originLocations,
-} from "@/data/originLocations";
-
 type DestinationMode =
   | "choose"
   | "known"
@@ -52,6 +46,15 @@ type DiscoveryResponse = {
   candidateCount?: number;
   matches?: DiscoveryMatch[];
   error?: string;
+};
+
+type StartingPoint = {
+  label: string;
+  name: string;
+  region?: string;
+  country?: string;
+  latitude: number;
+  longitude: number;
 };
 
 const travelRadiusOptions: {
@@ -106,8 +109,11 @@ export default function WildDestinationPage() {
   const [country, setCountry] =
     useState("");
 
-  const [selectedOriginId, setSelectedOriginId] =
+  const [startingFrom, setStartingFrom] =
     useState("");
+
+  const [resolvedOrigin, setResolvedOrigin] =
+    useState<StartingPoint | null>(null);
 
   const [travelRadius, setTravelRadius] =
     useState<TravelRadius>(300);
@@ -169,21 +175,28 @@ export default function WildDestinationPage() {
     const currentOrigin =
       currentIntent?.startingFrom;
 
-    if (currentOrigin) {
-      const existingOrigin =
-        originLocations.find(
-          (location) =>
-            location.name ===
-              currentOrigin.name &&
-            location.region ===
-              currentOrigin.region
-        );
+    if (
+      currentOrigin &&
+      typeof currentOrigin.coordinates?.latitude === "number" &&
+      typeof currentOrigin.coordinates?.longitude === "number"
+    ) {
+      const label = [
+        currentOrigin.name,
+        currentOrigin.region,
+        currentOrigin.country,
+      ]
+        .filter(Boolean)
+        .join(", ");
 
-      if (existingOrigin) {
-        setSelectedOriginId(
-          existingOrigin.id
-        );
-      }
+      setStartingFrom(label);
+      setResolvedOrigin({
+        label,
+        name: currentOrigin.name,
+        region: currentOrigin.region,
+        country: currentOrigin.country,
+        latitude: currentOrigin.coordinates.latitude,
+        longitude: currentOrigin.coordinates.longitude,
+      });
     }
 
     const currentDistance =
@@ -242,21 +255,87 @@ export default function WildDestinationPage() {
   }
 
   async function discoverDestinations() {
-    if (!selectedOriginId) {
+    const query = startingFrom.trim();
+
+    if (!query) {
       setDiscoveryError(
-        "Choose where this Wild begins."
+        "Enter a city, ZIP code, or address."
       );
       return;
     }
 
-    const origin =
-      getOriginLocationById(
-        selectedOriginId
+    setDiscovering(true);
+    setHasSearched(true);
+    setDiscoveryError("");
+    setMatches([]);
+
+    let origin: StartingPoint;
+
+    try {
+      const geocodeResponse = await fetch(
+        `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=1&lang=en`
       );
 
-    if (!origin) {
+      if (!geocodeResponse.ok) {
+        throw new Error("Starting point lookup failed.");
+      }
+
+      const geocodeData = await geocodeResponse.json();
+      const feature = geocodeData?.features?.[0];
+      const coordinates = feature?.geometry?.coordinates;
+      const properties = feature?.properties ?? {};
+
+      if (
+        !feature ||
+        !Array.isArray(coordinates) ||
+        typeof coordinates[0] !== "number" ||
+        typeof coordinates[1] !== "number"
+      ) {
+        throw new Error(
+          "We couldn't find that starting point. Try adding a city, state, ZIP code, or country."
+        );
+      }
+
+      const name =
+        properties.name ||
+        properties.city ||
+        properties.locality ||
+        properties.district ||
+        query;
+
+      const region =
+        properties.state ||
+        properties.county ||
+        undefined;
+
+      const country =
+        properties.country ||
+        undefined;
+
+      const label = [
+        name,
+        region,
+        country,
+      ]
+        .filter(Boolean)
+        .join(", ");
+
+      origin = {
+        label: label || query,
+        name,
+        region,
+        country,
+        latitude: coordinates[1],
+        longitude: coordinates[0],
+      };
+
+      setResolvedOrigin(origin);
+    } catch (error) {
+      setDiscovering(false);
       setDiscoveryError(
-        "We couldn't read that starting point."
+        error instanceof Error
+          ? error.message
+          : "We couldn't find that starting point."
       );
       return;
     }
@@ -276,11 +355,6 @@ export default function WildDestinationPage() {
       return;
     }
 
-    setDiscovering(true);
-    setHasSearched(true);
-    setDiscoveryError("");
-    setMatches([]);
-
     try {
       updateWildIntent({
         destinationMode: "discover",
@@ -290,10 +364,8 @@ export default function WildDestinationPage() {
           region: origin.region,
           country: origin.country,
           coordinates: {
-            latitude:
-              origin.coordinates.latitude,
-            longitude:
-              origin.coordinates.longitude,
+            latitude: origin.latitude,
+            longitude: origin.longitude,
           },
         },
 
@@ -567,13 +639,6 @@ export default function WildDestinationPage() {
     );
   }
 
-  const selectedOrigin =
-    selectedOriginId
-      ? getOriginLocationById(
-          selectedOriginId
-        )
-      : undefined;
-
   return (
     <main className="destinationPage">
       <div className="scene" aria-hidden="true" />
@@ -646,10 +711,24 @@ export default function WildDestinationPage() {
             <div className="discoveryRow">
               <label className="originField">
                 <span>STARTING FROM</span>
-                <select value={selectedOriginId} onChange={(e) => { setSelectedOriginId(e.target.value); setDiscoveryError(""); }}>
-                  <option value="">Choose your starting city</option>
-                  {originLocations.map((location) => <option key={location.id} value={location.id}>{getOriginLocationLabel(location)}</option>)}
-                </select>
+                <input
+                  type="text"
+                  autoComplete="street-address"
+                  value={startingFrom}
+                  onChange={(e) => {
+                    setStartingFrom(e.target.value);
+                    setResolvedOrigin(null);
+                    setDiscoveryError("");
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && startingFrom.trim() && !discovering) {
+                      e.preventDefault();
+                      void discoverDestinations();
+                    }
+                  }}
+                  placeholder="City, ZIP code, or address"
+                  aria-label="Starting from"
+                />
               </label>
               <div className="rangeField">
                 <span>TRAVEL RANGE</span>
@@ -659,7 +738,7 @@ export default function WildDestinationPage() {
                   ))}
                 </div>
               </div>
-              <button type="button" className="orangeButton findButton" onClick={() => void discoverDestinations()} disabled={!selectedOriginId}>FIND MY WILD →</button>
+              <button type="button" className="orangeButton findButton" onClick={() => void discoverDestinations()} disabled={!startingFrom.trim() || discovering}>FIND MY WILD →</button>
             </div>
             <p className="distanceNote">APPROXIMATE GEOGRAPHIC DISTANCE · NOT DRIVING ROUTE DISTANCE</p>
             {discoveryError && <p className="toolError">{discoveryError}</p>}
@@ -750,7 +829,7 @@ export default function WildDestinationPage() {
                 <span className="panelLabel">WILD CONTEXT</span>
                 <div>
                   <span>STARTING FROM</span>
-                  <strong>{selectedOrigin ? getOriginLocationLabel(selectedOrigin) : "—"}</strong>
+                  <strong>{resolvedOrigin?.label || startingFrom.trim() || "—"}</strong>
                 </div>
                 <div>
                   <span>TRAVEL RANGE</span>
@@ -1019,7 +1098,7 @@ export default function WildDestinationPage() {
                   You’re setting this as the destination for your Wild. It will become the starting point for the rest of your Wild planning.
                 </p>
                 <div className="confirmFacts">
-                  <div><span>STARTING FROM</span><strong>{selectedOrigin ? getOriginLocationLabel(selectedOrigin) : "—"}</strong></div>
+                  <div><span>STARTING FROM</span><strong>{resolvedOrigin?.label || startingFrom.trim() || "—"}</strong></div>
                   <div><span>DISTANCE</span><strong>{typeof activeMatch.distanceKm === "number" ? `${Math.round(activeMatch.distanceKm).toLocaleString()} KM` : "—"}</strong></div>
                   <div>
                     <span>WILD MATCH</span>
@@ -1074,7 +1153,7 @@ export default function WildDestinationPage() {
         .toolTopline button, .resultTool button, .errorButtons button { padding: 0; border: 0; background: transparent; color: #d87935; cursor: pointer; font-size: 7px; font-weight: 900; letter-spacing: .14em; }
         .toolTopline span { color: rgba(246,240,229,.42); font-size: 7px; font-weight: 900; letter-spacing: .18em; }
         .knownTool label > span, .originField > span, .rangeField > span { display: block; margin-bottom: 7px; color: #d87935; font-size: 7px; font-weight: 900; letter-spacing: .16em; }
-        .knownTool input, .originField select { width: 100%; box-sizing: border-box; outline: 0; border: 0; border-bottom: 1px solid rgba(226,204,168,.3); border-radius: 0; background: transparent; color: #f6f0e5; }
+        .knownTool input, .originField input { width: 100%; box-sizing: border-box; outline: 0; border: 0; border-bottom: 1px solid rgba(226,204,168,.3); border-radius: 0; background: transparent; color: #f6f0e5; }
         .knownTool > label input { padding: 5px 0 10px; font-size: 22px; font-weight: 800; }
         .knownSecondary { margin-top: 13px; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
         .knownSecondary input { padding: 4px 0 8px; font-size: 12px; }
@@ -1084,7 +1163,7 @@ export default function WildDestinationPage() {
 
         .discoveryTool { left: 50%; bottom: 4.5%; width: min(900px, 88vw); padding: 15px 18px 13px; transform: translateX(-50%); }
         .discoveryRow { display: grid; grid-template-columns: minmax(220px, 1.2fr) minmax(330px, 1.7fr) auto; gap: 22px; align-items: end; }
-        .originField select { padding: 8px 26px 8px 0; color-scheme: dark; font-size: 12px; cursor: pointer; }
+        .originField input { padding: 8px 0; font-size: 12px; } .originField input::placeholder { color: rgba(246,240,229,.42); }
         .rangeChoices { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
         .rangeChoices button { min-height: 34px; border: 1px solid rgba(255,255,255,.13); background: rgba(255,255,255,.025); color: rgba(255,255,255,.65); cursor: pointer; font-size: 7px; font-weight: 900; letter-spacing: .08em; }
         .rangeChoices button.selected { border-color: #d66524; background: rgba(214,101,36,.17); color: #f0a06a; }
