@@ -1082,6 +1082,17 @@ export default function WildDestinationPage() {
                       params.set("lon", String(activeMatch.longitude));
                       params.set("returnMatch", String(activeMatchIndex));
 
+                      // Pass the already-resolved Starting From point into
+                      // Destination Intelligence so Route & Access can use
+                      // the same origin without geocoding it again.
+                      if (resolvedOrigin) {
+                        params.set("origin", resolvedOrigin.label);
+                        params.set("originLat", String(resolvedOrigin.latitude));
+                        params.set("originLon", String(resolvedOrigin.longitude));
+                      } else if (startingFrom.trim()) {
+                        params.set("origin", startingFrom.trim());
+                      }
+
                       if (typeof activeMatch.distanceKm === "number") {
                         params.set("distance", String(activeMatch.distanceKm));
                       }
