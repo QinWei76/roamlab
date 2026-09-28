@@ -129,9 +129,7 @@ export default function WildDestinationPage() {
   const [confirmDestinationOpen, setConfirmDestinationOpen] = useState(false);
   const [assessmentOpen, setAssessmentOpen] = useState(false);
   const [topoOpen, setTopoOpen] = useState(false);
-  const [topoZoom, setTopoZoom] = useState(1);
-  const [topoPan, setTopoPan] = useState({ x: 0, y: 0 });
-  const topoDragRef = useRef<{ x: number; y: number; panX: number; panY: number } | null>(null);
+  const topoLeafletRef = useRef<any>(null);
   const [activeElevation, setActiveElevation] = useState<number | null>(null);
   const [elevationLoading, setElevationLoading] = useState(false);
 
@@ -375,9 +373,109 @@ export default function WildDestinationPage() {
   }
 
   useEffect(() => {
-    setTopoZoom(1);
-    setTopoPan({ x: 0, y: 0 });
-  }, [activeMatchIndex]);
+    if (!topoOpen || matches.length === 0) return;
+
+    const activeMatch = matches[activeMatchIndex] ?? matches[0];
+    if (typeof activeMatch.latitude !== "number" || typeof activeMatch.longitude !== "number") return;
+
+    let cancelled = false;
+
+    const loadLeaflet = async () => {
+      if (!document.querySelector('link[data-roamlab-leaflet="true"]')) {
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+        link.setAttribute("data-roamlab-leaflet", "true");
+        document.head.appendChild(link);
+      }
+
+      if (!(window as any).L) {
+        await new Promise<void>((resolve, reject) => {
+          const existing = document.querySelector('script[data-roamlab-leaflet="true"]') as HTMLScriptElement | null;
+          if (existing) {
+            if ((window as any).L) resolve();
+            else {
+              existing.addEventListener("load", () => resolve(), { once: true });
+              existing.addEventListener("error", () => reject(new Error("Leaflet failed to load")), { once: true });
+            }
+            return;
+          }
+
+          const script = document.createElement("script");
+          script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+          script.async = true;
+          script.setAttribute("data-roamlab-leaflet", "true");
+          script.onload = () => resolve();
+          script.onerror = () => reject(new Error("Leaflet failed to load"));
+          document.body.appendChild(script);
+        });
+      }
+
+      if (cancelled) return;
+
+      const L = (window as any).L;
+      const node = document.getElementById("roamlab-live-topo-map");
+      if (!L || !node) return;
+
+      if (topoLeafletRef.current) {
+        topoLeafletRef.current.remove();
+        topoLeafletRef.current = null;
+      }
+
+      const map = L.map(node, {
+        zoomControl: true,
+        attributionControl: false,
+        minZoom: 4,
+        maxZoom: 16,
+      }).setView([activeMatch.latitude, activeMatch.longitude], 12);
+
+      L.tileLayer(
+        "https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}",
+        {
+          minZoom: 0,
+          maxZoom: 16,
+          maxNativeZoom: 16,
+          tileSize: 256,
+          noWrap: true,
+        }
+      ).addTo(map);
+
+      L.circleMarker([activeMatch.latitude, activeMatch.longitude], {
+        radius: 7,
+        color: "#f4ecdc",
+        weight: 3,
+        fillColor: "#a64f22",
+        fillOpacity: 1,
+      }).addTo(map);
+
+      const centerControl = L.control({ position: "topleft" });
+      centerControl.onAdd = () => {
+        const button = L.DomUtil.create("button", "roamlabLeafletCenter");
+        button.type = "button";
+        button.innerHTML = "CENTER";
+        button.title = "Return to destination";
+        L.DomEvent.disableClickPropagation(button);
+        L.DomEvent.on(button, "click", () => {
+          map.setView([activeMatch.latitude, activeMatch.longitude], 12, { animate: true });
+        });
+        return button;
+      };
+      centerControl.addTo(map);
+
+      topoLeafletRef.current = map;
+      window.setTimeout(() => map.invalidateSize(), 80);
+    };
+
+    loadLeaflet().catch(() => {});
+
+    return () => {
+      cancelled = true;
+      if (topoLeafletRef.current) {
+        topoLeafletRef.current.remove();
+        topoLeafletRef.current = null;
+      }
+    };
+  }, [topoOpen, activeMatchIndex, matches]);
 
   useEffect(() => {
     const activeMatch = matches[activeMatchIndex] ?? matches[0];
@@ -876,58 +974,8 @@ export default function WildDestinationPage() {
                   <button type="button" className="topoClose" onClick={() => setTopoOpen(false)}>CLOSE ×</button>
                 </header>
 
-                <div
-                  className={`topoLargeMap ${topoDragRef.current ? "isDragging" : ""}`}
-                  onWheel={(event) => {
-                    event.preventDefault();
-                    const next = Math.min(3.5, Math.max(1, topoZoom + (event.deltaY < 0 ? 0.25 : -0.25)));
-                    setTopoZoom(next);
-                    if (next === 1) setTopoPan({ x: 0, y: 0 });
-                  }}
-                  onPointerDown={(event) => {
-                    event.currentTarget.setPointerCapture(event.pointerId);
-                    topoDragRef.current = {
-                      x: event.clientX,
-                      y: event.clientY,
-                      panX: topoPan.x,
-                      panY: topoPan.y,
-                    };
-                  }}
-                  onPointerMove={(event) => {
-                    const drag = topoDragRef.current;
-                    if (!drag || topoZoom <= 1) return;
-                    setTopoPan({
-                      x: drag.panX + event.clientX - drag.x,
-                      y: drag.panY + event.clientY - drag.y,
-                    });
-                  }}
-                  onPointerUp={() => { topoDragRef.current = null; }}
-                  onPointerCancel={() => { topoDragRef.current = null; }}
-                >
-                  <div
-                    className="topoTransformLayer"
-                    style={{
-                      transform: `translate(${topoPan.x}px, ${topoPan.y}px) scale(${topoZoom})`,
-                    }}
-                  >
-                    <img src={largeTopoUrl} alt={`Detailed USGS topographic map around ${activeMatch.name}`} />
-                    <span className="topoLargeMarker" aria-hidden="true" />
-                  </div>
-
-                  <div className="topoControls" aria-label="Map controls">
-                    <button type="button" onClick={() => setTopoZoom((z) => Math.min(3.5, z + 0.25))}>+</button>
-                    <button type="button" onClick={() => {
-                      const next = Math.max(1, topoZoom - 0.25);
-                      setTopoZoom(next);
-                      if (next === 1) setTopoPan({ x: 0, y: 0 });
-                    }}>−</button>
-                    <button type="button" className="topoRecenter" onClick={() => {
-                      setTopoZoom(1);
-                      setTopoPan({ x: 0, y: 0 });
-                    }}>CENTER</button>
-                  </div>
-
-                  <span className="topoZoomReadout">{Math.round(topoZoom * 100)}%</span>
+                <div className="topoLargeMap topoTileMapShell">
+                  <div id="roamlab-live-topo-map" className="topoLeafletMap" />
                 </div>
 
                 <footer className="topoSheetFooter">
@@ -2034,6 +2082,51 @@ export default function WildDestinationPage() {
             height: min(680px, calc(100vh - 28px));
             max-height: calc(100vh - 28px);
           }
+        }
+
+        /* TRUE USGS TILE MAP — each zoom level loads fresh cached map tiles */
+        .topoTileMapShell {
+          cursor: default;
+          background: #ddd3bd;
+        }
+        .topoLeafletMap {
+          width: 100%;
+          height: 100%;
+          min-height: 320px;
+          background: #ddd3bd;
+        }
+        .topoLeafletMap :global(.leaflet-container) {
+          width: 100%;
+          height: 100%;
+          font-family: Arial, Helvetica, sans-serif;
+        }
+        .topoLeafletMap :global(.leaflet-control-zoom) {
+          border: 1px solid rgba(56,46,34,.28) !important;
+          box-shadow: 0 2px 8px rgba(0,0,0,.12) !important;
+        }
+        .topoLeafletMap :global(.leaflet-control-zoom a) {
+          background: rgba(238,229,210,.96) !important;
+          color: #342c23 !important;
+          border-bottom-color: rgba(56,46,34,.18) !important;
+        }
+        .topoLeafletMap :global(.roamlabLeafletCenter) {
+          height: 30px;
+          margin-top: 6px;
+          padding: 0 9px;
+          border: 1px solid rgba(56,46,34,.28);
+          border-radius: 2px;
+          background: rgba(238,229,210,.96);
+          color: #342c23;
+          box-shadow: 0 2px 8px rgba(0,0,0,.12);
+          font-size: 7px;
+          font-weight: 900;
+          letter-spacing: .08em;
+          cursor: pointer;
+        }
+        .topoTransformLayer,
+        .topoControls,
+        .topoZoomReadout {
+          display: none !important;
         }
 
         /* FINAL desktop header rule: viewport is the coordinate system, not the background image */
