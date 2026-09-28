@@ -128,6 +128,9 @@ export default function WildDestinationPage() {
   const [confirmDestinationOpen, setConfirmDestinationOpen] = useState(false);
   const [assessmentOpen, setAssessmentOpen] = useState(false);
   const [topoOpen, setTopoOpen] = useState(false);
+  const [topoZoom, setTopoZoom] = useState(1);
+  const [topoPan, setTopoPan] = useState({ x: 0, y: 0 });
+  const topoDragRef = useRef<{ x: number; y: number; panX: number; panY: number } | null>(null);
   const [activeElevation, setActiveElevation] = useState<number | null>(null);
   const [elevationLoading, setElevationLoading] = useState(false);
 
@@ -369,6 +372,11 @@ export default function WildDestinationPage() {
       setDiscovering(false);
     }
   }
+
+  useEffect(() => {
+    setTopoZoom(1);
+    setTopoPan({ x: 0, y: 0 });
+  }, [activeMatchIndex]);
 
   useEffect(() => {
     const activeMatch = matches[activeMatchIndex] ?? matches[0];
@@ -848,7 +856,7 @@ export default function WildDestinationPage() {
 
           const largeTopoUrl =
             `https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/export` +
-            `?bbox=${largeBbox}&bboxSR=4326&imageSR=4326&size=1600,1000&format=png32&transparent=false&f=image`;
+            `?bbox=${largeBbox}&bboxSR=4326&imageSR=4326&size=2400,1500&format=png32&transparent=false&f=image`;
 
           return (
             <div
@@ -867,9 +875,58 @@ export default function WildDestinationPage() {
                   <button type="button" className="topoClose" onClick={() => setTopoOpen(false)}>CLOSE ×</button>
                 </header>
 
-                <div className="topoLargeMap">
-                  <img src={largeTopoUrl} alt={`Detailed USGS topographic map around ${activeMatch.name}`} />
-                  <span className="topoLargeMarker" aria-hidden="true" />
+                <div
+                  className={`topoLargeMap ${topoDragRef.current ? "isDragging" : ""}`}
+                  onWheel={(event) => {
+                    event.preventDefault();
+                    const next = Math.min(3.5, Math.max(1, topoZoom + (event.deltaY < 0 ? 0.25 : -0.25)));
+                    setTopoZoom(next);
+                    if (next === 1) setTopoPan({ x: 0, y: 0 });
+                  }}
+                  onPointerDown={(event) => {
+                    event.currentTarget.setPointerCapture(event.pointerId);
+                    topoDragRef.current = {
+                      x: event.clientX,
+                      y: event.clientY,
+                      panX: topoPan.x,
+                      panY: topoPan.y,
+                    };
+                  }}
+                  onPointerMove={(event) => {
+                    const drag = topoDragRef.current;
+                    if (!drag || topoZoom <= 1) return;
+                    setTopoPan({
+                      x: drag.panX + event.clientX - drag.x,
+                      y: drag.panY + event.clientY - drag.y,
+                    });
+                  }}
+                  onPointerUp={() => { topoDragRef.current = null; }}
+                  onPointerCancel={() => { topoDragRef.current = null; }}
+                >
+                  <div
+                    className="topoTransformLayer"
+                    style={{
+                      transform: `translate(${topoPan.x}px, ${topoPan.y}px) scale(${topoZoom})`,
+                    }}
+                  >
+                    <img src={largeTopoUrl} alt={`Detailed USGS topographic map around ${activeMatch.name}`} />
+                    <span className="topoLargeMarker" aria-hidden="true" />
+                  </div>
+
+                  <div className="topoControls" aria-label="Map controls">
+                    <button type="button" onClick={() => setTopoZoom((z) => Math.min(3.5, z + 0.25))}>+</button>
+                    <button type="button" onClick={() => {
+                      const next = Math.max(1, topoZoom - 0.25);
+                      setTopoZoom(next);
+                      if (next === 1) setTopoPan({ x: 0, y: 0 });
+                    }}>−</button>
+                    <button type="button" className="topoRecenter" onClick={() => {
+                      setTopoZoom(1);
+                      setTopoPan({ x: 0, y: 0 });
+                    }}>CENTER</button>
+                  </div>
+
+                  <span className="topoZoomReadout">{Math.round(topoZoom * 100)}%</span>
                 </div>
 
                 <footer className="topoSheetFooter">
@@ -1870,6 +1927,112 @@ export default function WildDestinationPage() {
           .topoSheetHeader h2 { font-size: 30px; }
           .topoSheetHeader { margin-bottom: 9px; }
           .topoSheetFooter { margin-top: 9px; }
+        }
+
+        /* FINAL topo modal isolation: page header must not compete with the modal */
+        .destinationPage:has(.topoOverlay) .destinationHeader {
+          visibility: hidden;
+          pointer-events: none;
+        }
+        .topoSheet {
+          position: relative;
+        }
+        .topoClose {
+          position: absolute;
+          z-index: 20;
+          top: 18px;
+          right: 22px;
+          padding: 7px 9px;
+          background: rgba(233,223,202,.94);
+        }
+        .topoSheetHeader {
+          padding-right: 82px;
+        }
+
+        /* FINAL interactive topo workbench: smaller overlay + pan/zoom */
+        .topoOverlay {
+          padding: 0;
+        }
+        .topoSheet {
+          width: min(960px, 74vw);
+          height: min(690px, 76vh);
+          max-height: 76vh;
+          padding: 20px 22px 16px;
+        }
+        .topoSheetHeader h2 {
+          font-size: clamp(22px, 2.5vw, 34px);
+        }
+        .topoLargeMap {
+          position: relative;
+          height: 100%;
+          min-height: 0;
+          overflow: hidden;
+          cursor: grab;
+          touch-action: none;
+          user-select: none;
+        }
+        .topoLargeMap:active { cursor: grabbing; }
+        .topoTransformLayer {
+          position: absolute;
+          inset: 0;
+          transform-origin: center center;
+          will-change: transform;
+        }
+        .topoTransformLayer img {
+          width: 100%;
+          height: 100%;
+          display: block;
+          object-fit: cover;
+          pointer-events: none;
+        }
+        .topoTransformLayer .topoLargeMarker {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+        }
+        .topoControls {
+          position: absolute;
+          z-index: 12;
+          left: 12px;
+          top: 12px;
+          display: flex;
+          gap: 5px;
+        }
+        .topoControls button {
+          min-width: 34px;
+          height: 34px;
+          padding: 0 9px;
+          border: 1px solid rgba(56,46,34,.28);
+          background: rgba(238,229,210,.94);
+          color: #342c23;
+          font-size: 17px;
+          font-weight: 900;
+          cursor: pointer;
+          box-shadow: 0 2px 8px rgba(0,0,0,.12);
+        }
+        .topoControls .topoRecenter {
+          width: auto;
+          font-size: 7px;
+          letter-spacing: .08em;
+        }
+        .topoZoomReadout {
+          position: absolute;
+          z-index: 12;
+          right: 10px;
+          bottom: 9px;
+          padding: 4px 6px;
+          background: rgba(36,30,23,.72);
+          color: #f4ead8;
+          font-size: 7px;
+          font-weight: 900;
+          letter-spacing: .06em;
+        }
+        @media (max-width: 900px) {
+          .topoSheet {
+            width: calc(100vw - 28px);
+            height: min(680px, calc(100vh - 28px));
+            max-height: calc(100vh - 28px);
+          }
         }
 
         /* FINAL desktop header rule: viewport is the coordinate system, not the background image */
