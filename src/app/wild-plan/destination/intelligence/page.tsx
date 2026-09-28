@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 function numberParam(value: string | null) {
@@ -8,7 +9,7 @@ function numberParam(value: string | null) {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
-export default function DestinationIntelligencePage() {
+function DestinationIntelligenceContent() {
   const router = useRouter();
   const params = useSearchParams();
 
@@ -422,5 +423,31 @@ export default function DestinationIntelligencePage() {
         }
       `}</style>
     </main>
+  );
+}
+
+
+export default function DestinationIntelligencePage() {
+  return (
+    <Suspense
+      fallback={
+        <main
+          style={{
+            minHeight: "100vh",
+            display: "grid",
+            placeItems: "center",
+            background: "#17130f",
+            color: "#e7deca",
+            fontFamily: "Arial, Helvetica, sans-serif",
+            letterSpacing: "0.14em",
+            fontSize: "11px",
+          }}
+        >
+          LOADING DESTINATION INTELLIGENCE…
+        </main>
+      }
+    >
+      <DestinationIntelligenceContent />
+    </Suspense>
   );
 }
