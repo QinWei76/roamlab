@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 function numberParam(value: string | null) {
@@ -21,6 +21,120 @@ function DestinationIntelligenceContent() {
   const distanceKm = numberParam(params.get("distance"));
   const matchScore = numberParam(params.get("score"));
   const returnMatch = params.get("returnMatch") || "0";
+  const mapRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (latitude === null || longitude === null) return;
+
+    let cancelled = false;
+
+    const loadLeaflet = async () => {
+      if (!document.querySelector('link[data-roamlab-leaflet="true"]')) {
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+        link.setAttribute("data-roamlab-leaflet", "true");
+        document.head.appendChild(link);
+      }
+
+      if (!(window as any).L) {
+        await new Promise<void>((resolve, reject) => {
+          const existing = document.querySelector(
+            'script[data-roamlab-leaflet="true"]'
+          ) as HTMLScriptElement | null;
+
+          if (existing) {
+            if ((window as any).L) {
+              resolve();
+            } else {
+              existing.addEventListener("load", () => resolve(), { once: true });
+              existing.addEventListener(
+                "error",
+                () => reject(new Error("Leaflet failed to load")),
+                { once: true }
+              );
+            }
+            return;
+          }
+
+          const script = document.createElement("script");
+          script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+          script.async = true;
+          script.setAttribute("data-roamlab-leaflet", "true");
+          script.onload = () => resolve();
+          script.onerror = () => reject(new Error("Leaflet failed to load"));
+          document.body.appendChild(script);
+        });
+      }
+
+      if (cancelled) return;
+
+      const L = (window as any).L;
+      const node = document.getElementById("destination-intelligence-map");
+      if (!L || !node) return;
+
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
+
+      const map = L.map(node, {
+        zoomControl: true,
+        attributionControl: false,
+        minZoom: 4,
+        maxZoom: 16,
+      }).setView([latitude, longitude], 12);
+
+      L.tileLayer(
+        "https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}",
+        {
+          minZoom: 0,
+          maxZoom: 16,
+          maxNativeZoom: 16,
+          tileSize: 256,
+          noWrap: true,
+        }
+      ).addTo(map);
+
+      L.circleMarker([latitude, longitude], {
+        radius: 7,
+        color: "#f4ecdc",
+        weight: 3,
+        fillColor: "#a64f22",
+        fillOpacity: 1,
+      }).addTo(map);
+
+      const centerControl = L.control({ position: "topleft" });
+      centerControl.onAdd = () => {
+        const button = L.DomUtil.create(
+          "button",
+          "roamlabIntelligenceCenter"
+        );
+        button.type = "button";
+        button.innerHTML = "CENTER";
+        button.title = "Return to destination";
+        L.DomEvent.disableClickPropagation(button);
+        L.DomEvent.on(button, "click", () => {
+          map.setView([latitude, longitude], 12, { animate: true });
+        });
+        return button;
+      };
+      centerControl.addTo(map);
+
+      mapRef.current = map;
+      window.setTimeout(() => map.invalidateSize(), 100);
+    };
+
+    loadLeaflet().catch(() => {});
+
+    return () => {
+      cancelled = true;
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
+    };
+  }, [latitude, longitude]);
 
   const backToBrief = () => {
     const back = new URLSearchParams();
@@ -110,11 +224,22 @@ function DestinationIntelligenceContent() {
               the final destination decision.
             </p>
 
-            <div className="placeholderMap">
-              <div className="crosshair">+</div>
+            <div className="liveMapWrap">
+              {latitude !== null && longitude !== null ? (
+                <div
+                  id="destination-intelligence-map"
+                  className="liveMap"
+                  aria-label={`USGS topographic map of ${name}`}
+                />
+              ) : (
+                <div className="mapUnavailable">
+                  LOCATION DATA UNAVAILABLE
+                </div>
+              )}
+
               <div className="mapCaption">
                 <span>TOPOGRAPHIC INTELLIGENCE</span>
-                <strong>USGS MAP LAYER WILL LIVE HERE</strong>
+                <strong>USGS · THE NATIONAL MAP</strong>
               </div>
             </div>
           </section>
@@ -214,17 +339,17 @@ function DestinationIntelligenceContent() {
         }
 
         .eyebrow {
-          font-size: 9px;
+          font-size: 11px;
           font-weight: 800;
-          letter-spacing: .24em;
+          letter-spacing: .20em;
           color: #bd8b58;
         }
 
         .backTop {
           justify-self: end;
-          font-size: 9px;
+          font-size: 11px;
           font-weight: 800;
-          letter-spacing: .08em;
+          letter-spacing: .07em;
         }
 
         .sheet {
@@ -247,9 +372,9 @@ function DestinationIntelligenceContent() {
         }
 
         .kicker, .sectionLabel {
-          font-size: 8px;
+          font-size: 10px;
           font-weight: 900;
-          letter-spacing: .2em;
+          letter-spacing: .16em;
           color: #8b542e;
         }
 
@@ -273,16 +398,46 @@ function DestinationIntelligenceContent() {
         }
 
         .statusStamp {
-          flex: 0 0 190px;
+          position: relative;
+          flex: 0 0 210px;
           align-self: flex-start;
-          padding: 13px 15px;
-          border: 2px solid #8b542e;
-          transform: rotate(1.5deg);
+          padding: 15px 18px 14px;
+          border: 2px solid rgba(139,84,46,.86);
+          color: #7f4829;
+          transform: rotate(-2deg);
+          box-shadow:
+            inset 0 0 0 3px #e7deca,
+            inset 0 0 0 4px rgba(139,84,46,.48);
+          opacity: .94;
         }
 
-        .statusStamp span, .statusStamp strong { display: block; }
-        .statusStamp span { font-size: 7px; letter-spacing: .18em; }
-        .statusStamp strong { margin-top: 5px; font-size: 11px; letter-spacing: .06em; }
+        .statusStamp::before {
+          content: "";
+          position: absolute;
+          inset: -3px;
+          pointer-events: none;
+          background:
+            radial-gradient(circle at 12% 25%, rgba(231,222,202,.75) 0 1px, transparent 2px),
+            radial-gradient(circle at 78% 72%, rgba(231,222,202,.62) 0 1.5px, transparent 2.5px),
+            radial-gradient(circle at 48% 15%, rgba(231,222,202,.5) 0 1px, transparent 2px);
+          background-size: 17px 19px, 23px 21px, 29px 27px;
+          mix-blend-mode: screen;
+        }
+
+        .statusStamp::after {
+          content: "ROAMLAB FIELD DESK";
+          display: block;
+          margin-top: 9px;
+          padding-top: 7px;
+          border-top: 1px solid rgba(139,84,46,.48);
+          font-size: 8px;
+          font-weight: 900;
+          letter-spacing: .16em;
+        }
+
+        .statusStamp span, .statusStamp strong { display: block; position: relative; }
+        .statusStamp span { font-size: 10px; font-weight: 900; letter-spacing: .16em; }
+        .statusStamp strong { margin-top: 6px; font-size: 14px; line-height: 1.05; letter-spacing: .06em; }
 
         .identityRow {
           display: grid;
@@ -311,9 +466,9 @@ function DestinationIntelligenceContent() {
         }
 
         .sectionNav span {
-          font-size: 7px;
+          font-size: 9px;
           font-weight: 900;
-          letter-spacing: .12em;
+          letter-spacing: .10em;
           color: #7c7062;
         }
 
@@ -337,43 +492,79 @@ function DestinationIntelligenceContent() {
           margin: 0;
           color: #6e6255;
           font-family: Georgia, "Times New Roman", serif;
-          font-size: 13px;
-          line-height: 1.6;
+          font-size: 15px;
+          line-height: 1.65;
         }
 
-        .placeholderMap {
-          height: 330px;
+        .liveMapWrap {
+          height: 360px;
           margin-top: 32px;
           position: relative;
           overflow: hidden;
           border: 1px solid rgba(54,45,34,.32);
-          background:
-            linear-gradient(30deg, transparent 48%, rgba(71,84,67,.14) 49%, rgba(71,84,67,.14) 51%, transparent 52%) 0 0/54px 54px,
-            linear-gradient(-30deg, transparent 48%, rgba(71,84,67,.11) 49%, rgba(71,84,67,.11) 51%, transparent 52%) 0 0/70px 70px,
-            #cfc6af;
+          background: #cfc6af;
         }
 
-        .crosshair {
+        .liveMap {
           position: absolute;
-          left: 50%;
-          top: 50%;
-          transform: translate(-50%, -50%);
-          font-size: 34px;
-          color: #9a4d27;
+          inset: 0;
+          z-index: 1;
+          width: 100%;
+          height: 100%;
+          background: #cfc6af;
+        }
+
+        .mapUnavailable {
+          position: absolute;
+          inset: 0;
+          display: grid;
+          place-items: center;
+          color: #7b6c5d;
+          font-size: 11px;
+          font-weight: 900;
+          letter-spacing: .14em;
         }
 
         .mapCaption {
           position: absolute;
+          z-index: 500;
           left: 16px;
           bottom: 15px;
-          padding: 9px 11px;
+          padding: 10px 12px;
           color: #eee5d5;
-          background: rgba(36,31,25,.84);
+          background: rgba(36,31,25,.88);
+          pointer-events: none;
         }
 
         .mapCaption span, .mapCaption strong { display: block; }
-        .mapCaption span { font-size: 6px; letter-spacing: .14em; }
-        .mapCaption strong { margin-top: 3px; font-size: 8px; letter-spacing: .08em; }
+        .mapCaption span { font-size: 8px; letter-spacing: .14em; }
+        .mapCaption strong { margin-top: 4px; font-size: 10px; letter-spacing: .08em; }
+
+        .liveMap :global(.leaflet-control-zoom) {
+          border: 0 !important;
+          box-shadow: 0 2px 8px rgba(0,0,0,.22) !important;
+        }
+
+        .liveMap :global(.leaflet-control-zoom a) {
+          color: #2d261e !important;
+          background: rgba(239,232,216,.96) !important;
+          border-bottom-color: rgba(72,59,43,.18) !important;
+        }
+
+        .liveMap :global(.roamlabIntelligenceCenter) {
+          min-width: 58px;
+          height: 28px;
+          margin-top: 8px;
+          padding: 0 9px;
+          border: 1px solid rgba(65,53,39,.32);
+          background: rgba(239,232,216,.96);
+          color: #3a3025;
+          cursor: pointer;
+          font-size: 8px;
+          font-weight: 900;
+          letter-spacing: .08em;
+          box-shadow: 0 2px 8px rgba(0,0,0,.18);
+        }
 
         .sideColumn { display: grid; grid-template-rows: repeat(3, 1fr); }
         .note { padding: 30px 28px; border-bottom: 1px solid rgba(61,50,38,.22); }
@@ -389,9 +580,9 @@ function DestinationIntelligenceContent() {
           border-bottom: 1px solid #c88b55;
           background: none;
           color: #e8d9c3;
-          font-size: 8px;
+          font-size: 11px;
           font-weight: 900;
-          letter-spacing: .1em;
+          letter-spacing: .08em;
           cursor: pointer;
         }
 
@@ -402,9 +593,9 @@ function DestinationIntelligenceContent() {
           align-items: center;
           justify-content: space-between;
           border-top: 1px solid rgba(61,50,38,.28);
-          font-size: 7px;
+          font-size: 9px;
           font-weight: 900;
-          letter-spacing: .14em;
+          letter-spacing: .12em;
           color: #7b6c5d;
         }
 
@@ -418,7 +609,7 @@ function DestinationIntelligenceContent() {
           .identityRow { grid-template-columns: 1fr 1fr; }
           .contentGrid { grid-template-columns: 1fr; }
           .primaryPanel { padding: 30px 24px; border-right: 0; }
-          .placeholderMap { height: 260px; }
+          .liveMapWrap { height: 300px; }
           .sheetFooter { gap: 16px; }
         }
       `}</style>
