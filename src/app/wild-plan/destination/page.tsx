@@ -2014,14 +2014,34 @@ export default function WildDestinationPage() {
         .fullDestinationStub {
           min-height: 42px;
           padding: 0 16px;
-          border: 1px solid rgba(62,51,38,.22);
-          background: rgba(55,46,35,.08);
-          color: rgba(45,42,34,.42);
+          border: 1px solid rgba(139,84,46,.58);
+          background: rgba(139,84,46,.10);
+          color: #6f3f22;
           font-size: 8px;
           font-weight: 900;
           letter-spacing: .07em;
           white-space: nowrap;
-          cursor: not-allowed;
+          cursor: pointer;
+          transition:
+            background .16s ease,
+            color .16s ease,
+            border-color .16s ease,
+            transform .16s ease,
+            box-shadow .16s ease;
+        }
+        .fullDestinationStub:hover {
+          background: #8b542e;
+          border-color: #8b542e;
+          color: #f5ead7;
+          transform: translateY(-1px);
+          box-shadow: 0 6px 16px rgba(74,45,25,.18);
+        }
+        .fullDestinationStub:active {
+          transform: translateY(0);
+        }
+        .fullDestinationStub:focus-visible {
+          outline: 2px solid #8b542e;
+          outline-offset: 3px;
         }
         @media (max-width: 760px) {
           .topoOverlay { padding: 14px; }
