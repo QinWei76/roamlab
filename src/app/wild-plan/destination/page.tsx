@@ -1073,8 +1073,27 @@ export default function WildDestinationPage() {
                   <button
                     type="button"
                     className="fullDestinationStub"
-                    disabled
-                    title="Full Destination page is the next build step"
+                    onClick={() => {
+                      const params = new URLSearchParams();
+                      params.set("name", activeMatch.name);
+                      params.set("source", activeMatch.source);
+                      params.set("sourceId", activeMatch.sourceId);
+                      params.set("lat", String(activeMatch.latitude));
+                      params.set("lon", String(activeMatch.longitude));
+                      params.set("returnMatch", String(activeMatchIndex));
+
+                      if (typeof activeMatch.distanceKm === "number") {
+                        params.set("distance", String(activeMatch.distanceKm));
+                      }
+
+                      if (typeof activeMatch.matchScore === "number") {
+                        params.set("score", String(activeMatch.matchScore));
+                      }
+
+                      router.push(
+                        `/wild-plan/destination/intelligence?${params.toString()}`
+                      );
+                    }}
                   >
                     VIEW FULL DESTINATION →
                   </button>
