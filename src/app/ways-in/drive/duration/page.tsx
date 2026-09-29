@@ -68,12 +68,6 @@ const durationLabels: Record<
   },
 };
 
-/*
-  Planning baselines.
-
-  These are used only when exact
-  calendar dates have not been set.
-*/
 const durationDefaults: Record<
   DurationKey,
   {
@@ -99,18 +93,20 @@ const durationDefaults: Record<
   extended: {},
 };
 
-/*
-  Parse YYYY-MM-DD as a local calendar date.
+/* =========================================================
+   DATE HELPERS
+   Use UTC calendar days so DST does not change trip length.
+   ========================================================= */
 
-  This avoids timezone shifts when calculating
-  the number of nights between two dates.
-*/
-function parseLocalDate(value: string) {
+function dateToUtcDay(
+  value: string
+): number | null {
   if (!value) {
     return null;
   }
 
-  const parts = value.split("-").map(Number);
+  const parts =
+    value.split("-").map(Number);
 
   if (
     parts.length !== 3 ||
@@ -121,10 +117,12 @@ function parseLocalDate(value: string) {
     return null;
   }
 
-  return new Date(
-    parts[0],
-    parts[1] - 1,
-    parts[2]
+  const [year, month, day] = parts;
+
+  return Date.UTC(
+    year,
+    month - 1,
+    day
   );
 }
 
@@ -132,23 +130,26 @@ function calculateTripLength(
   startDate: string,
   endDate: string
 ) {
-  const start = parseLocalDate(startDate);
-  const end = parseLocalDate(endDate);
+  const start =
+    dateToUtcDay(startDate);
 
-  if (!start || !end) {
+  const end =
+    dateToUtcDay(endDate);
+
+  if (
+    start === null ||
+    end === null ||
+    end < start
+  ) {
     return null;
   }
 
-  const milliseconds =
-    end.getTime() - start.getTime();
-
-  if (milliseconds < 0) {
-    return null;
-  }
+  const millisecondsPerDay =
+    24 * 60 * 60 * 1000;
 
   const nights = Math.round(
-    milliseconds /
-      (1000 * 60 * 60 * 24)
+    (end - start) /
+      millisecondsPerDay
   );
 
   return {
@@ -184,28 +185,48 @@ function durationMatchesNights(
   }
 
   if (duration === "weekend") {
-    return nights >= 2 && nights <= 3;
+    return (
+      nights >= 2 &&
+      nights <= 3
+    );
   }
 
-  if (duration === "multi-day") {
-    return nights >= 4 && nights <= 7;
+  if (
+    duration === "multi-day"
+  ) {
+    return (
+      nights >= 4 &&
+      nights <= 7
+    );
   }
 
   return nights >= 8;
 }
 
+/* =========================================================
+   PAGE
+   ========================================================= */
+
 export default function DurationPage() {
-  const [vehicle, setVehicle] =
-    useState<VehicleKey>("suv");
+  const [
+    vehicle,
+    setVehicle,
+  ] = useState<VehicleKey>("suv");
 
-  const [trip, setTrip] =
-    useState<TripKey>("weekend");
+  const [
+    trip,
+    setTrip,
+  ] = useState<TripKey>("weekend");
 
-  const [crew, setCrew] =
-    useState<CrewKey>("solo");
+  const [
+    crew,
+    setCrew,
+  ] = useState<CrewKey>("solo");
 
-  const [people, setPeople] =
-    useState<number>(1);
+  const [
+    people,
+    setPeople,
+  ] = useState<number>(1);
 
   const [
     selectedDuration,
@@ -236,8 +257,14 @@ export default function DurationPage() {
     setDateError,
   ] = useState("");
 
-  const [ready, setReady] =
-    useState(false);
+  const [
+    ready,
+    setReady,
+  ] = useState(false);
+
+  /* =======================================================
+     READ QUERY
+     ======================================================= */
 
   useEffect(() => {
     const params =
@@ -261,7 +288,8 @@ export default function DurationPage() {
       vehicleValue === "suv" ||
       vehicleValue === "truck" ||
       vehicleValue === "van" ||
-      vehicleValue === "crossover" ||
+      vehicleValue ===
+        "crossover" ||
       vehicleValue === "city"
     ) {
       setVehicle(vehicleValue);
@@ -289,18 +317,29 @@ export default function DurationPage() {
       Number(peopleValue);
 
     if (
-      Number.isFinite(parsedPeople) &&
+      Number.isFinite(
+        parsedPeople
+      ) &&
       parsedPeople > 0
     ) {
-      setPeople(parsedPeople);
+      setPeople(
+        parsedPeople
+      );
     }
 
     setReady(true);
   }, []);
 
+  /* =======================================================
+     EXACT DATE CALCULATION
+     ======================================================= */
+
   const exactTripLength =
     useMemo(() => {
-      if (!startDate || !endDate) {
+      if (
+        !startDate ||
+        !endDate
+      ) {
         return null;
       }
 
@@ -308,7 +347,10 @@ export default function DurationPage() {
         startDate,
         endDate
       );
-    }, [startDate, endDate]);
+    }, [
+      startDate,
+      endDate,
+    ]);
 
   const durationConflict =
     useMemo(() => {
@@ -343,13 +385,23 @@ export default function DurationPage() {
       return durationForNights(
         exactTripLength.nights
       );
-    }, [exactTripLength]);
+    }, [
+      exactTripLength,
+    ]);
+
+  /* =======================================================
+     SELECTION
+     ======================================================= */
 
   const chooseDuration = (
     duration: DurationKey
   ) => {
-    setSelectedDuration(duration);
+    setSelectedDuration(
+      duration
+    );
+
     setTimingChoice(null);
+
     setStartDate("");
     setEndDate("");
     setDateError("");
@@ -358,8 +410,10 @@ export default function DurationPage() {
   const closeSelection = () => {
     setSelectedDuration(null);
     setTimingChoice(null);
+
     setStartDate("");
     setEndDate("");
+
     setDateError("");
   };
 
@@ -369,18 +423,14 @@ export default function DurationPage() {
     setTimingChoice(timing);
     setDateError("");
 
-    if (timing !== "exact") {
+    if (
+      timing !== "exact"
+    ) {
       setStartDate("");
       setEndDate("");
     }
   };
 
-  /*
-    If the exact dates do not match the
-    previously selected duration category,
-    let the real dates become the source
-    of truth and update the duration.
-  */
   const useTheseDates = () => {
     if (!suggestedDuration) {
       return;
@@ -393,86 +443,234 @@ export default function DurationPage() {
     setDateError("");
   };
 
-  const continueToDestination = () => {
-    if (!selectedDuration) {
-      return;
-    }
+  /* =======================================================
+     CONTINUE
+     ======================================================= */
 
-    if (!timingChoice) {
-      setDateError(
-        "Choose when you are going before continuing."
+  const continueToDestination =
+    () => {
+      if (!selectedDuration) {
+        return;
+      }
+
+      if (!timingChoice) {
+        setDateError(
+          "Choose when you are going before continuing."
+        );
+
+        return;
+      }
+
+      getOrCreateCurrentWild(
+        "My Wild"
       );
-      return;
-    }
 
-    getOrCreateCurrentWild(
-      "My Wild"
-    );
+      /* ===================================================
+         EXACT DATES
+         =================================================== */
 
-    /*
-      EXACT DATES
-    */
-    if (timingChoice === "exact") {
-      if (!startDate || !endDate) {
-        setDateError(
-          "Add both your start date and end date."
-        );
-        return;
-      }
-
-      const tripLength =
-        calculateTripLength(
-          startDate,
-          endDate
-        );
-
-      if (!tripLength) {
-        setDateError(
-          "Your end date must be on or after your start date."
-        );
-        return;
-      }
-
-      if (tripLength.nights < 1) {
-        setDateError(
-          "Choose an end date at least one night after your start date."
-        );
-        return;
-      }
-
-      /*
-        Do not silently change the user's
-        duration category.
-
-        The conflict panel asks them to
-        explicitly accept the dates first.
-      */
       if (
-        !durationMatchesNights(
-          selectedDuration,
-          tripLength.nights
-        )
+        timingChoice === "exact"
       ) {
-        setDateError(
-          "Your dates do not match the duration you selected. Use the duration check below before continuing."
+        /*
+          Safari can visually show a selected
+          date before React state has fully
+          synchronized.
+
+          Read the real DOM values as the
+          final source of truth when Continue
+          is pressed.
+        */
+
+        const startInput =
+          document.getElementById(
+            "duration-start-date"
+          ) as HTMLInputElement | null;
+
+        const endInput =
+          document.getElementById(
+            "duration-end-date"
+          ) as HTMLInputElement | null;
+
+        const actualStartDate =
+          startInput?.value ||
+          startDate;
+
+        const actualEndDate =
+          endInput?.value ||
+          endDate;
+
+        if (
+          !actualStartDate ||
+          !actualEndDate
+        ) {
+          setDateError(
+            "Add both your start date and end date."
+          );
+
+          return;
+        }
+
+        const tripLength =
+          calculateTripLength(
+            actualStartDate,
+            actualEndDate
+          );
+
+        if (!tripLength) {
+          setDateError(
+            "Your end date must be on or after your start date."
+          );
+
+          return;
+        }
+
+        if (
+          tripLength.nights < 1
+        ) {
+          setDateError(
+            "Choose an end date at least one night after your start date."
+          );
+
+          return;
+        }
+
+        /*
+          Do not silently change the
+          duration category.
+
+          If exact dates conflict with the
+          chosen duration, the user explicitly
+          accepts the suggested category.
+        */
+
+        if (
+          !durationMatchesNights(
+            selectedDuration,
+            tripLength.nights
+          )
+        ) {
+          setStartDate(
+            actualStartDate
+          );
+
+          setEndDate(
+            actualEndDate
+          );
+
+          setDateError(
+            "Your dates do not match the duration you selected. Use the duration check below before continuing."
+          );
+
+          return;
+        }
+
+        /*
+          Synchronize React state too.
+        */
+
+        setStartDate(
+          actualStartDate
         );
+
+        setEndDate(
+          actualEndDate
+        );
+
+        /*
+          Save duration.
+        */
+
+        updateWildDuration(
+          selectedDuration,
+          {
+            days:
+              tripLength.days,
+
+            nights:
+              tripLength.nights,
+          }
+        );
+
+        /*
+          Save exact Wild Schedule.
+        */
+
+        updateWildSchedule({
+          startDate:
+            actualStartDate,
+
+          endDate:
+            actualEndDate,
+
+          timingMode:
+            "exact",
+
+          flexibleDates:
+            false,
+        });
+
+        /*
+          Continue to Destination.
+        */
+
+        window.location.href =
+          `/wild-plan/destination` +
+          `?vehicle=${vehicle}` +
+          `&trip=${trip}` +
+          `&crew=${crew}` +
+          `&people=${people}` +
+          `&duration=${selectedDuration}`;
+
         return;
       }
+
+      /* ===================================================
+         FLEXIBLE / UNDECIDED
+         =================================================== */
+
+      const defaults =
+        durationDefaults[
+          selectedDuration
+        ];
 
       updateWildDuration(
         selectedDuration,
-        {
-          days: tripLength.days,
-          nights: tripLength.nights,
-        }
+        defaults
       );
 
-      updateWildSchedule({
-        startDate,
-        endDate,
-        timingMode: "exact",
-        flexibleDates: false,
-      });
+      if (
+        timingChoice ===
+        "flexible"
+      ) {
+        updateWildSchedule({
+          startDate:
+            undefined,
+
+          endDate:
+            undefined,
+
+          timingMode:
+            "flexible",
+
+          flexibleDates:
+            true,
+        });
+      } else {
+        updateWildSchedule({
+          startDate:
+            undefined,
+
+          endDate:
+            undefined,
+
+          timingMode:
+            "undecided",
+
+          flexibleDates:
+            false,
+        });
+      }
 
       window.location.href =
         `/wild-plan/destination` +
@@ -481,52 +679,11 @@ export default function DurationPage() {
         `&crew=${crew}` +
         `&people=${people}` +
         `&duration=${selectedDuration}`;
+    };
 
-      return;
-    }
-
-    /*
-      FLEXIBLE / UNDECIDED
-
-      No exact calendar dates exist,
-      so keep the planning baseline.
-    */
-    const defaults =
-      durationDefaults[
-        selectedDuration
-      ];
-
-    updateWildDuration(
-      selectedDuration,
-      defaults
-    );
-
-    if (
-      timingChoice === "flexible"
-    ) {
-      updateWildSchedule({
-        startDate: undefined,
-        endDate: undefined,
-        timingMode: "flexible",
-        flexibleDates: true,
-      });
-    } else {
-      updateWildSchedule({
-        startDate: undefined,
-        endDate: undefined,
-        timingMode: "undecided",
-        flexibleDates: false,
-      });
-    }
-
-    window.location.href =
-      `/wild-plan/destination` +
-      `?vehicle=${vehicle}` +
-      `&trip=${trip}` +
-      `&crew=${crew}` +
-      `&people=${people}` +
-      `&duration=${selectedDuration}`;
-  };
+  /* =======================================================
+     LOADING
+     ======================================================= */
 
   if (!ready) {
     return (
@@ -536,8 +693,13 @@ export default function DurationPage() {
     );
   }
 
+  /* =======================================================
+     UI
+     ======================================================= */
+
   return (
     <main className="duration2-page">
+
       <section className="duration2-stage">
 
         {/* BACKGROUND */}
@@ -568,6 +730,7 @@ export default function DurationPage() {
         {/* GLOBAL NAV */}
 
         <nav className="duration2-nav">
+
           <div className="duration2-nav-links">
 
             <Link href="/explore">
@@ -617,6 +780,7 @@ export default function DurationPage() {
           >
             START YOUR WILD →
           </Link>
+
         </nav>
 
         {/* PROGRESS */}
@@ -731,7 +895,16 @@ export default function DurationPage() {
         {/* SELECTED PANEL */}
 
         {selectedDuration && (
-          <div className="duration2-panel duration2-panel-schedule">
+          <div
+            className={`duration2-panel duration2-panel-schedule ${
+              timingChoice ===
+              "exact"
+                ? "duration2-panel-dates-open"
+                : ""
+            }`}
+          >
+
+            {/* CLOSE */}
 
             <button
               type="button"
@@ -747,6 +920,7 @@ export default function DurationPage() {
             {/* DURATION SUMMARY */}
 
             <div className="duration2-summary">
+
               <span>
                 YOUR DURATION
               </span>
@@ -770,6 +944,7 @@ export default function DurationPage() {
               <small>
                 STEP 4 OF 6
               </small>
+
             </div>
 
             {/* WHEN ARE YOU GOING */}
@@ -841,35 +1016,62 @@ export default function DurationPage() {
                 "exact" && (
                 <div className="duration2-date-area">
 
+                  {/* START */}
+
                   <label className="duration2-date-field">
+
                     <span>
                       START
                     </span>
 
                     <input
+                      id="duration-start-date"
                       type="date"
                       value={
                         startDate
                       }
-                      onChange={(event) => {
+                      onInput={(event) => {
+                        const value =
+                          event.currentTarget.value;
+
                         setStartDate(
-                          event.target.value
+                          value
                         );
-                        setDateError("");
+
+                        setDateError(
+                          ""
+                        );
+                      }}
+                      onChange={(event) => {
+                        const value =
+                          event.currentTarget.value;
+
+                        setStartDate(
+                          value
+                        );
+
+                        setDateError(
+                          ""
+                        );
                       }}
                     />
+
                   </label>
 
                   <div className="duration2-date-arrow">
                     →
                   </div>
 
+                  {/* END */}
+
                   <label className="duration2-date-field">
+
                     <span>
                       END
                     </span>
 
                     <input
+                      id="duration-end-date"
                       type="date"
                       value={
                         endDate
@@ -878,20 +1080,42 @@ export default function DurationPage() {
                         startDate ||
                         undefined
                       }
-                      onChange={(event) => {
+                      onInput={(event) => {
+                        const value =
+                          event.currentTarget.value;
+
                         setEndDate(
-                          event.target.value
+                          value
                         );
-                        setDateError("");
+
+                        setDateError(
+                          ""
+                        );
+                      }}
+                      onChange={(event) => {
+                        const value =
+                          event.currentTarget.value;
+
+                        setEndDate(
+                          value
+                        );
+
+                        setDateError(
+                          ""
+                        );
                       }}
                     />
+
                   </label>
+
+                  {/* VALID DATE SUMMARY */}
 
                   {exactTripLength &&
                     exactTripLength.nights >=
                       1 &&
                     !durationConflict && (
                       <div className="duration2-date-summary">
+
                         {
                           exactTripLength.days
                         }{" "}
@@ -899,10 +1123,13 @@ export default function DurationPage() {
                         {
                           exactTripLength.nights
                         }{" "}
-                        {exactTripLength.nights ===
-                        1
-                          ? "NIGHT"
-                          : "NIGHTS"}
+                        {
+                          exactTripLength.nights ===
+                          1
+                            ? "NIGHT"
+                            : "NIGHTS"
+                        }
+
                       </div>
                     )}
 
@@ -922,10 +1149,12 @@ export default function DurationPage() {
                           {
                             exactTripLength.nights
                           }{" "}
-                          {exactTripLength.nights ===
-                          1
-                            ? "NIGHT"
-                            : "NIGHTS"}
+                          {
+                            exactTripLength.nights ===
+                            1
+                              ? "NIGHT"
+                              : "NIGHTS"
+                          }
                         </strong>
 
                         <p>
@@ -957,7 +1186,16 @@ export default function DurationPage() {
                           <button
                             type="button"
                             onClick={() => {
-                              setDateError("");
+                              setDateError(
+                                ""
+                              );
+
+                              const startInput =
+                                document.getElementById(
+                                  "duration-start-date"
+                                ) as HTMLInputElement | null;
+
+                              startInput?.focus();
                             }}
                           >
                             CHANGE DATES
@@ -1033,55 +1271,145 @@ export default function DurationPage() {
       </section>
 
       <style jsx>{`
-        /*
-          These styles extend the existing
-          Duration visual system.
 
-          The original cinematic background,
-          hotspots, navigation and progress
-          remain controlled by the existing
-          duration2-* styles.
+        /*
+          ===================================================
+          SCHEDULE PANEL
+          ===================================================
         */
 
         .duration2-panel-schedule {
-          width: min(920px, calc(100vw - 48px));
+          width: min(
+            920px,
+            calc(100vw - 48px)
+          );
+
           max-width: 920px;
+
+          transition:
+            bottom 220ms ease,
+            transform 220ms ease;
         }
+
+        /*
+          Safari's native date picker opens
+          below the date input.
+
+          Move the panel upward only while
+          exact-date mode is active.
+        */
+
+        .duration2-panel-dates-open {
+          bottom: 190px !important;
+        }
+
+        /*
+          ===================================================
+          WHEN
+          ===================================================
+        */
 
         .duration2-when {
           flex: 1;
           min-width: 0;
-          padding: 18px 22px;
-          border-left: 1px solid rgba(218, 167, 91, 0.28);
-          border-right: 1px solid rgba(218, 167, 91, 0.22);
+
+          padding:
+            18px 22px;
+
+          border-left:
+            1px solid
+            rgba(
+              218,
+              167,
+              91,
+              0.28
+            );
+
+          border-right:
+            1px solid
+            rgba(
+              218,
+              167,
+              91,
+              0.22
+            );
         }
 
         .duration2-when-label {
           margin-bottom: 10px;
+
           color: #e5c18a;
-          font-family: Arial, sans-serif;
+
+          font-family:
+            Arial,
+            sans-serif;
+
           font-size: 11px;
+
           font-weight: 800;
-          letter-spacing: 0.16em;
+
+          letter-spacing:
+            0.16em;
         }
+
+        /*
+          ===================================================
+          TIMING OPTIONS
+          ===================================================
+        */
 
         .duration2-timing-options {
           display: flex;
+
           flex-wrap: wrap;
+
           gap: 7px;
         }
 
         .duration2-timing-button {
           appearance: none;
-          border: 1px solid rgba(229, 193, 138, 0.35);
-          background: rgba(20, 17, 13, 0.72);
-          color: rgba(245, 232, 209, 0.78);
-          padding: 9px 11px;
+
+          border:
+            1px solid
+            rgba(
+              229,
+              193,
+              138,
+              0.35
+            );
+
+          background:
+            rgba(
+              20,
+              17,
+              13,
+              0.72
+            );
+
+          color:
+            rgba(
+              245,
+              232,
+              209,
+              0.78
+            );
+
+          padding:
+            9px 11px;
+
           cursor: pointer;
-          font-family: Arial, sans-serif;
+
+          font-family:
+            Arial,
+            sans-serif;
+
           font-size: 9px;
+
           font-weight: 800;
-          letter-spacing: 0.1em;
+
+          letter-spacing:
+            0.1em;
+
           transition:
             border-color 160ms ease,
             background 160ms ease,
@@ -1089,184 +1417,476 @@ export default function DurationPage() {
         }
 
         .duration2-timing-button:hover {
-          border-color: rgba(226, 143, 62, 0.9);
-          color: #fff2dc;
+          border-color:
+            rgba(
+              226,
+              143,
+              62,
+              0.9
+            );
+
+          color:
+            #fff2dc;
         }
 
         .duration2-timing-button.selected {
-          border-color: #d77931;
-          background: #a64f23;
-          color: #fff7e9;
+          border-color:
+            #d77931;
+
+          background:
+            #a64f23;
+
+          color:
+            #fff7e9;
         }
+
+        /*
+          ===================================================
+          DATE AREA
+          ===================================================
+        */
 
         .duration2-date-area {
           display: grid;
-          grid-template-columns: 1fr auto 1fr;
+
+          grid-template-columns:
+            1fr auto 1fr;
+
           gap: 10px;
+
           align-items: end;
+
           margin-top: 13px;
         }
 
         .duration2-date-field {
           display: flex;
-          flex-direction: column;
+
+          flex-direction:
+            column;
+
           gap: 5px;
         }
 
         .duration2-date-field span {
-          color: rgba(232, 207, 168, 0.72);
-          font-family: Arial, sans-serif;
+          color:
+            rgba(
+              232,
+              207,
+              168,
+              0.72
+            );
+
+          font-family:
+            Arial,
+            sans-serif;
+
           font-size: 8px;
+
           font-weight: 800;
-          letter-spacing: 0.15em;
+
+          letter-spacing:
+            0.15em;
         }
 
         .duration2-date-field input {
           width: 100%;
-          box-sizing: border-box;
-          border: 1px solid rgba(224, 183, 119, 0.4);
+
+          box-sizing:
+            border-box;
+
+          border:
+            1px solid
+            rgba(
+              224,
+              183,
+              119,
+              0.4
+            );
+
           outline: none;
-          background: rgba(15, 13, 10, 0.82);
-          color: #f3dfbe;
-          padding: 9px 10px;
-          color-scheme: dark;
-          font-family: Arial, sans-serif;
+
+          background:
+            rgba(
+              15,
+              13,
+              10,
+              0.82
+            );
+
+          color:
+            #f3dfbe;
+
+          padding:
+            9px 10px;
+
+          color-scheme:
+            dark;
+
+          font-family:
+            Arial,
+            sans-serif;
+
           font-size: 11px;
+
           font-weight: 700;
-          letter-spacing: 0.03em;
+
+          letter-spacing:
+            0.03em;
         }
 
         .duration2-date-field input:focus {
-          border-color: #d77931;
-          box-shadow: 0 0 0 1px rgba(215, 121, 49, 0.2);
+          border-color:
+            #d77931;
+
+          box-shadow:
+            0 0 0 1px
+            rgba(
+              215,
+              121,
+              49,
+              0.2
+            );
         }
 
         .duration2-date-arrow {
-          padding-bottom: 10px;
-          color: rgba(220, 166, 92, 0.65);
-          font-size: 14px;
+          padding-bottom:
+            10px;
+
+          color:
+            rgba(
+              220,
+              166,
+              92,
+              0.65
+            );
+
+          font-size:
+            14px;
         }
 
         .duration2-date-summary {
-          grid-column: 1 / -1;
-          margin-top: 1px;
-          color: #dca866;
-          font-family: Arial, sans-serif;
-          font-size: 9px;
-          font-weight: 800;
-          letter-spacing: 0.12em;
+          grid-column:
+            1 / -1;
+
+          margin-top:
+            1px;
+
+          color:
+            #dca866;
+
+          font-family:
+            Arial,
+            sans-serif;
+
+          font-size:
+            9px;
+
+          font-weight:
+            800;
+
+          letter-spacing:
+            0.12em;
         }
+
+        /*
+          ===================================================
+          FLEXIBLE / UNDECIDED
+          ===================================================
+        */
 
         .duration2-timing-note {
           display: flex;
-          flex-direction: column;
+
+          flex-direction:
+            column;
+
           gap: 4px;
-          margin-top: 12px;
-          max-width: 390px;
+
+          margin-top:
+            12px;
+
+          max-width:
+            390px;
         }
 
         .duration2-timing-note strong {
-          color: #e0ad6c;
-          font-family: Arial, sans-serif;
-          font-size: 9px;
-          letter-spacing: 0.12em;
+          color:
+            #e0ad6c;
+
+          font-family:
+            Arial,
+            sans-serif;
+
+          font-size:
+            9px;
+
+          letter-spacing:
+            0.12em;
         }
 
         .duration2-timing-note span {
-          color: rgba(239, 222, 194, 0.64);
-          font-family: Arial, sans-serif;
-          font-size: 10px;
-          line-height: 1.45;
+          color:
+            rgba(
+              239,
+              222,
+              194,
+              0.64
+            );
+
+          font-family:
+            Arial,
+            sans-serif;
+
+          font-size:
+            10px;
+
+          line-height:
+            1.45;
         }
 
+        /*
+          ===================================================
+          DURATION CHECK
+          ===================================================
+        */
+
         .duration2-conflict {
-          grid-column: 1 / -1;
-          margin-top: 3px;
-          padding: 10px 12px;
-          border: 1px solid rgba(206, 129, 60, 0.55);
-          background: rgba(67, 37, 19, 0.72);
+          grid-column:
+            1 / -1;
+
+          margin-top:
+            3px;
+
+          padding:
+            10px 12px;
+
+          border:
+            1px solid
+            rgba(
+              206,
+              129,
+              60,
+              0.55
+            );
+
+          background:
+            rgba(
+              67,
+              37,
+              19,
+              0.72
+            );
         }
 
         .duration2-conflict-kicker {
-          margin-bottom: 4px;
-          color: #d98945;
-          font-family: Arial, sans-serif;
-          font-size: 8px;
-          font-weight: 900;
-          letter-spacing: 0.15em;
+          margin-bottom:
+            4px;
+
+          color:
+            #d98945;
+
+          font-family:
+            Arial,
+            sans-serif;
+
+          font-size:
+            8px;
+
+          font-weight:
+            900;
+
+          letter-spacing:
+            0.15em;
         }
 
         .duration2-conflict strong {
           display: block;
-          color: #f1d3a3;
-          font-family: Arial, sans-serif;
-          font-size: 10px;
-          letter-spacing: 0.08em;
+
+          color:
+            #f1d3a3;
+
+          font-family:
+            Arial,
+            sans-serif;
+
+          font-size:
+            10px;
+
+          letter-spacing:
+            0.08em;
         }
 
         .duration2-conflict p {
-          margin: 5px 0 8px;
-          color: rgba(241, 221, 188, 0.7);
-          font-family: Arial, sans-serif;
-          font-size: 9px;
-          line-height: 1.45;
+          margin:
+            5px 0 8px;
+
+          color:
+            rgba(
+              241,
+              221,
+              188,
+              0.7
+            );
+
+          font-family:
+            Arial,
+            sans-serif;
+
+          font-size:
+            9px;
+
+          line-height:
+            1.45;
         }
 
         .duration2-conflict-actions {
           display: flex;
+
           flex-wrap: wrap;
+
           gap: 7px;
         }
 
         .duration2-conflict-actions button {
-          appearance: none;
-          border: 1px solid rgba(225, 169, 93, 0.45);
-          background: rgba(18, 15, 11, 0.58);
-          color: #e8c38b;
-          padding: 7px 9px;
-          cursor: pointer;
-          font-family: Arial, sans-serif;
-          font-size: 8px;
-          font-weight: 900;
-          letter-spacing: 0.1em;
+          appearance:
+            none;
+
+          border:
+            1px solid
+            rgba(
+              225,
+              169,
+              93,
+              0.45
+            );
+
+          background:
+            rgba(
+              18,
+              15,
+              11,
+              0.58
+            );
+
+          color:
+            #e8c38b;
+
+          padding:
+            7px 9px;
+
+          cursor:
+            pointer;
+
+          font-family:
+            Arial,
+            sans-serif;
+
+          font-size:
+            8px;
+
+          font-weight:
+            900;
+
+          letter-spacing:
+            0.1em;
         }
 
         .duration2-conflict-actions button:hover {
-          border-color: #d77931;
-          color: #fff2dc;
+          border-color:
+            #d77931;
+
+          color:
+            #fff2dc;
         }
+
+        /*
+          ===================================================
+          ERROR
+          ===================================================
+        */
 
         .duration2-error {
-          margin-top: 10px;
-          color: #e4a06a;
-          font-family: Arial, sans-serif;
-          font-size: 9px;
-          font-weight: 700;
-          line-height: 1.4;
+          margin-top:
+            10px;
+
+          color:
+            #e4a06a;
+
+          font-family:
+            Arial,
+            sans-serif;
+
+          font-size:
+            9px;
+
+          font-weight:
+            700;
+
+          line-height:
+            1.4;
         }
 
-        @media (max-width: 900px) {
+        /*
+          ===================================================
+          MOBILE
+          ===================================================
+        */
+
+        @media (
+          max-width: 900px
+        ) {
           .duration2-panel-schedule {
-            width: calc(100vw - 28px);
-            max-height: 72vh;
-            overflow-y: auto;
+            width:
+              calc(
+                100vw - 28px
+              );
+
+            max-height:
+              72vh;
+
+            overflow-y:
+              auto;
+          }
+
+          .duration2-panel-dates-open {
+            bottom:
+              120px !important;
           }
 
           .duration2-when {
             border-left: 0;
             border-right: 0;
-            border-top: 1px solid rgba(218, 167, 91, 0.25);
-            border-bottom: 1px solid rgba(218, 167, 91, 0.2);
+
+            border-top:
+              1px solid
+              rgba(
+                218,
+                167,
+                91,
+                0.25
+              );
+
+            border-bottom:
+              1px solid
+              rgba(
+                218,
+                167,
+                91,
+                0.2
+              );
           }
 
           .duration2-date-area {
-            grid-template-columns: 1fr;
+            grid-template-columns:
+              1fr;
           }
 
           .duration2-date-arrow {
             display: none;
           }
         }
+
       `}</style>
 
     </main>
