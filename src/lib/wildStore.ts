@@ -1,1283 +1,889 @@
-"use client";
+import type {
+  Wild,
+  WildActivity,
+  WildCrew,
+  WildDestination,
+  WildDurationType,
+  WildGearSystem,
+  WildIntent,
+  WildPrepare,
+  WildSafety,
+  WildKnowledge,
+  WildCostSystem,
+  WildBudgetStatus,
+  WildPlanningSystem,
+  WildDriveContext,
+  WildHikeContext,
+  WildRideContext,
+  WildPaddleContext,
+  WildReadiness,
+  WildRoute,
+  WildConditions,
+  WildTripStyle,
+  WildVehicle,
+  WildVisibility,
+  WildWayIn,
+} from "@/types/wild";
 
-import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
-import PlannerProgress from "@/components/PlannerProgress";
 
-import {
-  getOrCreateCurrentWild,
-  updateWildDuration,
-  updateWildSchedule,
-} from "@/lib/wildStore";
+/* =========================================================
+   ROAMLAB — CURRENT WILD STORE
+   =========================================================
 
-type VehicleKey =
-  | "suv"
-  | "truck"
-  | "van"
-  | "crossover"
-  | "city";
+   V1:
+   Browser localStorage
 
-type TripKey =
-  | "weekend"
-  | "road-trip"
-  | "basecamp"
-  | "remote";
+   Later:
+   Supabase / authenticated user storage
 
-type CrewKey =
-  | "solo"
-  | "couple"
-  | "family"
-  | "friends";
+   PURPOSE:
+   All planning systems work on the SAME Wild.
 
-type DurationKey =
-  | "overnight"
-  | "weekend"
-  | "multi-day"
-  | "extended";
+   Ways In
+       ↓
+   Current Wild
+       ↓
+   Prepare / Gear Room
+   Route
+   Safety
+   Knowledge
+   Cost
+   Readiness
+       ↓
+   Your Wild Plan
 
-type TimingChoice =
-  | "exact"
-  | "flexible"
-  | "undecided";
+   IMPORTANT:
+   This store does NOT belong to Ways In or Gear Room.
+   It belongs to the entire RoamLab Wild lifecycle.
+   ========================================================= */
 
-const durationLabels: Record<
-  DurationKey,
-  {
-    title: string;
-    detail: string;
+
+/* =========================================================
+   STORAGE
+   ========================================================= */
+
+const CURRENT_WILD_KEY = "roamlab.currentWild";
+
+export const CURRENT_WILD_UPDATED_EVENT =
+  "roamlab:current-wild-updated";
+
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
+
+function isBrowser(): boolean {
+  return typeof window !== "undefined";
+}
+
+function nowISO(): string {
+  return new Date().toISOString();
+}
+
+function createId(): string {
+  if (
+    typeof crypto !== "undefined" &&
+    typeof crypto.randomUUID === "function"
+  ) {
+    return crypto.randomUUID();
   }
-> = {
-  overnight: {
-    title: "Overnight",
-    detail: "1 Night",
-  },
 
-  weekend: {
-    title: "Weekend",
-    detail: "2–3 Nights",
-  },
+  return `wild-${Date.now()}-${Math.random()
+    .toString(36)
+    .slice(2, 10)}`;
+}
 
-  "multi-day": {
-    title: "Multi-Day",
-    detail: "4–7 Nights",
-  },
+function notifyWildUpdated(wild: Wild | null): void {
+  if (!isBrowser()) return;
 
-  extended: {
-    title: "Extended",
-    detail: "8+ Nights",
-  },
-};
+  window.dispatchEvent(
+    new CustomEvent(CURRENT_WILD_UPDATED_EVENT, {
+      detail: wild,
+    })
+  );
+}
 
-/*
-  Planning baselines.
 
-  These are used when exact dates
-  have not been provided yet.
-*/
-const durationDefaults: Record<
-  DurationKey,
-  {
+/* =========================================================
+   CREATE EMPTY WILD
+   ========================================================= */
+
+export function createEmptyWild(
+  title = "My Wild"
+): Wild {
+  const timestamp = nowISO();
+
+  return {
+    id: createId(),
+
+    title,
+
+    status: "planning",
+
+    visibility: "private",
+
+    createdAt: timestamp,
+
+    updatedAt: timestamp,
+
+    plan: {
+      adventure: {
+        activities: [],
+      },
+    },
+  };
+}
+
+
+/* =========================================================
+   READ CURRENT WILD
+   ========================================================= */
+
+export function getCurrentWild(): Wild | null {
+  if (!isBrowser()) return null;
+
+  const raw = window.localStorage.getItem(
+    CURRENT_WILD_KEY
+  );
+
+  if (!raw) return null;
+
+  try {
+    return JSON.parse(raw) as Wild;
+  } catch (error) {
+    console.error(
+      "RoamLab: failed to read current Wild.",
+      error
+    );
+
+    return null;
+  }
+}
+
+
+/* =========================================================
+   SAVE CURRENT WILD
+   ========================================================= */
+
+export function saveCurrentWild(
+  wild: Wild
+): Wild {
+  if (!isBrowser()) return wild;
+
+  const updatedWild: Wild = {
+    ...wild,
+    updatedAt: nowISO(),
+  };
+
+  window.localStorage.setItem(
+    CURRENT_WILD_KEY,
+    JSON.stringify(updatedWild)
+  );
+
+  notifyWildUpdated(updatedWild);
+
+  return updatedWild;
+}
+
+
+/* =========================================================
+   GET OR CREATE CURRENT WILD
+   ========================================================= */
+
+export function getOrCreateCurrentWild(
+  title = "My Wild"
+): Wild {
+  const existing = getCurrentWild();
+
+  if (existing) {
+    return existing;
+  }
+
+  const wild = createEmptyWild(title);
+
+  return saveCurrentWild(wild);
+}
+
+
+/* =========================================================
+   CLEAR CURRENT WILD
+   ========================================================= */
+
+export function clearCurrentWild(): void {
+  if (!isBrowser()) return;
+
+  window.localStorage.removeItem(
+    CURRENT_WILD_KEY
+  );
+
+  notifyWildUpdated(null);
+}
+
+
+/* =========================================================
+   GENERIC UPDATE
+   ========================================================= */
+
+export function updateCurrentWild(
+  updater: (wild: Wild) => Wild
+): Wild {
+  const current = getOrCreateCurrentWild();
+
+  const updated = updater(current);
+
+  return saveCurrentWild(updated);
+}
+
+
+/* =========================================================
+   BASIC WILD INFO
+   ========================================================= */
+
+export function updateWildIdentity(input: {
+  title?: string;
+  visibility?: WildVisibility;
+}): Wild {
+  return updateCurrentWild((wild) => ({
+    ...wild,
+
+    title:
+      input.title !== undefined
+        ? input.title
+        : wild.title,
+
+    visibility:
+      input.visibility !== undefined
+        ? input.visibility
+        : wild.visibility,
+  }));
+}
+
+
+/* =========================================================
+   WILD INTENT / DESTINATION DISCOVERY
+   ========================================================= */
+
+export function updateWildIntent(
+  intent: Partial<WildIntent>
+): Wild {
+  return updateCurrentWild((wild) => ({
+    ...wild,
+
+    plan: {
+      ...wild.plan,
+
+      adventure: {
+        ...wild.plan.adventure,
+
+        intent: {
+          ...wild.plan.adventure.intent,
+          ...intent,
+        },
+      },
+    },
+  }));
+}
+
+
+/* =========================================================
+   WAYS IN
+   ========================================================= */
+
+export function updateWildWayIn(
+  wayIn: WildWayIn
+): Wild {
+  return updateCurrentWild((wild) => ({
+    ...wild,
+
+    plan: {
+      ...wild.plan,
+
+      adventure: {
+        ...wild.plan.adventure,
+
+        wayIn,
+      },
+    },
+  }));
+}
+
+
+/* =========================================================
+   WAY-IN SPECIFIC PLANNING CONTEXT
+   ========================================================= */
+
+export function updateWildDriveContext(
+  drive: Partial<WildDriveContext>
+): Wild {
+  return updateCurrentWild((wild) => ({
+    ...wild,
+    plan: {
+      ...wild.plan,
+      adventure: {
+        ...wild.plan.adventure,
+        drive: {
+          ...wild.plan.adventure.drive,
+          ...drive,
+        },
+      },
+    },
+  }));
+}
+
+export function updateWildHikeContext(
+  hike: Partial<WildHikeContext>
+): Wild {
+  return updateCurrentWild((wild) => ({
+    ...wild,
+    plan: {
+      ...wild.plan,
+      adventure: {
+        ...wild.plan.adventure,
+        hike: {
+          ...wild.plan.adventure.hike,
+          ...hike,
+        },
+      },
+    },
+  }));
+}
+
+export function updateWildRideContext(
+  ride: Partial<WildRideContext>
+): Wild {
+  return updateCurrentWild((wild) => ({
+    ...wild,
+    plan: {
+      ...wild.plan,
+      adventure: {
+        ...wild.plan.adventure,
+        ride: {
+          ...wild.plan.adventure.ride,
+          ...ride,
+        },
+      },
+    },
+  }));
+}
+
+export function updateWildPaddleContext(
+  paddle: Partial<WildPaddleContext>
+): Wild {
+  return updateCurrentWild((wild) => ({
+    ...wild,
+    plan: {
+      ...wild.plan,
+      adventure: {
+        ...wild.plan.adventure,
+        paddle: {
+          ...wild.plan.adventure.paddle,
+          ...paddle,
+        },
+      },
+    },
+  }));
+}
+
+
+/* =========================================================
+   ACTIVITIES
+   ========================================================= */
+
+export function updateWildActivities(
+  activities: WildActivity[]
+): Wild {
+  return updateCurrentWild((wild) => ({
+    ...wild,
+
+    plan: {
+      ...wild.plan,
+
+      adventure: {
+        ...wild.plan.adventure,
+
+        activities,
+      },
+    },
+  }));
+}
+
+
+/* =========================================================
+   VEHICLE
+   ========================================================= */
+
+export function updateWildVehicle(
+  vehicle: WildVehicle
+): Wild {
+  return updateCurrentWild((wild) => ({
+    ...wild,
+
+    plan: {
+      ...wild.plan,
+
+      adventure: {
+        ...wild.plan.adventure,
+
+        vehicle,
+      },
+    },
+  }));
+}
+
+
+/* =========================================================
+   TRIP STYLE
+   ========================================================= */
+
+export function updateWildTripStyle(
+  tripStyle: WildTripStyle
+): Wild {
+  return updateCurrentWild((wild) => ({
+    ...wild,
+
+    plan: {
+      ...wild.plan,
+
+      adventure: {
+        ...wild.plan.adventure,
+
+        tripStyle,
+      },
+    },
+  }));
+}
+
+
+/* =========================================================
+   CREW
+   ========================================================= */
+
+export function updateWildCrew(
+  crew: WildCrew
+): Wild {
+  return updateCurrentWild((wild) => ({
+    ...wild,
+
+    plan: {
+      ...wild.plan,
+
+      adventure: {
+        ...wild.plan.adventure,
+
+        crew,
+      },
+    },
+  }));
+}
+
+
+/* =========================================================
+   DURATION
+   ========================================================= */
+
+export function updateWildDuration(
+  durationType: WildDurationType,
+  options?: {
     days?: number;
     nights?: number;
   }
-> = {
-  overnight: {
-    days: 2,
-    nights: 1,
-  },
+): Wild {
+  return updateCurrentWild((wild) => ({
+    ...wild,
 
-  weekend: {
-    days: 3,
-    nights: 2,
-  },
+    plan: {
+      ...wild.plan,
 
-  "multi-day": {
-    days: 7,
-    nights: 6,
-  },
+      adventure: {
+        ...wild.plan.adventure,
 
-  extended: {},
-};
+        schedule: {
+          ...wild.plan.adventure.schedule,
 
-function parseLocalDate(value: string) {
-  if (!value) {
-    return null;
+          durationType,
+
+          days:
+            options?.days ??
+            wild.plan.adventure.schedule?.days,
+
+          nights:
+            options?.nights ??
+            wild.plan.adventure.schedule?.nights,
+        },
+      },
+    },
+  }));
+}
+
+
+/* =========================================================
+   WILD SCHEDULE / DATES
+   ========================================================= */
+
+export function updateWildSchedule(input: {
+  startDate?: string;
+  endDate?: string;
+  timingMode?: "exact" | "flexible" | "undecided";
+  flexibleDates?: boolean;
+}): Wild {
+  return updateCurrentWild((wild) => ({
+    ...wild,
+
+    plan: {
+      ...wild.plan,
+
+      adventure: {
+        ...wild.plan.adventure,
+
+        schedule: {
+          ...wild.plan.adventure.schedule,
+
+          startDate: input.startDate,
+          endDate: input.endDate,
+          timingMode: input.timingMode,
+          flexibleDates: input.flexibleDates,
+        },
+      },
+    },
+  }));
+}
+
+
+/* =========================================================
+   DESTINATION
+   ========================================================= */
+
+export function updateWildDestination(
+  destination: WildDestination
+): Wild {
+  return updateCurrentWild((wild) => ({
+    ...wild,
+
+    plan: {
+      ...wild.plan,
+
+      adventure: {
+        ...wild.plan.adventure,
+
+        destination,
+      },
+    },
+  }));
+}
+
+
+/* =========================================================
+   ROUTE
+   ========================================================= */
+
+export function updateWildRoute(
+  route: WildRoute
+): Wild {
+  return updateCurrentWild((wild) => ({
+    ...wild,
+
+    plan: {
+      ...wild.plan,
+
+      route,
+    },
+  }));
+}
+
+
+/* =========================================================
+   CONDITIONS
+   ========================================================= */
+
+export function updateWildConditions(
+  conditions: WildConditions
+): Wild {
+  return updateCurrentWild((wild) => ({
+    ...wild,
+
+    plan: {
+      ...wild.plan,
+
+      conditions,
+    },
+  }));
+}
+
+
+/* =========================================================
+   PREPARE
+   ========================================================= */
+
+export function updateWildPrepare(
+  prepare: WildPrepare
+): Wild {
+  return updateCurrentWild((wild) => ({
+    ...wild,
+
+    plan: {
+      ...wild.plan,
+
+      prepare,
+    },
+  }));
+}
+
+
+/* =========================================================
+   GEAR SYSTEM
+   ========================================================= */
+
+export function updateWildGearSystem(
+  gear: WildGearSystem
+): Wild {
+  return updateCurrentWild((wild) => ({
+    ...wild,
+
+    plan: {
+      ...wild.plan,
+
+      prepare: {
+        ...wild.plan.prepare,
+
+        gear,
+      },
+    },
+  }));
+}
+
+
+/* =========================================================
+   SAFETY
+   ========================================================= */
+
+export function updateWildSafety(
+  safety: WildSafety
+): Wild {
+  return updateCurrentWild((wild) => ({
+    ...wild,
+
+    plan: {
+      ...wild.plan,
+
+      safety,
+    },
+  }));
+}
+
+
+/* =========================================================
+   KNOWLEDGE
+   ========================================================= */
+
+export function updateWildKnowledge(
+  knowledge: WildKnowledge
+): Wild {
+  return updateCurrentWild((wild) => ({
+    ...wild,
+
+    plan: {
+      ...wild.plan,
+
+      knowledge,
+    },
+  }));
+}
+
+
+/* =========================================================
+   COST
+   ========================================================= */
+
+export function updateWildCost(
+  cost: WildCostSystem
+): Wild {
+  return updateCurrentWild((wild) => ({
+    ...wild,
+
+    plan: {
+      ...wild.plan,
+
+      cost,
+    },
+  }));
+}
+
+
+/* =========================================================
+   TOTAL WILD BUDGET
+   ========================================================= */
+
+export function updateTotalWildBudget(
+  totalWildBudget: number,
+  currency = "USD"
+): Wild {
+  return updateCurrentWild((wild) => ({
+    ...wild,
+
+    plan: {
+      ...wild.plan,
+
+      cost: {
+        ...wild.plan.cost,
+
+        currency,
+
+        budgetMode: "total-wild-budget",
+
+        budgetStatus: "set",
+
+        totalWildBudget,
+      },
+    },
+  }));
+}
+
+/*
+ * Explicit "I DON'T KNOW YET" path.
+ * Keep the Wild moving without inventing a budget value.
+ */
+export function setTotalWildBudgetUnknown(
+  currency = "USD"
+): Wild {
+  return updateCurrentWild((wild) => ({
+    ...wild,
+
+    plan: {
+      ...wild.plan,
+
+      cost: {
+        ...wild.plan.cost,
+
+        currency,
+
+        budgetMode: "total-wild-budget",
+
+        budgetStatus: "unknown",
+
+        totalWildBudget: undefined,
+      },
+    },
+  }));
+}
+
+/*
+ * Shared helper for UI that already knows whether the budget is set
+ * or intentionally unknown.
+ */
+export function updateWildBudget(input: {
+  status: WildBudgetStatus;
+  totalWildBudget?: number;
+  currency?: string;
+}): Wild {
+  const currency = input.currency ?? "USD";
+
+  if (input.status === "unknown") {
+    return setTotalWildBudgetUnknown(currency);
   }
-
-  const parts = value
-    .split("-")
-    .map(Number);
 
   if (
-    parts.length !== 3 ||
-    !Number.isFinite(parts[0]) ||
-    !Number.isFinite(parts[1]) ||
-    !Number.isFinite(parts[2])
+    input.totalWildBudget === undefined ||
+    !Number.isFinite(input.totalWildBudget) ||
+    input.totalWildBudget < 0
   ) {
-    return null;
-  }
-
-  return new Date(
-    parts[0],
-    parts[1] - 1,
-    parts[2]
-  );
-}
-
-function calculateTripLength(
-  startDate: string,
-  endDate: string
-) {
-  const start =
-    parseLocalDate(startDate);
-
-  const end =
-    parseLocalDate(endDate);
-
-  if (!start || !end) {
-    return null;
-  }
-
-  const milliseconds =
-    end.getTime() -
-    start.getTime();
-
-  if (milliseconds < 0) {
-    return null;
-  }
-
-  const nights = Math.round(
-    milliseconds /
-      (1000 * 60 * 60 * 24)
-  );
-
-  return {
-    nights,
-    days: nights + 1,
-  };
-}
-
-function durationForNights(
-  nights: number
-): DurationKey {
-  if (nights <= 1) {
-    return "overnight";
-  }
-
-  if (nights <= 3) {
-    return "weekend";
-  }
-
-  if (nights <= 7) {
-    return "multi-day";
-  }
-
-  return "extended";
-}
-
-function durationMatchesNights(
-  duration: DurationKey,
-  nights: number
-) {
-  if (duration === "overnight") {
-    return nights === 1;
-  }
-
-  if (duration === "weekend") {
-    return nights >= 2 && nights <= 3;
-  }
-
-  if (duration === "multi-day") {
-    return nights >= 4 && nights <= 7;
-  }
-
-  return nights >= 8;
-}
-
-export default function DurationPage() {
-  const [vehicle, setVehicle] =
-    useState<VehicleKey>("suv");
-
-  const [trip, setTrip] =
-    useState<TripKey>("weekend");
-
-  const [crew, setCrew] =
-    useState<CrewKey>("solo");
-
-  const [people, setPeople] =
-    useState<number>(1);
-
-  const [
-    selectedDuration,
-    setSelectedDuration,
-  ] = useState<DurationKey | null>(
-    null
-  );
-
-  const [
-    timingChoice,
-    setTimingChoice,
-  ] = useState<TimingChoice | null>(
-    null
-  );
-
-  const [
-    startDate,
-    setStartDate,
-  ] = useState("");
-
-  const [
-    endDate,
-    setEndDate,
-  ] = useState("");
-
-  const [
-    dateError,
-    setDateError,
-  ] = useState("");
-
-  const [
-    allowDurationAdjustment,
-    setAllowDurationAdjustment,
-  ] = useState(false);
-
-  const [ready, setReady] =
-    useState(false);
-
-  useEffect(() => {
-    const params =
-      new URLSearchParams(
-        window.location.search
-      );
-
-    const vehicleValue =
-      params.get("vehicle");
-
-    const tripValue =
-      params.get("trip");
-
-    const crewValue =
-      params.get("crew");
-
-    const peopleValue =
-      params.get("people");
-
-    if (
-      vehicleValue === "suv" ||
-      vehicleValue === "truck" ||
-      vehicleValue === "van" ||
-      vehicleValue === "crossover" ||
-      vehicleValue === "city"
-    ) {
-      setVehicle(vehicleValue);
-    }
-
-    if (
-      tripValue === "weekend" ||
-      tripValue === "road-trip" ||
-      tripValue === "basecamp" ||
-      tripValue === "remote"
-    ) {
-      setTrip(tripValue);
-    }
-
-    if (
-      crewValue === "solo" ||
-      crewValue === "couple" ||
-      crewValue === "family" ||
-      crewValue === "friends"
-    ) {
-      setCrew(crewValue);
-    }
-
-    const parsedPeople =
-      Number(peopleValue);
-
-    if (
-      Number.isFinite(parsedPeople) &&
-      parsedPeople > 0
-    ) {
-      setPeople(parsedPeople);
-    }
-
-    setReady(true);
-  }, []);
-
-  const exactTripLength =
-    useMemo(() => {
-      if (
-        !startDate ||
-        !endDate
-      ) {
-        return null;
-      }
-
-      return calculateTripLength(
-        startDate,
-        endDate
-      );
-    }, [startDate, endDate]);
-
-  const durationConflict =
-    useMemo(() => {
-      if (
-        timingChoice !== "exact" ||
-        !selectedDuration ||
-        !exactTripLength
-      ) {
-        return false;
-      }
-
-      return !durationMatchesNights(
-        selectedDuration,
-        exactTripLength.nights
-      );
-    }, [
-      timingChoice,
-      selectedDuration,
-      exactTripLength,
-    ]);
-
-  const suggestedDuration =
-    useMemo(() => {
-      if (!exactTripLength) {
-        return null;
-      }
-
-      return durationForNights(
-        exactTripLength.nights
-      );
-    }, [exactTripLength]);
-
-  const chooseDuration = (
-    duration: DurationKey
-  ) => {
-    setSelectedDuration(duration);
-
-    /*
-      A new duration choice should not
-      silently inherit a previous date
-      conflict decision.
-    */
-    setAllowDurationAdjustment(false);
-    setDateError("");
-  };
-
-  const closeSelection = () => {
-    setSelectedDuration(null);
-    setTimingChoice(null);
-    setStartDate("");
-    setEndDate("");
-    setDateError("");
-    setAllowDurationAdjustment(false);
-  };
-
-  const chooseTiming = (
-    timing: TimingChoice
-  ) => {
-    setTimingChoice(timing);
-    setDateError("");
-    setAllowDurationAdjustment(false);
-
-    if (timing !== "exact") {
-      setStartDate("");
-      setEndDate("");
-    }
-  };
-
-  const useTheseDates = () => {
-    if (
-      !exactTripLength ||
-      !suggestedDuration
-    ) {
-      return;
-    }
-
-    setSelectedDuration(
-      suggestedDuration
-    );
-
-    setAllowDurationAdjustment(true);
-    setDateError("");
-  };
-
-  const changeDates = () => {
-    setAllowDurationAdjustment(false);
-    setDateError("");
-
-    /*
-      Keep the user's values visible so
-      they can edit one field rather than
-      entering everything again.
-    */
-  };
-
-  const continueToDestination = () => {
-    if (!selectedDuration) {
-      return;
-    }
-
-    if (!timingChoice) {
-      setDateError(
-        "Choose when you are going before continuing."
-      );
-      return;
-    }
-
-    getOrCreateCurrentWild(
-      "My Wild"
-    );
-
-    /*
-      EXACT DATES
-
-      Real dates become the source of truth
-      for days and nights.
-    */
-    if (timingChoice === "exact") {
-      if (!startDate || !endDate) {
-        setDateError(
-          "Add both your start date and end date."
-        );
-        return;
-      }
-
-      const tripLength =
-        calculateTripLength(
-          startDate,
-          endDate
-        );
-
-      if (!tripLength) {
-        setDateError(
-          "Your end date must be on or after your start date."
-        );
-        return;
-      }
-
-      if (tripLength.nights < 1) {
-        setDateError(
-          "For this planner, choose an end date at least one night after your start date."
-        );
-        return;
-      }
-
-      const actualDuration =
-        durationForNights(
-          tripLength.nights
-        );
-
-      const hasConflict =
-        !durationMatchesNights(
-          selectedDuration,
-          tripLength.nights
-        );
-
-      if (
-        hasConflict &&
-        !allowDurationAdjustment
-      ) {
-        setDateError(
-          `Your dates span ${tripLength.nights} ${
-            tripLength.nights === 1
-              ? "night"
-              : "nights"
-          }. That does not match ${durationLabels[selectedDuration].title}.`
-        );
-        return;
-      }
-
-      updateWildDuration(
-        actualDuration,
-        {
-          days: tripLength.days,
-          nights: tripLength.nights,
-        }
-      );
-
-      updateWildSchedule({
-        startDate,
-        endDate,
-        timingMode: "exact",
-        flexibleDates: false,
-      });
-
-      window.location.href =
-        `/wild-plan/destination` +
-        `?vehicle=${vehicle}` +
-        `&trip=${trip}` +
-        `&crew=${crew}` +
-        `&people=${people}` +
-        `&duration=${actualDuration}`;
-
-      return;
-    }
-
-    /*
-      FLEXIBLE / UNDECIDED
-
-      Keep the planning baseline because
-      no exact calendar dates exist yet.
-    */
-    const defaults =
-      durationDefaults[
-        selectedDuration
-      ];
-
-    updateWildDuration(
-      selectedDuration,
-      defaults
-    );
-
-    if (
-      timingChoice === "flexible"
-    ) {
-      updateWildSchedule({
-        startDate: undefined,
-        endDate: undefined,
-        timingMode: "flexible",
-        flexibleDates: true,
-      });
-    } else {
-      updateWildSchedule({
-        startDate: undefined,
-        endDate: undefined,
-        timingMode: "undecided",
-        flexibleDates: false,
-      });
-    }
-
-    window.location.href =
-      `/wild-plan/destination` +
-      `?vehicle=${vehicle}` +
-      `&trip=${trip}` +
-      `&crew=${crew}` +
-      `&people=${people}` +
-      `&duration=${selectedDuration}`;
-  };
-
-  if (!ready) {
-    return (
-      <main className="duration2-page">
-        <div className="duration2-loading" />
-      </main>
+    throw new Error(
+      "RoamLab: a valid Total Wild Budget is required when budget status is set."
     );
   }
 
-  return (
-    <main className="duration2-page">
-      <section className="duration2-stage">
-
-        {/* BACKGROUND */}
-
-        <img
-          src="/duration-desk-v2.jpg"
-          alt="RoamLab duration planning desk"
-          className="duration2-bg"
-          draggable={false}
-        />
-
-        {/* REAL HTML LOGO */}
-
-        <Link
-          href="/"
-          className="duration2-logo"
-          aria-label="RoamLab home"
-        >
-          <span className="duration2-logo-main">
-            ROAMLAB
-          </span>
-
-          <span className="duration2-logo-sub">
-            PLANS · GEAR · STORIES
-          </span>
-        </Link>
-
-        {/* GLOBAL NAV */}
-
-        <nav className="duration2-nav">
-          <div className="duration2-nav-links">
-
-            <Link href="/explore">
-              EXPLORE
-            </Link>
-
-            <Link href="/plan">
-              PLAN
-            </Link>
-
-            <Link href="/prepare">
-              PREPARE
-            </Link>
-
-            <Link href="/safety">
-              SAFETY
-            </Link>
-
-            <Link href="/learn">
-              LEARN
-            </Link>
-
-            <Link href="/journal">
-              JOURNAL
-            </Link>
-
-            <Link href="/stories">
-              STORIES
-            </Link>
-
-            <Link href="/badges">
-              BADGES
-            </Link>
-
-          </div>
-
-          <Link
-            href="/signin"
-            className="duration2-signin"
-          >
-            SIGN IN
-          </Link>
-
-          <Link
-            href="/start-here"
-            className="duration2-start"
-          >
-            START YOUR WILD →
-          </Link>
-        </nav>
-
-        {/* PROGRESS */}
-
-        <PlannerProgress
-          currentStep={4}
-          vehicle={vehicle}
-          trip={trip}
-        />
-
-        {/* OVERNIGHT */}
-
-        <button
-          type="button"
-          className={`duration2-zone duration2-overnight ${
-            selectedDuration ===
-            "overnight"
-              ? "selected"
-              : ""
-          }`}
-          onClick={() =>
-            chooseDuration(
-              "overnight"
-            )
-          }
-          aria-label="Choose Overnight"
-          aria-pressed={
-            selectedDuration ===
-            "overnight"
-          }
-        />
-
-        {/* WEEKEND */}
-
-        <button
-          type="button"
-          className={`duration2-zone duration2-weekend ${
-            selectedDuration ===
-            "weekend"
-              ? "selected"
-              : ""
-          }`}
-          onClick={() =>
-            chooseDuration(
-              "weekend"
-            )
-          }
-          aria-label="Choose Weekend"
-          aria-pressed={
-            selectedDuration ===
-            "weekend"
-          }
-        />
-
-        {/* MULTI-DAY */}
-
-        <button
-          type="button"
-          className={`duration2-zone duration2-multiday ${
-            selectedDuration ===
-            "multi-day"
-              ? "selected"
-              : ""
-          }`}
-          onClick={() =>
-            chooseDuration(
-              "multi-day"
-            )
-          }
-          aria-label="Choose Multi-Day"
-          aria-pressed={
-            selectedDuration ===
-            "multi-day"
-          }
-        />
-
-        {/* EXTENDED */}
-
-        <button
-          type="button"
-          className={`duration2-zone duration2-extended ${
-            selectedDuration ===
-            "extended"
-              ? "selected"
-              : ""
-          }`}
-          onClick={() =>
-            chooseDuration(
-              "extended"
-            )
-          }
-          aria-label="Choose Extended"
-          aria-pressed={
-            selectedDuration ===
-            "extended"
-          }
-        />
-
-        {/* BACK */}
-
-        <Link
-          href={
-            `/ways-in/drive/crew` +
-            `?vehicle=${vehicle}` +
-            `&trip=${trip}`
-          }
-          className="duration2-back"
-        >
-          ← CREW
-        </Link>
-
-        {/* SELECTED PANEL */}
-
-        {selectedDuration && (
-          <div className="duration2-panel duration2-panel-schedule">
-
-            <button
-              type="button"
-              className="duration2-panel-close"
-              onClick={
-                closeSelection
-              }
-              aria-label="Close duration selection"
-            >
-              ×
-            </button>
-
-            <div className="duration2-summary">
-              <span>
-                YOUR DURATION
-              </span>
-
-              <strong>
-                {
-                  durationLabels[
-                    selectedDuration
-                  ].title
-                }
-              </strong>
-
-              <div className="duration2-summary-detail">
-                {
-                  durationLabels[
-                    selectedDuration
-                  ].detail
-                }
-              </div>
-
-              <small>
-                STEP 4 OF 6
-              </small>
-            </div>
-
-            <div className="duration2-when">
-              <div className="duration2-when-label">
-                WHEN ARE YOU GOING?
-              </div>
-
-              <div className="duration2-timing-options">
-
-                <button
-                  type="button"
-                  className={`duration2-timing-button ${
-                    timingChoice ===
-                    "exact"
-                      ? "selected"
-                      : ""
-                  }`}
-                  onClick={() =>
-                    chooseTiming(
-                      "exact"
-                    )
-                  }
-                >
-                  I KNOW MY DATES
-                </button>
-
-                <button
-                  type="button"
-                  className={`duration2-timing-button ${
-                    timingChoice ===
-                    "flexible"
-                      ? "selected"
-                      : ""
-                  }`}
-                  onClick={() =>
-                    chooseTiming(
-                      "flexible"
-                    )
-                  }
-                >
-                  FLEXIBLE
-                </button>
-
-                <button
-                  type="button"
-                  className={`duration2-timing-button ${
-                    timingChoice ===
-                    "undecided"
-                      ? "selected"
-                      : ""
-                  }`}
-                  onClick={() =>
-                    chooseTiming(
-                      "undecided"
-                    )
-                  }
-                >
-                  I DON&apos;T KNOW YET
-                </button>
-
-              </div>
-
-              {timingChoice ===
-                "exact" && (
-                <div className="duration2-date-area">
-
-                  <label className="duration2-date-field">
-                    <span>
-                      START
-                    </span>
-
-                    <input
-                      type="date"
-                      value={
-                        startDate
-                      }
-                      onChange={(event) => {
-                        setStartDate(
-                          event.target
-                            .value
-                        );
-                        setDateError("");
-                        setAllowDurationAdjustment(
-                          false
-                        );
-                      }}
-                    />
-                  </label>
-
-                  <div className="duration2-date-arrow">
-                    →
-                  </div>
-
-                  <label className="duration2-date-field">
-                    <span>
-                      END
-                    </span>
-
-                    <input
-                      type="date"
-                      value={
-                        endDate
-                      }
-                      min={
-                        startDate ||
-                        undefined
-                      }
-                      onChange={(event) => {
-                        setEndDate(
-                          event.target
-                            .value
-                        );
-                        setDateError("");
-                        setAllowDurationAdjustment(
-                          false
-                        );
-                      }}
-                    />
-                  </label>
-
-                  {exactTripLength &&
-                    !durationConflict && (
-                      <div className="duration2-date-summary">
-                        {
-                          exactTripLength.days
-                        }{" "}
-                        DAYS ·{" "}
-                        {
-                          exactTripLength.nights
-                        }{" "}
-                        {exactTripLength.nights ===
-                        1
-                          ? "NIGHT"
-                          : "NIGHTS"}
-                      </div>
-                    )}
-
-                  {durationConflict &&
-                    exactTripLength &&
-                    suggestedDuration && (
-                      <div className="duration2-conflict">
-
-                        <div className="duration2-conflict-kicker">
-                          DURATION CHECK
-                        </div>
-
-                        <strong>
-                          YOUR DATES SPAN{" "}
-                          {
-                            exactTripLength.nights
-                          }{" "}
-                          {exactTripLength.nights ===
-                          1
-                            ? "NIGHT"
-                            : "NIGHTS"}
-                        </strong>
-
-                        <p>
-                          That is longer or shorter than your{" "}
-                          {
-                            durationLabels[
-                              selectedDuration
-                            ].title
-                          }{" "}
-                          plan. RoamLab would classify these dates as{" "}
-                          {
-                            durationLabels[
-                              suggestedDuration
-                            ].title
-                          }.
-                        </p>
-
-                        <div className="duration2-conflict-actions">
-
-                          <button
-                            type="button"
-                            onClick={
-                              useTheseDates
-                            }
-                          >
-                            USE THESE DATES
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={
-                              changeDates
-                            }
-                          >
-                            CHANGE DATES
-                          </button>
-
-                        </div>
-
-                      </div>
-                    )}
-
-                </div>
-              )}
-
-              {timingChoice ===
-                "flexible" && (
-                <div className="duration2-timing-note">
-                  <strong>
-                    DATES ARE FLEXIBLE
-                  </strong>
-
-                  <span>
-                    We&apos;ll use your selected duration as the planning baseline. You can set exact dates later.
-                  </span>
-                </div>
-              )}
-
-              {timingChoice ===
-                "undecided" && (
-                <div className="duration2-timing-note">
-                  <strong>
-                    NO DATE YET
-                  </strong>
-
-                  <span>
-                    Keep planning now. Weather will be treated as destination research until your trip dates are set.
-                  </span>
-                </div>
-              )}
-
-              {dateError && (
-                <div className="duration2-error">
-                  {dateError}
-                </div>
-              )}
-
-            </div>
-
-            <button
-              type="button"
-              className="duration2-continue"
-              onClick={
-                continueToDestination
-              }
-            >
-              CONTINUE →
-            </button>
-
-          </div>
-        )}
-
-      </section>
-
-      <style jsx>{`
-        /*
-          Only the new scheduling controls are styled here.
-
-          Existing duration2-* classes from the current
-          page/global stylesheet remain untouched.
-        */
-
-        .duration2-panel-schedule {
-          width: min(920px, calc(100vw - 48px));
-          max-width: 920px;
-        }
-
-        .duration2-when {
-          flex: 1;
-          min-width: 0;
-          padding: 18px 22px;
-          border-left: 1px solid rgba(218, 167, 91, 0.28);
-          border-right: 1px solid rgba(218, 167, 91, 0.22);
-        }
-
-        .duration2-when-label {
-          margin-bottom: 10px;
-          color: #e5c18a;
-          font-family: Arial, sans-serif;
-          font-size: 11px;
-          font-weight: 800;
-          letter-spacing: 0.16em;
-        }
-
-        .duration2-timing-options {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 7px;
-        }
-
-        .duration2-timing-button {
-          appearance: none;
-          border: 1px solid rgba(229, 193, 138, 0.35);
-          background: rgba(20, 17, 13, 0.72);
-          color: rgba(245, 232, 209, 0.78);
-          padding: 9px 11px;
-          cursor: pointer;
-          font-family: Arial, sans-serif;
-          font-size: 9px;
-          font-weight: 800;
-          letter-spacing: 0.1em;
-          transition:
-            border-color 160ms ease,
-            background 160ms ease,
-            color 160ms ease;
-        }
-
-        .duration2-timing-button:hover {
-          border-color: rgba(226, 143, 62, 0.9);
-          color: #fff2dc;
-        }
-
-        .duration2-timing-button.selected {
-          border-color: #d77931;
-          background: #a64f23;
-          color: #fff7e9;
-        }
-
-        .duration2-date-area {
-          display: grid;
-          grid-template-columns: 1fr auto 1fr;
-          gap: 10px;
-          align-items: end;
-          margin-top: 13px;
-        }
-
-        .duration2-date-field {
-          display: flex;
-          flex-direction: column;
-          gap: 5px;
-        }
-
-        .duration2-date-field span {
-          color: rgba(232, 207, 168, 0.72);
-          font-family: Arial, sans-serif;
-          font-size: 8px;
-          font-weight: 800;
-          letter-spacing: 0.15em;
-        }
-
-        .duration2-date-field input {
-          width: 100%;
-          box-sizing: border-box;
-          border: 1px solid rgba(224, 183, 119, 0.4);
-          outline: none;
-          background: rgba(15, 13, 10, 0.82);
-          color: #f3dfbe;
-          padding: 9px 10px;
-          color-scheme: dark;
-          font-family: Arial, sans-serif;
-          font-size: 11px;
-          font-weight: 700;
-          letter-spacing: 0.03em;
-        }
-
-        .duration2-date-field input:focus {
-          border-color: #d77931;
-          box-shadow: 0 0 0 1px rgba(215, 121, 49, 0.2);
-        }
-
-        .duration2-date-arrow {
-          padding-bottom: 10px;
-          color: rgba(220, 166, 92, 0.65);
-          font-size: 14px;
-        }
-
-        .duration2-date-summary {
-          grid-column: 1 / -1;
-          margin-top: 1px;
-          color: #dca866;
-          font-family: Arial, sans-serif;
-          font-size: 9px;
-          font-weight: 800;
-          letter-spacing: 0.12em;
-        }
-
-        .duration2-timing-note {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-          margin-top: 12px;
-          max-width: 390px;
-        }
-
-        .duration2-timing-note strong {
-          color: #e0ad6c;
-          font-family: Arial, sans-serif;
-          font-size: 9px;
-          letter-spacing: 0.12em;
-        }
-
-        .duration2-timing-note span {
-          color: rgba(239, 222, 194, 0.64);
-          font-family: Arial, sans-serif;
-          font-size: 10px;
-          line-height: 1.45;
-        }
-
-        .duration2-conflict {
-          grid-column: 1 / -1;
-          margin-top: 3px;
-          padding: 10px 12px;
-          border: 1px solid rgba(206, 129, 60, 0.55);
-          background: rgba(67, 37, 19, 0.72);
-        }
-
-        .duration2-conflict-kicker {
-          margin-bottom: 4px;
-          color: #d98945;
-          font-family: Arial, sans-serif;
-          font-size: 8px;
-          font-weight: 900;
-          letter-spacing: 0.15em;
-        }
-
-        .duration2-conflict strong {
-          display: block;
-          color: #f1d3a3;
-          font-family: Arial, sans-serif;
-          font-size: 10px;
-          letter-spacing: 0.08em;
-        }
-
-        .duration2-conflict p {
-          margin: 5px 0 8px;
-          color: rgba(241, 221, 188, 0.7);
-          font-family: Arial, sans-serif;
-          font-size: 9px;
-          line-height: 1.45;
-        }
-
-        .duration2-conflict-actions {
-          display: flex;
-          gap: 7px;
-        }
-
-        .duration2-conflict-actions button {
-          appearance: none;
-          border: 1px solid rgba(225, 169, 93, 0.45);
-          background: rgba(18, 15, 11, 0.58);
-          color: #e8c38b;
-          padding: 7px 9px;
-          cursor: pointer;
-          font-family: Arial, sans-serif;
-          font-size: 8px;
-          font-weight: 900;
-          letter-spacing: 0.1em;
-        }
-
-        .duration2-conflict-actions button:hover {
-          border-color: #d77931;
-          color: #fff2dc;
-        }
-
-        .duration2-error {
-          margin-top: 10px;
-          color: #e4a06a;
-          font-family: Arial, sans-serif;
-          font-size: 9px;
-          font-weight: 700;
-          line-height: 1.4;
-        }
-
-        @media (max-width: 900px) {
-          .duration2-panel-schedule {
-            width: calc(100vw - 28px);
-            max-height: 72vh;
-            overflow-y: auto;
-          }
-
-          .duration2-when {
-            border-left: 0;
-            border-right: 0;
-            border-top: 1px solid rgba(218, 167, 91, 0.25);
-            border-bottom: 1px solid rgba(218, 167, 91, 0.2);
-          }
-
-          .duration2-date-area {
-            grid-template-columns: 1fr;
-          }
-
-          .duration2-date-arrow {
-            display: none;
-          }
-        }
-      `}</style>
-
-    </main>
+  return updateTotalWildBudget(
+    input.totalWildBudget,
+    currency
+  );
+}
+
+
+/* =========================================================
+   GEAR BUDGET
+   ========================================================= */
+
+export function updateGearBudget(
+  gearBudget: number,
+  currency = "USD"
+): Wild {
+  return updateCurrentWild((wild) => {
+    const existingCost = wild.plan.cost;
+
+    return {
+      ...wild,
+
+      plan: {
+        ...wild.plan,
+
+        cost: {
+          ...existingCost,
+
+          currency:
+            existingCost?.currency ??
+            currency,
+
+          budgetMode:
+            existingCost?.budgetMode ??
+            "gear-budget-only",
+
+          gearBudget,
+        },
+      },
+    };
+  });
+}
+
+
+/* =========================================================
+   PLANNING / FEASIBILITY
+   ========================================================= */
+
+export function updateWildPlanning(
+  planning: Partial<WildPlanningSystem>
+): Wild {
+  return updateCurrentWild((wild) => ({
+    ...wild,
+
+    plan: {
+      ...wild.plan,
+
+      planning: {
+        ...wild.plan.planning,
+        ...planning,
+      },
+    },
+  }));
+}
+
+
+/* =========================================================
+   READINESS
+   ========================================================= */
+
+export function updateWildReadiness(
+  readiness: WildReadiness
+): Wild {
+  return updateCurrentWild((wild) => ({
+    ...wild,
+
+    plan: {
+      ...wild.plan,
+
+      readiness,
+    },
+  }));
+}
+
+
+/* =========================================================
+   DEBUG HELPER
+   ========================================================= */
+
+export function logCurrentWild(): void {
+  const wild = getCurrentWild();
+
+  console.log(
+    "RoamLab Current Wild:",
+    wild
   );
 }
