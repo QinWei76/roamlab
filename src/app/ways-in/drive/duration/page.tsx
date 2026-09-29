@@ -6,6 +6,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { createPortal } from "react-dom";
 
 import PlannerProgress from "@/components/PlannerProgress";
 
@@ -112,7 +113,7 @@ const durationDefaults: Record<
 };
 
 /* =========================================================
-   DATE HELPERS
+   CALENDAR DATA
    ========================================================= */
 
 const MONTH_NAMES = [
@@ -155,9 +156,11 @@ const WEEKDAYS = [
   "SAT",
 ];
 
-function pad2(
-  value: number
-) {
+/* =========================================================
+   DATE HELPERS
+   ========================================================= */
+
+function pad2(value: number) {
   return String(value).padStart(
     2,
     "0"
@@ -169,11 +172,9 @@ function makeDateKey(
   month: number,
   day: number
 ) {
-  return (
-    `${year}-` +
-    `${pad2(month + 1)}-` +
-    `${pad2(day)}`
-  );
+  return `${year}-${pad2(
+    month + 1
+  )}-${pad2(day)}`;
 }
 
 function parseDateKey(
@@ -261,11 +262,9 @@ function formatDisplayDate(
     return "CHOOSE DATE";
   }
 
-  return (
-    `${MONTH_SHORT[parsed.month]} ` +
-    `${parsed.day}, ` +
-    `${parsed.year}`
-  );
+  return `${MONTH_SHORT[parsed.month]} ${
+    parsed.day
+  }, ${parsed.year}`;
 }
 
 function durationForNights(
@@ -290,24 +289,18 @@ function durationMatchesNights(
   duration: DurationKey,
   nights: number
 ) {
-  if (
-    duration === "overnight"
-  ) {
+  if (duration === "overnight") {
     return nights === 1;
   }
 
-  if (
-    duration === "weekend"
-  ) {
+  if (duration === "weekend") {
     return (
       nights >= 2 &&
       nights <= 3
     );
   }
 
-  if (
-    duration === "multi-day"
-  ) {
+  if (duration === "multi-day") {
     return (
       nights >= 4 &&
       nights <= 7
@@ -322,25 +315,17 @@ function durationMatchesNights(
    ========================================================= */
 
 export default function DurationPage() {
-  const [
-    vehicle,
-    setVehicle,
-  ] = useState<VehicleKey>("suv");
+  const [vehicle, setVehicle] =
+    useState<VehicleKey>("suv");
 
-  const [
-    trip,
-    setTrip,
-  ] = useState<TripKey>("weekend");
+  const [trip, setTrip] =
+    useState<TripKey>("weekend");
 
-  const [
-    crew,
-    setCrew,
-  ] = useState<CrewKey>("solo");
+  const [crew, setCrew] =
+    useState<CrewKey>("solo");
 
-  const [
-    people,
-    setPeople,
-  ] = useState<number>(1);
+  const [people, setPeople] =
+    useState<number>(1);
 
   const [
     selectedDuration,
@@ -381,10 +366,21 @@ export default function DurationPage() {
       null
     );
 
-  const today = useMemo(
-    () => new Date(),
-    []
-  );
+  const [
+    mounted,
+    setMounted,
+  ] = useState(false);
+
+  const [
+    ready,
+    setReady,
+  ] = useState(false);
+
+  const today =
+    useMemo(
+      () => new Date(),
+      []
+    );
 
   const [
     calendarYear,
@@ -400,10 +396,17 @@ export default function DurationPage() {
     today.getMonth()
   );
 
-  const [
-    ready,
-    setReady,
-  ] = useState(false);
+  /* =======================================================
+     MOUNT
+     ======================================================= */
+
+  useEffect(() => {
+    setMounted(true);
+
+    return () => {
+      setMounted(false);
+    };
+  }, []);
 
   /* =======================================================
      READ QUERY
@@ -482,7 +485,28 @@ export default function DurationPage() {
   }, []);
 
   /* =======================================================
-     DATE CALCULATION
+     LOCK BODY WHILE CALENDAR IS OPEN
+     ======================================================= */
+
+  useEffect(() => {
+    if (!calendarTarget) {
+      return;
+    }
+
+    const previousOverflow =
+      document.body.style.overflow;
+
+    document.body.style.overflow =
+      "hidden";
+
+    return () => {
+      document.body.style.overflow =
+        previousOverflow;
+    };
+  }, [calendarTarget]);
+
+  /* =======================================================
+     TRIP LENGTH
      ======================================================= */
 
   const exactTripLength =
@@ -541,7 +565,7 @@ export default function DurationPage() {
     ]);
 
   /* =======================================================
-     CALENDAR CELLS
+     CALENDAR DAYS
      ======================================================= */
 
   const calendarDays =
@@ -593,7 +617,7 @@ export default function DurationPage() {
     ]);
 
   /* =======================================================
-     DURATION SELECTION
+     DURATION
      ======================================================= */
 
   const chooseDuration = (
@@ -613,23 +637,18 @@ export default function DurationPage() {
     setDateError("");
   };
 
-  const closeSelection =
-    () => {
-      setSelectedDuration(
-        null
-      );
+  const closeSelection = () => {
+    setSelectedDuration(null);
 
-      setTimingChoice(null);
+    setTimingChoice(null);
 
-      setStartDate("");
-      setEndDate("");
+    setStartDate("");
+    setEndDate("");
 
-      setCalendarTarget(
-        null
-      );
+    setCalendarTarget(null);
 
-      setDateError("");
-    };
+    setDateError("");
+  };
 
   const chooseTiming = (
     timing: TimingChoice
@@ -638,15 +657,11 @@ export default function DurationPage() {
       timing
     );
 
-    setCalendarTarget(
-      null
-    );
+    setCalendarTarget(null);
 
     setDateError("");
 
-    if (
-      timing !== "exact"
-    ) {
+    if (timing !== "exact") {
       setStartDate("");
       setEndDate("");
     }
@@ -657,10 +672,7 @@ export default function DurationPage() {
      ======================================================= */
 
   const openCalendar = (
-    target: Exclude<
-      CalendarTarget,
-      null
-    >
+    target: "start" | "end"
   ) => {
     const value =
       target === "start"
@@ -699,57 +711,51 @@ export default function DurationPage() {
       );
     }
 
+    setDateError("");
+
     setCalendarTarget(
       target
     );
-
-    setDateError("");
   };
 
   /* =======================================================
-     CALENDAR NAVIGATION
+     MONTH NAVIGATION
      ======================================================= */
 
-  const previousMonth =
-    () => {
-      if (
-        calendarMonth === 0
-      ) {
-        setCalendarMonth(11);
+  const previousMonth = () => {
+    if (calendarMonth === 0) {
+      setCalendarMonth(11);
 
-        setCalendarYear(
-          (year) =>
-            year - 1
-        );
-      } else {
-        setCalendarMonth(
-          (month) =>
-            month - 1
-        );
-      }
-    };
+      setCalendarYear(
+        (year) =>
+          year - 1
+      );
+    } else {
+      setCalendarMonth(
+        (month) =>
+          month - 1
+      );
+    }
+  };
 
-  const nextMonth =
-    () => {
-      if (
-        calendarMonth === 11
-      ) {
-        setCalendarMonth(0);
+  const nextMonth = () => {
+    if (calendarMonth === 11) {
+      setCalendarMonth(0);
 
-        setCalendarYear(
-          (year) =>
-            year + 1
-        );
-      } else {
-        setCalendarMonth(
-          (month) =>
-            month + 1
-        );
-      }
-    };
+      setCalendarYear(
+        (year) =>
+          year + 1
+      );
+    } else {
+      setCalendarMonth(
+        (month) =>
+          month + 1
+      );
+    }
+  };
 
   /* =======================================================
-     SELECT CALENDAR DAY
+     SELECT DAY
      ======================================================= */
 
   const selectCalendarDay = (
@@ -766,42 +772,34 @@ export default function DurationPage() {
         day
       );
 
+    /* START */
+
     if (
       calendarTarget ===
       "start"
     ) {
-      setStartDate(
-        value
-      );
+      setStartDate(value);
 
-      /*
-        If the new start date is
-        later than the existing end date,
-        clear END instead of creating an
-        invalid trip.
-      */
+      const newStart =
+        dateToUtcDay(value);
+
+      const existingEnd =
+        dateToUtcDay(
+          endDate
+        );
 
       if (
-        endDate &&
-        dateToUtcDay(
-          endDate
-        ) !== null &&
-        dateToUtcDay(
-          value
-        ) !== null &&
-        (dateToUtcDay(
-          endDate
-        ) as number) <
-          (dateToUtcDay(
-            value
-          ) as number)
+        newStart !== null &&
+        existingEnd !== null &&
+        existingEnd <=
+          newStart
       ) {
         setEndDate("");
       }
 
       /*
-        After choosing START,
-        immediately move to END.
+        Automatically continue
+        choosing END.
       */
 
       setCalendarTarget(
@@ -813,63 +811,52 @@ export default function DurationPage() {
       return;
     }
 
-    /*
-      END
-    */
+    /* END */
 
-    if (startDate) {
-      const start =
-        dateToUtcDay(
-          startDate
-        );
+    const start =
+      dateToUtcDay(
+        startDate
+      );
 
-      const end =
-        dateToUtcDay(
-          value
-        );
+    const end =
+      dateToUtcDay(
+        value
+      );
 
-      if (
-        start !== null &&
-        end !== null &&
-        end <= start
-      ) {
-        setDateError(
-          "Choose an end date at least one night after your start date."
-        );
+    if (
+      start !== null &&
+      end !== null &&
+      end <= start
+    ) {
+      setDateError(
+        "Choose an end date at least one night after your start date."
+      );
 
-        return;
-      }
+      return;
     }
 
-    setEndDate(
-      value
-    );
+    setEndDate(value);
 
-    setCalendarTarget(
-      null
-    );
+    setCalendarTarget(null);
 
     setDateError("");
   };
 
   /* =======================================================
-     USE DURATION SUGGESTION
+     DURATION CHECK
      ======================================================= */
 
-  const useTheseDates =
-    () => {
-      if (
-        !suggestedDuration
-      ) {
-        return;
-      }
+  const useTheseDates = () => {
+    if (!suggestedDuration) {
+      return;
+    }
 
-      setSelectedDuration(
-        suggestedDuration
-      );
+    setSelectedDuration(
+      suggestedDuration
+    );
 
-      setDateError("");
-    };
+    setDateError("");
+  };
 
   /* =======================================================
      CONTINUE
@@ -877,15 +864,11 @@ export default function DurationPage() {
 
   const continueToDestination =
     () => {
-      if (
-        !selectedDuration
-      ) {
+      if (!selectedDuration) {
         return;
       }
 
-      if (
-        !timingChoice
-      ) {
+      if (!timingChoice) {
         setDateError(
           "Choose when you are going before continuing."
         );
@@ -897,13 +880,10 @@ export default function DurationPage() {
         "My Wild"
       );
 
-      /* ===================================================
-         EXACT
-         =================================================== */
+      /* EXACT */
 
       if (
-        timingChoice ===
-        "exact"
+        timingChoice === "exact"
       ) {
         if (
           !startDate ||
@@ -947,7 +927,7 @@ export default function DurationPage() {
           )
         ) {
           setDateError(
-            "Your dates do not match the duration you selected. Use the duration check below before continuing."
+            "Your dates do not match the duration you selected. Use the duration check before continuing."
           );
 
           return;
@@ -966,12 +946,9 @@ export default function DurationPage() {
 
         updateWildSchedule({
           startDate,
-
           endDate,
-
           timingMode:
             "exact",
-
           flexibleDates:
             false,
         });
@@ -987,9 +964,7 @@ export default function DurationPage() {
         return;
       }
 
-      /* ===================================================
-         FLEXIBLE / UNDECIDED
-         =================================================== */
+      /* FLEXIBLE / UNDECIDED */
 
       const defaults =
         durationDefaults[
@@ -1008,13 +983,10 @@ export default function DurationPage() {
         updateWildSchedule({
           startDate:
             undefined,
-
           endDate:
             undefined,
-
           timingMode:
             "flexible",
-
           flexibleDates:
             true,
         });
@@ -1022,13 +994,10 @@ export default function DurationPage() {
         updateWildSchedule({
           startDate:
             undefined,
-
           endDate:
             undefined,
-
           timingMode:
             "undecided",
-
           flexibleDates:
             false,
         });
@@ -1042,6 +1011,306 @@ export default function DurationPage() {
         `&people=${people}` +
         `&duration=${selectedDuration}`;
     };
+
+  /* =======================================================
+     PORTAL CALENDAR
+     ======================================================= */
+
+  const calendarPortal =
+    mounted &&
+    selectedDuration &&
+    timingChoice === "exact" &&
+    calendarTarget
+      ? createPortal(
+          <div
+            className="duration2-calendar-layer"
+            role="presentation"
+            onMouseDown={(event) => {
+              /*
+                Clicking the dark backdrop
+                closes the calendar.
+              */
+
+              if (
+                event.target ===
+                event.currentTarget
+              ) {
+                setCalendarTarget(
+                  null
+                );
+              }
+            }}
+          >
+            <div
+              className="duration2-calendar-paper"
+              role="dialog"
+              aria-modal="true"
+              aria-label={
+                calendarTarget ===
+                "start"
+                  ? "Select start date"
+                  : "Select end date"
+              }
+              onMouseDown={(
+                event
+              ) => {
+                /*
+                  Never allow clicks inside
+                  the calendar to fall through
+                  to the Duration page.
+                */
+
+                event.stopPropagation();
+              }}
+              onClick={(
+                event
+              ) => {
+                event.stopPropagation();
+              }}
+            >
+              {/* TOP */}
+
+              <div className="duration2-calendar-top">
+
+                <div>
+                  <span className="duration2-calendar-kicker">
+                    {calendarTarget ===
+                    "start"
+                      ? "SELECT START DATE"
+                      : "SELECT END DATE"}
+                  </span>
+
+                  <strong>
+                    {
+                      MONTH_NAMES[
+                        calendarMonth
+                      ]
+                    }{" "}
+                    {calendarYear}
+                  </strong>
+                </div>
+
+                <button
+                  type="button"
+                  className="duration2-calendar-close"
+                  onClick={() =>
+                    setCalendarTarget(
+                      null
+                    )
+                  }
+                  aria-label="Close calendar"
+                >
+                  ×
+                </button>
+
+              </div>
+
+              {/* MONTH NAV */}
+
+              <div className="duration2-calendar-nav">
+
+                <button
+                  type="button"
+                  onClick={
+                    previousMonth
+                  }
+                  aria-label="Previous month"
+                >
+                  ←
+                </button>
+
+                <span>
+                  {
+                    MONTH_NAMES[
+                      calendarMonth
+                    ]
+                  }{" "}
+                  {calendarYear}
+                </span>
+
+                <button
+                  type="button"
+                  onClick={
+                    nextMonth
+                  }
+                  aria-label="Next month"
+                >
+                  →
+                </button>
+
+              </div>
+
+              {/* WEEKDAYS */}
+
+              <div className="duration2-calendar-weekdays">
+
+                {WEEKDAYS.map(
+                  (weekday) => (
+                    <span
+                      key={
+                        weekday
+                      }
+                    >
+                      {
+                        weekday
+                      }
+                    </span>
+                  )
+                )}
+
+              </div>
+
+              {/* DAYS */}
+
+              <div className="duration2-calendar-grid">
+
+                {calendarDays.map(
+                  (
+                    day,
+                    index
+                  ) => {
+                    if (
+                      day === null
+                    ) {
+                      return (
+                        <div
+                          key={`blank-${index}`}
+                          className="duration2-calendar-blank"
+                        />
+                      );
+                    }
+
+                    const key =
+                      makeDateKey(
+                        calendarYear,
+                        calendarMonth,
+                        day
+                      );
+
+                    const isStart =
+                      key ===
+                      startDate;
+
+                    const isEnd =
+                      key ===
+                      endDate;
+
+                    const startUtc =
+                      dateToUtcDay(
+                        startDate
+                      );
+
+                    const currentUtc =
+                      dateToUtcDay(
+                        key
+                      );
+
+                    const endUtc =
+                      dateToUtcDay(
+                        endDate
+                      );
+
+                    const disabled =
+                      calendarTarget ===
+                        "end" &&
+                      startUtc !==
+                        null &&
+                      currentUtc !==
+                        null &&
+                      currentUtc <=
+                        startUtc;
+
+                    const inRange =
+                      startUtc !==
+                        null &&
+                      endUtc !==
+                        null &&
+                      currentUtc !==
+                        null &&
+                      currentUtc >
+                        startUtc &&
+                      currentUtc <
+                        endUtc;
+
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        disabled={
+                          disabled
+                        }
+                        className={`duration2-calendar-day ${
+                          isStart ||
+                          isEnd
+                            ? "selected"
+                            : ""
+                        } ${
+                          inRange
+                            ? "in-range"
+                            : ""
+                        }`}
+                        onClick={(
+                          event
+                        ) => {
+                          event.preventDefault();
+                          event.stopPropagation();
+
+                          selectCalendarDay(
+                            day
+                          );
+                        }}
+                      >
+                        {day}
+                      </button>
+                    );
+                  }
+                )}
+
+              </div>
+
+              {/* FOOTER */}
+
+              <div className="duration2-calendar-footer">
+
+                <div>
+                  <span>
+                    START
+                  </span>
+
+                  <strong>
+                    {
+                      formatDisplayDate(
+                        startDate
+                      )
+                    }
+                  </strong>
+                </div>
+
+                <div className="duration2-calendar-footer-arrow">
+                  →
+                </div>
+
+                <div>
+                  <span>
+                    END
+                  </span>
+
+                  <strong>
+                    {
+                      formatDisplayDate(
+                        endDate
+                      )
+                    }
+                  </strong>
+                </div>
+
+              </div>
+
+            </div>
+          </div>,
+          document.body
+        )
+      : null;
 
   /* =======================================================
      LOADING
@@ -1060,834 +1329,550 @@ export default function DurationPage() {
      ======================================================= */
 
   return (
-    <main className="duration2-page">
+    <>
+      <main className="duration2-page">
 
-      <section className="duration2-stage">
+        <section className="duration2-stage">
 
-        {/* BACKGROUND */}
+          {/* BACKGROUND */}
 
-        <img
-          src="/duration-desk-v2.jpg"
-          alt="RoamLab duration planning desk"
-          className="duration2-bg"
-          draggable={false}
-        />
+          <img
+            src="/duration-desk-v2.jpg"
+            alt="RoamLab duration planning desk"
+            className="duration2-bg"
+            draggable={false}
+          />
 
-        {/* LOGO */}
-
-        <Link
-          href="/"
-          className="duration2-logo"
-          aria-label="RoamLab home"
-        >
-          <span className="duration2-logo-main">
-            ROAMLAB
-          </span>
-
-          <span className="duration2-logo-sub">
-            PLANS · GEAR · STORIES
-          </span>
-        </Link>
-
-        {/* GLOBAL NAV */}
-
-        <nav className="duration2-nav">
-
-          <div className="duration2-nav-links">
-
-            <Link href="/explore">
-              EXPLORE
-            </Link>
-
-            <Link href="/plan">
-              PLAN
-            </Link>
-
-            <Link href="/prepare">
-              PREPARE
-            </Link>
-
-            <Link href="/safety">
-              SAFETY
-            </Link>
-
-            <Link href="/learn">
-              LEARN
-            </Link>
-
-            <Link href="/journal">
-              JOURNAL
-            </Link>
-
-            <Link href="/stories">
-              STORIES
-            </Link>
-
-            <Link href="/badges">
-              BADGES
-            </Link>
-
-          </div>
+          {/* LOGO */}
 
           <Link
-            href="/signin"
-            className="duration2-signin"
+            href="/"
+            className="duration2-logo"
+            aria-label="RoamLab home"
           >
-            SIGN IN
+            <span className="duration2-logo-main">
+              ROAMLAB
+            </span>
+
+            <span className="duration2-logo-sub">
+              PLANS · GEAR · STORIES
+            </span>
           </Link>
 
-          <Link
-            href="/start-here"
-            className="duration2-start"
-          >
-            START YOUR WILD →
-          </Link>
+          {/* NAV */}
 
-        </nav>
+          <nav className="duration2-nav">
 
-        {/* PROGRESS */}
+            <div className="duration2-nav-links">
 
-        <PlannerProgress
-          currentStep={4}
-          vehicle={vehicle}
-          trip={trip}
-        />
+              <Link href="/explore">
+                EXPLORE
+              </Link>
 
-        {/* OVERNIGHT */}
+              <Link href="/plan">
+                PLAN
+              </Link>
 
-        <button
-          type="button"
-          className={`duration2-zone duration2-overnight ${
-            selectedDuration ===
-            "overnight"
-              ? "selected"
-              : ""
-          }`}
-          onClick={() =>
-            chooseDuration(
-              "overnight"
-            )
-          }
-          aria-label="Choose Overnight"
-          aria-pressed={
-            selectedDuration ===
-            "overnight"
-          }
-        />
+              <Link href="/prepare">
+                PREPARE
+              </Link>
 
-        {/* WEEKEND */}
+              <Link href="/safety">
+                SAFETY
+              </Link>
 
-        <button
-          type="button"
-          className={`duration2-zone duration2-weekend ${
-            selectedDuration ===
-            "weekend"
-              ? "selected"
-              : ""
-          }`}
-          onClick={() =>
-            chooseDuration(
-              "weekend"
-            )
-          }
-          aria-label="Choose Weekend"
-          aria-pressed={
-            selectedDuration ===
-            "weekend"
-          }
-        />
+              <Link href="/learn">
+                LEARN
+              </Link>
 
-        {/* MULTI DAY */}
+              <Link href="/journal">
+                JOURNAL
+              </Link>
 
-        <button
-          type="button"
-          className={`duration2-zone duration2-multiday ${
-            selectedDuration ===
-            "multi-day"
-              ? "selected"
-              : ""
-          }`}
-          onClick={() =>
-            chooseDuration(
-              "multi-day"
-            )
-          }
-          aria-label="Choose Multi-Day"
-          aria-pressed={
-            selectedDuration ===
-            "multi-day"
-          }
-        />
+              <Link href="/stories">
+                STORIES
+              </Link>
 
-        {/* EXTENDED */}
-
-        <button
-          type="button"
-          className={`duration2-zone duration2-extended ${
-            selectedDuration ===
-            "extended"
-              ? "selected"
-              : ""
-          }`}
-          onClick={() =>
-            chooseDuration(
-              "extended"
-            )
-          }
-          aria-label="Choose Extended"
-          aria-pressed={
-            selectedDuration ===
-            "extended"
-          }
-        />
-
-        {/* BACK */}
-
-        <Link
-          href={
-            `/ways-in/drive/crew` +
-            `?vehicle=${vehicle}` +
-            `&trip=${trip}`
-          }
-          className="duration2-back"
-        >
-          ← CREW
-        </Link>
-
-        {/* SELECTED PANEL */}
-
-        {selectedDuration && (
-          <div
-            className={`duration2-panel duration2-panel-schedule ${
-              timingChoice ===
-              "exact"
-                ? "duration2-panel-dates-open"
-                : ""
-            }`}
-          >
-
-            {/* CLOSE */}
-
-            <button
-              type="button"
-              className="duration2-panel-close"
-              onClick={
-                closeSelection
-              }
-              aria-label="Close duration selection"
-            >
-              ×
-            </button>
-
-            {/* SUMMARY */}
-
-            <div className="duration2-summary">
-
-              <span>
-                YOUR DURATION
-              </span>
-
-              <strong>
-                {
-                  durationLabels[
-                    selectedDuration
-                  ].title
-                }
-              </strong>
-
-              <div className="duration2-summary-detail">
-                {
-                  durationLabels[
-                    selectedDuration
-                  ].detail
-                }
-              </div>
-
-              <small>
-                STEP 4 OF 6
-              </small>
+              <Link href="/badges">
+                BADGES
+              </Link>
 
             </div>
 
-            {/* WHEN */}
+            <Link
+              href="/signin"
+              className="duration2-signin"
+            >
+              SIGN IN
+            </Link>
 
-            <div className="duration2-when">
+            <Link
+              href="/start-here"
+              className="duration2-start"
+            >
+              START YOUR WILD →
+            </Link>
 
-              <div className="duration2-when-label">
-                WHEN ARE YOU GOING?
+          </nav>
+
+          {/* PROGRESS */}
+
+          <PlannerProgress
+            currentStep={4}
+            vehicle={vehicle}
+            trip={trip}
+          />
+
+          {/* OVERNIGHT */}
+
+          <button
+            type="button"
+            className={`duration2-zone duration2-overnight ${
+              selectedDuration ===
+              "overnight"
+                ? "selected"
+                : ""
+            }`}
+            onClick={() =>
+              chooseDuration(
+                "overnight"
+              )
+            }
+            aria-label="Choose Overnight"
+          />
+
+          {/* WEEKEND */}
+
+          <button
+            type="button"
+            className={`duration2-zone duration2-weekend ${
+              selectedDuration ===
+              "weekend"
+                ? "selected"
+                : ""
+            }`}
+            onClick={() =>
+              chooseDuration(
+                "weekend"
+              )
+            }
+            aria-label="Choose Weekend"
+          />
+
+          {/* MULTI DAY */}
+
+          <button
+            type="button"
+            className={`duration2-zone duration2-multiday ${
+              selectedDuration ===
+              "multi-day"
+                ? "selected"
+                : ""
+            }`}
+            onClick={() =>
+              chooseDuration(
+                "multi-day"
+              )
+            }
+            aria-label="Choose Multi-Day"
+          />
+
+          {/* EXTENDED */}
+
+          <button
+            type="button"
+            className={`duration2-zone duration2-extended ${
+              selectedDuration ===
+              "extended"
+                ? "selected"
+                : ""
+            }`}
+            onClick={() =>
+              chooseDuration(
+                "extended"
+              )
+            }
+            aria-label="Choose Extended"
+          />
+
+          {/* BACK */}
+
+          <Link
+            href={
+              `/ways-in/drive/crew` +
+              `?vehicle=${vehicle}` +
+              `&trip=${trip}`
+            }
+            className="duration2-back"
+          >
+            ← CREW
+          </Link>
+
+          {/* PANEL */}
+
+          {selectedDuration && (
+            <div className="duration2-panel duration2-panel-schedule">
+
+              <button
+                type="button"
+                className="duration2-panel-close"
+                onClick={
+                  closeSelection
+                }
+                aria-label="Close duration selection"
+              >
+                ×
+              </button>
+
+              {/* SUMMARY */}
+
+              <div className="duration2-summary">
+
+                <span>
+                  YOUR DURATION
+                </span>
+
+                <strong>
+                  {
+                    durationLabels[
+                      selectedDuration
+                    ].title
+                  }
+                </strong>
+
+                <div className="duration2-summary-detail">
+                  {
+                    durationLabels[
+                      selectedDuration
+                    ].detail
+                  }
+                </div>
+
+                <small>
+                  STEP 4 OF 6
+                </small>
+
               </div>
 
-              {/* TIMING */}
+              {/* WHEN */}
 
-              <div className="duration2-timing-options">
+              <div className="duration2-when">
 
-                <button
-                  type="button"
-                  className={`duration2-timing-button ${
-                    timingChoice ===
-                    "exact"
-                      ? "selected"
-                      : ""
-                  }`}
-                  onClick={() =>
-                    chooseTiming(
+                <div className="duration2-when-label">
+                  WHEN ARE YOU GOING?
+                </div>
+
+                <div className="duration2-timing-options">
+
+                  <button
+                    type="button"
+                    className={`duration2-timing-button ${
+                      timingChoice ===
                       "exact"
-                    )
-                  }
-                >
-                  I KNOW MY DATES
-                </button>
+                        ? "selected"
+                        : ""
+                    }`}
+                    onClick={() =>
+                      chooseTiming(
+                        "exact"
+                      )
+                    }
+                  >
+                    I KNOW MY DATES
+                  </button>
 
-                <button
-                  type="button"
-                  className={`duration2-timing-button ${
-                    timingChoice ===
-                    "flexible"
-                      ? "selected"
-                      : ""
-                  }`}
-                  onClick={() =>
-                    chooseTiming(
+                  <button
+                    type="button"
+                    className={`duration2-timing-button ${
+                      timingChoice ===
                       "flexible"
-                    )
-                  }
-                >
-                  FLEXIBLE
-                </button>
+                        ? "selected"
+                        : ""
+                    }`}
+                    onClick={() =>
+                      chooseTiming(
+                        "flexible"
+                      )
+                    }
+                  >
+                    FLEXIBLE
+                  </button>
 
-                <button
-                  type="button"
-                  className={`duration2-timing-button ${
-                    timingChoice ===
-                    "undecided"
-                      ? "selected"
-                      : ""
-                  }`}
-                  onClick={() =>
-                    chooseTiming(
+                  <button
+                    type="button"
+                    className={`duration2-timing-button ${
+                      timingChoice ===
                       "undecided"
-                    )
-                  }
-                >
-                  I DON&apos;T KNOW YET
-                </button>
+                        ? "selected"
+                        : ""
+                    }`}
+                    onClick={() =>
+                      chooseTiming(
+                        "undecided"
+                      )
+                    }
+                  >
+                    I DON&apos;T KNOW YET
+                  </button>
 
-              </div>
+                </div>
 
-              {/* EXACT */}
+                {/* EXACT DATES */}
 
-              {timingChoice ===
-                "exact" && (
-                <div className="duration2-date-area">
+                {timingChoice ===
+                  "exact" && (
+                  <div className="duration2-date-area">
 
-                  <div className="duration2-date-fields">
+                    <div className="duration2-date-fields">
 
-                    {/* START */}
+                      {/* START */}
 
-                    <div className="duration2-custom-date">
+                      <div className="duration2-custom-date">
 
-                      <span className="duration2-date-caption">
-                        START
-                      </span>
+                        <span className="duration2-date-caption">
+                          START
+                        </span>
 
-                      <button
-                        type="button"
-                        className={`duration2-date-trigger ${
-                          calendarTarget ===
-                          "start"
-                            ? "active"
-                            : ""
-                        }`}
-                        onClick={() =>
-                          openCalendar(
+                        <button
+                          type="button"
+                          className={`duration2-date-trigger ${
+                            calendarTarget ===
                             "start"
-                          )
-                        }
-                      >
-                        <span>
-                          {
-                            formatDisplayDate(
-                              startDate
-                            )
-                          }
-                        </span>
+                              ? "active"
+                              : ""
+                          }`}
+                          onClick={(
+                            event
+                          ) => {
+                            event.preventDefault();
+                            event.stopPropagation();
 
-                        <span className="duration2-calendar-icon">
-                          ◫
-                        </span>
-                      </button>
+                            openCalendar(
+                              "start"
+                            );
+                          }}
+                        >
+                          <span>
+                            {
+                              formatDisplayDate(
+                                startDate
+                              )
+                            }
+                          </span>
 
-                    </div>
-
-                    <div className="duration2-date-arrow">
-                      →
-                    </div>
-
-                    {/* END */}
-
-                    <div className="duration2-custom-date">
-
-                      <span className="duration2-date-caption">
-                        END
-                      </span>
-
-                      <button
-                        type="button"
-                        className={`duration2-date-trigger ${
-                          calendarTarget ===
-                          "end"
-                            ? "active"
-                            : ""
-                        }`}
-                        onClick={() =>
-                          openCalendar(
-                            "end"
-                          )
-                        }
-                      >
-                        <span>
-                          {
-                            formatDisplayDate(
-                              endDate
-                            )
-                          }
-                        </span>
-
-                        <span className="duration2-calendar-icon">
-                          ◫
-                        </span>
-                      </button>
-
-                    </div>
-
-                  </div>
-
-                  {/* DATE SUMMARY */}
-
-                  {exactTripLength &&
-                    exactTripLength.nights >=
-                      1 &&
-                    !durationConflict && (
-                      <div className="duration2-date-summary">
-
-                        {
-                          exactTripLength.days
-                        }{" "}
-                        DAYS ·{" "}
-                        {
-                          exactTripLength.nights
-                        }{" "}
-                        {
-                          exactTripLength.nights ===
-                          1
-                            ? "NIGHT"
-                            : "NIGHTS"
-                        }
+                          <span className="duration2-calendar-icon">
+                            ◫
+                          </span>
+                        </button>
 
                       </div>
-                    )}
 
-                  {/* CONFLICT */}
+                      <div className="duration2-date-arrow">
+                        →
+                      </div>
 
-                  {durationConflict &&
-                    exactTripLength &&
-                    suggestedDuration && (
-                      <div className="duration2-conflict">
+                      {/* END */}
 
-                        <div className="duration2-conflict-kicker">
-                          DURATION CHECK
-                        </div>
+                      <div className="duration2-custom-date">
 
-                        <strong>
-                          YOUR DATES SPAN{" "}
+                        <span className="duration2-date-caption">
+                          END
+                        </span>
+
+                        <button
+                          type="button"
+                          className={`duration2-date-trigger ${
+                            calendarTarget ===
+                            "end"
+                              ? "active"
+                              : ""
+                          }`}
+                          onClick={(
+                            event
+                          ) => {
+                            event.preventDefault();
+                            event.stopPropagation();
+
+                            openCalendar(
+                              "end"
+                            );
+                          }}
+                        >
+                          <span>
+                            {
+                              formatDisplayDate(
+                                endDate
+                              )
+                            }
+                          </span>
+
+                          <span className="duration2-calendar-icon">
+                            ◫
+                          </span>
+                        </button>
+
+                      </div>
+
+                    </div>
+
+                    {/* DATE SUMMARY */}
+
+                    {exactTripLength &&
+                      exactTripLength.nights >=
+                        1 &&
+                      !durationConflict && (
+                        <div className="duration2-date-summary">
+                          {
+                            exactTripLength.days
+                          }{" "}
+                          DAYS ·{" "}
                           {
                             exactTripLength.nights
                           }{" "}
-                          {
-                            exactTripLength.nights ===
+                          {exactTripLength.nights ===
+                          1
+                            ? "NIGHT"
+                            : "NIGHTS"}
+                        </div>
+                      )}
+
+                    {/* CONFLICT */}
+
+                    {durationConflict &&
+                      exactTripLength &&
+                      suggestedDuration && (
+                        <div className="duration2-conflict">
+
+                          <div className="duration2-conflict-kicker">
+                            DURATION CHECK
+                          </div>
+
+                          <strong>
+                            YOUR DATES SPAN{" "}
+                            {
+                              exactTripLength.nights
+                            }{" "}
+                            {exactTripLength.nights ===
                             1
                               ? "NIGHT"
-                              : "NIGHTS"
-                          }
-                        </strong>
+                              : "NIGHTS"}
+                          </strong>
 
-                        <p>
-                          That does not match your{" "}
-                          {
-                            durationLabels[
-                              selectedDuration
-                            ].title
-                          }{" "}
-                          plan. These dates fit{" "}
-                          {
-                            durationLabels[
-                              suggestedDuration
-                            ].title
-                          }.
-                        </p>
+                          <p>
+                            That does not match your{" "}
+                            {
+                              durationLabels[
+                                selectedDuration
+                              ].title
+                            }{" "}
+                            plan. These dates fit{" "}
+                            {
+                              durationLabels[
+                                suggestedDuration
+                              ].title
+                            }.
+                          </p>
 
-                        <div className="duration2-conflict-actions">
+                          <div className="duration2-conflict-actions">
 
-                          <button
-                            type="button"
-                            onClick={
-                              useTheseDates
-                            }
-                          >
-                            USE THESE DATES
-                          </button>
+                            <button
+                              type="button"
+                              onClick={
+                                useTheseDates
+                              }
+                            >
+                              USE THESE DATES
+                            </button>
 
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setCalendarTarget(
-                                "start"
-                              );
+                            <button
+                              type="button"
+                              onClick={() =>
+                                openCalendar(
+                                  "start"
+                                )
+                              }
+                            >
+                              CHANGE DATES
+                            </button>
 
-                              setDateError(
-                                ""
-                              );
-                            }}
-                          >
-                            CHANGE DATES
-                          </button>
+                          </div>
 
                         </div>
+                      )}
 
-                      </div>
-                    )}
-
-                </div>
-              )}
-
-              {/* FLEXIBLE */}
-
-              {timingChoice ===
-                "flexible" && (
-                <div className="duration2-timing-note">
-
-                  <strong>
-                    DATES ARE FLEXIBLE
-                  </strong>
-
-                  <span>
-                    We&apos;ll use your selected duration as the planning baseline. You can set exact dates later.
-                  </span>
-
-                </div>
-              )}
-
-              {/* UNDECIDED */}
-
-              {timingChoice ===
-                "undecided" && (
-                <div className="duration2-timing-note">
-
-                  <strong>
-                    NO DATE YET
-                  </strong>
-
-                  <span>
-                    Keep planning now. Weather will be treated as destination research until your trip dates are set.
-                  </span>
-
-                </div>
-              )}
-
-              {/* ERROR */}
-
-              {dateError && (
-                <div className="duration2-error">
-                  {dateError}
-                </div>
-              )}
-
-            </div>
-
-            {/* CONTINUE */}
-
-            <button
-              type="button"
-              className="duration2-continue"
-              onClick={
-                continueToDestination
-              }
-            >
-              CONTINUE →
-            </button>
-
-          </div>
-        )}
-
-        {/* =================================================
-            CUSTOM CALENDAR
-            ================================================= */}
-
-        {selectedDuration &&
-          timingChoice ===
-            "exact" &&
-          calendarTarget && (
-            <div className="duration2-calendar-layer">
-
-              <div className="duration2-calendar-paper">
-
-                {/* CALENDAR HEADER */}
-
-                <div className="duration2-calendar-top">
-
-                  <div>
-                    <span className="duration2-calendar-kicker">
-                      {calendarTarget ===
-                      "start"
-                        ? "SELECT START DATE"
-                        : "SELECT END DATE"}
-                    </span>
-
-                    <strong>
-                      {
-                        MONTH_NAMES[
-                          calendarMonth
-                        ]
-                      }{" "}
-                      {calendarYear}
-                    </strong>
                   </div>
+                )}
 
-                  <button
-                    type="button"
-                    className="duration2-calendar-close"
-                    onClick={() =>
-                      setCalendarTarget(
-                        null
-                      )
-                    }
-                    aria-label="Close calendar"
-                  >
-                    ×
-                  </button>
+                {/* FLEXIBLE */}
 
-                </div>
+                {timingChoice ===
+                  "flexible" && (
+                    <div className="duration2-timing-note">
 
-                {/* MONTH NAV */}
+                      <strong>
+                        DATES ARE FLEXIBLE
+                      </strong>
 
-                <div className="duration2-calendar-nav">
-
-                  <button
-                    type="button"
-                    onClick={
-                      previousMonth
-                    }
-                    aria-label="Previous month"
-                  >
-                    ←
-                  </button>
-
-                  <span>
-                    {
-                      MONTH_NAMES[
-                        calendarMonth
-                      ]
-                    }{" "}
-                    {calendarYear}
-                  </span>
-
-                  <button
-                    type="button"
-                    onClick={
-                      nextMonth
-                    }
-                    aria-label="Next month"
-                  >
-                    →
-                  </button>
-
-                </div>
-
-                {/* WEEKDAYS */}
-
-                <div className="duration2-calendar-weekdays">
-
-                  {WEEKDAYS.map(
-                    (weekday) => (
-                      <span
-                        key={
-                          weekday
-                        }
-                      >
-                        {
-                          weekday
-                        }
+                      <span>
+                        We&apos;ll use your selected duration as the planning baseline. You can set exact dates later.
                       </span>
-                    )
+
+                    </div>
                   )}
 
-                </div>
+                {/* UNDECIDED */}
 
-                {/* DAYS */}
+                {timingChoice ===
+                  "undecided" && (
+                    <div className="duration2-timing-note">
 
-                <div className="duration2-calendar-grid">
+                      <strong>
+                        NO DATE YET
+                      </strong>
 
-                  {calendarDays.map(
-                    (
-                      day,
-                      index
-                    ) => {
-                      if (
-                        day === null
-                      ) {
-                        return (
-                          <div
-                            key={`blank-${index}`}
-                            className="duration2-calendar-blank"
-                          />
-                        );
-                      }
+                      <span>
+                        Keep planning now. Weather will be treated as destination research until your trip dates are set.
+                      </span>
 
-                      const key =
-                        makeDateKey(
-                          calendarYear,
-                          calendarMonth,
-                          day
-                        );
-
-                      const isStart =
-                        key ===
-                        startDate;
-
-                      const isEnd =
-                        key ===
-                        endDate;
-
-                      const startUtc =
-                        dateToUtcDay(
-                          startDate
-                        );
-
-                      const currentUtc =
-                        dateToUtcDay(
-                          key
-                        );
-
-                      const disabled =
-                        calendarTarget ===
-                          "end" &&
-                        startUtc !==
-                          null &&
-                        currentUtc !==
-                          null &&
-                        currentUtc <=
-                          startUtc;
-
-                      const inRange =
-                        startDate &&
-                        endDate &&
-                        dateToUtcDay(
-                          key
-                        ) !== null &&
-                        dateToUtcDay(
-                          startDate
-                        ) !== null &&
-                        dateToUtcDay(
-                          endDate
-                        ) !== null &&
-                        (dateToUtcDay(
-                          key
-                        ) as number) >
-                          (dateToUtcDay(
-                            startDate
-                          ) as number) &&
-                        (dateToUtcDay(
-                          key
-                        ) as number) <
-                          (dateToUtcDay(
-                            endDate
-                          ) as number);
-
-                      return (
-                        <button
-                          key={key}
-                          type="button"
-                          disabled={
-                            disabled
-                          }
-                          className={`duration2-calendar-day ${
-                            isStart ||
-                            isEnd
-                              ? "selected"
-                              : ""
-                          } ${
-                            inRange
-                              ? "in-range"
-                              : ""
-                          }`}
-                          onClick={() =>
-                            selectCalendarDay(
-                              day
-                            )
-                          }
-                        >
-                          {day}
-                        </button>
-                      );
-                    }
+                    </div>
                   )}
 
-                </div>
-
-                {/* FOOTER */}
-
-                <div className="duration2-calendar-footer">
-
-                  <div>
-                    <span>
-                      START
-                    </span>
-
-                    <strong>
-                      {
-                        formatDisplayDate(
-                          startDate
-                        )
-                      }
-                    </strong>
+                {dateError && (
+                  <div className="duration2-error">
+                    {dateError}
                   </div>
-
-                  <div className="duration2-calendar-footer-arrow">
-                    →
-                  </div>
-
-                  <div>
-                    <span>
-                      END
-                    </span>
-
-                    <strong>
-                      {
-                        formatDisplayDate(
-                          endDate
-                        )
-                      }
-                    </strong>
-                  </div>
-
-                </div>
+                )}
 
               </div>
+
+              {/* CONTINUE */}
+
+              <button
+                type="button"
+                className="duration2-continue"
+                onClick={
+                  continueToDestination
+                }
+              >
+                CONTINUE →
+              </button>
 
             </div>
           )}
 
-      </section>
+        </section>
+
+      </main>
+
+      {/* PORTAL OUTPUT */}
+
+      {calendarPortal}
 
       {/* ===================================================
-          LOCAL STYLES
+          PAGE-LOCAL STYLES
           =================================================== */}
 
       <style jsx>{`
-
-        /* =================================================
-           SCHEDULE PANEL
-           ================================================= */
 
         .duration2-panel-schedule {
           width:
@@ -1900,19 +1885,7 @@ export default function DurationPage() {
 
           max-width:
             920px;
-
-          transition:
-            bottom 180ms ease;
         }
-
-        .duration2-panel-dates-open {
-          bottom:
-            104px !important;
-        }
-
-        /* =================================================
-           WHEN
-           ================================================= */
 
         .duration2-when {
           flex: 1;
@@ -1962,10 +1935,6 @@ export default function DurationPage() {
             0.16em;
         }
 
-        /* =================================================
-           TIMING
-           ================================================= */
-
         .duration2-timing-options {
           display: flex;
 
@@ -1975,8 +1944,7 @@ export default function DurationPage() {
         }
 
         .duration2-timing-button {
-          appearance:
-            none;
+          appearance: none;
 
           border:
             1px solid
@@ -2006,8 +1974,7 @@ export default function DurationPage() {
           padding:
             9px 11px;
 
-          cursor:
-            pointer;
+          cursor: pointer;
 
           font-family:
             Arial,
@@ -2023,19 +1990,6 @@ export default function DurationPage() {
             0.1em;
         }
 
-        .duration2-timing-button:hover {
-          border-color:
-            rgba(
-              226,
-              143,
-              62,
-              0.9
-            );
-
-          color:
-            #fff2dc;
-        }
-
         .duration2-timing-button.selected {
           border-color:
             #d77931;
@@ -2046,10 +2000,6 @@ export default function DurationPage() {
           color:
             #fff7e9;
         }
-
-        /* =================================================
-           CUSTOM DATE FIELDS
-           ================================================= */
 
         .duration2-date-area {
           margin-top:
@@ -2111,11 +2061,10 @@ export default function DurationPage() {
 
           gap: 12px;
 
+          appearance: none;
+
           box-sizing:
             border-box;
-
-          appearance:
-            none;
 
           border:
             1px solid
@@ -2140,8 +2089,7 @@ export default function DurationPage() {
           padding:
             10px 12px;
 
-          cursor:
-            pointer;
+          cursor: pointer;
 
           font-family:
             Arial,
@@ -2163,15 +2111,6 @@ export default function DurationPage() {
         .duration2-date-trigger.active {
           border-color:
             #d77931;
-
-          box-shadow:
-            0 0 0 1px
-            rgba(
-              215,
-              121,
-              49,
-              0.16
-            );
         }
 
         .duration2-calendar-icon {
@@ -2193,9 +2132,6 @@ export default function DurationPage() {
               92,
               0.65
             );
-
-          font-size:
-            14px;
         }
 
         .duration2-date-summary {
@@ -2218,10 +2154,6 @@ export default function DurationPage() {
           letter-spacing:
             0.13em;
         }
-
-        /* =================================================
-           NOTES
-           ================================================= */
 
         .duration2-timing-note {
           display: flex;
@@ -2272,10 +2204,6 @@ export default function DurationPage() {
           line-height:
             1.45;
         }
-
-        /* =================================================
-           CONFLICT
-           ================================================= */
 
         .duration2-conflict {
           margin-top:
@@ -2335,9 +2263,6 @@ export default function DurationPage() {
 
           font-size:
             10px;
-
-          letter-spacing:
-            0.08em;
         }
 
         .duration2-conflict p {
@@ -2366,14 +2291,13 @@ export default function DurationPage() {
         .duration2-conflict-actions {
           display: flex;
 
-          flex-wrap: wrap;
-
           gap: 7px;
+
+          flex-wrap: wrap;
         }
 
         .duration2-conflict-actions button {
-          appearance:
-            none;
+          appearance: none;
 
           border:
             1px solid
@@ -2398,8 +2322,7 @@ export default function DurationPage() {
           padding:
             7px 9px;
 
-          cursor:
-            pointer;
+          cursor: pointer;
 
           font-family:
             Arial,
@@ -2414,18 +2337,6 @@ export default function DurationPage() {
           letter-spacing:
             0.1em;
         }
-
-        .duration2-conflict-actions button:hover {
-          border-color:
-            #d77931;
-
-          color:
-            #fff2dc;
-        }
-
-        /* =================================================
-           ERROR
-           ================================================= */
 
         .duration2-error {
           margin-top:
@@ -2443,64 +2354,104 @@ export default function DurationPage() {
 
           font-weight:
             700;
-
-          line-height:
-            1.4;
         }
 
-        /* =================================================
-           CALENDAR LAYER
-           ================================================= */
+        @media (
+          max-width: 900px
+        ) {
+          .duration2-panel-schedule {
+            width:
+              calc(
+                100vw - 28px
+              );
+
+            max-height:
+              72vh;
+
+            overflow-y:
+              auto;
+          }
+
+          .duration2-date-fields {
+            grid-template-columns:
+              1fr;
+          }
+
+          .duration2-date-arrow {
+            display: none;
+          }
+        }
+
+      `}</style>
+
+      {/* ===================================================
+          GLOBAL STYLES FOR PORTAL
+          Important: Portal is mounted under document.body,
+          so these MUST be global.
+          =================================================== */}
+
+      <style jsx global>{`
 
         .duration2-calendar-layer {
-          position: fixed;
+          position: fixed !important;
 
-          z-index: 120;
+          z-index:
+            2147483647 !important;
 
-          inset: 0;
+          inset: 0 !important;
 
-          display: flex;
+          display: flex !important;
 
-          align-items: center;
+          align-items:
+            center !important;
 
-          justify-content: center;
-
-          padding:
-            72px 24px 150px;
+          justify-content:
+            center !important;
 
           box-sizing:
-            border-box;
+            border-box !important;
+
+          padding:
+            40px 24px !important;
 
           background:
             rgba(
-              8,
               7,
-              5,
-              0.48
-            );
+              6,
+              4,
+              0.72
+            ) !important;
 
           backdrop-filter:
-            blur(2px);
+            blur(3px);
+
+          pointer-events:
+            auto !important;
+
+          isolation:
+            isolate;
         }
 
-        /* =================================================
-           CALENDAR PAPER
-           ================================================= */
-
         .duration2-calendar-paper {
+          position:
+            relative !important;
+
+          z-index:
+            2147483647 !important;
+
           width:
             min(
               430px,
               calc(
                 100vw - 40px
               )
-            );
+            ) !important;
 
           box-sizing:
-            border-box;
+            border-box !important;
 
           padding:
-            20px;
+            20px !important;
 
           border:
             1px solid
@@ -2508,32 +2459,33 @@ export default function DurationPage() {
               91,
               62,
               34,
-              0.55
-            );
+              0.65
+            ) !important;
 
           background:
             linear-gradient(
               145deg,
               #e4cfaa,
               #cdb083
-            );
+            ) !important;
 
           color:
-            #352517;
+            #352517 !important;
 
           box-shadow:
-            0 22px 60px
+            0 24px 70px
             rgba(
               0,
               0,
               0,
-              0.48
-            );
+              0.65
+            ) !important;
+
+          pointer-events:
+            auto !important;
 
           transform:
-            rotate(-0.45deg);
-
-          position: relative;
+            rotate(-0.35deg);
         }
 
         .duration2-calendar-paper::before {
@@ -2557,15 +2509,10 @@ export default function DurationPage() {
             none;
         }
 
-        /* =================================================
-           CALENDAR TOP
-           ================================================= */
-
         .duration2-calendar-top {
-          position:
-            relative;
+          position: relative;
 
-          z-index: 1;
+          z-index: 2;
 
           display: flex;
 
@@ -2600,6 +2547,9 @@ export default function DurationPage() {
         }
 
         .duration2-calendar-kicker {
+          color:
+            #9a5229;
+
           font-family:
             Arial,
             sans-serif;
@@ -2612,12 +2562,12 @@ export default function DurationPage() {
 
           letter-spacing:
             0.16em;
-
-          color:
-            #9a5229;
         }
 
         .duration2-calendar-top strong {
+          color:
+            #352517;
+
           font-family:
             Georgia,
             serif;
@@ -2630,8 +2580,11 @@ export default function DurationPage() {
         }
 
         .duration2-calendar-close {
-          appearance:
-            none;
+          position: relative;
+
+          z-index: 5;
+
+          appearance: none;
 
           border: 0;
 
@@ -2641,24 +2594,21 @@ export default function DurationPage() {
           color:
             #4b3320;
 
-          cursor:
-            pointer;
+          cursor: pointer;
 
           font-size:
-            23px;
+            24px;
 
           line-height: 1;
+
+          pointer-events:
+            auto;
         }
 
-        /* =================================================
-           CALENDAR NAV
-           ================================================= */
-
         .duration2-calendar-nav {
-          position:
-            relative;
+          position: relative;
 
-          z-index: 1;
+          z-index: 2;
 
           display: grid;
 
@@ -2678,6 +2628,9 @@ export default function DurationPage() {
           text-align:
             center;
 
+          color:
+            #352517;
+
           font-family:
             Arial,
             sans-serif;
@@ -2693,14 +2646,15 @@ export default function DurationPage() {
         }
 
         .duration2-calendar-nav button {
-          appearance:
-            none;
+          position: relative;
 
-          width:
-            34px;
+          z-index: 5;
 
-          height:
-            30px;
+          appearance: none;
+
+          width: 34px;
+
+          height: 30px;
 
           border:
             1px solid
@@ -2722,22 +2676,19 @@ export default function DurationPage() {
           color:
             #4d331f;
 
-          cursor:
-            pointer;
+          cursor: pointer;
 
           font-weight:
             900;
+
+          pointer-events:
+            auto;
         }
 
-        /* =================================================
-           WEEKDAYS
-           ================================================= */
-
         .duration2-calendar-weekdays {
-          position:
-            relative;
+          position: relative;
 
-          z-index: 1;
+          z-index: 2;
 
           display: grid;
 
@@ -2784,20 +2735,12 @@ export default function DurationPage() {
 
           font-weight:
             900;
-
-          letter-spacing:
-            0.05em;
         }
 
-        /* =================================================
-           CALENDAR GRID
-           ================================================= */
-
         .duration2-calendar-grid {
-          position:
-            relative;
+          position: relative;
 
-          z-index: 1;
+          z-index: 10;
 
           display: grid;
 
@@ -2811,17 +2754,23 @@ export default function DurationPage() {
 
           margin-top:
             7px;
+
+          pointer-events:
+            auto !important;
         }
 
         .duration2-calendar-day,
         .duration2-calendar-blank {
           min-height:
-            34px;
+            36px;
         }
 
         .duration2-calendar-day {
-          appearance:
-            none;
+          position: relative;
+
+          z-index: 20;
+
+          appearance: none;
 
           border:
             1px solid
@@ -2833,8 +2782,7 @@ export default function DurationPage() {
           color:
             #392617;
 
-          cursor:
-            pointer;
+          cursor: pointer;
 
           font-family:
             Arial,
@@ -2845,9 +2793,17 @@ export default function DurationPage() {
 
           font-weight:
             800;
+
+          pointer-events:
+            auto !important;
+
+          user-select:
+            none;
         }
 
-        .duration2-calendar-day:hover:not(:disabled) {
+        .duration2-calendar-day:hover:not(
+          :disabled
+        ) {
           border-color:
             rgba(
               144,
@@ -2861,7 +2817,7 @@ export default function DurationPage() {
               255,
               247,
               227,
-              0.36
+              0.4
             );
         }
 
@@ -2871,7 +2827,7 @@ export default function DurationPage() {
               165,
               91,
               44,
-              0.11
+              0.12
             );
         }
 
@@ -2897,21 +2853,16 @@ export default function DurationPage() {
 
         .duration2-calendar-day:disabled {
           opacity:
-            0.26;
+            0.25;
 
           cursor:
             not-allowed;
         }
 
-        /* =================================================
-           CALENDAR FOOTER
-           ================================================= */
-
         .duration2-calendar-footer {
-          position:
-            relative;
+          position: relative;
 
-          z-index: 1;
+          z-index: 2;
 
           display: grid;
 
@@ -2939,9 +2890,10 @@ export default function DurationPage() {
             );
         }
 
-        .duration2-calendar-footer > div:not(
-          .duration2-calendar-footer-arrow
-        ) {
+        .duration2-calendar-footer
+          > div:not(
+            .duration2-calendar-footer-arrow
+          ) {
           display: flex;
 
           flex-direction:
@@ -2974,6 +2926,9 @@ export default function DurationPage() {
         }
 
         .duration2-calendar-footer strong {
+          color:
+            #352517;
+
           font-family:
             Arial,
             sans-serif;
@@ -2983,9 +2938,6 @@ export default function DurationPage() {
 
           font-weight:
             900;
-
-          letter-spacing:
-            0.04em;
         }
 
         .duration2-calendar-footer-arrow {
@@ -2996,88 +2948,36 @@ export default function DurationPage() {
             15px;
         }
 
-        /* =================================================
-           MOBILE
-           ================================================= */
-
         @media (
-          max-width: 900px
+          max-width: 600px
         ) {
-          .duration2-panel-schedule {
-            width:
-              calc(
-                100vw - 28px
-              );
-
-            max-height:
-              72vh;
-
-            overflow-y:
-              auto;
-          }
-
-          .duration2-panel-dates-open {
-            bottom:
-              80px !important;
-          }
-
-          .duration2-when {
-            border-left: 0;
-
-            border-right: 0;
-
-            border-top:
-              1px solid
-              rgba(
-                218,
-                167,
-                91,
-                0.25
-              );
-
-            border-bottom:
-              1px solid
-              rgba(
-                218,
-                167,
-                91,
-                0.2
-              );
-          }
-
-          .duration2-date-fields {
-            grid-template-columns:
-              1fr;
-          }
-
-          .duration2-date-arrow {
-            display: none;
-          }
-
           .duration2-calendar-layer {
             align-items:
-              flex-start;
+              flex-start !important;
 
             overflow-y:
-              auto;
+              auto !important;
 
             padding:
-              40px 14px 120px;
+              28px 14px 80px !important;
           }
 
           .duration2-calendar-paper {
             width:
-              min(
-                430px,
-                calc(
-                  100vw - 28px
-                )
-              );
+              calc(
+                100vw - 28px
+              ) !important;
+          }
+
+          .duration2-calendar-day,
+          .duration2-calendar-blank {
+            min-height:
+              40px;
           }
         }
 
       `}</style>
 
-    </main>
+    </>
   );
 }
