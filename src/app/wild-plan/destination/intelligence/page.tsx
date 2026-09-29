@@ -49,6 +49,43 @@ function formatDuration(
   return `${hours} HR ${mins} MIN`;
 }
 
+type WeatherDay = {
+  date: string;
+  code: number;
+  tempMax: number;
+  tempMin: number;
+  precipitationMm: number;
+  precipitationProbability: number | null;
+  windMaxKmh: number;
+};
+
+type WeatherSnapshot = {
+  timezone: string;
+  currentTemperature: number | null;
+  apparentTemperature: number | null;
+  currentCode: number | null;
+  currentWindKmh: number | null;
+  days: WeatherDay[];
+};
+
+function weatherLabel(code: number | null) {
+  if (code === null) return "UNKNOWN";
+  if (code === 0) return "CLEAR";
+  if ([1, 2].includes(code)) return "PARTLY CLOUDY";
+  if (code === 3) return "OVERCAST";
+  if ([45, 48].includes(code)) return "FOG";
+  if ([51, 53, 55, 56, 57].includes(code)) return "DRIZZLE";
+  if ([61, 63, 65, 66, 67, 80, 81, 82].includes(code)) return "RAIN";
+  if ([71, 73, 75, 77, 85, 86].includes(code)) return "SNOW";
+  if ([95, 96, 99].includes(code)) return "THUNDERSTORM";
+  return "VARIABLE";
+}
+
+function shortDate(value: string) {
+  const date = new Date(`${value}T12:00:00`);
+  return date.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }).toUpperCase();
+}
+
 function DestinationIntelligenceContent() {
   const router =
     useRouter();
@@ -110,6 +147,21 @@ function DestinationIntelligenceContent() {
       )
     );
 
+  const [
+    activeSection,
+    setActiveSection,
+  ] = useState<"overview" | "weather">("overview");
+
+  const [
+    weather,
+    setWeather,
+  ] = useState<WeatherSnapshot | null>(null);
+
+  const [
+    weatherStatus,
+    setWeatherStatus,
+  ] = useState<"idle" | "loading" | "ready" | "unavailable">("idle");
+
   const mapRef =
     useRef<any>(null);
 
@@ -136,6 +188,65 @@ function DestinationIntelligenceContent() {
     | "ready"
     | "unavailable"
   >("idle");
+
+  useEffect(() => {
+    if (latitude === null || longitude === null) {
+      setWeatherStatus("unavailable");
+      return;
+    }
+
+    let cancelled = false;
+    setWeatherStatus("loading");
+    setWeather(null);
+
+    const weatherUrl =
+      "https://api.open-meteo.com/v1/forecast" +
+      `?latitude=${latitude}` +
+      `&longitude=${longitude}` +
+      "&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m" +
+      "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,wind_speed_10m_max" +
+      "&temperature_unit=celsius&wind_speed_unit=kmh&precipitation_unit=mm" +
+      "&forecast_days=7&timezone=auto";
+
+    fetch(weatherUrl)
+      .then((response) => {
+        if (!response.ok) throw new Error("Weather request failed");
+        return response.json();
+      })
+      .then((data) => {
+        if (cancelled) return;
+        const times = Array.isArray(data?.daily?.time) ? data.daily.time : [];
+        const days: WeatherDay[] = times.map((date: string, index: number) => ({
+          date,
+          code: Number(data?.daily?.weather_code?.[index] ?? -1),
+          tempMax: Number(data?.daily?.temperature_2m_max?.[index] ?? 0),
+          tempMin: Number(data?.daily?.temperature_2m_min?.[index] ?? 0),
+          precipitationMm: Number(data?.daily?.precipitation_sum?.[index] ?? 0),
+          precipitationProbability:
+            typeof data?.daily?.precipitation_probability_max?.[index] === "number"
+              ? data.daily.precipitation_probability_max[index]
+              : null,
+          windMaxKmh: Number(data?.daily?.wind_speed_10m_max?.[index] ?? 0),
+        }));
+
+        setWeather({
+          timezone: data?.timezone || "LOCAL",
+          currentTemperature: typeof data?.current?.temperature_2m === "number" ? data.current.temperature_2m : null,
+          apparentTemperature: typeof data?.current?.apparent_temperature === "number" ? data.current.apparent_temperature : null,
+          currentCode: typeof data?.current?.weather_code === "number" ? data.current.weather_code : null,
+          currentWindKmh: typeof data?.current?.wind_speed_10m === "number" ? data.current.wind_speed_10m : null,
+          days,
+        });
+        setWeatherStatus("ready");
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        console.error("RoamLab weather request failed:", error);
+        setWeatherStatus("unavailable");
+      });
+
+    return () => { cancelled = true; };
+  }, [latitude, longitude]);
 
   useEffect(() => {
     if (
@@ -1054,7 +1165,8 @@ function DestinationIntelligenceContent() {
           <nav className="sectionNav">
             <button
               type="button"
-              className="active"
+              className={activeSection === "overview" ? "active" : ""}
+              onClick={() => setActiveSection("overview")}
             >
               OVERVIEW
             </button>
@@ -1063,7 +1175,11 @@ function DestinationIntelligenceContent() {
               TOPOGRAPHY
             </button>
 
-            <button type="button">
+            <button
+              type="button"
+              className={activeSection === "weather" ? "active" : ""}
+              onClick={() => setActiveSection("weather")}
+            >
               WEATHER
             </button>
 
@@ -1096,6 +1212,8 @@ function DestinationIntelligenceContent() {
 
           <div className="contentGrid">
             <section className="mainColumn">
+              {activeSection === "overview" ? (
+                <>
               <div className="sectionHeading">
                 <span>
                   01 · OVERVIEW
@@ -1278,6 +1396,103 @@ function DestinationIntelligenceContent() {
                   SELECTION.
                 </p>
               </section>
+                </>
+              ) : (
+                <>
+                  <div className="sectionHeading">
+                    <span>03 · WEATHER</span>
+                    <h2>Weather intelligence.</h2>
+                  </div>
+
+                  <p className="introCopy">
+                    A near-term weather window for this destination. This is decision support for current conditions and the next seven days — not a substitute for a trip-date forecast when your Wild dates are farther out.
+                  </p>
+
+                  <section className="weatherSection">
+                    <div className="weatherHeader">
+                      <div>
+                        <span>WEATHER WINDOW</span>
+                        <h2>What the next seven days look like.</h2>
+                      </div>
+                      <div className="weatherSourceBadge">OPEN-METEO · LIVE</div>
+                    </div>
+
+                    {weatherStatus === "loading" && (
+                      <div className="weatherMessage">READING DESTINATION WEATHER…</div>
+                    )}
+
+                    {weatherStatus === "unavailable" && (
+                      <div className="weatherMessage">WEATHER DATA IS CURRENTLY UNAVAILABLE</div>
+                    )}
+
+                    {weatherStatus === "ready" && weather && (
+                      <>
+                        <div className="currentWeather">
+                          <div>
+                            <span>CURRENT CONDITION</span>
+                            <strong>{weatherLabel(weather.currentCode)}</strong>
+                          </div>
+                          <div>
+                            <span>TEMPERATURE</span>
+                            <strong>{weather.currentTemperature !== null ? `${Math.round(weather.currentTemperature)}°C` : "—"}</strong>
+                          </div>
+                          <div>
+                            <span>FEELS LIKE</span>
+                            <strong>{weather.apparentTemperature !== null ? `${Math.round(weather.apparentTemperature)}°C` : "—"}</strong>
+                          </div>
+                          <div>
+                            <span>WIND</span>
+                            <strong>{weather.currentWindKmh !== null ? `${Math.round(weather.currentWindKmh)} KM/H` : "—"}</strong>
+                          </div>
+                        </div>
+
+                        <div className="forecastList">
+                          {weather.days.map((day, index) => (
+                            <article className="forecastDay" key={day.date}>
+                              <div className="forecastDayTitle">
+                                <span>{index === 0 ? "TODAY" : shortDate(day.date)}</span>
+                                <strong>{weatherLabel(day.code)}</strong>
+                              </div>
+                              <div className="forecastMetric">
+                                <span>HIGH / LOW</span>
+                                <strong>{Math.round(day.tempMax)}° / {Math.round(day.tempMin)}°C</strong>
+                              </div>
+                              <div className="forecastMetric">
+                                <span>PRECIP.</span>
+                                <strong>{day.precipitationProbability !== null ? `${Math.round(day.precipitationProbability)}%` : "—"}</strong>
+                                <small>{day.precipitationMm.toFixed(1)} MM</small>
+                              </div>
+                              <div className="forecastMetric">
+                                <span>MAX WIND</span>
+                                <strong>{Math.round(day.windMaxKmh)} KM/H</strong>
+                              </div>
+                            </article>
+                          ))}
+                        </div>
+
+                        <div className="weatherMeta">
+                          <span>LOCAL TIMEZONE</span>
+                          <strong>{weather.timezone}</strong>
+                          <span>FORECAST HORIZON</span>
+                          <strong>7 DAYS</strong>
+                        </div>
+                      </>
+                    )}
+
+                    <div className="tripWindowNotice">
+                      <span>TRIP WEATHER WINDOW</span>
+                      <strong>TRIP DATES NOT YET CONNECTED</strong>
+                      <p>
+                        This screen currently shows real near-term destination weather. Once the Wild Schedule is passed into Destination Intelligence, RoamLab can compare the planned trip dates against the available forecast window instead of pretending the current forecast represents a future trip.
+                      </p>
+                    </div>
+
+                    <p className="weatherNote">
+                      FORECAST DATA · OPEN-METEO · CONDITIONS CAN CHANGE · RECHECK CLOSE TO DEPARTURE.
+                    </p>
+                  </section>
+                </>
+              )}
             </section>
 
             <aside className="sideColumn">
@@ -2115,7 +2330,7 @@ function DestinationIntelligenceContent() {
             0.1em;
 
           cursor:
-            default;
+            pointer;
         }
 
         .sectionNav button:first-child {
@@ -2748,6 +2963,30 @@ function DestinationIntelligenceContent() {
           letter-spacing:
             0.08em;
         }
+
+
+        .weatherSection { margin-top: 30px; }
+        .weatherHeader { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 18px; }
+        .weatherHeader span, .tripWindowNotice > span { color: #8b542e; font-size: 10px; font-weight: 900; letter-spacing: 0.16em; }
+        .weatherHeader h2 { margin: 5px 0 0; color: #2d261f; font-family: Georgia, "Times New Roman", serif; font-size: 24px; font-weight: 500; }
+        .weatherSourceBadge { padding: 8px 10px; border: 1px solid rgba(139,84,46,.35); color: #75462a; font-size: 9px; font-weight: 900; letter-spacing: .11em; white-space: nowrap; }
+        .weatherMessage { padding: 34px 18px; border: 1px solid rgba(65,52,39,.22); color: #6c5e4e; font-size: 10px; font-weight: 900; letter-spacing: .12em; text-align: center; }
+        .currentWeather { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); border-top: 1px solid rgba(65,52,39,.22); border-bottom: 1px solid rgba(65,52,39,.22); }
+        .currentWeather > div { padding: 15px 14px 15px 0; border-right: 1px solid rgba(65,52,39,.16); }
+        .currentWeather > div + div { padding-left: 14px; }
+        .currentWeather > div:last-child { border-right: 0; }
+        .currentWeather span, .forecastMetric span, .forecastDayTitle span, .weatherMeta span { display: block; color: #8b7a67; font-size: 8px; font-weight: 900; letter-spacing: .11em; }
+        .currentWeather strong { display: block; margin-top: 6px; color: #332a22; font-size: 15px; }
+        .forecastList { margin-top: 18px; border-top: 1px solid rgba(65,52,39,.24); }
+        .forecastDay { display: grid; grid-template-columns: 1.45fr 1fr 1fr 1fr; gap: 12px; align-items: center; min-height: 68px; padding: 10px 0; border-bottom: 1px solid rgba(65,52,39,.18); }
+        .forecastDayTitle strong, .forecastMetric strong { display: block; margin-top: 5px; color: #332a22; font-size: 12px; }
+        .forecastMetric small { display: block; margin-top: 3px; color: #82715f; font-size: 8px; font-weight: 800; letter-spacing: .06em; }
+        .weatherMeta { display: grid; grid-template-columns: auto 1fr auto 1fr; gap: 8px 12px; align-items: center; margin-top: 14px; padding: 12px 14px; background: rgba(255,255,255,.14); }
+        .weatherMeta strong { color: #44382d; font-size: 10px; }
+        .tripWindowNotice { margin-top: 20px; padding: 18px; border: 1px solid rgba(109,63,35,.3); background: rgba(121,79,43,.055); }
+        .tripWindowNotice > strong { display: block; margin-top: 8px; color: #312920; font-family: Georgia, "Times New Roman", serif; font-size: 19px; font-weight: 500; }
+        .tripWindowNotice p { margin: 8px 0 0; color: #6c5e4e; font-size: 12px; line-height: 1.6; }
+        .weatherNote { margin: 10px 0 0; color: #82715f; font-size: 9px; font-weight: 800; line-height: 1.5; letter-spacing: .08em; }
 
         .sideColumn {
           border-left:
