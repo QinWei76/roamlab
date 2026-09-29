@@ -11,6 +11,10 @@ import {
   useSearchParams,
 } from "next/navigation";
 
+import {
+  getCurrentWild,
+} from "@/lib/wildStore";
+
 function numberParam(
   value: string | null
 ) {
@@ -67,6 +71,76 @@ type WeatherSnapshot = {
   currentWindKmh: number | null;
   days: WeatherDay[];
 };
+
+type WildScheduleSnapshot = {
+  startDate?: string;
+  endDate?: string;
+  timingMode?: "exact" | "flexible" | "undecided";
+  durationType?: string;
+  days?: number;
+  nights?: number;
+  flexibleDates?: boolean;
+};
+
+function formatTripDate(value: string) {
+  const date = new Date(`${value}T12:00:00`);
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).toUpperCase();
+}
+
+function calendarDatesBetween(
+  startDate: string,
+  endDate: string
+) {
+  const startParts = startDate.split("-").map(Number);
+  const endParts = endDate.split("-").map(Number);
+
+  if (
+    startParts.length !== 3 ||
+    endParts.length !== 3 ||
+    startParts.some((value) => !Number.isFinite(value)) ||
+    endParts.some((value) => !Number.isFinite(value))
+  ) {
+    return [];
+  }
+
+  const cursor = new Date(
+    Date.UTC(
+      startParts[0],
+      startParts[1] - 1,
+      startParts[2]
+    )
+  );
+
+  const end = new Date(
+    Date.UTC(
+      endParts[0],
+      endParts[1] - 1,
+      endParts[2]
+    )
+  );
+
+  if (end.getTime() < cursor.getTime()) {
+    return [];
+  }
+
+  const result: string[] = [];
+
+  while (cursor.getTime() <= end.getTime()) {
+    result.push(
+      cursor.toISOString().slice(0, 10)
+    );
+
+    cursor.setUTCDate(
+      cursor.getUTCDate() + 1
+    );
+  }
+
+  return result;
+}
 
 function weatherLabel(code: number | null) {
   if (code === null) return "UNKNOWN";
@@ -161,6 +235,24 @@ function DestinationIntelligenceContent() {
     weatherStatus,
     setWeatherStatus,
   ] = useState<"idle" | "loading" | "ready" | "unavailable">("idle");
+
+  const [
+    wildSchedule,
+    setWildSchedule,
+  ] = useState<WildScheduleSnapshot | null>(null);
+
+  useEffect(() => {
+    const currentWild =
+      getCurrentWild();
+
+    setWildSchedule(
+      currentWild?.plan?.adventure?.schedule
+        ? {
+            ...currentWild.plan.adventure.schedule,
+          }
+        : null
+    );
+  }, []);
 
   const mapRef =
     useRef<any>(null);
@@ -1007,6 +1099,35 @@ function DestinationIntelligenceContent() {
     originLongitude,
   ]);
 
+  const exactTripDates =
+    wildSchedule?.timingMode === "exact" &&
+    wildSchedule.startDate &&
+    wildSchedule.endDate
+      ? calendarDatesBetween(
+          wildSchedule.startDate,
+          wildSchedule.endDate
+        )
+      : [];
+
+  const tripForecastDays =
+    weather && exactTripDates.length > 0
+      ? exactTripDates
+          .map((date) =>
+            weather.days.find(
+              (day) => day.date === date
+            )
+          )
+          .filter(
+            (day): day is WeatherDay =>
+              Boolean(day)
+          )
+      : [];
+
+  const exactTripFullyForecastable =
+    exactTripDates.length > 0 &&
+    tripForecastDays.length ===
+      exactTripDates.length;
+
   function backToBrief() {
     const back =
       new URLSearchParams();
@@ -1481,10 +1602,144 @@ function DestinationIntelligenceContent() {
 
                     <div className="tripWindowNotice">
                       <span>TRIP WEATHER WINDOW</span>
-                      <strong>TRIP DATES NOT YET CONNECTED</strong>
-                      <p>
-                        This screen currently shows real near-term destination weather. Once the Wild Schedule is passed into Destination Intelligence, RoamLab can compare the planned trip dates against the available forecast window instead of pretending the current forecast represents a future trip.
-                      </p>
+
+                      {wildSchedule?.timingMode === "exact" &&
+                      wildSchedule.startDate &&
+                      wildSchedule.endDate ? (
+                        <>
+                          <strong>
+                            {formatTripDate(wildSchedule.startDate)}
+                            {" — "}
+                            {formatTripDate(wildSchedule.endDate)}
+                          </strong>
+
+                          <div className="tripWindowFacts">
+                            <span>
+                              {typeof wildSchedule.days === "number"
+                                ? `${wildSchedule.days} DAYS`
+                                : `${exactTripDates.length} DAYS`}
+                            </span>
+
+                            <span>
+                              {typeof wildSchedule.nights === "number"
+                                ? `${wildSchedule.nights} NIGHTS`
+                                : `${Math.max(0, exactTripDates.length - 1)} NIGHTS`}
+                            </span>
+
+                            <span>EXACT DATES</span>
+                          </div>
+
+                          {weatherStatus === "ready" &&
+                          weather &&
+                          exactTripFullyForecastable ? (
+                            <>
+                              <div className="tripForecastStatus available">
+                                TRIP FORECAST AVAILABLE
+                              </div>
+
+                              <div className="tripForecastList">
+                                {tripForecastDays.map((day) => (
+                                  <article
+                                    className="tripForecastDay"
+                                    key={`trip-${day.date}`}
+                                  >
+                                    <div>
+                                      <span>{shortDate(day.date)}</span>
+                                      <strong>{weatherLabel(day.code)}</strong>
+                                    </div>
+
+                                    <div>
+                                      <span>HIGH / LOW</span>
+                                      <strong>
+                                        {Math.round(day.tempMax)}° /{" "}
+                                        {Math.round(day.tempMin)}°C
+                                      </strong>
+                                    </div>
+
+                                    <div>
+                                      <span>PRECIP.</span>
+                                      <strong>
+                                        {day.precipitationProbability !== null
+                                          ? `${Math.round(day.precipitationProbability)}%`
+                                          : "—"}
+                                      </strong>
+                                      <small>
+                                        {day.precipitationMm.toFixed(1)} MM
+                                      </small>
+                                    </div>
+
+                                    <div>
+                                      <span>MAX WIND</span>
+                                      <strong>
+                                        {Math.round(day.windMaxKmh)} KM/H
+                                      </strong>
+                                    </div>
+                                  </article>
+                                ))}
+                              </div>
+
+                              <p>
+                                These saved Wild dates fall completely inside the current Open-Meteo forecast window, so the rows above are the real destination forecast for this trip window. Conditions can still change; recheck close to departure.
+                              </p>
+                            </>
+                          ) : weatherStatus === "loading" ? (
+                            <p>
+                              Checking your saved Wild dates against the current destination forecast window…
+                            </p>
+                          ) : (
+                            <>
+                              <div className="tripForecastStatus unavailable">
+                                FORECAST NOT YET AVAILABLE
+                              </div>
+
+                              <p>
+                                Your Wild dates are saved, but the complete trip is outside the current seven-day weather forecast window. RoamLab will not use today&apos;s forecast as if it represented those future dates. Recheck closer to departure.
+                              </p>
+                            </>
+                          )}
+                        </>
+                      ) : wildSchedule?.timingMode === "flexible" ||
+                        wildSchedule?.flexibleDates ? (
+                        <>
+                          <strong>FLEXIBLE TRIP DATES</strong>
+
+                          <div className="tripWindowFacts">
+                            {typeof wildSchedule.days === "number" && (
+                              <span>{wildSchedule.days} DAYS</span>
+                            )}
+
+                            {typeof wildSchedule.nights === "number" && (
+                              <span>{wildSchedule.nights} NIGHTS</span>
+                            )}
+
+                            <span>DATES FLEXIBLE</span>
+                          </div>
+
+                          <p>
+                            Your Wild duration is saved, but the calendar dates are flexible. The seven-day weather window above is current destination intelligence only and is not yet a trip-specific forecast.
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <strong>TRIP DATE NOT SET</strong>
+
+                          <div className="tripWindowFacts">
+                            {typeof wildSchedule?.days === "number" && (
+                              <span>{wildSchedule.days} DAYS</span>
+                            )}
+
+                            {typeof wildSchedule?.nights === "number" && (
+                              <span>{wildSchedule.nights} NIGHTS</span>
+                            )}
+
+                            <span>DATE UNDECIDED</span>
+                          </div>
+
+                          <p>
+                            The seven-day weather window above shows real near-term destination conditions. Set exact Wild dates when you are ready and RoamLab will compare them with the available forecast window.
+                          </p>
+                        </>
+                      )}
                     </div>
 
                     <p className="weatherNote">
@@ -2986,6 +3241,16 @@ function DestinationIntelligenceContent() {
         .tripWindowNotice { margin-top: 20px; padding: 18px; border: 1px solid rgba(109,63,35,.3); background: rgba(121,79,43,.055); }
         .tripWindowNotice > strong { display: block; margin-top: 8px; color: #312920; font-family: Georgia, "Times New Roman", serif; font-size: 19px; font-weight: 500; }
         .tripWindowNotice p { margin: 8px 0 0; color: #6c5e4e; font-size: 12px; line-height: 1.6; }
+        .tripWindowFacts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        .tripWindowFacts span { padding: 6px 8px; border: 1px solid rgba(109,63,35,.22); background: rgba(255,255,255,.12); color: #6c5039; font-size: 8px; font-weight: 900; letter-spacing: .1em; }
+        .tripForecastStatus { margin-top: 14px; padding: 9px 10px; border-left: 3px solid #6e593f; background: rgba(255,255,255,.13); color: #4b4034; font-size: 9px; font-weight: 900; letter-spacing: .12em; }
+        .tripForecastStatus.available { border-left-color: #536744; }
+        .tripForecastStatus.unavailable { border-left-color: #8b542e; }
+        .tripForecastList { margin-top: 12px; border-top: 1px solid rgba(65,52,39,.2); }
+        .tripForecastDay { display: grid; grid-template-columns: 1.45fr 1fr 1fr 1fr; gap: 12px; align-items: center; min-height: 62px; padding: 9px 0; border-bottom: 1px solid rgba(65,52,39,.16); }
+        .tripForecastDay span { display: block; color: #8b7a67; font-size: 8px; font-weight: 900; letter-spacing: .1em; }
+        .tripForecastDay strong { display: block; margin-top: 4px; color: #332a22; font-size: 11px; }
+        .tripForecastDay small { display: block; margin-top: 3px; color: #82715f; font-size: 8px; font-weight: 800; letter-spacing: .06em; }
         .weatherNote { margin: 10px 0 0; color: #82715f; font-size: 9px; font-weight: 800; line-height: 1.5; letter-spacing: .08em; }
 
         .sideColumn {
@@ -3507,6 +3772,11 @@ function DestinationIntelligenceContent() {
           .liveMapWrap {
             height:
               320px;
+          }
+
+          .tripForecastDay {
+            grid-template-columns:
+              1fr 1fr;
           }
 
           .documentFooter {
