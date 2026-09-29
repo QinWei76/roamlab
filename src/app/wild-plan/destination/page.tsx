@@ -84,6 +84,9 @@ const travelRadiusOptions: {
   },
 ];
 
+const DESTINATION_DISCOVERY_SESSION_KEY =
+  "roamlab.destinationDiscoverySession";
+
 function getWildMatchStars(score?: number | null) {
   const value = typeof score === "number" ? score : 0;
 
@@ -215,6 +218,65 @@ export default function WildDestinationPage() {
       currentDistance === undefined
     ) {
       setTravelRadius("anywhere");
+    }
+
+    /* Restore the exact Destination Brief after returning from Destination Intelligence. */
+    const returnMatchParam = params.get("returnMatch");
+
+    if (returnMatchParam !== null) {
+      try {
+        const savedSession = window.sessionStorage.getItem(
+          DESTINATION_DISCOVERY_SESSION_KEY
+        );
+
+        if (savedSession) {
+          const parsed = JSON.parse(savedSession) as {
+            matches?: DiscoveryMatch[];
+            activeMatchIndex?: number;
+            startingFrom?: string;
+            resolvedOrigin?: StartingPoint | null;
+            travelRadius?: TravelRadius;
+          };
+
+          if (Array.isArray(parsed.matches) && parsed.matches.length > 0) {
+            const requestedIndex = Number.parseInt(returnMatchParam, 10);
+            const fallbackIndex =
+              typeof parsed.activeMatchIndex === "number"
+                ? parsed.activeMatchIndex
+                : 0;
+            const candidateIndex = Number.isFinite(requestedIndex)
+              ? requestedIndex
+              : fallbackIndex;
+            const restoredIndex = Math.min(
+              Math.max(candidateIndex, 0),
+              parsed.matches.length - 1
+            );
+
+            setMode("discover");
+            setMatches(parsed.matches);
+            setActiveMatchIndex(restoredIndex);
+            setHasSearched(true);
+            setDiscoveryError("");
+
+            if (parsed.startingFrom) setStartingFrom(parsed.startingFrom);
+            if (parsed.resolvedOrigin) setResolvedOrigin(parsed.resolvedOrigin);
+
+            if (
+              parsed.travelRadius === 150 ||
+              parsed.travelRadius === 300 ||
+              parsed.travelRadius === 500 ||
+              parsed.travelRadius === "anywhere"
+            ) {
+              setTravelRadius(parsed.travelRadius);
+            }
+          }
+        }
+      } catch (error) {
+        console.warn(
+          "RoamLab could not restore destination discovery session:",
+          error
+        );
+      }
     }
 
     setLoaded(true);
@@ -1099,6 +1161,24 @@ export default function WildDestinationPage() {
 
                       if (typeof activeMatch.matchScore === "number") {
                         params.set("score", String(activeMatch.matchScore));
+                      }
+
+                      try {
+                        window.sessionStorage.setItem(
+                          DESTINATION_DISCOVERY_SESSION_KEY,
+                          JSON.stringify({
+                            matches,
+                            activeMatchIndex,
+                            startingFrom,
+                            resolvedOrigin,
+                            travelRadius,
+                          })
+                        );
+                      } catch (error) {
+                        console.warn(
+                          "RoamLab could not save destination discovery session:",
+                          error
+                        );
                       }
 
                       router.push(
