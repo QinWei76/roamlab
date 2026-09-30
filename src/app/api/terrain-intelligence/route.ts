@@ -2,22 +2,26 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
+
 const NLCD_WMS_URL =
   "https://dmsdata.cr.usgs.gov/geoserver/mrlc_Land-Cover-Native_conus_year_data/wms";
+
 
 const NLCD_LAYER =
   "mrlc_Land-Cover-Native_conus_year_data:Land-Cover-Native_conus_year_data";
 
+
 const DATA_YEAR = 2025;
+
 
 const NLCD_CLASSES: Record<number, string> = {
   11: "Open Water",
   12: "Perennial Ice / Snow",
 
-  21: "Developed, Open Space",
-  22: "Developed, Low Intensity",
-  23: "Developed, Medium Intensity",
-  24: "Developed, High Intensity",
+  21: "Developed Open Space",
+  22: "Developed Low Intensity",
+  23: "Developed Medium Intensity",
+  24: "Developed High Intensity",
 
   31: "Barren Land",
 
@@ -36,341 +40,664 @@ const NLCD_CLASSES: Record<number, string> = {
   95: "Emergent Herbaceous Wetlands",
 };
 
-function isValidLatitude(value: number) {
-  return Number.isFinite(value) && value >= -90 && value <= 90;
+
+
+function validLatitude(value:number){
+
+  return (
+    Number.isFinite(value) &&
+    value >= -90 &&
+    value <= 90
+  );
+
 }
 
-function isValidLongitude(value: number) {
-  return Number.isFinite(value) && value >= -180 && value <= 180;
+
+function validLongitude(value:number){
+
+  return (
+    Number.isFinite(value) &&
+    value >= -180 &&
+    value <= 180
+  );
+
 }
 
-function parseFeatureInfoValue(text: string): number | null {
-  /*
-    GeoServer may return text/plain in forms such as:
 
-    Results for FeatureType ...
-    Land-Cover-Native_conus_year_data = 42
 
-    or properties such as:
-    GRAY_INDEX = 42
+/*
+  Convert km distance into approximate degrees.
 
-    We deliberately try several patterns rather than depending on
-    one exact GeoServer response format.
-  */
+  Good enough for regional sampling.
+*/
 
-  const patterns = [
-    /GRAY_INDEX\s*=\s*["']?(\d+)/i,
-    /Land-Cover[^=\n]*=\s*["']?(\d+)/i,
-    /Land_Cover[^=\n]*=\s*["']?(\d+)/i,
-    /\bvalue\s*=\s*["']?(\d+)/i,
-  ];
+function kmToDegree(value:number){
 
-  for (const pattern of patterns) {
-    const match = text.match(pattern);
+  return value / 111;
 
-    if (match) {
-      const value = Number(match[1]);
-
-      if (Number.isFinite(value)) {
-        return value;
-      }
-    }
-  }
-
-  /*
-    Final fallback:
-    search for a known NLCD class code appearing as a standalone value.
-  */
-
-  const knownCodes = Object.keys(NLCD_CLASSES)
-    .map(Number)
-    .sort((a, b) => b - a);
-
-  for (const code of knownCodes) {
-    const pattern = new RegExp(`\\b${code}\\b`);
-
-    if (pattern.test(text)) {
-      return code;
-    }
-  }
-
-  return null;
 }
 
-function buildFeatureInfoUrl(latitude: number, longitude: number) {
-  /*
-    We query a tiny geographic box around the destination.
 
-    0.001 degrees is roughly 100 m north/south.
-    The request image is intentionally small because we only need
-    the center pixel corresponding to the destination.
-  */
+
+/*
+  Build WMS GetFeatureInfo URL
+*/
+
+
+function buildFeatureInfoUrl(
+  latitude:number,
+  longitude:number
+){
 
   const delta = 0.001;
 
-  const minLon = longitude - delta;
-  const minLat = latitude - delta;
-  const maxLon = longitude + delta;
-  const maxLat = latitude + delta;
 
-  const params = new URLSearchParams({
-    SERVICE: "WMS",
-    VERSION: "1.1.1",
-    REQUEST: "GetFeatureInfo",
+  const params =
+    new URLSearchParams({
 
-    LAYERS: NLCD_LAYER,
-    QUERY_LAYERS: NLCD_LAYER,
+      SERVICE:"WMS",
 
-    SRS: "EPSG:4326",
-    BBOX: `${minLon},${minLat},${maxLon},${maxLat}`,
+      VERSION:"1.1.1",
 
-    WIDTH: "3",
-    HEIGHT: "3",
+      REQUEST:"GetFeatureInfo",
 
-    X: "1",
-    Y: "1",
+      LAYERS:NLCD_LAYER,
 
-    INFO_FORMAT: "text/plain",
-    FORMAT: "image/png",
+      QUERY_LAYERS:NLCD_LAYER,
 
-    FEATURE_COUNT: "1",
 
-    TIME: `${DATA_YEAR}-01-01T00:00:00.000Z`,
-  });
+      SRS:"EPSG:4326",
 
-  return `${NLCD_WMS_URL}?${params.toString()}`;
+
+      BBOX:
+        `${longitude-delta},${latitude-delta},${longitude+delta},${latitude+delta}`,
+
+
+      WIDTH:"3",
+
+      HEIGHT:"3",
+
+
+      X:"1",
+
+      Y:"1",
+
+
+      INFO_FORMAT:"text/plain",
+
+
+      FEATURE_COUNT:"1",
+
+
+      TIME:
+        `${DATA_YEAR}-01-01T00:00:00.000Z`
+
+    });
+
+
+  return (
+    `${NLCD_WMS_URL}?${params.toString()}`
+  );
+
 }
 
-async function queryLandCover(latitude: number, longitude: number) {
-  const url = buildFeatureInfoUrl(latitude, longitude);
 
-  const response = await fetch(url, {
-    method: "GET",
-    headers: {
-      Accept: "text/plain",
-    },
-    cache: "no-store",
-  });
 
-  const text = await response.text();
 
-  if (!response.ok) {
-    throw new Error(
-      `USGS NLCD request failed (${response.status}): ${text.slice(0, 500)}`
+function parseNLCDCode(
+  text:string
+){
+
+  const codes =
+    Object.keys(
+      NLCD_CLASSES
+    )
+    .map(Number)
+    .sort(
+      (a,b)=>b-a
     );
+
+
+  for(
+    const code of codes
+  ){
+
+    const regex =
+      new RegExp(
+        `\\b${code}\\b`
+      );
+
+
+    if(
+      regex.test(text)
+    ){
+
+      return code;
+
+    }
+
   }
 
-  const code = parseFeatureInfoValue(text);
 
-  if (code === null) {
-    return {
-      available: false,
-      code: null,
-      name: null,
-      rawResponse: text.slice(0, 1000),
-    };
-  }
+  return null;
 
-  return {
-    available: true,
-    code,
-    name: NLCD_CLASSES[code] ?? `NLCD Class ${code}`,
-    rawResponse: text.slice(0, 1000),
-  };
 }
 
-function buildUnavailableResponse(
-  latitude: number,
-  longitude: number,
-  reason: string
-) {
-  return {
-    status: "unavailable",
 
-    coordinate: {
+
+
+
+async function queryPoint(
+  latitude:number,
+  longitude:number
+){
+
+  const url =
+    buildFeatureInfoUrl(
       latitude,
-      longitude,
-    },
+      longitude
+    );
 
-    landCover: {
-      code: null,
-      name: null,
-    },
 
-    dataYear: DATA_YEAR,
+  const response =
+    await fetch(
+      url,
+      {
+        cache:"no-store"
+      }
+    );
 
-    dataset: "Annual NLCD",
 
-    source: "USGS / MRLC",
+  const text =
+    await response.text();
 
-    reason,
+
+
+  if(
+    !response.ok
+  ){
+
+    return null;
+
+  }
+
+
+
+  const code =
+    parseNLCDCode(
+      text
+    );
+
+
+  if(
+    code === null
+  ){
+
+    return null;
+
+  }
+
+
+
+  return {
+
+    code,
+
+    name:
+      NLCD_CLASSES[code] ??
+      `Class ${code}`
+
   };
+
 }
 
-export async function GET(request: NextRequest) {
-  try {
-    const { searchParams } = new URL(request.url);
 
-    const latitudeRaw = searchParams.get("latitude");
-    const longitudeRaw = searchParams.get("longitude");
 
-    if (!latitudeRaw || !longitudeRaw) {
-      return NextResponse.json(
-        {
-          error: "Missing latitude or longitude.",
-          example:
-            "/api/terrain-intelligence?latitude=41.924&longitude=-70.043",
-        },
-        {
-          status: 400,
-        }
-      );
-    }
 
-    const latitude = Number(latitudeRaw);
-    const longitude = Number(longitudeRaw);
 
-    if (!isValidLatitude(latitude) || !isValidLongitude(longitude)) {
-      return NextResponse.json(
-        {
-          error: "Invalid latitude or longitude.",
-        },
-        {
-          status: 400,
-        }
-      );
-    }
 
-    const result = await queryLandCover(latitude, longitude);
 
-    if (!result.available) {
-      return NextResponse.json(
-        buildUnavailableResponse(
-          latitude,
-          longitude,
-          "No Annual NLCD land-cover value was returned for this coordinate."
-        )
-      );
-    }
+function createSamplingGrid(
+  latitude:number,
+  longitude:number,
+  radiusKm:number
+){
 
-    return NextResponse.json({
-      status: "available",
-
-      coordinate: {
-        latitude,
-        longitude,
-      },
-
-      landCover: {
-        code: result.code,
-        name: result.name,
-      },
-
-      dataYear: DATA_YEAR,
-
-      dataset: "Annual NLCD",
-
-      source: "USGS / MRLC",
-
-      resolutionMeters: 30,
-
-      interpretation: {
-        scope: "destination-point",
-        note:
-          "This value represents the NLCD raster cell at the destination coordinate. It does not yet describe the wider destination landscape.",
-      },
-    });
-  } catch (error) {
-    console.error("Terrain intelligence error:", error);
-
-    return NextResponse.json(
-      {
-        status: "error",
-        error: "Unable to retrieve terrain intelligence.",
-        detail:
-          error instanceof Error
-            ? error.message
-            : "Unknown terrain intelligence error.",
-      },
-      {
-        status: 500,
-      }
+  const radiusDegree =
+    kmToDegree(
+      radiusKm
     );
+
+
+  const points:any[] = [];
+
+
+  const steps = 5;
+
+
+  for(
+    let y=0;
+    y<steps;
+    y++
+  ){
+
+    for(
+      let x=0;
+      x<steps;
+      x++
+    ){
+
+      const offsetX =
+        (
+          x -
+          (steps-1)/2
+        )
+        *
+        (
+          radiusDegree*2 /
+          (steps-1)
+        );
+
+
+      const offsetY =
+        (
+          y -
+          (steps-1)/2
+        )
+        *
+        (
+          radiusDegree*2 /
+          (steps-1)
+        );
+
+
+
+      points.push({
+
+        latitude:
+          latitude + offsetY,
+
+
+        longitude:
+          longitude + offsetX
+
+      });
+
+    }
+
   }
+
+
+  return points;
+
 }
 
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
 
-    const latitude = Number(body?.latitude);
-    const longitude = Number(body?.longitude);
 
-    if (!isValidLatitude(latitude) || !isValidLongitude(longitude)) {
-      return NextResponse.json(
+
+
+
+
+function calculateSummary(
+  results:{
+    code:number;
+    name:string;
+  }[]
+){
+
+  const counter =
+    new Map<
+      string,
+      {
+        code:number;
+        name:string;
+        count:number;
+      }
+    >();
+
+
+
+  for(
+    const item of results
+  ){
+
+    const existing =
+      counter.get(
+        item.name
+      );
+
+
+    if(existing){
+
+      existing.count +=1;
+
+    }else{
+
+      counter.set(
+        item.name,
         {
-          error: "Valid latitude and longitude are required.",
-        },
-        {
-          status: 400,
+          code:item.code,
+          name:item.name,
+          count:1
         }
       );
+
     }
 
-    const result = await queryLandCover(latitude, longitude);
+  }
 
-    if (!result.available) {
-      return NextResponse.json(
-        buildUnavailableResponse(
-          latitude,
-          longitude,
-          "No Annual NLCD land-cover value was returned for this coordinate."
+
+
+
+  const total =
+    results.length;
+
+
+
+  return Array
+    .from(counter.values())
+    .map(item=>({
+
+      code:item.code,
+
+      name:item.name,
+
+      samples:item.count,
+
+      percentage:
+        Math.round(
+          item.count /
+          total *
+          100
+        )
+
+    }))
+    .sort(
+      (a,b)=>
+        b.percentage-a.percentage
+    );
+
+}
+
+
+
+
+
+
+function buildTerrainSummary(
+  profile:any[]
+){
+
+  const dominant =
+    profile[0];
+
+
+  const water =
+    profile.find(
+      item =>
+        item.name.includes(
+          "Water"
+        )
+        ||
+        item.name.includes(
+          "Wetland"
+        )
+    );
+
+
+  return {
+
+    dominantCover:
+      dominant?.name ??
+      null,
+
+
+    waterInfluence:
+      water &&
+      water.percentage >=20
+        ? "High"
+        :
+      water
+        ? "Moderate"
+        :
+        "Low"
+
+  };
+
+}
+
+
+
+
+
+
+
+export async function GET(
+  request:NextRequest
+){
+
+  try{
+
+
+    const {
+      searchParams
+    } =
+      new URL(
+        request.url
+      );
+
+
+    const latitude =
+      Number(
+        searchParams.get(
+          "latitude"
         )
       );
+
+
+    const longitude =
+      Number(
+        searchParams.get(
+          "longitude"
+        )
+      );
+
+
+    const radiusKm =
+      Number(
+        searchParams.get(
+          "radiusKm"
+        )
+      )
+      ||
+      5;
+
+
+
+    if(
+      !validLatitude(latitude)
+      ||
+      !validLongitude(longitude)
+    ){
+
+      return NextResponse.json(
+        {
+          error:
+            "Invalid coordinate"
+        },
+        {
+          status:400
+        }
+      );
+
     }
 
-    return NextResponse.json({
-      status: "available",
 
-      coordinate: {
+
+
+
+    const points =
+      createSamplingGrid(
         latitude,
         longitude,
+        radiusKm
+      );
+
+
+
+    const results:any[] = [];
+
+
+
+    for(
+      const point of points
+    ){
+
+      const result =
+        await queryPoint(
+          point.latitude,
+          point.longitude
+        );
+
+
+      if(result){
+
+        results.push(
+          result
+        );
+
+      }
+
+    }
+
+
+
+
+
+    if(
+      results.length === 0
+    ){
+
+      return NextResponse.json({
+
+        status:
+          "unavailable",
+
+        coordinate:{
+          latitude,
+          longitude
+        },
+
+        reason:
+          "No NLCD samples returned"
+
+      });
+
+    }
+
+
+
+
+
+
+    const landscapeProfile =
+      calculateSummary(
+        results
+      );
+
+
+
+    return NextResponse.json({
+
+      status:
+        "available",
+
+
+
+      coordinate:{
+        latitude,
+        longitude
       },
 
-      landCover: {
-        code: result.code,
-        name: result.name,
+
+
+      area:{
+
+        radiusKm,
+
+        sampleCount:
+          results.length
+
       },
 
-      dataYear: DATA_YEAR,
 
-      dataset: "Annual NLCD",
 
-      source: "USGS / MRLC",
+      landscapeProfile,
 
-      resolutionMeters: 30,
 
-      interpretation: {
-        scope: "destination-point",
+
+      terrainSummary:
+        buildTerrainSummary(
+          landscapeProfile
+        ),
+
+
+
+      source:{
+
+        dataset:
+          "Annual NLCD",
+
+        year:
+          DATA_YEAR,
+
+        provider:
+          "USGS / MRLC"
+
+      },
+
+
+      interpretation:{
+
+        scope:
+          "area-sample",
+
+
         note:
-          "This value represents the NLCD raster cell at the destination coordinate. It does not yet describe the wider destination landscape.",
-      },
+          "Landscape profile is calculated from sampled NLCD cells around the destination coordinate. It represents the surrounding area, not only the exact center point."
+
+      }
+
     });
-  } catch (error) {
-    console.error("Terrain intelligence error:", error);
+
+
+
+  }
+  catch(error){
+
+
+    console.error(
+      error
+    );
+
 
     return NextResponse.json(
+
       {
-        status: "error",
-        error: "Unable to retrieve terrain intelligence.",
-        detail:
-          error instanceof Error
-            ? error.message
-            : "Unknown terrain intelligence error.",
+
+        status:"error",
+
+        message:
+          "Terrain intelligence failed"
+
       },
+
       {
-        status: 500,
+        status:500
       }
+
     );
+
   }
+
 }
