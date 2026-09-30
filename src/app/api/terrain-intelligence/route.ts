@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import {
+  buildWildContext,
+} from "@/lib/terrain/interpretation";
+
+
 export const dynamic = "force-dynamic";
 
 
@@ -14,74 +19,100 @@ const NLCD_LAYER =
 const DATA_YEAR = 2025;
 
 
-const NLCD_CLASSES: Record<number, string> = {
-  11: "Open Water",
-  12: "Perennial Ice / Snow",
 
-  21: "Developed Open Space",
-  22: "Developed Low Intensity",
-  23: "Developed Medium Intensity",
-  24: "Developed High Intensity",
+const NLCD_CLASSES: Record<number,string> = {
 
-  31: "Barren Land",
+  11:"Open Water",
 
-  41: "Deciduous Forest",
-  42: "Evergreen Forest",
-  43: "Mixed Forest",
+  12:"Perennial Ice / Snow",
 
-  52: "Shrub / Scrub",
 
-  71: "Grassland / Herbaceous",
+  21:"Developed Open Space",
 
-  81: "Pasture / Hay",
-  82: "Cultivated Crops",
+  22:"Developed Low Intensity",
 
-  90: "Woody Wetlands",
-  95: "Emergent Herbaceous Wetlands",
+  23:"Developed Medium Intensity",
+
+  24:"Developed High Intensity",
+
+
+  31:"Barren Land",
+
+
+  41:"Deciduous Forest",
+
+  42:"Evergreen Forest",
+
+  43:"Mixed Forest",
+
+
+  52:"Shrub / Scrub",
+
+
+  71:"Grassland / Herbaceous",
+
+
+  81:"Pasture / Hay",
+
+  82:"Cultivated Crops",
+
+
+  90:"Woody Wetlands",
+
+  95:"Emergent Herbaceous Wetlands",
+
 };
 
 
 
-function validLatitude(value:number){
+
+
+function validLatitude(
+  value:number
+){
 
   return (
-    Number.isFinite(value) &&
-    value >= -90 &&
+    Number.isFinite(value)
+    &&
+    value >= -90
+    &&
     value <= 90
   );
 
 }
 
 
-function validLongitude(value:number){
+
+function validLongitude(
+  value:number
+){
 
   return (
-    Number.isFinite(value) &&
-    value >= -180 &&
-    value <= 180
+    Number.isFinite(value)
+    &&
+    value >= -180
+    &&
+    value <=180
   );
 
 }
 
 
 
-/*
-  Convert km distance into approximate degrees.
 
-  Good enough for regional sampling.
-*/
 
-function kmToDegree(value:number){
+function kmToDegree(
+  km:number
+){
 
-  return value / 111;
+  return km / 111;
 
 }
 
 
 
-/*
-  Build WMS GetFeatureInfo URL
-*/
+
+
 
 
 function buildFeatureInfoUrl(
@@ -100,6 +131,7 @@ function buildFeatureInfoUrl(
       VERSION:"1.1.1",
 
       REQUEST:"GetFeatureInfo",
+
 
       LAYERS:NLCD_LAYER,
 
@@ -144,6 +176,10 @@ function buildFeatureInfoUrl(
 
 
 
+
+
+
+
 function parseNLCDCode(
   text:string
 ){
@@ -156,6 +192,7 @@ function parseNLCDCode(
     .sort(
       (a,b)=>b-a
     );
+
 
 
   for(
@@ -179,9 +216,12 @@ function parseNLCDCode(
   }
 
 
+
   return null;
 
 }
+
+
 
 
 
@@ -208,10 +248,6 @@ async function queryPoint(
     );
 
 
-  const text =
-    await response.text();
-
-
 
   if(
     !response.ok
@@ -223,10 +259,16 @@ async function queryPoint(
 
 
 
+  const text =
+    await response.text();
+
+
+
   const code =
     parseNLCDCode(
       text
     );
+
 
 
   if(
@@ -244,12 +286,15 @@ async function queryPoint(
     code,
 
     name:
-      NLCD_CLASSES[code] ??
+      NLCD_CLASSES[code]
+      ??
       `Class ${code}`
 
   };
 
 }
+
+
 
 
 
@@ -263,51 +308,55 @@ function createSamplingGrid(
   radiusKm:number
 ){
 
-  const radiusDegree =
+  const radius =
     kmToDegree(
       radiusKm
     );
 
 
-  const points:any[] = [];
+
+  const points:any[]=[];
 
 
-  const steps = 5;
+  const gridSize = 5;
+
 
 
   for(
     let y=0;
-    y<steps;
+    y<gridSize;
     y++
   ){
 
     for(
       let x=0;
-      x<steps;
+      x<gridSize;
       x++
     ){
+
 
       const offsetX =
         (
           x -
-          (steps-1)/2
+          (gridSize-1)/2
         )
         *
         (
-          radiusDegree*2 /
-          (steps-1)
+          radius*2 /
+          (gridSize-1)
         );
+
 
 
       const offsetY =
         (
           y -
-          (steps-1)/2
+          (gridSize-1)/2
         )
         *
         (
-          radiusDegree*2 /
-          (steps-1)
+          radius*2 /
+          (gridSize-1)
         );
 
 
@@ -322,6 +371,7 @@ function createSamplingGrid(
           longitude + offsetX
 
       });
+
 
     }
 
@@ -338,54 +388,57 @@ function createSamplingGrid(
 
 
 
-function calculateSummary(
+
+
+function calculateLandscapeProfile(
   results:{
     code:number;
     name:string;
   }[]
 ){
 
-  const counter =
+  const map =
     new Map<
       string,
       {
         code:number;
         name:string;
-        count:number;
+        samples:number;
       }
     >();
 
 
 
-  for(
-    const item of results
-  ){
+  results.forEach(
+    item=>{
 
-    const existing =
-      counter.get(
-        item.name
-      );
+      const existing =
+        map.get(
+          item.name
+        );
 
 
-    if(existing){
+      if(existing){
 
-      existing.count +=1;
+        existing.samples +=1;
 
-    }else{
+      }
+      else{
 
-      counter.set(
-        item.name,
-        {
-          code:item.code,
-          name:item.name,
-          count:1
-        }
-      );
+        map.set(
+          item.name,
+          {
+            code:item.code,
+            name:item.name,
+            samples:1
+          }
+        );
+
+      }
+
 
     }
-
-  }
-
+  );
 
 
 
@@ -395,29 +448,34 @@ function calculateSummary(
 
 
   return Array
-    .from(counter.values())
-    .map(item=>({
+    .from(
+      map.values()
+    )
+    .map(
+      item=>({
 
-      code:item.code,
+        code:item.code,
 
-      name:item.name,
+        name:item.name,
 
-      samples:item.count,
+        samples:item.samples,
 
-      percentage:
-        Math.round(
-          item.count /
-          total *
-          100
-        )
+        percentage:
+          Math.round(
+            item.samples /
+            total *
+            100
+          )
 
-    }))
+      })
+    )
     .sort(
       (a,b)=>
         b.percentage-a.percentage
     );
 
 }
+
 
 
 
@@ -433,38 +491,111 @@ function buildTerrainSummary(
 
 
   const water =
-    profile.find(
+    profile
+    .filter(
       item =>
-        item.name.includes(
-          "Water"
-        )
+        item.name
+        .toLowerCase()
+        .includes("water")
         ||
-        item.name.includes(
-          "Wetland"
-        )
+        item.name
+        .toLowerCase()
+        .includes("wetland")
+    )
+    .reduce(
+      (
+        sum:number,
+        item:any
+      )=>
+        sum + item.percentage,
+      0
     );
+
 
 
   return {
 
     dominantCover:
-      dominant?.name ??
+      dominant?.name
+      ??
       null,
 
 
     waterInfluence:
-      water &&
-      water.percentage >=20
-        ? "High"
-        :
-      water
-        ? "Moderate"
-        :
-        "Low"
+
+      water >=40
+      ?
+      "High"
+
+      :
+
+      water >=20
+      ?
+      "Moderate"
+
+      :
+      "Low"
 
   };
 
 }
+
+
+
+
+
+
+
+
+
+async function runTerrainAnalysis(
+  latitude:number,
+  longitude:number,
+  radiusKm:number
+){
+
+  const points =
+    createSamplingGrid(
+      latitude,
+      longitude,
+      radiusKm
+    );
+
+
+
+  const results:any[]=[];
+
+
+
+  for(
+    const point of points
+  ){
+
+    const result =
+      await queryPoint(
+        point.latitude,
+        point.longitude
+      );
+
+
+
+    if(result){
+
+      results.push(
+        result
+      );
+
+    }
+
+  }
+
+
+
+  return results;
+
+}
+
+
 
 
 
@@ -487,6 +618,7 @@ export async function GET(
       );
 
 
+
     const latitude =
       Number(
         searchParams.get(
@@ -495,12 +627,14 @@ export async function GET(
       );
 
 
+
     const longitude =
       Number(
         searchParams.get(
           "longitude"
         )
       );
+
 
 
     const radiusKm =
@@ -514,6 +648,8 @@ export async function GET(
 
 
 
+
+
     if(
       !validLatitude(latitude)
       ||
@@ -523,7 +659,7 @@ export async function GET(
       return NextResponse.json(
         {
           error:
-            "Invalid coordinate"
+          "Invalid coordinates"
         },
         {
           status:400
@@ -536,8 +672,8 @@ export async function GET(
 
 
 
-    const points =
-      createSamplingGrid(
+    const results =
+      await runTerrainAnalysis(
         latitude,
         longitude,
         radiusKm
@@ -545,51 +681,16 @@ export async function GET(
 
 
 
-    const results:any[] = [];
-
-
-
-    for(
-      const point of points
-    ){
-
-      const result =
-        await queryPoint(
-          point.latitude,
-          point.longitude
-        );
-
-
-      if(result){
-
-        results.push(
-          result
-        );
-
-      }
-
-    }
-
-
-
 
 
     if(
-      results.length === 0
+      results.length===0
     ){
 
       return NextResponse.json({
 
         status:
-          "unavailable",
-
-        coordinate:{
-          latitude,
-          longitude
-        },
-
-        reason:
-          "No NLCD samples returned"
+        "unavailable"
 
       });
 
@@ -599,24 +700,42 @@ export async function GET(
 
 
 
-
     const landscapeProfile =
-      calculateSummary(
+      calculateLandscapeProfile(
         results
       );
+
+
+
+    const terrainSummary =
+      buildTerrainSummary(
+        landscapeProfile
+      );
+
+
+
+    const wildContext =
+      buildWildContext(
+        landscapeProfile
+      );
+
+
 
 
 
     return NextResponse.json({
 
       status:
-        "available",
+      "available",
 
 
 
       coordinate:{
+
         latitude,
+
         longitude
+
       },
 
 
@@ -626,7 +745,7 @@ export async function GET(
         radiusKm,
 
         sampleCount:
-          results.length
+        results.length
 
       },
 
@@ -636,23 +755,24 @@ export async function GET(
 
 
 
-      terrainSummary:
-        buildTerrainSummary(
-          landscapeProfile
-        ),
+      terrainSummary,
+
+
+
+      wildContext,
 
 
 
       source:{
 
         dataset:
-          "Annual NLCD",
+        "Annual NLCD",
 
         year:
-          DATA_YEAR,
+        DATA_YEAR,
 
         provider:
-          "USGS / MRLC"
+        "USGS / MRLC"
 
       },
 
@@ -660,16 +780,15 @@ export async function GET(
       interpretation:{
 
         scope:
-          "area-sample",
+        "area-sample",
 
 
         note:
-          "Landscape profile is calculated from sampled NLCD cells around the destination coordinate. It represents the surrounding area, not only the exact center point."
+        "Landscape profile is calculated from sampled NLCD cells around the destination coordinate."
 
       }
 
     });
-
 
 
   }
@@ -677,6 +796,7 @@ export async function GET(
 
 
     console.error(
+      "Terrain API error",
       error
     );
 
@@ -688,7 +808,7 @@ export async function GET(
         status:"error",
 
         message:
-          "Terrain intelligence failed"
+        "Terrain intelligence failed"
 
       },
 
