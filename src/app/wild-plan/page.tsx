@@ -3,10 +3,16 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Wild } from "@/types/wild";
+
 import {
   CURRENT_WILD_UPDATED_EVENT,
   getCurrentWild,
 } from "@/lib/wildStore";
+
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
 
 function titleCase(value?: string) {
   if (!value) return "Not set";
@@ -20,6 +26,7 @@ function titleCase(value?: string) {
     )
     .join(" ");
 }
+
 
 function money(
   value?: number,
@@ -48,12 +55,12 @@ function money(
   }
 }
 
+
 function dateLabel(value?: string) {
   if (!value) return "";
 
-  const date = new Date(
-    `${value}T12:00:00`
-  );
+  const date =
+    new Date(`${value}T12:00:00`);
 
   if (Number.isNaN(date.getTime())) {
     return value;
@@ -71,11 +78,9 @@ function dateLabel(value?: string) {
     .toUpperCase();
 }
 
+
 function vehicleLabel(value?: string) {
-  const labels: Record<
-    string,
-    string
-  > = {
+  const labels: Record<string, string> = {
     suv: "SUV",
     truck: "Truck",
     van: "Van",
@@ -88,14 +93,12 @@ function vehicleLabel(value?: string) {
 
   return value
     ? labels[value] ?? titleCase(value)
-    : "Not set";
+    : "Vehicle not set";
 }
 
+
 function tripLabel(value?: string) {
-  const labels: Record<
-    string,
-    string
-  > = {
+  const labels: Record<string, string> = {
     weekend: "Weekend Escape",
     "road-trip": "Road Trip",
     basecamp: "Basecamp",
@@ -104,25 +107,50 @@ function tripLabel(value?: string) {
 
   return value
     ? labels[value] ?? titleCase(value)
-    : "Not set";
+    : "Trip style not set";
 }
 
+
+/* =========================================================
+   PAGE
+   ========================================================= */
+
 export default function WildPlanPage() {
+
   const router = useRouter();
 
-  const [wild, setWild] =
+  const [
+    wild,
+    setWild
+  ] =
     useState<Wild | null>(null);
 
-  const [loaded, setLoaded] =
+  const [
+    loaded,
+    setLoaded
+  ] =
     useState(false);
 
+
+  /* =======================================================
+     LOAD CURRENT WILD
+     ======================================================= */
+
   useEffect(() => {
+
     const load = () => {
-      setWild(getCurrentWild());
+
+      setWild(
+        getCurrentWild()
+      );
+
       setLoaded(true);
+
     };
 
+
     load();
+
 
     window.addEventListener(
       CURRENT_WILD_UPDATED_EVENT,
@@ -134,7 +162,9 @@ export default function WildPlanPage() {
       load
     );
 
+
     return () => {
+
       window.removeEventListener(
         CURRENT_WILD_UPDATED_EVENT,
         load
@@ -144,105 +174,158 @@ export default function WildPlanPage() {
         "storage",
         load
       );
+
     };
+
   }, []);
 
+
+  /* =======================================================
+     LOADING
+     ======================================================= */
+
   if (!loaded) {
+
     return (
       <main
         style={{
           minHeight: "100vh",
-          background: "#100d09",
+          background: "#130e09",
         }}
       />
     );
+
   }
 
-  if (!wild) {
-    return (
-      <main className="empty">
-        <section>
-          <p>
-            ROAMLAB · WILD PLAN
-          </p>
 
-          <h1>
-            No Wild on the table yet.
-          </h1>
+  /* =======================================================
+     EMPTY WILD
+     ======================================================= */
+
+  if (!wild) {
+
+    return (
+
+      <main className="empty">
+
+        <section className="empty-paper">
 
           <span>
-            Choose a way in and
-            RoamLab will begin building
-            one shared plan around your
-            journey.
+            ROAMLAB · WILD PLAN
           </span>
 
+          <h1>
+            Nothing on the table yet.
+          </h1>
+
+          <p>
+            Choose your way in and begin
+            building your next Wild.
+          </p>
+
           <button
-            type="button"
             onClick={() =>
               router.push("/ways-in")
             }
           >
             START YOUR WILD →
           </button>
+
         </section>
 
+
         <style jsx>{`
+
           .empty {
             min-height: 100vh;
             display: grid;
             place-items: center;
             padding: 30px;
+
             background:
               linear-gradient(
-                135deg,
-                #2b2117,
-                #100d09
-              );
+                rgba(12, 8, 5, .25),
+                rgba(12, 8, 5, .72)
+              ),
+              url("/ways-in-desk.jpg")
+              center / cover fixed;
+
             color: #34291e;
           }
 
-          section {
+          .empty-paper {
             width: min(620px, 100%);
             padding: 54px;
-            background: #d8c7a5;
+
+            background:
+              #d9c9a8;
+
             box-shadow:
-              0 35px 90px
-              rgba(0, 0, 0, 0.53);
-            transform: rotate(-0.7deg);
+              0 35px 100px rgba(0,0,0,.6);
+
+            transform:
+              rotate(-1deg);
           }
 
-          p {
-            font: 800 10px sans-serif;
-            letter-spacing: 0.22em;
+          .empty span {
+            font:
+              800 10px Arial,
+              sans-serif;
+
+            letter-spacing:
+              .22em;
           }
 
-          h1 {
-            font: 400 44px
+          .empty h1 {
+            margin:
+              18px 0 12px;
+
+            font:
+              400 46px/1
               Georgia,
               serif;
-            margin: 18px 0;
           }
 
-          span {
+          .empty p {
             line-height: 1.7;
           }
 
-          button {
-            display: block;
-            margin-top: 30px;
+          .empty button {
+            margin-top: 28px;
+
+            padding:
+              14px 18px;
+
             border: 0;
-            padding: 14px 18px;
-            background: #9b4e25;
-            color: #fff4df;
-            font: 800 10px sans-serif;
-            letter-spacing: 0.12em;
+
+            background:
+              #994a27;
+
+            color:
+              #fff2dc;
+
             cursor: pointer;
+
+            font:
+              800 10px Arial,
+              sans-serif;
+
+            letter-spacing:
+              .12em;
           }
+
         `}</style>
+
       </main>
+
     );
+
   }
+
+
+  /* =======================================================
+     CURRENT WILD DATA
+     ======================================================= */
 
   const adventure =
     wild.plan.adventure;
@@ -271,11 +354,10 @@ export default function WildPlanPage() {
   const planning =
     wild.plan.planning;
 
-  const readiness =
-    wild.plan.readiness;
 
   const items =
     gear?.items ?? [];
+
 
   const owned =
     items.filter(
@@ -284,16 +366,19 @@ export default function WildPlanPage() {
         "owned"
     ).length;
 
+
   const gap =
-    items.filter((item) =>
-      [
-        "to-buy",
-        "borrow",
-        "rent",
-      ].includes(
-        item.ownershipStatus
-      )
+    items.filter(
+      (item) =>
+        [
+          "to-buy",
+          "borrow",
+          "rent",
+        ].includes(
+          item.ownershipStatus
+        )
     ).length;
+
 
   const essential =
     items.filter(
@@ -302,12 +387,14 @@ export default function WildPlanPage() {
         "essential"
     ).length;
 
+
   const recommended =
     items.filter(
       (item) =>
         item.priority ===
         "recommended"
     ).length;
+
 
   const optional =
     items.filter(
@@ -316,72 +403,127 @@ export default function WildPlanPage() {
         "optional"
     ).length;
 
+
   const issues =
     (
-      planning?.issues ?? []
+      planning?.issues ??
+      []
     ).filter(
       (issue) =>
         issue.status === "open"
     );
 
+
   const currency =
-    cost?.currency ?? "USD";
+    cost?.currency ??
+    "USD";
+
 
   const projected =
     planning?.projectedWildCost ??
     cost?.estimatedTotal;
+
 
   const remaining =
     cost?.remainingBudget ??
     (
       typeof cost?.totalWildBudget ===
         "number" &&
-      typeof projected === "number"
+      typeof projected ===
+        "number"
+
         ? cost.totalWildBudget -
           projected
+
         : undefined
     );
 
+
+  /* =======================================================
+     LABELS
+     ======================================================= */
+
   const dateLine =
+
     schedule?.startDate &&
     schedule?.endDate
+
       ? `${dateLabel(
           schedule.startDate
         )} — ${dateLabel(
           schedule.endDate
         )}`
+
       : schedule?.timingMode ===
         "flexible"
-      ? "FLEXIBLE DATES"
+
+        ? "FLEXIBLE DATES"
+
       : schedule?.timingMode ===
         "undecided"
-      ? "DATES UNDECIDED"
+
+        ? "DATES UNDECIDED"
+
       : "DATES NOT SET";
 
-  const routeLine = route
-    ? [
-        typeof route.distanceKm ===
-        "number"
-          ? `${Math.round(
-              route.distanceKm
-            )} KM`
-          : "",
 
-        typeof route.estimatedHours ===
-        "number"
-          ? `${route.estimatedHours.toFixed(
-              1
-            )} HRS`
-          : "",
-      ]
-        .filter(Boolean)
-        .join(" · ") ||
-      "ROUTE IN PROGRESS"
-    : "ROUTE NOT BUILT";
+  const routeLine =
+    route
+
+      ? [
+
+          typeof route.distanceKm ===
+          "number"
+
+            ? `${Math.round(
+                route.distanceKm
+              )} KM`
+
+            : "",
+
+
+          typeof route.estimatedHours ===
+          "number"
+
+            ? `${route.estimatedHours.toFixed(
+                1
+              )} HRS`
+
+            : "",
+
+        ]
+          .filter(Boolean)
+          .join(" · ") ||
+
+        "ROUTE IN PROGRESS"
+
+      : "ROUTE NOT BUILT";
+
+
+  const originName =
+    intent?.startingFrom?.name ??
+    "Starting point not set";
+
+
+  const destinationName =
+    destination?.name ??
+    "Choose your destination";
+
+
+  const people =
+    adventure.crew?.people ??
+    0;
+
+
+  /* =======================================================
+     CONTEXT QUERY
+     ======================================================= */
 
   function contextQuery() {
+
     const params =
       new URLSearchParams();
+
 
     if (
       adventure.vehicle?.type
@@ -392,6 +534,7 @@ export default function WildPlanPage() {
       );
     }
 
+
     if (
       adventure.tripStyle
     ) {
@@ -401,6 +544,7 @@ export default function WildPlanPage() {
       );
     }
 
+
     if (
       adventure.crew?.type
     ) {
@@ -409,6 +553,7 @@ export default function WildPlanPage() {
         adventure.crew.type
       );
     }
+
 
     if (
       adventure.crew?.people
@@ -421,6 +566,7 @@ export default function WildPlanPage() {
       );
     }
 
+
     if (
       schedule?.durationType
     ) {
@@ -430,44 +576,31 @@ export default function WildPlanPage() {
       );
     }
 
+
     return params.toString();
+
   }
 
-  function openGear() {
-    const query =
-      contextQuery();
 
-    router.push(
-      query
-        ? `/ways-in/drive/gear?${query}`
-        : "/ways-in/drive/gear"
-    );
-  }
-
-  function openBudget() {
-    const query =
-      contextQuery();
-
-    router.push(
-      query
-        ? `/ways-in/drive/budget?${query}`
-        : "/ways-in/drive/budget"
-    );
-  }
+  /* =======================================================
+     PAGE
+     ======================================================= */
 
   return (
-    <main className="desk">
 
-      <div className="grain" />
+    <main className="wild-desk">
 
-      {/* =========================
-          HEADER
-         ========================= */}
+      <div className="cinematic-light" />
+      <div className="desk-vignette" />
 
-      <header>
+
+      {/* ===================================================
+          GLOBAL NAV
+          =================================================== */}
+
+      <header className="wild-nav">
 
         <button
-          type="button"
           className="brand"
           onClick={() =>
             router.push("/")
@@ -476,28 +609,31 @@ export default function WildPlanPage() {
           ROAMLAB
         </button>
 
+
         <nav>
 
           <button
-            type="button"
             onClick={() =>
-              router.push("/ways-in")
+              router.push(
+                "/ways-in"
+              )
             }
           >
-            WAYS IN
+            EXPLORE
           </button>
 
           <button
-            type="button"
             onClick={() =>
-              router.push("/gear")
+              router.push(
+                "/gear"
+              )
             }
           >
             GEAR LAB
           </button>
 
           <span>
-            YOUR WILD PLAN
+            WILD PLAN
           </span>
 
         </nav>
@@ -505,214 +641,100 @@ export default function WildPlanPage() {
       </header>
 
 
-      {/* =========================
-          HERO
-         ========================= */}
 
-      <section className="hero">
+      {/* ===================================================
+          DESK WORLD
+          =================================================== */}
 
-        <div className="stamp">
-          CURRENT WILD
+      <section className="table">
+
+
+        {/* LANTERN GLOW */}
+
+        <div
+          className="lantern"
+          aria-hidden="true"
+        >
+          <div className="lantern-top" />
+          <div className="lantern-glass" />
+          <div className="lantern-base" />
         </div>
 
-        <p>
-          FIELD PLAN ·{" "}
-          {wild.status.toUpperCase()}
-        </p>
-
-        <h1>
-          {destination?.name ||
-            wild.title ||
-            "My Wild"}
-        </h1>
-
-        <strong>
-          {dateLine}
-        </strong>
-
-        <div className="meta">
-
-          <span>
-            {titleCase(
-              adventure.wayIn
-            )}
-          </span>
-
-          <i>•</i>
-
-          <span>
-            {tripLabel(
-              adventure.tripStyle
-            )}
-          </span>
-
-          <i>•</i>
-
-          <span>
-            {adventure.crew?.type
-              ? `${titleCase(
-                  adventure.crew.type
-                )} · ${
-                  adventure.crew.people
-                }`
-              : "Crew not set"}
-          </span>
-
-          {schedule?.days ? (
-            <>
-              <i>•</i>
-
-              <span>
-                {schedule.days} DAYS ·{" "}
-                {schedule.nights ?? 0}{" "}
-                NIGHTS
-              </span>
-            </>
-          ) : null}
-
-        </div>
-
-      </section>
 
 
-      {/* =========================
-          DESK WORKSPACE
-         ========================= */}
+        {/* CURRENT WILD PAPER */}
 
-      <section className="workspace">
+        <article className="current-wild paper">
+
+          <small className="paper-label">
+            CURRENT WILD
+          </small>
+
+          <div className="rule" />
+
+          <h1>
+            {destinationName}
+          </h1>
 
 
-        {/* JOURNEY MAP */}
-
-        <article className="map paper">
-
-          <label>
-            01 · JOURNEY
-          </label>
-
-          <div className="mapTexture" />
-
-          <div className="thread" />
-
-          <span className="pin start">
-            START
-          </span>
-
-          <span className="pin wild">
-            WILD
-          </span>
-
-          <div className="mapCopy">
-
-            <small>
-              DESTINATION
-            </small>
-
-            <h2>
-              {destination?.name ||
-                "Choose your destination"}
-            </h2>
+          <div className="wild-facts">
 
             <p>
-              {destination?.region ||
-              destination?.country
-                ? [
-                    destination.region,
-                    destination.country,
-                  ]
-                    .filter(Boolean)
-                    .join(" · ")
-                : "Your destination anchors the entire Wild."}
+              <span>⌁</span>
+
+              {titleCase(
+                adventure.wayIn
+              )}
+
+              {" · "}
+
+              {tripLabel(
+                adventure.tripStyle
+              )}
+            </p>
+
+
+            <p>
+              <span>♙</span>
+
+              {people
+                ? `${people} ${
+                    people === 1
+                      ? "Person"
+                      : "People"
+                  }`
+                : "Crew not set"}
+            </p>
+
+
+            <p>
+              <span>▣</span>
+
+              {schedule?.days
+                ? `${schedule.days} Days · ${
+                    schedule.nights ?? 0
+                  } Nights`
+                : dateLine}
             </p>
 
           </div>
 
 
-          <div className="mapFoot">
-
-            <div>
-
-              <small>
-                STARTING FROM
-              </small>
-
-              <b>
-                {intent
-                  ?.startingFrom
-                  ?.name ||
-                  "Not set"}
-              </b>
-
-            </div>
-
-
-            <div>
-
-              <small>
-                ROUTE
-              </small>
-
-              <b>
-                {routeLine}
-              </b>
-
-            </div>
-
-
-            <button
-              type="button"
-              onClick={() =>
-                router.push(
-                  "/wild-plan/destination"
-                )
-              }
-            >
-              EDIT DESTINATION →
-            </button>
-
-          </div>
+          <p className="field-note">
+            Your Wild is taking shape.
+            Keep the plan practical,
+            flexible and ready for the
+            road.
+          </p>
 
         </article>
 
 
-        {/* POLAROID */}
 
-        <aside className="polaroid">
-
-          <div className="photo">
-
-            <span />
-
-            <i />
-
-            <b />
-
-          </div>
-
-          <small>
-            WAY IN
-          </small>
-
-          <h3>
-            {titleCase(
-              adventure.wayIn
-            )}
-          </h3>
-
-          <p>
-            {vehicleLabel(
-              adventure.vehicle?.type
-            )}
-          </p>
-
-        </aside>
-
-
-        {/* CONDITIONS NOTE */}
+        {/* DESTINATION PHOTO */}
 
         <button
-          type="button"
-          className="weather note"
+          className="destination-photo polaroid"
           onClick={() =>
             router.push(
               "/wild-plan/destination"
@@ -720,194 +742,263 @@ export default function WildPlanPage() {
           }
         >
 
-          <small>
-            CONDITIONS
-          </small>
+          <div className="photo-window destination-image" />
 
-          <h3>
-            {conditions
-              ?.weatherSummary ||
-              "Weather & terrain"}
-          </h3>
-
-          <p>
-            {conditions
-              ? [
-                  conditions
-                    .expectedMinTempC !==
-                  undefined
-                    ? `${conditions.expectedMinTempC}°C LOW`
-                    : "",
-
-                  conditions
-                    .expectedMaxTempC !==
-                  undefined
-                    ? `${conditions.expectedMaxTempC}°C HIGH`
-                    : "",
-
-                  conditions.terrain
-                    ?.slice(0, 2)
-                    .join(" · ") ||
-                    "",
-                ]
-                  .filter(Boolean)
-                  .join(" · ") ||
-                "Conditions added."
-              : "Destination context and live intelligence."}
-          </p>
+          <span>
+            {destinationName}
+          </span>
 
         </button>
 
 
-        {/* ROUTE */}
 
-        <button
-          type="button"
-          className="route paper note"
-          onClick={() =>
-            router.push(
-              "/wild-plan/route"
-            )
-          }
-        >
+        {/* MAIN MAP */}
 
-          <small>
-            02 · ROUTE & ACCESS
-          </small>
+        <article className="map-sheet">
 
-          <h3>
-            {route
-              ? "Route on file"
-              : "Build the way there"}
-          </h3>
+          <div className="map-fold fold-one" />
+          <div className="map-fold fold-two" />
 
-          <p>
+          <div className="map-grid" />
+
+          <div className="topo topo-one" />
+          <div className="topo topo-two" />
+          <div className="topo topo-three" />
+
+
+          <div className="map-duration">
+
+            {schedule?.days ? (
+              <>
+                <strong>
+                  {schedule.days} DAYS
+                </strong>
+
+                <strong>
+                  {schedule.nights ?? 0}
+                  {" "}NIGHTS
+                </strong>
+              </>
+            ) : (
+              <strong>
+                {dateLine}
+              </strong>
+            )}
+
+          </div>
+
+
+          <div className="route-path">
+
+            <div className="route-segment a" />
+            <div className="route-segment b" />
+            <div className="route-segment c" />
+
+          </div>
+
+
+          <div className="map-point origin">
+
+            <i />
+
+            <small>
+              START
+            </small>
+
+            <b>
+              {originName}
+            </b>
+
+          </div>
+
+
+          <div className="map-point destination">
+
+            <i />
+
+            <small>
+              WILD
+            </small>
+
+            <b>
+              {destinationName}
+            </b>
+
+          </div>
+
+
+          <div className="distance-note">
+
             {routeLine}
-          </p>
-
-          <em>
-            {route
-              ? "EDIT ROUTE →"
-              : "BUILD ROUTE →"}
-          </em>
-
-        </button>
-
-
-        {/* GEAR */}
-
-        <article className="gear paper">
-
-          <label>
-            03 · PREPARE
-          </label>
-
-
-          <div className="gearHead">
-
-            <div>
-
-              <small>
-                GEAR SYSTEM
-              </small>
-
-              <h2>
-                {items.length
-                  ? `${items.length} gear items`
-                  : "Build your field system"}
-              </h2>
-
-            </div>
-
-
-            <button
-              type="button"
-              onClick={openGear}
-            >
-              {items.length
-                ? "OPEN GEAR ROOM →"
-                : "BUILD GEAR SYSTEM →"}
-            </button>
 
           </div>
 
 
-          <div className="gearGrid">
-
-            <div>
-              <span>
-                ESSENTIAL
-              </span>
-              <b>{essential}</b>
-            </div>
-
-            <div>
-              <span>
-                RECOMMENDED
-              </span>
-              <b>{recommended}</b>
-            </div>
-
-            <div>
-              <span>
-                OPTIONAL
-              </span>
-              <b>{optional}</b>
-            </div>
-
-            <div>
-              <span>
-                ALREADY OWNED
-              </span>
-              <b>{owned}</b>
-            </div>
-
-            <div>
-              <span>
-                GEAR GAP
-              </span>
-              <b>{gap}</b>
-            </div>
-
-          </div>
-
-
-          <p className="caption">
-            Owned gear stays out of
-            new-spend pressure. Buy,
-            borrow and rent items
-            remain part of the gear
-            gap.
-          </p>
+          <button
+            className="map-edit"
+            onClick={() =>
+              router.push(
+                "/wild-plan/destination"
+              )
+            }
+          >
+            EDIT JOURNEY →
+          </button>
 
         </article>
 
 
-        {/* BUDGET */}
 
-        <button
-          type="button"
-          className="budget note"
-          onClick={openBudget}
-        >
+        {/* VEHICLE / WAY IN POLAROID */}
+
+        <article className="vehicle-polaroid polaroid">
+
+          <div className="photo-window vehicle-image" />
+
+          <span>
+            Our Ride
+          </span>
 
           <small>
-            WILD BUDGET
+            {vehicleLabel(
+              adventure.vehicle?.type
+            )}
           </small>
 
-          <h3>
+        </article>
+
+
+
+        {/* KEYS */}
+
+        <div
+          className="keys"
+          aria-hidden="true"
+        >
+          <div className="key-ring" />
+          <div className="key-fob">
+            <span>R</span>
+          </div>
+          <div className="metal-key" />
+        </div>
+
+
+
+        {/* COMPASS */}
+
+        <div
+          className="compass"
+          aria-hidden="true"
+        >
+          <div className="compass-inner">
+            <span>N</span>
+            <i />
+          </div>
+        </div>
+
+
+
+        {/* CONDITIONS NOTE */}
+
+        <button
+          className="conditions sticky"
+          onClick={() =>
+            router.push(
+              "/wild-plan/destination"
+            )
+          }
+        >
+
+          <div className="sticky-title">
+
+            <span>
+              CONDITIONS
+            </span>
+
+            <b>
+              ☼
+            </b>
+
+          </div>
+
+
+          <div className="condition-line">
+
+            <strong>
+              Weather
+            </strong>
+
+            <span>
+              Check details →
+            </span>
+
+          </div>
+
+
+          <div className="condition-line">
+
+            <strong>
+              Terrain
+            </strong>
+
+            <span>
+              View analysis →
+            </span>
+
+          </div>
+
+
+          {conditions?.weatherSummary ? (
+
+            <p>
+              {conditions.weatherSummary}
+            </p>
+
+          ) : null}
+
+        </button>
+
+
+
+        {/* BUDGET NOTEBOOK */}
+
+        <button
+          className="budget-book notebook"
+          onClick={() => {
+
+            const query =
+              contextQuery();
+
+            router.push(
+              query
+                ? `/ways-in/drive/budget?${query}`
+                : "/ways-in/drive/budget"
+            );
+
+          }}
+        >
+
+          <span className="book-title">
+            BUDGET
+          </span>
+
+
+          <div className="budget-number">
+
             {cost?.budgetStatus ===
             "unknown"
-              ? "NOT SET YET"
+
+              ? "NOT SET"
+
               : money(
-                  cost
-                    ?.totalWildBudget,
+                  cost?.totalWildBudget,
                   currency
                 )}
-          </h3>
+
+          </div>
 
 
-          <div>
+          <div className="budget-row">
 
             <span>
               PROJECTED
@@ -923,7 +1014,7 @@ export default function WildPlanPage() {
           </div>
 
 
-          <div>
+          <div className="budget-row">
 
             <span>
               REMAINING
@@ -946,1318 +1037,1757 @@ export default function WildPlanPage() {
         </button>
 
 
-        {/* PLAN CHECK */}
 
-        <article className="check paper">
+        {/* PLAN CHECK NOTEBOOK */}
 
-          <label>
-            04 · PLAN CHECK
-          </label>
+        <article className="plan-book">
 
-          <h2>
-            {issues.length
-              ? `${issues.length} ${
-                  issues.length === 1
-                    ? "thing needs"
-                    : "things need"
-                } attention.`
-              : planning
-              ? "No open planning issues."
-              : "Plan check is waiting for more systems."}
-          </h2>
+          <div className="binding" />
 
 
-          {issues.length ? (
+          <div className="book-page left-page">
 
-            <div className="issues">
-
-              {issues
-                .slice(0, 3)
-                .map((issue) => (
-
-                  <div
-                    className="issue"
-                    key={issue.id}
-                  >
-
-                    <small>
-                      {issue.severity.toUpperCase()}
-                    </small>
-
-                    <b>
-                      {issue.title}
-                    </b>
-
-                    <p>
-                      {issue.explanation}
-                    </p>
-
-                  </div>
-
-                ))}
-
-            </div>
-
-          ) : (
-
-            <p className="caption">
-              RoamLab can compare
-              budget, gear, crew,
-              duration, destination,
-              logistics and safety
-              without changing your
-              decisions for you.
-            </p>
-
-          )}
-
-        </article>
+            <span className="book-section">
+              PLAN CHECK
+            </span>
 
 
-        {/* READINESS */}
+            <ul>
 
-        <article className="readiness">
+              <li>
+                <i className="checked">
+                  ✓
+                </i>
 
-          <div>
+                Route & access
+              </li>
 
-            <small>
-              05 · DEPARTURE READINESS
-            </small>
 
-            <h2>
-              {readiness
-                ? readiness
-                    .overallPercent >=
-                  100
-                  ? "Ready to go wild."
-                  : "Keep preparing."
-                : "Plan in progress."}
-            </h2>
+              <li>
+                <i
+                  className={
+                    items.length
+                      ? "checked"
+                      : ""
+                  }
+                >
+                  {items.length
+                    ? "✓"
+                    : "□"}
+                </i>
 
-            <p>
-              Readiness combines the
-              systems that matter
-              before departure — not
-              just the adventure
-              setup.
-            </p>
+                Gear readiness
+              </li>
+
+
+              <li>
+                <i
+                  className={
+                    cost?.totalWildBudget
+                      ? "checked"
+                      : ""
+                  }
+                >
+                  {cost?.totalWildBudget
+                    ? "✓"
+                    : "□"}
+                </i>
+
+                Budget check
+              </li>
+
+
+              <li>
+                <i>
+                  □
+                </i>
+
+                Weather & terrain
+              </li>
+
+
+              <li>
+                <i>
+                  □
+                </i>
+
+                Potential risks
+              </li>
+
+
+              <li>
+                <i>
+                  □
+                </i>
+
+                Final recommendation
+              </li>
+
+            </ul>
 
           </div>
 
 
-          <div className="areas">
+          <div className="book-page right-page">
 
-            {(
-              [
-                [
-                  "ROUTE",
-                  readiness?.route,
-                ],
-                [
-                  "GEAR",
-                  readiness?.gear,
-                ],
-                [
-                  "SAFETY",
-                  readiness?.safety,
-                ],
-                [
-                  "KNOWLEDGE",
-                  readiness
-                    ?.knowledge,
-                ],
-                [
-                  "LOGISTICS",
-                  readiness
-                    ?.logistics,
-                ],
-                [
-                  "BUDGET",
-                  readiness?.budget,
-                ],
-              ] as const
-            ).map(
-              ([label, area]) => (
+            <span className="hand-note">
 
-                <div key={label}>
+              {issues.length
 
-                  <span>
-                    {label}
-                  </span>
+                ? `${issues.length} ${
+                    issues.length === 1
+                      ? "thing needs"
+                      : "things need"
+                  } attention.`
 
-                  <b>
-                    {area
-                      ? `${area.percent}%`
-                      : "—"}
-                  </b>
+                : planning
 
-                  <small>
-                    {area
-                      ? titleCase(
-                          area.status
-                        )
-                      : "Not checked"}
-                  </small>
+                  ? "Your plan is looking clear."
 
-                </div>
+                  : "Checking your plan..."}
 
-              )
+            </span>
+
+
+            <div className="progress-line">
+
+              <span
+                style={{
+                  width:
+                    items.length
+                      ? "58%"
+                      : "24%",
+                }}
+              />
+
+            </div>
+
+
+            {issues.length ? (
+
+              <div className="issue-note">
+
+                <strong>
+                  {issues[0].title}
+                </strong>
+
+                <p>
+                  {issues[0].explanation}
+                </p>
+
+              </div>
+
+            ) : (
+
+              <div className="mountain-sketch">
+
+                <i className="mountain m1" />
+                <i className="mountain m2" />
+                <i className="mountain m3" />
+
+              </div>
+
             )}
 
           </div>
 
 
-          <div className="score">
+          <div
+            className="pen"
+            aria-hidden="true"
+          />
 
-            <b>
-              {readiness
-                ? readiness
-                    .overallPercent
-                : "—"}
-            </b>
+        </article>
+
+
+
+        {/* GEAR SHEET */}
+
+        <article className="gear-sheet">
+
+          <span className="gear-title">
+            △ &nbsp; GEAR SYSTEM
+          </span>
+
+
+          <div className="gear-rule" />
+
+
+          <div className="gear-row">
 
             <span>
-              {readiness
-                ? "READY %"
-                : "NOT CALCULATED"}
+              ☑ &nbsp; Essential
             </span>
+
+            <b>
+              {essential}
+            </b>
 
           </div>
 
+
+          <div className="gear-row">
+
+            <span>
+              ☑ &nbsp; Recommended
+            </span>
+
+            <b>
+              {recommended}
+            </b>
+
+          </div>
+
+
+          <div className="gear-row">
+
+            <span>
+              ☑ &nbsp; Optional
+            </span>
+
+            <b>
+              {optional}
+            </b>
+
+          </div>
+
+
+          <div className="gear-row">
+
+            <span>
+              □ &nbsp; Already owned
+            </span>
+
+            <b>
+              {owned}
+            </b>
+
+          </div>
+
+
+          <div className="gear-gap">
+
+            <span>
+              ☑ &nbsp; Gear gap
+            </span>
+
+            <b>
+              {gap}
+            </b>
+
+          </div>
+
+
+          <button
+            onClick={() => {
+
+              const query =
+                contextQuery();
+
+              router.push(
+                query
+                  ? `/ways-in/drive/gear?${query}`
+                  : "/ways-in/drive/gear"
+              );
+
+            }}
+          >
+            OPEN GEAR ROOM →
+          </button>
+
         </article>
+
+
+
+        {/* PENCIL */}
+
+        <div
+          className="pencil"
+          aria-hidden="true"
+        />
+
 
       </section>
 
 
-      {/* =========================
-          FOOTER
-         ========================= */}
-
-      <footer>
-
-        <span>
-          PLAN IT.
-        </span>
-
-        <i />
-
-        <span>
-          GO WILD.
-        </span>
-
-        <i />
-
-        <span>
-          SHOW IT.
-        </span>
-
-      </footer>
-
 
       <style jsx>{`
 
-        :global(body) {
-          margin: 0;
-          background: #100d09;
+        :global(html) {
+          background: #100b07;
         }
 
+        :global(body) {
+          margin: 0;
+          background: #100b07;
+        }
 
         button {
           font: inherit;
         }
 
 
-        .desk {
+        /* =================================================
+           WORLD
+           ================================================= */
+
+        .wild-desk {
           position: relative;
+
           min-height: 100vh;
-          overflow: hidden;
 
-          padding:
-            0 44px 58px;
+          overflow-x: hidden;
 
-          color: #eee4d0;
+          color:
+            #f2e7d4;
+
+          background:
+            linear-gradient(
+              rgba(15, 9, 5, .25),
+              rgba(10, 6, 4, .46)
+            ),
+            url("/ways-in-desk.jpg")
+            center top / cover fixed;
+
+          font-family:
+            Arial,
+            Helvetica,
+            sans-serif;
+        }
+
+
+        .wild-desk::before {
+          content: "";
+
+          position: absolute;
+          inset: 0;
+
+          pointer-events: none;
+
+          background:
+            repeating-linear-gradient(
+              90deg,
+              transparent 0,
+              transparent 118px,
+              rgba(255,255,255,.018)
+              119px,
+              transparent 120px
+            );
+
+          mix-blend-mode:
+            soft-light;
+        }
+
+
+        .cinematic-light {
+          position: absolute;
+
+          left: -180px;
+          top: -200px;
+
+          width: 850px;
+          height: 850px;
+
+          pointer-events: none;
 
           background:
             radial-gradient(
-              circle at 16% 9%,
-              rgba(
-                210,
-                151,
-                83,
-                0.12
-              ),
-              transparent 25%
-            ),
-            radial-gradient(
-              circle at 82% 26%,
-              rgba(
-                111,
-                62,
-                47,
-                0.14
-              ),
-              transparent 30%
-            ),
-            repeating-linear-gradient(
-              90deg,
-              rgba(
-                255,
-                255,
-                255,
-                0.008
-              )
-              0 1px,
-              transparent
-              1px 84px
-            ),
-            linear-gradient(
-              110deg,
-              #2a1d13,
-              #1b140f 46%,
-              #100d09
+              circle,
+              rgba(255,172,78,.32),
+              rgba(255,133,44,.12) 30%,
+              transparent 68%
             );
+
+          filter:
+            blur(8px);
         }
 
 
-        .grain {
-          position: fixed;
+        .desk-vignette {
+          position: absolute;
           inset: 0;
+
           pointer-events: none;
 
-          opacity: 0.2;
-
-          background-image:
-            radial-gradient(
-              rgba(
-                255,
-                255,
-                255,
-                0.06
-              )
-              0.6px,
-              transparent 0.7px
-            ),
-            radial-gradient(
-              rgba(
-                0,
-                0,
-                0,
-                0.2
-              )
-              0.6px,
-              transparent 0.7px
-            );
-
-          background-size:
-            8px 8px;
-
-          background-position:
-            0 0,
-            5px 5px;
+          box-shadow:
+            inset 0 0 220px
+            rgba(0,0,0,.72);
         }
 
 
-        header {
-          position: relative;
-          z-index: 20;
+        /* =================================================
+           NAV
+           ================================================= */
 
-          height: 68px;
+        .wild-nav {
+          position: relative;
+          z-index: 100;
+
+          height: 86px;
 
           display: flex;
           align-items: center;
           justify-content:
             space-between;
 
+          padding:
+            0 5vw;
+
           border-bottom:
             1px solid
-            rgba(
-              235,
-              215,
-              180,
-              0.14
-            );
+            rgba(255,240,218,.11);
         }
 
 
-        header button {
+        .wild-nav button {
           border: 0;
           background: transparent;
-          color: inherit;
+
+          color:
+            rgba(247,236,216,.74);
+
           cursor: pointer;
         }
 
 
         .brand {
-          font-size: 17px;
-          font-weight: 800;
-          letter-spacing: 0.2em;
-        }
-
-
-        nav {
-          display: flex;
-          align-items: center;
-          gap: 26px;
-
-          font-size: 9px;
-          font-weight: 800;
-          letter-spacing: 0.16em;
-        }
-
-
-        nav button {
           color:
-            rgba(
-              238,
-              228,
-              208,
-              0.6
-            );
-        }
+            #fff5e5 !important;
 
+          font-size:
+            18px !important;
 
-        nav button:hover {
-          color: #ffffff;
-        }
-
-
-        nav span {
-          color: #c78a50;
-        }
-
-
-        .hero {
-          position: relative;
-          z-index: 3;
-
-          width:
-            min(
-              1160px,
-              100%
-            );
-
-          margin:
-            44px auto 28px;
-
-          text-align: center;
-        }
-
-
-        .hero > p {
-          margin:
-            0 0 12px;
-
-          color: #c88e55;
-
-          font-size: 9px;
-          font-weight: 800;
-          letter-spacing: 0.25em;
-        }
-
-
-        .hero h1 {
-          max-width: 900px;
-
-          margin: 0 auto;
-
-          font:
-            400
-            clamp(
-              42px,
-              5.5vw,
-              74px
-            ) /
-            0.98
-            Georgia,
-            serif;
+          font-weight:
+            800 !important;
 
           letter-spacing:
-            -0.035em;
+            .22em !important;
         }
 
 
-        .hero > strong {
-          display: block;
-
-          margin-top: 18px;
-
-          color: #d8c4a2;
-
-          font:
-            400 14px
-            Georgia,
-            serif;
-
-          letter-spacing: 0.08em;
-        }
-
-
-        .stamp {
-          position: absolute;
-
-          right: 3%;
-          top: 22px;
-
-          padding:
-            7px 10px;
-
-          transform:
-            rotate(5deg);
-
-          border:
-            2px solid
-            rgba(
-              181,
-              91,
-              49,
-              0.58
-            );
-
-          color:
-            rgba(
-              199,
-              105,
-              60,
-              0.75
-            );
-
-          font-size: 9px;
-          font-weight: 900;
-          letter-spacing: 0.16em;
-        }
-
-
-        .meta {
+        .wild-nav nav {
           display: flex;
-          flex-wrap: wrap;
-          justify-content: center;
-          gap: 9px;
+          gap: 42px;
+          align-items: center;
 
-          margin-top: 15px;
+          font-size:
+            10px;
 
+          font-weight:
+            800;
+
+          letter-spacing:
+            .2em;
+        }
+
+
+        .wild-nav nav span {
           color:
-            rgba(
-              238,
-              228,
-              208,
-              0.48
-            );
-
-          font-size: 9px;
-          font-weight: 700;
-          letter-spacing: 0.1em;
+            #e1a15f;
         }
 
 
-        .meta i {
-          color: #a96137;
-          font-style: normal;
-        }
+        /* =================================================
+           DESK
+           ================================================= */
 
-
-        .workspace {
+        .table {
           position: relative;
-          z-index: 3;
+
+          z-index: 5;
 
           width:
-            min(
-              1180px,
-              100%
-            );
+            min(1500px, 96vw);
 
-          min-height: 1540px;
+          height:
+            980px;
 
-          margin: auto;
+          margin:
+            0 auto;
+
+          transform-origin:
+            top center;
         }
 
 
+        /* =================================================
+           PAPER
+           ================================================= */
+
         .paper {
-          color: #3a3025;
+          color:
+            #34271c;
 
           background:
             linear-gradient(
-              rgba(
-                255,
-                255,
-                255,
-                0.12
-              ),
-              rgba(
-                0,
-                0,
-                0,
-                0.025
-              )
+              115deg,
+              rgba(255,255,255,.15),
+              transparent 40%
             ),
-            #d7c7a7;
+            #d8c3a0;
 
           box-shadow:
-            0 20px 50px
-            rgba(
-              0,
-              0,
-              0,
-              0.38
-            );
+            0 25px 55px
+            rgba(0,0,0,.55);
         }
 
 
-        .paper > label,
-        .note > small,
-        .readiness
-        > div:first-child
-        > small {
-          color: #8b5739;
+        .paper-label {
+          color:
+            #7d482d;
 
-          font-size: 9px;
-          font-weight: 900;
-          letter-spacing: 0.18em;
+          font-size:
+            10px;
+
+          font-weight:
+            900;
+
+          letter-spacing:
+            .2em;
         }
 
 
-        /* JOURNEY MAP */
+        .rule {
+          height: 1px;
 
-        .map {
+          margin:
+            14px 0 20px;
+
+          background:
+            rgba(70,45,28,.26);
+        }
+
+
+        /* =================================================
+           CURRENT WILD
+           ================================================= */
+
+        .current-wild {
           position: absolute;
 
-          left: 4%;
-          top: 20px;
+          z-index: 20;
 
-          width: 68%;
-          height: 465px;
+          left: 7%;
+          top: 62px;
 
-          padding: 28px;
+          width: 290px;
+
+          padding:
+            30px 32px 34px;
 
           transform:
-            rotate(-1.2deg);
-
-          overflow: hidden;
+            rotate(-4deg);
         }
 
 
-        .mapTexture {
+        .current-wild h1 {
+          margin:
+            0 0 24px;
+
+          font:
+            400 30px/1.03
+            Georgia,
+            serif;
+        }
+
+
+        .wild-facts p {
+          display: flex;
+          gap: 12px;
+          align-items: center;
+
+          margin:
+            12px 0;
+
+          font:
+            400 14px/1.4
+            Georgia,
+            serif;
+        }
+
+
+        .wild-facts p span {
+          width: 20px;
+
+          color:
+            #7d482d;
+        }
+
+
+        .field-note {
+          margin:
+            24px 0 0;
+
+          color:
+            #574332;
+
+          font:
+            italic 15px/1.55
+            Georgia,
+            serif;
+
+          transform:
+            rotate(-1deg);
+        }
+
+
+        /* =================================================
+           MAIN MAP
+           ================================================= */
+
+        .map-sheet {
+          position: absolute;
+
+          z-index: 10;
+
+          left: 25%;
+          top: 100px;
+
+          width: 690px;
+          height: 490px;
+
+          overflow: hidden;
+
+          transform:
+            rotate(-1.4deg);
+
+          color:
+            #2f3529;
+
+          background:
+            linear-gradient(
+              rgba(205,196,159,.78),
+              rgba(194,183,145,.8)
+            ),
+            url("/destination-brief-v2.jpg")
+            center / cover;
+
+          background-blend-mode:
+            screen;
+
+          box-shadow:
+            0 28px 65px
+            rgba(0,0,0,.58);
+        }
+
+
+        .map-sheet::after {
+          content: "";
+
           position: absolute;
           inset: 0;
 
-          opacity: 0.26;
+          pointer-events: none;
+
+          background:
+            rgba(214,202,164,.58);
+        }
+
+
+        .map-grid {
+          position: absolute;
+          z-index: 2;
+          inset: 0;
+
+          opacity: .25;
 
           background-image:
             linear-gradient(
-              rgba(
-                83,
-                76,
-                71,
-                0.22
-              )
+              rgba(72,81,58,.28)
               1px,
               transparent 1px
             ),
             linear-gradient(
               90deg,
-              rgba(
-                83,
-                76,
-                71,
-                0.22
-              )
+              rgba(72,81,58,.28)
               1px,
               transparent 1px
-            ),
-            radial-gradient(
-              ellipse at 30% 45%,
-              transparent
-              0 18%,
-              rgba(
-                85,
-                94,
-                71,
-                0.35
-              )
-              18.3%
-              18.7%,
-              transparent
-              19% 25%,
-              rgba(
-                85,
-                94,
-                71,
-                0.28
-              )
-              25.3%
-              25.7%,
-              transparent
-              26%
             );
 
           background-size:
-            34px 34px,
-            34px 34px,
-            430px 280px;
+            38px 38px;
         }
 
 
-        .thread {
+        .map-fold {
           position: absolute;
+          z-index: 3;
 
-          width: 52%;
-          height: 105px;
+          background:
+            rgba(85,68,44,.15);
 
-          left: 22%;
-          top: 205px;
-
-          border-top:
-            3px dashed
-            rgba(
-              147,
-              72,
-              39,
-              0.72
-            );
-
-          border-radius: 50%;
-
-          transform:
-            rotate(-7deg);
+          box-shadow:
+            0 0 18px
+            rgba(70,55,35,.13);
         }
 
 
-        .pin {
+        .fold-one {
+          top: 0;
+          bottom: 0;
+          left: 34%;
+
+          width: 1px;
+        }
+
+
+        .fold-two {
+          top: 0;
+          bottom: 0;
+          left: 68%;
+
+          width: 1px;
+        }
+
+
+        .topo {
           position: absolute;
-          z-index: 2;
+          z-index: 3;
 
-          padding-top: 19px;
+          width: 190px;
+          height: 100px;
 
-          color: #70432d;
+          border:
+            2px solid
+            rgba(73,83,57,.19);
 
-          font-size: 8px;
-          font-weight: 900;
-          letter-spacing: 0.12em;
+          border-radius:
+            50%;
         }
 
 
-        .pin::before {
+        .topo::before,
+        .topo::after {
           content: "";
 
           position: absolute;
 
-          top: 0;
-          left: 50%;
+          border:
+            2px solid
+            rgba(73,83,57,.18);
 
-          width: 11px;
-          height: 11px;
+          border-radius:
+            50%;
+        }
+
+
+        .topo::before {
+          inset: 12px 20px;
+        }
+
+
+        .topo::after {
+          inset: 27px 45px;
+        }
+
+
+        .topo-one {
+          left: 30px;
+          top: 55px;
+        }
+
+
+        .topo-two {
+          right: 60px;
+          top: 35px;
 
           transform:
-            translateX(-50%)
-            rotate(45deg);
-
-          background: #a64f2b;
+            rotate(18deg);
         }
 
 
-        .start {
-          left: 19%;
-          top: 238px;
-        }
-
-
-        .wild {
-          right: 20%;
-          top: 184px;
-        }
-
-
-        .mapCopy {
-          position: relative;
-          z-index: 3;
-
-          width: 55%;
-
-          margin-top: 34px;
-
-          padding:
-            22px 24px;
-
-          background:
-            rgba(
-              220,
-              205,
-              172,
-              0.82
-            );
-
-          border-left:
-            3px solid
-            #9d5431;
-        }
-
-
-        .mapCopy small,
-        .gearHead small {
-          color: #875237;
-
-          font-size: 8px;
-          font-weight: 900;
-          letter-spacing: 0.18em;
-        }
-
-
-        .mapCopy h2,
-        .gear h2,
-        .check h2,
-        .readiness h2 {
-          margin:
-            8px 0 0;
-
-          font:
-            400 29px /
-            1.05
-            Georgia,
-            serif;
-        }
-
-
-        .mapCopy p {
-          color:
-            rgba(
-              58,
-              48,
-              37,
-              0.66
-            );
-
-          font-size: 11px;
-          line-height: 1.55;
-        }
-
-
-        .mapFoot {
-          position: absolute;
-          z-index: 3;
-
-          left: 28px;
-          right: 28px;
-          bottom: 25px;
-
-          display: grid;
-
-          grid-template-columns:
-            1fr 1fr auto;
-
-          gap: 20px;
-
-          align-items: end;
-
-          border-top:
-            1px solid
-            rgba(
-              58,
-              48,
-              37,
-              0.24
-            );
-
-          padding-top: 14px;
-        }
-
-
-        .mapFoot small {
-          display: block;
-
-          margin-bottom: 5px;
-
-          color:
-            rgba(
-              58,
-              48,
-              37,
-              0.5
-            );
-
-          font-size: 7px;
-          font-weight: 900;
-          letter-spacing: 0.14em;
-        }
-
-
-        .mapFoot b {
-          font:
-            400 13px
-            Georgia,
-            serif;
-        }
-
-
-        .mapFoot button,
-        .gearHead button {
-          border: 0;
-          background: transparent;
-
-          color: #8c4828;
-
-          font-size: 8px;
-          font-weight: 900;
-          letter-spacing: 0.1em;
-
-          cursor: pointer;
-        }
-
-
-        /* POLAROID */
-
-        .polaroid {
-          position: absolute;
-
-          right: 3%;
-          top: 65px;
-
-          z-index: 5;
-
-          width: 245px;
-
-          padding:
-            13px
-            13px
-            25px;
+        .topo-three {
+          right: 160px;
+          bottom: 35px;
 
           transform:
-            rotate(5.5deg);
-
-          color: #3c3024;
-          background: #e1d6bf;
-
-          box-shadow:
-            0 22px 45px
-            rgba(
-              0,
-              0,
-              0,
-              0.44
-            );
+            rotate(-12deg);
         }
 
 
-        .photo {
-          position: relative;
-
-          height: 205px;
-
-          overflow: hidden;
-
-          background:
-            linear-gradient(
-              #b88c68
-              0 45%,
-              #6f765b
-              45%
-            );
-        }
-
-
-        .photo span,
-        .photo i {
+        .map-duration {
           position: absolute;
 
-          bottom: -60px;
+          z-index: 8;
 
-          width: 260px;
-          height: 190px;
+          left: 46%;
+          top: 100px;
 
-          transform:
-            rotate(45deg);
-
-          background: #4e5645;
-        }
-
-
-        .photo span {
-          left: -70px;
-        }
-
-
-        .photo i {
-          right: -110px;
-
-          background: #3f4739;
-        }
-
-
-        .photo b {
-          position: absolute;
-
-          width: 52px;
-          height: 52px;
-
-          right: 30px;
-          top: 30px;
-
-          border-radius: 50%;
-
-          background:
-            rgba(
-              238,
-              194,
-              121,
-              0.72
-            );
-
-          box-shadow:
-            0 0 40px
-            rgba(
-              238,
-              194,
-              121,
-              0.45
-            );
-        }
-
-
-        .polaroid small {
-          display: block;
-
-          margin-top: 18px;
-
-          color: #995534;
-
-          font-size: 8px;
-          font-weight: 900;
-          letter-spacing: 0.18em;
-        }
-
-
-        .polaroid h3 {
-          margin:
-            5px 0;
-
-          font:
-            400 24px
-            Georgia,
-            serif;
-        }
-
-
-        .polaroid p {
-          margin: 0;
-
-          color:
-            rgba(
-              60,
-              48,
-              36,
-              0.58
-            );
-
-          font-size: 10px;
-        }
-
-
-        /* NOTES */
-
-        .note {
-          border: 0;
-
-          text-align: left;
-
-          cursor: pointer;
-
-          transition:
-            transform
-            180ms ease;
-        }
-
-
-        .note:hover {
-          transform:
-            translateY(-3px)
-            rotate(0deg);
-        }
-
-
-        .note h3 {
-          margin:
-            12px 0 0;
-
-          font:
-            400 22px
-            Georgia,
-            serif;
-        }
-
-
-        .note p {
-          font-size: 10px;
-          line-height: 1.55;
-        }
-
-
-        .note em {
-          display: block;
-
-          margin-top: 18px;
-
-          color: #8d4929;
-
-          font-size: 8px;
-          font-style: normal;
-          font-weight: 900;
-          letter-spacing: 0.1em;
-        }
-
-
-        .weather {
-          position: absolute;
-
-          right: 7%;
-          top: 420px;
-
-          z-index: 6;
-
-          width: 260px;
-          min-height: 145px;
-
-          padding: 23px;
-
-          transform:
-            rotate(2.3deg);
-
-          color: #443522;
-
-          background: #c9b36f;
-
-          box-shadow:
-            0 16px 35px
-            rgba(
-              0,
-              0,
-              0,
-              0.38
-            );
-        }
-
-
-        .route {
-          position: absolute;
-
-          left: 8%;
-          top: 520px;
-
-          width: 300px;
-          min-height: 145px;
-
-          padding: 24px;
-
-          transform:
-            rotate(1.5deg);
-        }
-
-
-        /* GEAR */
-
-        .gear {
-          position: absolute;
-
-          left: 31%;
-          top: 590px;
-
-          z-index: 4;
-
-          width: 59%;
-          min-height: 355px;
-
-          padding:
-            30px 34px;
-
-          transform:
-            rotate(-0.7deg);
-        }
-
-
-        .gearHead {
           display: flex;
-
-          align-items: end;
-          justify-content:
-            space-between;
-
-          gap: 25px;
-
-          margin-top: 22px;
-
-          padding-bottom: 20px;
-
-          border-bottom:
-            1px solid
-            rgba(
-              58,
-              48,
-              37,
-              0.25
-            );
-        }
-
-
-        .gearGrid {
-          display: grid;
-
-          grid-template-columns:
-            repeat(
-              5,
-              1fr
-            );
-
-          margin-top: 26px;
-
-          border-top:
-            1px solid
-            rgba(
-              58,
-              48,
-              37,
-              0.18
-            );
-
-          border-bottom:
-            1px solid
-            rgba(
-              58,
-              48,
-              37,
-              0.18
-            );
-        }
-
-
-        .gearGrid div {
-          padding:
-            18px 10px;
-
-          border-right:
-            1px solid
-            rgba(
-              58,
-              48,
-              37,
-              0.15
-            );
-
-          text-align: center;
-        }
-
-
-        .gearGrid div:last-child {
-          border-right: 0;
-        }
-
-
-        .gearGrid span {
-          display: block;
-
-          min-height: 22px;
+          flex-direction: column;
 
           color:
-            rgba(
-              58,
-              48,
-              37,
-              0.54
-            );
+            #27231e;
 
-          font-size: 7px;
-          font-weight: 900;
-          letter-spacing: 0.1em;
-        }
-
-
-        .gearGrid b {
-          display: block;
-
-          margin-top: 7px;
+          transform:
+            rotate(-6deg);
 
           font:
-            400 29px
-            Georgia,
-            serif;
+            700 25px/1.05
+            "Comic Sans MS",
+            cursive;
         }
 
 
-        .caption {
-          margin-top: 22px;
-
-          color:
-            rgba(
-              58,
-              48,
-              37,
-              0.58
-            );
-
-          font-size: 10px;
-          line-height: 1.65;
-        }
-
-
-        /* BUDGET */
-
-        .budget {
+        .route-path {
           position: absolute;
-
-          left: 5%;
-          top: 820px;
 
           z-index: 7;
 
-          width: 250px;
+          left: 150px;
+          right: 130px;
+          top: 280px;
 
-          padding: 26px;
-
-          transform:
-            rotate(-3deg);
-
-          color: #45351f;
-
-          background: #d1b967;
-
-          box-shadow:
-            0 18px 40px
-            rgba(
-              0,
-              0,
-              0,
-              0.38
-            );
+          height: 100px;
         }
 
 
-        .budget > div {
+        .route-segment {
+          position: absolute;
+
+          height: 4px;
+
+          border-radius:
+            999px;
+
+          background:
+            #a7442e;
+
+          box-shadow:
+            0 1px 0
+            rgba(255,255,255,.2);
+        }
+
+
+        .route-segment.a {
+          left: 0;
+          top: 50px;
+
+          width: 150px;
+
+          transform:
+            rotate(-8deg);
+        }
+
+
+        .route-segment.b {
+          left: 143px;
+          top: 39px;
+
+          width: 150px;
+
+          transform:
+            rotate(4deg);
+        }
+
+
+        .route-segment.c {
+          left: 286px;
+          top: 29px;
+
+          width: 125px;
+
+          transform:
+            rotate(-13deg);
+        }
+
+
+        .map-point {
+          position: absolute;
+
+          z-index: 9;
+
+          color:
+            #34281e;
+        }
+
+
+        .map-point i {
+          display: block;
+
+          width: 16px;
+          height: 16px;
+
+          margin-bottom: 7px;
+
+          border-radius:
+            50%;
+
+          background:
+            #a7442e;
+
+          box-shadow:
+            0 0 0 4px
+            rgba(167,68,46,.14);
+        }
+
+
+        .map-point small {
+          display: block;
+
+          color:
+            #9b402a;
+
+          font-size:
+            8px;
+
+          font-weight:
+            900;
+
+          letter-spacing:
+            .18em;
+        }
+
+
+        .map-point b {
+          display: block;
+
+          max-width:
+            170px;
+
+          margin-top: 4px;
+
+          font:
+            600 17px/1.1
+            "Comic Sans MS",
+            cursive;
+        }
+
+
+        .origin {
+          left: 100px;
+          bottom: 62px;
+        }
+
+
+        .destination {
+          right: 40px;
+          top: 220px;
+        }
+
+
+        .distance-note {
+          position: absolute;
+
+          z-index: 9;
+
+          left: 45%;
+          bottom: 60px;
+
+          color:
+            #43372b;
+
+          transform:
+            rotate(-4deg);
+
+          font:
+            600 15px
+            "Comic Sans MS",
+            cursive;
+        }
+
+
+        .map-edit {
+          position: absolute;
+
+          z-index: 12;
+
+          right: 25px;
+          bottom: 18px;
+
+          border: 0;
+
+          background:
+            transparent;
+
+          color:
+            #8d452c;
+
+          cursor: pointer;
+
+          font-size:
+            8px;
+
+          font-weight:
+            900;
+
+          letter-spacing:
+            .12em;
+        }
+
+
+        /* =================================================
+           POLAROIDS
+           ================================================= */
+
+        .polaroid {
+          border: 0;
+
+          color:
+            #382c21;
+
+          background:
+            #e4d7bd;
+
+          box-shadow:
+            0 22px 50px
+            rgba(0,0,0,.58);
+        }
+
+
+        .photo-window {
+          width: 100%;
+
+          background-size:
+            cover;
+
+          background-position:
+            center;
+        }
+
+
+        .destination-photo {
+          position: absolute;
+
+          z-index: 30;
+
+          right: 8%;
+          top: 48px;
+
+          width: 260px;
+
+          padding:
+            12px 12px 23px;
+
+          transform:
+            rotate(6deg);
+
+          cursor: pointer;
+        }
+
+
+        .destination-image {
+          height: 190px;
+
+          background-image:
+            url("/destination-brief-v2.jpg");
+        }
+
+
+        .destination-photo span {
+          display: block;
+
+          margin-top: 14px;
+
+          text-align: center;
+
+          font:
+            italic 15px/1.2
+            Georgia,
+            serif;
+        }
+
+
+        .vehicle-polaroid {
+          position: absolute;
+
+          z-index: 32;
+
+          left: 3%;
+          top: 450px;
+
+          width: 220px;
+
+          padding:
+            11px 11px 22px;
+
+          transform:
+            rotate(8deg);
+        }
+
+
+        .vehicle-image {
+          height: 145px;
+
+          background-image:
+            url("/drive-desk.jpg");
+        }
+
+
+        .vehicle-polaroid span {
+          display: block;
+
+          margin-top: 12px;
+
+          font:
+            italic 16px
+            Georgia,
+            serif;
+        }
+
+
+        .vehicle-polaroid small {
+          display: block;
+
+          margin-top: 5px;
+
+          color:
+            #705844;
+
+          font-size:
+            9px;
+
+          letter-spacing:
+            .12em;
+        }
+
+
+        /* =================================================
+           CONDITIONS
+           ================================================= */
+
+        .sticky {
+          border: 0;
+
+          color:
+            #3d301f;
+
+          background:
+            #cfb664;
+
+          box-shadow:
+            0 18px 42px
+            rgba(0,0,0,.5);
+
+          cursor: pointer;
+        }
+
+
+        .conditions {
+          position: absolute;
+
+          z-index: 35;
+
+          right: 3%;
+          top: 360px;
+
+          width: 270px;
+
+          padding:
+            25px 28px;
+
+          transform:
+            rotate(2deg);
+
+          text-align: left;
+        }
+
+
+        .sticky-title {
           display: flex;
 
           justify-content:
             space-between;
 
-          gap: 15px;
+          align-items: center;
 
-          margin-top: 17px;
+          margin-bottom: 17px;
 
-          padding-top: 10px;
+          color:
+            #7f4a31;
+
+          font-size:
+            9px;
+
+          font-weight:
+            900;
+
+          letter-spacing:
+            .18em;
+        }
+
+
+        .sticky-title b {
+          color:
+            #40301f;
+
+          font-size:
+            24px;
+        }
+
+
+        .condition-line {
+          display: flex;
+
+          align-items: center;
+          justify-content:
+            space-between;
+
+          padding:
+            12px 0;
 
           border-top:
             1px solid
-            rgba(
-              69,
-              53,
-              31,
-              0.2
+            rgba(60,45,25,.18);
+        }
+
+
+        .condition-line strong {
+          font:
+            400 20px
+            Georgia,
+            serif;
+        }
+
+
+        .condition-line span {
+          font-size:
+            9px;
+        }
+
+
+        .conditions p {
+          margin:
+            12px 0 0;
+
+          color:
+            #59442c;
+
+          font:
+            italic 11px/1.5
+            Georgia,
+            serif;
+        }
+
+
+        /* =================================================
+           BUDGET NOTEBOOK
+           ================================================= */
+
+        .notebook {
+          border: 0;
+
+          color:
+            #392c20;
+
+          cursor: pointer;
+
+          background:
+            repeating-linear-gradient(
+              0deg,
+              transparent 0 30px,
+              rgba(81,64,43,.13)
+              31px
+            ),
+            #cbb88e;
+
+          box-shadow:
+            0 24px 55px
+            rgba(0,0,0,.58);
+        }
+
+
+        .budget-book {
+          position: absolute;
+
+          z-index: 25;
+
+          left: 4%;
+          bottom: 5px;
+
+          width: 340px;
+          height: 285px;
+
+          padding:
+            30px 34px;
+
+          transform:
+            rotate(-2deg);
+
+          text-align: left;
+        }
+
+
+        .book-title {
+          color:
+            #55412d;
+
+          font:
+            700 20px
+            "Comic Sans MS",
+            cursive;
+        }
+
+
+        .budget-number {
+          width: max-content;
+
+          margin:
+            22px 0 15px;
+
+          padding:
+            10px 18px;
+
+          background:
+            #d9bd62;
+
+          transform:
+            rotate(-2deg);
+
+          font:
+            500 35px
+            "Comic Sans MS",
+            cursive;
+
+          box-shadow:
+            0 7px 15px
+            rgba(0,0,0,.12);
+        }
+
+
+        .budget-row {
+          display: flex;
+
+          justify-content:
+            space-between;
+
+          padding:
+            10px 0;
+
+          border-bottom:
+            1px solid
+            rgba(63,48,32,.2);
+        }
+
+
+        .budget-row span {
+          font-size:
+            8px;
+
+          font-weight:
+            900;
+
+          letter-spacing:
+            .12em;
+        }
+
+
+        .budget-row b {
+          font:
+            400 12px
+            Georgia,
+            serif;
+        }
+
+
+        .budget-book em {
+          display: block;
+
+          margin-top:
+            15px;
+
+          color:
+            #8e482c;
+
+          font-size:
+            8px;
+
+          font-style:
+            normal;
+
+          font-weight:
+            900;
+
+          letter-spacing:
+            .12em;
+        }
+
+
+        /* =================================================
+           PLAN BOOK
+           ================================================= */
+
+        .plan-book {
+          position: absolute;
+
+          z-index: 28;
+
+          left: 31%;
+          bottom: -35px;
+
+          width: 610px;
+          height: 300px;
+
+          display: grid;
+
+          grid-template-columns:
+            1fr 1fr;
+
+          color:
+            #3c3025;
+
+          background:
+            #d5c5a7;
+
+          box-shadow:
+            0 30px 70px
+            rgba(0,0,0,.65);
+
+          transform:
+            rotate(1deg);
+
+          border-radius:
+            7px 10px 10px 7px;
+        }
+
+
+        .binding {
+          position: absolute;
+
+          z-index: 5;
+
+          top: 0;
+          bottom: 0;
+          left: 50%;
+
+          width: 2px;
+
+          background:
+            rgba(65,48,32,.2);
+
+          box-shadow:
+            0 0 12px
+            rgba(0,0,0,.25);
+        }
+
+
+        .book-page {
+          position: relative;
+
+          padding:
+            35px 38px;
+
+          background:
+            repeating-linear-gradient(
+              0deg,
+              transparent 0 27px,
+              rgba(71,62,48,.11)
+              28px
             );
         }
 
 
-        .budget span {
-          font-size: 7px;
-          font-weight: 900;
-          letter-spacing: 0.1em;
+        .book-section {
+          color:
+            #5c4633;
+
+          font:
+            700 17px
+            "Comic Sans MS",
+            cursive;
         }
 
 
-        .budget b {
+        .left-page ul {
+          margin:
+            24px 0 0;
+
+          padding: 0;
+
+          list-style: none;
+        }
+
+
+        .left-page li {
+          display: flex;
+
+          gap: 11px;
+
+          align-items: center;
+
+          margin:
+            13px 0;
+
+          font:
+            400 13px
+            "Comic Sans MS",
+            cursive;
+        }
+
+
+        .left-page li i {
+          width: 16px;
+
+          font-style:
+            normal;
+        }
+
+
+        .checked {
+          color:
+            #315340;
+        }
+
+
+        .hand-note {
+          display: block;
+
+          margin-top:
+            5px;
+
+          transform:
+            rotate(-2deg);
+
+          font:
+            italic 15px/1.4
+            Georgia,
+            serif;
+        }
+
+
+        .progress-line {
+          width: 200px;
+          height: 12px;
+
+          margin-top:
+            24px;
+
+          overflow: hidden;
+
+          border:
+            1px solid
+            #625240;
+
+          border-radius:
+            999px;
+        }
+
+
+        .progress-line span {
+          display: block;
+
+          height: 100%;
+
+          background:
+            repeating-linear-gradient(
+              -45deg,
+              #617d7a 0 5px,
+              #839795 5px 8px
+            );
+        }
+
+
+        .issue-note {
+          margin-top:
+            26px;
+
+          padding:
+            16px;
+
+          background:
+            rgba(181,117,74,.13);
+        }
+
+
+        .issue-note strong {
+          font:
+            400 15px
+            Georgia,
+            serif;
+        }
+
+
+        .issue-note p {
+          margin:
+            8px 0 0;
+
+          font-size:
+            10px;
+
+          line-height:
+            1.5;
+        }
+
+
+        .mountain-sketch {
+          position: absolute;
+
+          left: 50px;
+          right: 50px;
+          bottom: 45px;
+
+          height: 80px;
+
+          opacity: .32;
+        }
+
+
+        .mountain {
+          position: absolute;
+
+          bottom: 0;
+
+          width: 80px;
+          height: 80px;
+
+          border-left:
+            2px solid #514536;
+
+          border-top:
+            2px solid #514536;
+
+          transform:
+            rotate(45deg)
+            skew(-8deg,-8deg);
+        }
+
+
+        .m1 {
+          left: 20px;
+        }
+
+
+        .m2 {
+          left: 85px;
+
+          width: 100px;
+          height: 100px;
+        }
+
+
+        .m3 {
+          right: 5px;
+
+          width: 65px;
+          height: 65px;
+        }
+
+
+        .pen {
+          position: absolute;
+
+          z-index: 20;
+
+          right: 18px;
+          bottom: -28px;
+
+          width: 9px;
+          height: 210px;
+
+          border-radius:
+            6px;
+
+          background:
+            linear-gradient(
+              90deg,
+              #171512,
+              #4b4339,
+              #171512
+            );
+
+          transform:
+            rotate(19deg);
+
+          box-shadow:
+            4px 6px 10px
+            rgba(0,0,0,.35);
+        }
+
+
+        /* =================================================
+           GEAR SHEET
+           ================================================= */
+
+        .gear-sheet {
+          position: absolute;
+
+          z-index: 33;
+
+          right: 2%;
+          bottom: -10px;
+
+          width: 280px;
+
+          padding:
+            28px 28px 30px;
+
+          color:
+            #3a3025;
+
+          background:
+            linear-gradient(
+              rgba(255,255,255,.12),
+              transparent
+            ),
+            #d9ccb1;
+
+          box-shadow:
+            0 24px 55px
+            rgba(0,0,0,.58);
+
+          transform:
+            rotate(3deg);
+        }
+
+
+        .gear-sheet::before {
+          content: "";
+
+          position: absolute;
+
+          top: -4px;
+          left: 0;
+          right: 0;
+
+          height: 10px;
+
+          background:
+            repeating-linear-gradient(
+              135deg,
+              transparent 0 7px,
+              #d9ccb1 7px 14px
+            );
+        }
+
+
+        .gear-title {
+          font:
+            700 15px
+            Georgia,
+            serif;
+
+          letter-spacing:
+            .12em;
+        }
+
+
+        .gear-rule {
+          height: 1px;
+
+          margin:
+            19px 0 10px;
+
+          background:
+            rgba(57,47,36,.25);
+        }
+
+
+        .gear-row,
+        .gear-gap {
+          display: flex;
+
+          justify-content:
+            space-between;
+
+          align-items: center;
+
+          padding:
+            10px 0;
+
+          border-bottom:
+            1px solid
+            rgba(57,47,36,.14);
+
           font:
             400 13px
             Georgia,
@@ -2265,484 +2795,489 @@ export default function WildPlanPage() {
         }
 
 
-        /* PLAN CHECK */
+        .gear-row b,
+        .gear-gap b {
+          font-size:
+            19px;
 
-        .check {
-          position: absolute;
+          font-weight:
+            400;
+        }
 
-          right: 5%;
-          top: 1000px;
 
-          width: 58%;
-          min-height: 300px;
+        .gear-gap {
+          margin-top:
+            5px;
+        }
 
+
+        .gear-gap b {
           padding:
-            30px 34px;
+            2px 8px;
 
-          transform:
-            rotate(1deg);
-        }
-
-
-        .check h2 {
-          margin-top: 18px;
-        }
-
-
-        .issues {
-          margin-top: 24px;
-        }
-
-
-        .issue {
-          display: grid;
-
-          grid-template-columns:
-            78px 1fr;
-
-          gap:
-            5px 14px;
-
-          padding:
-            13px 0;
-
-          border-top:
-            1px solid
-            rgba(
-              58,
-              48,
-              37,
-              0.18
-            );
-        }
-
-
-        .issue small {
-          grid-row:
-            1 / span 2;
-
-          color: #9d4d2a;
-
-          font-size: 7px;
-          font-weight: 900;
-          letter-spacing: 0.12em;
-        }
-
-
-        .issue b {
-          font:
-            400 14px
-            Georgia,
-            serif;
-        }
-
-
-        .issue p {
-          margin: 0;
+          background:
+            rgba(167,68,46,.18);
 
           color:
-            rgba(
-              58,
-              48,
-              37,
-              0.62
-            );
-
-          font-size: 10px;
-          line-height: 1.55;
+            #8f3e2a;
         }
 
 
-        /* READINESS */
+        .gear-sheet button {
+          width: 100%;
 
-        .readiness {
-          position: absolute;
-
-          left: 4%;
-          right: 4%;
-          top: 1325px;
-
-          min-height: 230px;
-
-          display: grid;
-
-          grid-template-columns:
-            1.5fr
-            2.3fr
-            0.7fr;
-
-          gap: 34px;
-
-          align-items: center;
+          margin-top:
+            18px;
 
           padding:
-            34px 38px;
+            11px;
 
           border:
             1px solid
-            rgba(
-              220,
-              196,
-              157,
-              0.2
-            );
-
-          color: #e7d9bf;
+            #584535;
 
           background:
-            rgba(
-              20,
-              17,
-              13,
-              0.74
+            transparent;
+
+          color:
+            #3a3025;
+
+          cursor: pointer;
+
+          font-size:
+            9px;
+
+          font-weight:
+            900;
+
+          letter-spacing:
+            .12em;
+        }
+
+
+        /* =================================================
+           OBJECTS
+           ================================================= */
+
+        .keys {
+          position: absolute;
+
+          z-index: 40;
+
+          left: 1%;
+          top: 380px;
+
+          width: 90px;
+          height: 150px;
+
+          transform:
+            rotate(10deg);
+        }
+
+
+        .key-ring {
+          position: absolute;
+
+          left: 25px;
+          top: 0;
+
+          width: 42px;
+          height: 42px;
+
+          border:
+            4px solid #8e8577;
+
+          border-radius:
+            50%;
+        }
+
+
+        .key-fob {
+          position: absolute;
+
+          left: 22px;
+          top: 42px;
+
+          width: 46px;
+          height: 70px;
+
+          display: grid;
+          place-items: center;
+
+          border-radius:
+            14px 14px 19px 19px;
+
+          color:
+            #aaa;
+
+          background:
+            linear-gradient(
+              120deg,
+              #292723,
+              #0f0f0e
             );
 
           box-shadow:
-            0 22px 55px
-            rgba(
-              0,
-              0,
-              0,
-              0.3
-            );
+            8px 10px 18px
+            rgba(0,0,0,.5);
         }
 
 
-        .readiness h2 {
-          color: #eee4d0;
-        }
-
-
-        .readiness p {
-          color:
-            rgba(
-              231,
-              217,
-              191,
-              0.48
-            );
-
-          font-size: 10px;
-          line-height: 1.6;
-        }
-
-
-        .areas {
+        .key-fob span {
           display: grid;
+          place-items: center;
 
-          grid-template-columns:
-            repeat(
-              3,
-              1fr
-            );
+          width: 22px;
+          height: 22px;
 
-          gap: 1px;
+          border:
+            1px solid #777;
+
+          border-radius:
+            50%;
+
+          font-size:
+            10px;
+        }
+
+
+        .metal-key {
+          position: absolute;
+
+          left: 55px;
+          top: 84px;
+
+          width: 13px;
+          height: 68px;
 
           background:
-            rgba(
-              231,
-              217,
-              191,
-              0.12
-            );
-        }
-
-
-        .areas div {
-          min-height: 72px;
-
-          padding: 13px;
-
-          background: #17130f;
-        }
-
-
-        .areas span,
-        .areas small {
-          display: block;
-
-          color:
-            rgba(
-              231,
-              217,
-              191,
-              0.43
+            linear-gradient(
+              90deg,
+              #817c71,
+              #c1bbaa,
+              #6d685f
             );
 
-          font-size: 7px;
-          font-weight: 800;
-          letter-spacing: 0.1em;
+          transform:
+            rotate(-18deg);
         }
 
 
-        .areas b {
-          display: block;
+        .compass {
+          position: absolute;
 
-          margin:
-            7px 0 4px;
+          z-index: 42;
 
-          color: #c38a54;
+          right: 5%;
+          top: 250px;
 
-          font:
-            400 18px
-            Georgia,
-            serif;
-        }
+          width: 80px;
+          height: 80px;
 
+          display: grid;
+          place-items: center;
 
-        .score {
-          text-align: center;
-        }
+          border:
+            5px solid #25211b;
 
+          border-radius:
+            50%;
 
-        .score > b {
-          display: block;
-
-          color: #c99158;
-
-          font:
-            400 54px
-            Georgia,
-            serif;
-        }
-
-
-        .score span {
-          color:
-            rgba(
-              231,
-              217,
-              191,
-              0.4
+          background:
+            radial-gradient(
+              circle,
+              #c9b889,
+              #6c5d45 70%,
+              #1d1a16 72%
             );
 
-          font-size: 7px;
-          font-weight: 900;
-          letter-spacing: 0.14em;
+          box-shadow:
+            8px 14px 25px
+            rgba(0,0,0,.5);
         }
 
 
-        /* FOOTER */
-
-        footer {
+        .compass-inner {
           position: relative;
-          z-index: 3;
 
-          width:
-            min(
-              1100px,
-              100%
-            );
+          width: 56px;
+          height: 56px;
 
-          margin:
-            60px auto 0;
+          border:
+            1px solid
+            #332c23;
 
-          display: flex;
-
-          justify-content: center;
-          align-items: center;
-
-          gap: 18px;
-
-          color:
-            rgba(
-              238,
-              228,
-              208,
-              0.3
-            );
-
-          font-size: 8px;
-          font-weight: 900;
-          letter-spacing: 0.2em;
+          border-radius:
+            50%;
         }
 
 
-        footer i {
-          width: 42px;
-          height: 1px;
+        .compass-inner span {
+          position: absolute;
+
+          top: 4px;
+          left: 50%;
+
+          transform:
+            translateX(-50%);
+
+          font-size:
+            9px;
+
+          font-weight:
+            900;
+        }
+
+
+        .compass-inner i {
+          position: absolute;
+
+          left: 25px;
+          top: 13px;
+
+          width: 6px;
+          height: 33px;
 
           background:
-            rgba(
-              238,
-              228,
-              208,
-              0.16
+            linear-gradient(
+              #9d3f2b 0 50%,
+              #2e332b 50%
             );
+
+          clip-path:
+            polygon(
+              50% 0,
+              100% 50%,
+              50% 100%,
+              0 50%
+            );
+
+          transform:
+            rotate(24deg);
         }
 
 
-        /* TABLET */
+        .pencil {
+          position: absolute;
+
+          z-index: 22;
+
+          left: 25%;
+          bottom: 15px;
+
+          width: 220px;
+          height: 9px;
+
+          background:
+            linear-gradient(
+              #c28d42,
+              #e1b665,
+              #a87534
+            );
+
+          transform:
+            rotate(-16deg);
+
+          box-shadow:
+            3px 5px 8px
+            rgba(0,0,0,.35);
+        }
+
+
+        .pencil::after {
+          content: "";
+
+          position: absolute;
+
+          right: -18px;
+          top: 0;
+
+          border-top:
+            4.5px solid transparent;
+
+          border-bottom:
+            4.5px solid transparent;
+
+          border-left:
+            18px solid #d6b98d;
+        }
+
+
+        /* =================================================
+           LANTERN
+           ================================================= */
+
+        .lantern {
+          position: absolute;
+
+          z-index: 50;
+
+          left: -55px;
+          top: -55px;
+
+          width: 150px;
+          height: 230px;
+
+          pointer-events: none;
+        }
+
+
+        .lantern-glass {
+          position: absolute;
+
+          left: 36px;
+          top: 55px;
+
+          width: 76px;
+          height: 105px;
+
+          border:
+            6px solid
+            #33281c;
+
+          border-radius:
+            30px 30px 20px 20px;
+
+          background:
+            radial-gradient(
+              circle at 50% 65%,
+              #ffd083,
+              #d67728 30%,
+              rgba(89,49,19,.25)
+              65%
+            );
+
+          box-shadow:
+            0 0 85px
+            rgba(255,151,58,.7);
+        }
+
+
+        .lantern-top {
+          position: absolute;
+
+          left: 45px;
+          top: 34px;
+
+          width: 60px;
+          height: 28px;
+
+          border-radius:
+            50% 50% 0 0;
+
+          background:
+            #2a2219;
+        }
+
+
+        .lantern-base {
+          position: absolute;
+
+          left: 29px;
+          top: 160px;
+
+          width: 90px;
+          height: 34px;
+
+          border-radius:
+            5px 5px 18px 18px;
+
+          background:
+            #292119;
+        }
+
+
+        /* =================================================
+           RESPONSIVE
+           ================================================= */
 
         @media (
-          max-width: 920px
+          max-width: 1180px
         ) {
 
-          .desk {
-            padding-left: 24px;
-            padding-right: 24px;
-          }
+          .table {
+            width: 1180px;
 
+            transform:
+              scale(.82);
 
-          .workspace {
-            min-height: auto;
+            margin-top:
+              -20px;
 
-            display: flex;
-            flex-direction: column;
+            margin-left:
+              50%;
 
-            gap: 18px;
-          }
+            left:
+              -590px;
 
-
-          .map,
-          .polaroid,
-          .weather,
-          .route,
-          .gear,
-          .budget,
-          .check,
-          .readiness {
-            position: relative;
-
-            inset: auto;
-
-            width: auto;
-            height: auto;
-
-            min-height: 0;
-
-            transform: none;
-          }
-
-
-          .map {
-            min-height: 430px;
-          }
-
-
-          .polaroid {
-            width:
-              min(
-                300px,
-                calc(
-                  100% - 26px
-                )
-              );
-
-            align-self: flex-end;
-          }
-
-
-          .gearGrid {
-            grid-template-columns:
-              repeat(
-                3,
-                1fr
-              );
-          }
-
-
-          .readiness {
-            grid-template-columns:
-              1fr;
-          }
-
-
-          .score {
-            text-align: left;
+            margin-bottom:
+              -160px;
           }
 
         }
 
 
-        /* MOBILE */
-
         @media (
-          max-width: 620px
+          max-width: 900px
         ) {
 
-          .desk {
-            padding-left: 15px;
-            padding-right: 15px;
-          }
-
-
-          header {
-            height: 62px;
-          }
-
-
-          nav {
-            gap: 12px;
-          }
-
-
-          nav button:first-child {
-            display: none;
-          }
-
-
-          .stamp {
-            display: none;
-          }
-
-
-          .hero h1 {
-            font-size: 40px;
-          }
-
-
-          .map,
-          .gear,
-          .check,
-          .readiness {
+          .wild-nav {
             padding:
-              24px 20px;
+              0 24px;
           }
 
 
-          .mapCopy {
-            width: auto;
+          .wild-nav nav {
+            gap: 20px;
           }
 
 
-          .mapFoot {
-            grid-template-columns:
-              1fr;
+          .table {
+            transform:
+              scale(.68);
 
-            gap: 10px;
+            margin-bottom:
+              -300px;
+          }
+
+        }
+
+
+        @media (
+          max-width: 680px
+        ) {
+
+          .wild-nav {
+            height: 68px;
           }
 
 
-          .map {
-            min-height: 540px;
+          .brand {
+            font-size:
+              14px !important;
           }
 
 
-          .gearGrid {
-            grid-template-columns:
-              repeat(
-                2,
-                1fr
-              );
+          .wild-nav nav button {
+            display: none;
           }
 
 
-          .gearHead {
-            align-items:
-              flex-start;
-
-            flex-direction:
-              column;
+          .wild-nav nav {
+            font-size:
+              8px;
           }
 
 
-          .areas {
-            grid-template-columns:
-              repeat(
-                2,
-                1fr
-              );
+          .table {
+            transform:
+              scale(.52);
+
+            margin-top:
+              -80px;
+
+            margin-bottom:
+              -440px;
           }
 
         }
@@ -2750,5 +3285,7 @@ export default function WildPlanPage() {
       `}</style>
 
     </main>
+
   );
+
 }
