@@ -309,8 +309,6 @@ useEffect(() => {
   loadTerrain();
 
 }, [destination]);
-
-
         const response =
           await fetch(
 
