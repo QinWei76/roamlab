@@ -255,41 +255,60 @@ export default function IntelligencePage(){
 
 
 
-  useEffect(()=>{
+useEffect(() => {
 
+  if (!destination) {
+    return;
+  }
 
-    if(
-      !destination
-    ){
+  const latitude = destination.latitude;
+  const longitude = destination.longitude;
 
-      return;
+  if (
+    typeof latitude !== "number" ||
+    typeof longitude !== "number"
+  ) {
+    return;
+  }
+
+  async function loadTerrain() {
+
+    try {
+
+      setLoadingTerrain(true);
+
+      const response = await fetch(
+        `/api/terrain-intelligence` +
+        `?latitude=${latitude}` +
+        `&longitude=${longitude}`
+      );
+
+      const data = await response.json();
+
+      if (
+        data.status === "available"
+      ) {
+        setTerrain(data);
+      }
+
+    } catch (error) {
+
+      console.error(
+        "Terrain loading failed",
+        error
+      );
+
+    } finally {
+
+      setLoadingTerrain(false);
 
     }
 
+  }
 
+  loadTerrain();
 
-    if(
-      !destination.latitude
-      ||
-      !destination.longitude
-    ){
-
-      return;
-
-    }
-
-
-
-    async function loadTerrain(){
-
-
-      try{
-
-
-        setLoadingTerrain(
-          true
-        );
-
+}, [destination]);
 
 
         const response =
