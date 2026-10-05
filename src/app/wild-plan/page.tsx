@@ -1299,8 +1299,7 @@ export default function WildPlanPage() {
           type="button"
 
           className="
-            overlay
-            destination-overlay
+            overlay destination-overlay
           "
 
           onClick={() =>
@@ -1332,8 +1331,7 @@ export default function WildPlanPage() {
           type="button"
 
           className="
-            overlay
-            conditions-overlay
+            overlay conditions-overlay
           "
 
           onClick={() =>
@@ -1367,8 +1365,7 @@ export default function WildPlanPage() {
           type="button"
 
           className="
-            overlay
-            budget-overlay
+            overlay budget-overlay
           "
 
           onClick={() => {
@@ -1443,8 +1440,7 @@ export default function WildPlanPage() {
 
         <article
           className="
-            overlay
-            plan-overlay
+            overlay plan-overlay
           "
         >
 
@@ -1575,8 +1571,7 @@ export default function WildPlanPage() {
 
         <article
           className="
-            overlay
-            gear-overlay
+            overlay gear-overlay
           "
         >
 
