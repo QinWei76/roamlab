@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Wild } from "@/types/wild";
 
@@ -9,10 +9,29 @@ import {
   getCurrentWild,
 } from "@/lib/wildStore";
 
+declare global {
+  interface Window {
+    L?: any;
+  }
+}
 
-/* =========================================================
-   HELPERS
-   ========================================================= */
+type Point = {
+  latitude: number;
+  longitude: number;
+};
+
+function isPoint(value: unknown): value is Point {
+  if (!value || typeof value !== "object") return false;
+
+  const p = value as Partial<Point>;
+
+  return (
+    typeof p.latitude === "number" &&
+    Number.isFinite(p.latitude) &&
+    typeof p.longitude === "number" &&
+    Number.isFinite(p.longitude)
+  );
+}
 
 function titleCase(value?: string) {
   if (!value) return "Not set";
@@ -27,76 +46,6 @@ function titleCase(value?: string) {
     .join(" ");
 }
 
-
-function money(
-  value?: number,
-  currency = "USD"
-) {
-  if (
-    value === undefined ||
-    !Number.isFinite(value)
-  ) {
-    return "Not set";
-  }
-
-  try {
-    return new Intl.NumberFormat(
-      "en-US",
-      {
-        style: "currency",
-        currency,
-        maximumFractionDigits: 0,
-      }
-    ).format(value);
-  } catch {
-    return `${currency} ${value.toLocaleString(
-      "en-US"
-    )}`;
-  }
-}
-
-
-function dateLabel(value?: string) {
-  if (!value) return "";
-
-  const date =
-    new Date(`${value}T12:00:00`);
-
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-
-  return new Intl.DateTimeFormat(
-    "en-US",
-    {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    }
-  )
-    .format(date)
-    .toUpperCase();
-}
-
-
-function vehicleLabel(value?: string) {
-  const labels: Record<string, string> = {
-    suv: "SUV",
-    truck: "Truck",
-    van: "Van",
-    crossover: "Crossover / AWD",
-    city: "2WD / City Car",
-    "4x4": "4×4",
-    rv: "RV",
-    motorcycle: "Motorcycle",
-  };
-
-  return value
-    ? labels[value] ?? titleCase(value)
-    : "Vehicle not set";
-}
-
-
 function tripLabel(value?: string) {
   const labels: Record<string, string> = {
     weekend: "Weekend Escape",
@@ -110,47 +59,660 @@ function tripLabel(value?: string) {
     : "Trip style not set";
 }
 
+function money(
+  value?: number,
+  currency = "USD"
+) {
+  if (
+    value === undefined ||
+    !Number.isFinite(value)
+  ) {
+    return "Not set";
+  }
+
+  try {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency,
+      maximumFractionDigits: 0,
+    }).format(value);
+  } catch {
+    return `${currency} ${value.toLocaleString(
+      "en-US"
+    )}`;
+  }
+}
+
+function dateLabel(value?: string) {
+  if (!value) return "";
+
+  const date = new Date(
+    `${value}T12:00:00`
+  );
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  })
+    .format(date)
+    .toUpperCase();
+}
 
 /* =========================================================
-   PAGE
+   LEAFLET LOADER
+   ========================================================= */
+
+function ensureLeaflet(): Promise<any> {
+  if (typeof window === "undefined") {
+    return Promise.reject(
+      new Error(
+        "Leaflet requires the browser."
+      )
+    );
+  }
+
+  if (window.L) {
+    return Promise.resolve(window.L);
+  }
+
+  if (
+    !document.getElementById(
+      "roamlab-leaflet-css"
+    )
+  ) {
+    const css =
+      document.createElement("link");
+
+    css.id = "roamlab-leaflet-css";
+    css.rel = "stylesheet";
+
+    css.href =
+      "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+
+    document.head.appendChild(css);
+  }
+
+  return new Promise<any>(
+    (resolve, reject) => {
+      const existing =
+        document.getElementById(
+          "roamlab-leaflet-js"
+        ) as HTMLScriptElement | null;
+
+      if (existing) {
+        const waitForLeaflet = () => {
+          if (window.L) {
+            resolve(window.L);
+            return;
+          }
+
+          window.setTimeout(
+            waitForLeaflet,
+            50
+          );
+        };
+
+        waitForLeaflet();
+        return;
+      }
+
+      const script =
+        document.createElement("script");
+
+      script.id =
+        "roamlab-leaflet-js";
+
+      script.src =
+        "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+
+      script.async = true;
+
+      script.onload = () => {
+        if (window.L) {
+          resolve(window.L);
+        } else {
+          reject(
+            new Error(
+              "Leaflet unavailable."
+            )
+          );
+        }
+      };
+
+      script.onerror = () => {
+        reject(
+          new Error(
+            "Leaflet failed to load."
+          )
+        );
+      };
+
+      document.body.appendChild(
+        script
+      );
+    }
+  );
+}
+
+/* =========================================================
+   DYNAMIC JOURNEY MAP
+   ========================================================= */
+
+function JourneyMap({
+  origin,
+  destination,
+  originName,
+  destinationName,
+  savedDistanceKm,
+  savedHours,
+  onEdit,
+}: {
+  origin?: Point;
+  destination?: Point;
+
+  originName: string;
+  destinationName: string;
+
+  savedDistanceKm?: number;
+  savedHours?: number;
+
+  onEdit: () => void;
+}) {
+  const mapNodeRef =
+    useRef<HTMLDivElement | null>(null);
+
+  const mapRef =
+    useRef<any>(null);
+
+  const [
+    geometry,
+    setGeometry,
+  ] = useState<
+    [number, number][]
+  >([]);
+
+  const [
+    liveDistance,
+    setLiveDistance,
+  ] = useState<number>();
+
+  const [
+    liveHours,
+    setLiveHours,
+  ] = useState<number>();
+
+  const [
+    status,
+    setStatus,
+  ] = useState<
+    | "idle"
+    | "loading"
+    | "ready"
+    | "error"
+  >("idle");
+
+  const ready =
+    isPoint(origin) &&
+    isPoint(destination);
+
+  /* -------------------------------------------------------
+     LOAD REAL ACCESS ROUTE FROM OSRM
+     ------------------------------------------------------- */
+
+  useEffect(() => {
+    let cancelled = false;
+
+    if (!ready) {
+      setGeometry([]);
+      setStatus("idle");
+      return;
+    }
+
+    const start = origin;
+    const end = destination;
+
+    async function loadRoute() {
+      setStatus("loading");
+
+      try {
+        const url =
+          "https://router.project-osrm.org/route/v1/driving/" +
+          `${start.longitude},${start.latitude};` +
+          `${end.longitude},${end.latitude}` +
+          "?overview=full" +
+          "&geometries=geojson" +
+          "&steps=false" +
+          "&alternatives=false";
+
+        const response =
+          await fetch(url);
+
+        if (!response.ok) {
+          throw new Error(
+            "OSRM route request failed."
+          );
+        }
+
+        const data =
+          await response.json();
+
+        const first =
+          data?.routes?.[0];
+
+        if (
+          !first?.geometry?.coordinates
+        ) {
+          throw new Error(
+            "No route geometry returned."
+          );
+        }
+
+        const routeGeometry:
+          [number, number][] =
+          first.geometry.coordinates.map(
+            (
+              point:
+                [number, number]
+            ) => [
+              point[1],
+              point[0],
+            ]
+          );
+
+        if (!cancelled) {
+          setGeometry(
+            routeGeometry
+          );
+
+          setLiveDistance(
+            typeof first.distance ===
+              "number"
+              ? first.distance / 1000
+              : undefined
+          );
+
+          setLiveHours(
+            typeof first.duration ===
+              "number"
+              ? first.duration / 3600
+              : undefined
+          );
+
+          setStatus("ready");
+        }
+      } catch (error) {
+        console.error(
+          "Wild Plan route loading failed:",
+          error
+        );
+
+        if (!cancelled) {
+          setGeometry([]);
+          setStatus("error");
+        }
+      }
+    }
+
+    loadRoute();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    ready,
+    origin?.latitude,
+    origin?.longitude,
+    destination?.latitude,
+    destination?.longitude,
+  ]);
+
+  /* -------------------------------------------------------
+     BUILD LEAFLET MAP
+     ------------------------------------------------------- */
+
+  useEffect(() => {
+    let cancelled = false;
+
+    if (
+      !mapNodeRef.current ||
+      !ready
+    ) {
+      return;
+    }
+
+    const start = origin;
+    const end = destination;
+
+    async function drawMap() {
+      try {
+        const L =
+          await ensureLeaflet();
+
+        if (
+          cancelled ||
+          !mapNodeRef.current
+        ) {
+          return;
+        }
+
+        if (mapRef.current) {
+          mapRef.current.remove();
+          mapRef.current = null;
+        }
+
+        const map = L.map(
+          mapNodeRef.current,
+          {
+            zoomControl: false,
+            attributionControl: false,
+            scrollWheelZoom: false,
+            boxZoom: false,
+            keyboard: false,
+          }
+        );
+
+        mapRef.current = map;
+
+        /*
+          USGS Topographic Map
+
+          We deliberately keep the real map
+          underneath a warm paper treatment
+          so it belongs to the expedition desk.
+        */
+
+        L.tileLayer(
+          "https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}",
+          {
+            maxZoom: 16,
+          }
+        ).addTo(map);
+
+        const startIcon =
+          L.divIcon({
+            className:
+              "roamlab-map-icon",
+
+            html:
+              '<span class="roamlab-pin roamlab-pin-start"></span>',
+
+            iconSize: [18, 18],
+            iconAnchor: [9, 9],
+          });
+
+        const wildIcon =
+          L.divIcon({
+            className:
+              "roamlab-map-icon",
+
+            html:
+              '<span class="roamlab-pin roamlab-pin-wild"></span>',
+
+            iconSize: [22, 22],
+            iconAnchor: [11, 11],
+          });
+
+        L.marker(
+          [
+            start.latitude,
+            start.longitude,
+          ],
+          {
+            icon: startIcon,
+          }
+        ).addTo(map);
+
+        L.marker(
+          [
+            end.latitude,
+            end.longitude,
+          ],
+          {
+            icon: wildIcon,
+          }
+        ).addTo(map);
+
+        const routePoints =
+          geometry.length > 1
+            ? geometry
+            : [
+                [
+                  start.latitude,
+                  start.longitude,
+                ],
+                [
+                  end.latitude,
+                  end.longitude,
+                ],
+              ];
+
+        L.polyline(
+          routePoints,
+          {
+            color: "#963b2a",
+            weight: 4,
+            opacity: 0.92,
+            lineCap: "round",
+            lineJoin: "round",
+          }
+        ).addTo(map);
+
+        const bounds =
+          L.latLngBounds([
+            [
+              start.latitude,
+              start.longitude,
+            ],
+
+            [
+              end.latitude,
+              end.longitude,
+            ],
+
+            ...geometry,
+          ]);
+
+        map.fitBounds(
+          bounds,
+          {
+            padding: [55, 55],
+            maxZoom: 10,
+          }
+        );
+
+        window.setTimeout(
+          () => {
+            if (!cancelled) {
+              map.invalidateSize();
+            }
+          },
+          100
+        );
+      } catch (error) {
+        console.error(
+          "Wild Plan map loading failed:",
+          error
+        );
+      }
+    }
+
+    drawMap();
+
+    return () => {
+      cancelled = true;
+
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
+    };
+  }, [
+    ready,
+    origin?.latitude,
+    origin?.longitude,
+    destination?.latitude,
+    destination?.longitude,
+    geometry,
+  ]);
+
+  const distance =
+    liveDistance ??
+    savedDistanceKm;
+
+  const hours =
+    liveHours ??
+    savedHours;
+
+  const routeText = [
+    typeof distance === "number"
+      ? `${Math.round(
+          distance
+        )} KM`
+      : "",
+
+    typeof hours === "number"
+      ? `${hours.toFixed(
+          1
+        )} HRS`
+      : "",
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
+  return (
+    <article className="journey-map">
+
+      <div className="journey-map-paper">
+
+        {ready ? (
+          <div
+            ref={mapNodeRef}
+            className="journey-map-live"
+          />
+        ) : (
+          <div className="journey-map-empty">
+
+            <span>
+              JOURNEY MAP
+            </span>
+
+            <strong>
+              Waiting for map
+              coordinates.
+            </strong>
+
+            <p>
+              Set a starting point
+              and destination to
+              bring this paper map
+              to life.
+            </p>
+
+          </div>
+        )}
+
+        <div
+          className="paper-wash"
+        />
+
+        <div
+          className="paper-fold fold-a"
+        />
+
+        <div
+          className="paper-fold fold-b"
+        />
+
+        <button
+          type="button"
+          className="journey-start"
+          onClick={onEdit}
+        >
+          <small>
+            START
+          </small>
+
+          <b>
+            {originName}
+          </b>
+        </button>
+
+        <button
+          type="button"
+          className="journey-wild"
+          onClick={onEdit}
+        >
+          <small>
+            WILD
+          </small>
+
+          <b>
+            {destinationName}
+          </b>
+        </button>
+
+        <div className="journey-distance">
+
+          {status === "loading"
+            ? "DRAWING ACCESS ROUTE..."
+
+            : status === "error"
+              ? routeText ||
+                "ROUTE UNAVAILABLE"
+
+              : routeText ||
+                "ROUTE IN PROGRESS"}
+
+        </div>
+
+        <button
+          type="button"
+          className="journey-edit"
+          onClick={onEdit}
+        >
+          EDIT JOURNEY →
+        </button>
+
+      </div>
+
+    </article>
+  );
+}
+
+/* =========================================================
+   WILD PLAN PAGE
    ========================================================= */
 
 export default function WildPlanPage() {
-
   const router = useRouter();
 
   const [
     wild,
-    setWild
-  ] =
-    useState<Wild | null>(null);
+    setWild,
+  ] = useState<Wild | null>(
+    null
+  );
 
   const [
     loaded,
-    setLoaded
-  ] =
-    useState(false);
-
-
-  /* =======================================================
-     LOAD CURRENT WILD
-     ======================================================= */
+    setLoaded,
+  ] = useState(false);
 
   useEffect(() => {
-
     const load = () => {
-
       setWild(
         getCurrentWild()
       );
 
       setLoaded(true);
-
     };
 
-
     load();
-
 
     window.addEventListener(
       CURRENT_WILD_UPDATED_EVENT,
@@ -162,9 +724,7 @@ export default function WildPlanPage() {
       load
     );
 
-
     return () => {
-
       window.removeEventListener(
         CURRENT_WILD_UPDATED_EVENT,
         load
@@ -174,58 +734,45 @@ export default function WildPlanPage() {
         "storage",
         load
       );
-
     };
-
   }, []);
 
-
-  /* =======================================================
-     LOADING
-     ======================================================= */
-
   if (!loaded) {
-
     return (
       <main
         style={{
           minHeight: "100vh",
-          background: "#130e09",
+          background: "#100b07",
         }}
       />
     );
-
   }
 
-
-  /* =======================================================
-     EMPTY WILD
-     ======================================================= */
-
   if (!wild) {
-
     return (
-
-      <main className="empty">
+      <main className="empty-wild">
 
         <section className="empty-paper">
 
-          <span>
+          <small>
             ROAMLAB · WILD PLAN
-          </span>
+          </small>
 
           <h1>
             Nothing on the table yet.
           </h1>
 
           <p>
-            Choose your way in and begin
-            building your next Wild.
+            Choose your way in and
+            begin building your next
+            Wild.
           </p>
 
           <button
             onClick={() =>
-              router.push("/ways-in")
+              router.push(
+                "/ways-in"
+              )
             }
           >
             START YOUR WILD →
@@ -233,81 +780,98 @@ export default function WildPlanPage() {
 
         </section>
 
-
         <style jsx>{`
 
-          .empty {
+          .empty-wild {
             min-height: 100vh;
+
             display: grid;
             place-items: center;
+
             padding: 30px;
+
+            color: #35291e;
 
             background:
               linear-gradient(
-                rgba(12, 8, 5, .25),
-                rgba(12, 8, 5, .72)
+                rgba(10,7,4,.2),
+                rgba(10,7,4,.6)
               ),
-              url("/ways-in-desk.jpg")
-              center / cover fixed;
-
-            color: #34291e;
+              url("/wild-plan-test.jpg")
+              center / cover;
           }
 
           .empty-paper {
-            width: min(620px, 100%);
-            padding: 54px;
+            width:
+              min(560px, 90vw);
+
+            padding:
+              50px;
 
             background:
-              #d9c9a8;
+              rgba(
+                221,
+                207,
+                177,
+                .94
+              );
 
             box-shadow:
-              0 35px 100px rgba(0,0,0,.6);
+              0 30px 90px
+              rgba(0,0,0,.6);
 
             transform:
               rotate(-1deg);
           }
 
-          .empty span {
+          .empty-paper small {
             font:
-              800 10px Arial,
+              800 10px
+              Arial,
               sans-serif;
 
             letter-spacing:
-              .22em;
+              .2em;
           }
 
-          .empty h1 {
+          .empty-paper h1 {
             margin:
               18px 0 12px;
 
             font:
-              400 46px/1
+              400 44px
               Georgia,
               serif;
           }
 
-          .empty p {
-            line-height: 1.7;
+          .empty-paper p {
+            font:
+              16px/1.6
+              Georgia,
+              serif;
           }
 
-          .empty button {
-            margin-top: 28px;
+          .empty-paper button {
+            margin-top:
+              20px;
 
             padding:
-              14px 18px;
+              13px 17px;
 
             border: 0;
 
             background:
-              #994a27;
+              #93432a;
 
             color:
-              #fff2dc;
+              #fff1dc;
 
-            cursor: pointer;
+            cursor:
+              pointer;
 
             font:
-              800 10px Arial,
+              800 10px
+              Arial,
               sans-serif;
 
             letter-spacing:
@@ -317,17 +881,9 @@ export default function WildPlanPage() {
         `}</style>
 
       </main>
-
     );
-
   }
-
-
-  /* =======================================================
-     CURRENT WILD DATA
-     ======================================================= */
-
-  const adventure =
+    const adventure =
     wild.plan.adventure;
 
   const schedule =
@@ -354,10 +910,33 @@ export default function WildPlanPage() {
   const planning =
     wild.plan.planning;
 
-
   const items =
     gear?.items ?? [];
 
+  /* =======================================================
+     GEAR COUNTS
+     ======================================================= */
+
+  const essential =
+    items.filter(
+      (item) =>
+        item.priority ===
+        "essential"
+    ).length;
+
+  const recommended =
+    items.filter(
+      (item) =>
+        item.priority ===
+        "recommended"
+    ).length;
+
+  const optional =
+    items.filter(
+      (item) =>
+        item.priority ===
+        "optional"
+    ).length;
 
   const owned =
     items.filter(
@@ -365,7 +944,6 @@ export default function WildPlanPage() {
         item.ownershipStatus ===
         "owned"
     ).length;
-
 
   const gap =
     items.filter(
@@ -379,50 +957,24 @@ export default function WildPlanPage() {
         )
     ).length;
 
-
-  const essential =
-    items.filter(
-      (item) =>
-        item.priority ===
-        "essential"
-    ).length;
-
-
-  const recommended =
-    items.filter(
-      (item) =>
-        item.priority ===
-        "recommended"
-    ).length;
-
-
-  const optional =
-    items.filter(
-      (item) =>
-        item.priority ===
-        "optional"
-    ).length;
-
+  /* =======================================================
+     PLAN / BUDGET
+     ======================================================= */
 
   const issues =
     (
-      planning?.issues ??
-      []
+      planning?.issues ?? []
     ).filter(
       (issue) =>
         issue.status === "open"
     );
 
-
   const currency =
-    cost?.currency ??
-    "USD";
-
+    cost?.currency ?? "USD";
 
   const projected =
     planning?.projectedWildCost ??
     cost?.estimatedTotal;
-
 
   const remaining =
     cost?.remainingBudget ??
@@ -438,13 +990,11 @@ export default function WildPlanPage() {
         : undefined
     );
 
-
   /* =======================================================
-     LABELS
+     SCHEDULE
      ======================================================= */
 
   const dateLine =
-
     schedule?.startDate &&
     schedule?.endDate
 
@@ -455,75 +1005,59 @@ export default function WildPlanPage() {
         )}`
 
       : schedule?.timingMode ===
-        "flexible"
+          "flexible"
 
         ? "FLEXIBLE DATES"
 
-      : schedule?.timingMode ===
-        "undecided"
+        : schedule?.timingMode ===
+            "undecided"
 
-        ? "DATES UNDECIDED"
+          ? "DATES UNDECIDED"
 
-      : "DATES NOT SET";
+          : "DATES NOT SET";
 
-
-  const routeLine =
-    route
-
-      ? [
-
-          typeof route.distanceKm ===
-          "number"
-
-            ? `${Math.round(
-                route.distanceKm
-              )} KM`
-
-            : "",
-
-
-          typeof route.estimatedHours ===
-          "number"
-
-            ? `${route.estimatedHours.toFixed(
-                1
-              )} HRS`
-
-            : "",
-
-        ]
-          .filter(Boolean)
-          .join(" · ") ||
-
-        "ROUTE IN PROGRESS"
-
-      : "ROUTE NOT BUILT";
-
+  /* =======================================================
+     JOURNEY DATA
+     ======================================================= */
 
   const originName =
     intent?.startingFrom?.name ??
     "Starting point not set";
 
-
   const destinationName =
     destination?.name ??
     "Choose your destination";
 
-
   const people =
-    adventure.crew?.people ??
-    0;
+    adventure.crew?.people ?? 0;
 
+  const originCoordinates =
+    isPoint(
+      intent?.startingFrom
+        ?.coordinates
+    )
+
+      ? intent.startingFrom
+          .coordinates
+
+      : undefined;
+
+  const destinationCoordinates =
+    isPoint(
+      destination?.coordinates
+    )
+
+      ? destination.coordinates
+
+      : undefined;
 
   /* =======================================================
-     CONTEXT QUERY
+     KEEP EXISTING CONTEXT WHEN EDITING
      ======================================================= */
 
   function contextQuery() {
-
     const params =
       new URLSearchParams();
-
 
     if (
       adventure.vehicle?.type
@@ -534,7 +1068,6 @@ export default function WildPlanPage() {
       );
     }
 
-
     if (
       adventure.tripStyle
     ) {
@@ -544,7 +1077,6 @@ export default function WildPlanPage() {
       );
     }
 
-
     if (
       adventure.crew?.type
     ) {
@@ -553,7 +1085,6 @@ export default function WildPlanPage() {
         adventure.crew.type
       );
     }
-
 
     if (
       adventure.crew?.people
@@ -566,7 +1097,6 @@ export default function WildPlanPage() {
       );
     }
 
-
     if (
       schedule?.durationType
     ) {
@@ -576,27 +1106,43 @@ export default function WildPlanPage() {
       );
     }
 
-
     return params.toString();
-
   }
 
+  /* =======================================================
+     PLAN CHECK PROGRESS
+     ======================================================= */
+
+  const readinessPercent =
+    wild.plan.readiness
+      ?.overallPercent;
+
+  const planProgress =
+    typeof readinessPercent ===
+      "number"
+
+      ? Math.max(
+          0,
+          Math.min(
+            100,
+            readinessPercent
+          )
+        )
+
+      : items.length
+        ? 58
+        : 24;
 
   /* =======================================================
      PAGE
      ======================================================= */
 
   return (
-
     <main className="wild-desk">
 
-      <div className="cinematic-light" />
-      <div className="desk-vignette" />
-
-
-      {/* ===================================================
-          GLOBAL NAV
-          =================================================== */}
+      {/* ================================================
+          GLOBAL NAVIGATION
+          ================================================ */}
 
       <header className="wild-nav">
 
@@ -608,7 +1154,6 @@ export default function WildPlanPage() {
         >
           ROAMLAB
         </button>
-
 
         <nav>
 
@@ -640,268 +1185,157 @@ export default function WildPlanPage() {
 
       </header>
 
+      {/* ================================================
+          PHOTOREALISTIC DESK MASTER
+          ================================================ */}
 
+      <section className="desk-stage">
 
-      {/* ===================================================
-          DESK WORLD
-          =================================================== */}
-
-      <section className="table">
-
-
-        {/* LANTERN GLOW */}
+        <img
+          className="desk-master"
+          src="/wild-plan-test.jpg"
+          alt=""
+          aria-hidden="true"
+        />
 
         <div
-          className="lantern"
+          className="desk-shade"
           aria-hidden="true"
+        />
+
+        {/* ==============================================
+            CURRENT WILD
+            ============================================== */}
+
+        <article
+          className="
+            overlay
+            current-wild-overlay
+          "
         >
-          <div className="lantern-top" />
-          <div className="lantern-glass" />
-          <div className="lantern-base" />
-        </div>
 
-
-
-        {/* CURRENT WILD PAPER */}
-
-        <article className="current-wild paper">
-
-          <small className="paper-label">
+          <small>
             CURRENT WILD
           </small>
-
-          <div className="rule" />
 
           <h1>
             {destinationName}
           </h1>
 
+          <p>
+            {titleCase(
+              adventure.wayIn
+            )}
+            {" · "}
+            {tripLabel(
+              adventure.tripStyle
+            )}
+          </p>
 
-          <div className="wild-facts">
+          <p>
+            {people
+              ? `${people} ${
+                  people === 1
+                    ? "Person"
+                    : "People"
+                }`
 
-            <p>
-              <span>⌁</span>
+              : "Crew not set"}
+          </p>
 
-              {titleCase(
-                adventure.wayIn
-              )}
+          <p>
+            {schedule?.days
+              ? `${schedule.days} Days · ${
+                  schedule.nights ??
+                  0
+                } Nights`
 
-              {" · "}
-
-              {tripLabel(
-                adventure.tripStyle
-              )}
-            </p>
-
-
-            <p>
-              <span>♙</span>
-
-              {people
-                ? `${people} ${
-                    people === 1
-                      ? "Person"
-                      : "People"
-                  }`
-                : "Crew not set"}
-            </p>
-
-
-            <p>
-              <span>▣</span>
-
-              {schedule?.days
-                ? `${schedule.days} Days · ${
-                    schedule.nights ?? 0
-                  } Nights`
-                : dateLine}
-            </p>
-
-          </div>
-
-
-          <p className="field-note">
-            Your Wild is taking shape.
-            Keep the plan practical,
-            flexible and ready for the
-            road.
+              : dateLine}
           </p>
 
         </article>
 
+        {/* ==============================================
+            REAL DYNAMIC JOURNEY MAP
+            ============================================== */}
 
+        <JourneyMap
+          origin={
+            originCoordinates
+          }
 
-        {/* DESTINATION PHOTO */}
+          destination={
+            destinationCoordinates
+          }
+
+          originName={
+            originName
+          }
+
+          destinationName={
+            destinationName
+          }
+
+          savedDistanceKm={
+            route?.distanceKm
+          }
+
+          savedHours={
+            route?.estimatedHours
+          }
+
+          onEdit={() =>
+            router.push(
+              "/wild-plan/destination"
+            )
+          }
+        />
+
+        {/* ==============================================
+            DESTINATION POLAROID HOT ZONE
+            ============================================== */}
 
         <button
-          className="destination-photo polaroid"
+          type="button"
+
+          className="
+            overlay
+            destination-overlay
+          "
+
           onClick={() =>
             router.push(
               "/wild-plan/destination"
             )
           }
         >
-
-          <div className="photo-window destination-image" />
-
-          <span>
-            {destinationName}
-          </span>
-
-        </button>
-
-
-
-        {/* MAIN MAP */}
-
-        <article className="map-sheet">
-
-          <div className="map-fold fold-one" />
-          <div className="map-fold fold-two" />
-
-          <div className="map-grid" />
-
-          <div className="topo topo-one" />
-          <div className="topo topo-two" />
-          <div className="topo topo-three" />
-
-
-          <div className="map-duration">
-
-            {schedule?.days ? (
-              <>
-                <strong>
-                  {schedule.days} DAYS
-                </strong>
-
-                <strong>
-                  {schedule.nights ?? 0}
-                  {" "}NIGHTS
-                </strong>
-              </>
-            ) : (
-              <strong>
-                {dateLine}
-              </strong>
-            )}
-
-          </div>
-
-
-          <div className="route-path">
-
-            <div className="route-segment a" />
-            <div className="route-segment b" />
-            <div className="route-segment c" />
-
-          </div>
-
-
-          <div className="map-point origin">
-
-            <i />
-
-            <small>
-              START
-            </small>
-
-            <b>
-              {originName}
-            </b>
-
-          </div>
-
-
-          <div className="map-point destination">
-
-            <i />
-
-            <small>
-              WILD
-            </small>
-
-            <b>
-              {destinationName}
-            </b>
-
-          </div>
-
-
-          <div className="distance-note">
-
-            {routeLine}
-
-          </div>
-
-
-          <button
-            className="map-edit"
-            onClick={() =>
-              router.push(
-                "/wild-plan/destination"
-              )
-            }
-          >
-            EDIT JOURNEY →
-          </button>
-
-        </article>
-
-
-
-        {/* VEHICLE / WAY IN POLAROID */}
-
-        <article className="vehicle-polaroid polaroid">
-
-          <div className="photo-window vehicle-image" />
-
-          <span>
-            Our Ride
-          </span>
 
           <small>
-            {vehicleLabel(
-              adventure.vehicle?.type
-            )}
+            DESTINATION
           </small>
 
-        </article>
+          <strong>
+            {destinationName}
+          </strong>
 
+          <span>
+            VIEW / CHANGE →
+          </span>
 
+        </button>
 
-        {/* KEYS */}
-
-        <div
-          className="keys"
-          aria-hidden="true"
-        >
-          <div className="key-ring" />
-          <div className="key-fob">
-            <span>R</span>
-          </div>
-          <div className="metal-key" />
-        </div>
-
-
-
-        {/* COMPASS */}
-
-        <div
-          className="compass"
-          aria-hidden="true"
-        >
-          <div className="compass-inner">
-            <span>N</span>
-            <i />
-          </div>
-        </div>
-
-
-
-        {/* CONDITIONS NOTE */}
+        {/* ==============================================
+            CONDITIONS NOTE
+            ============================================== */}
 
         <button
-          className="conditions sticky"
+          type="button"
+
+          className="
+            overlay
+            conditions-overlay
+          "
+
           onClick={() =>
             router.push(
               "/wild-plan/destination"
@@ -909,61 +1343,34 @@ export default function WildPlanPage() {
           }
         >
 
-          <div className="sticky-title">
+          <small>
+            CONDITIONS
+          </small>
 
-            <span>
-              CONDITIONS
-            </span>
+          <strong>
+            {conditions
+              ?.weatherSummary ||
+              "Weather & terrain"}
+          </strong>
 
-            <b>
-              ☼
-            </b>
-
-          </div>
-
-
-          <div className="condition-line">
-
-            <strong>
-              Weather
-            </strong>
-
-            <span>
-              Check details →
-            </span>
-
-          </div>
-
-
-          <div className="condition-line">
-
-            <strong>
-              Terrain
-            </strong>
-
-            <span>
-              View analysis →
-            </span>
-
-          </div>
-
-
-          {conditions?.weatherSummary ? (
-
-            <p>
-              {conditions.weatherSummary}
-            </p>
-
-          ) : null}
+          <span>
+            OPEN INTELLIGENCE →
+          </span>
 
         </button>
 
-
-
-        {/* BUDGET NOTEBOOK */}
+        {/* ==============================================
+            BUDGET NOTEBOOK
+            ============================================== */}
 
         <button
-          className="budget-book notebook"
+          type="button"
+
+          className="
+            overlay
+            budget-overlay
+          "
+
           onClick={() => {
 
             const query =
@@ -978,13 +1385,11 @@ export default function WildPlanPage() {
           }}
         >
 
-          <span className="book-title">
+          <small>
             BUDGET
-          </span>
+          </small>
 
-
-          <div className="budget-number">
-
+          <strong>
             {cost?.budgetStatus ===
             "unknown"
 
@@ -994,14 +1399,12 @@ export default function WildPlanPage() {
                   cost?.totalWildBudget,
                   currency
                 )}
+          </strong>
 
-          </div>
-
-
-          <div className="budget-row">
+          <p>
 
             <span>
-              PROJECTED
+              Projected
             </span>
 
             <b>
@@ -1011,13 +1414,12 @@ export default function WildPlanPage() {
               )}
             </b>
 
-          </div>
+          </p>
 
-
-          <div className="budget-row">
+          <p>
 
             <span>
-              REMAINING
+              Remaining
             </span>
 
             <b>
@@ -1027,8 +1429,7 @@ export default function WildPlanPage() {
               )}
             </b>
 
-          </div>
-
+          </p>
 
           <em>
             EDIT BUDGET →
@@ -1036,249 +1437,216 @@ export default function WildPlanPage() {
 
         </button>
 
+        {/* ==============================================
+            PLAN CHECK NOTEBOOK
+            ============================================== */}
 
+        <article
+          className="
+            overlay
+            plan-overlay
+          "
+        >
 
-        {/* PLAN CHECK NOTEBOOK */}
+          <small>
+            PLAN CHECK
+          </small>
 
-        <article className="plan-book">
+          <ul>
 
-          <div className="binding" />
+            <li>
 
+              <i
+                className={
+                  route
+                    ? "done"
+                    : ""
+                }
+              >
+                {route
+                  ? "✓"
+                  : "□"}
+              </i>
 
-          <div className="book-page left-page">
+              Route & access
 
-            <span className="book-section">
-              PLAN CHECK
-            </span>
+            </li>
 
+            <li>
 
-            <ul>
+              <i
+                className={
+                  items.length
+                    ? "done"
+                    : ""
+                }
+              >
+                {items.length
+                  ? "✓"
+                  : "□"}
+              </i>
 
-              <li>
-                <i className="checked">
-                  ✓
-                </i>
+              Gear readiness
 
-                Route & access
-              </li>
+            </li>
 
+            <li>
 
-              <li>
-                <i
-                  className={
-                    items.length
-                      ? "checked"
-                      : ""
-                  }
-                >
-                  {items.length
-                    ? "✓"
-                    : "□"}
-                </i>
+              <i
+                className={
+                  typeof cost
+                    ?.totalWildBudget ===
+                    "number"
 
-                Gear readiness
-              </li>
+                    ? "done"
+                    : ""
+                }
+              >
+                {typeof cost
+                  ?.totalWildBudget ===
+                  "number"
 
+                  ? "✓"
+                  : "□"}
+              </i>
 
-              <li>
-                <i
-                  className={
-                    cost?.totalWildBudget
-                      ? "checked"
-                      : ""
-                  }
-                >
-                  {cost?.totalWildBudget
-                    ? "✓"
-                    : "□"}
-                </i>
+              Budget check
 
-                Budget check
-              </li>
+            </li>
 
+            <li>
 
-              <li>
-                <i>
-                  □
-                </i>
+              <i
+                className={
+                  conditions
+                    ? "done"
+                    : ""
+                }
+              >
+                {conditions
+                  ? "✓"
+                  : "□"}
+              </i>
 
-                Weather & terrain
-              </li>
+              Weather & terrain
 
+            </li>
 
-              <li>
-                <i>
-                  □
-                </i>
-
-                Potential risks
-              </li>
-
-
-              <li>
-                <i>
-                  □
-                </i>
-
-                Final recommendation
-              </li>
-
-            </ul>
-
-          </div>
-
-
-          <div className="book-page right-page">
-
-            <span className="hand-note">
-
-              {issues.length
-
-                ? `${issues.length} ${
-                    issues.length === 1
-                      ? "thing needs"
-                      : "things need"
-                  } attention.`
-
-                : planning
-
-                  ? "Your plan is looking clear."
-
-                  : "Checking your plan..."}
-
-            </span>
-
-
-            <div className="progress-line">
-
-              <span
-                style={{
-                  width:
-                    items.length
-                      ? "58%"
-                      : "24%",
-                }}
-              />
-
-            </div>
-
-
-            {issues.length ? (
-
-              <div className="issue-note">
-
-                <strong>
-                  {issues[0].title}
-                </strong>
-
-                <p>
-                  {issues[0].explanation}
-                </p>
-
-              </div>
-
-            ) : (
-
-              <div className="mountain-sketch">
-
-                <i className="mountain m1" />
-                <i className="mountain m2" />
-                <i className="mountain m3" />
-
-              </div>
-
-            )}
-
-          </div>
-
+          </ul>
 
           <div
-            className="pen"
-            aria-hidden="true"
-          />
+            className="
+              plan-progress
+            "
+          >
+
+            <span
+              style={{
+                width:
+                  `${planProgress}%`,
+              }}
+            />
+
+          </div>
+
+          <p>
+
+            {issues.length
+
+              ? `${issues.length} ${
+                  issues.length === 1
+                    ? "thing needs"
+                    : "things need"
+                } attention.`
+
+              : planning
+
+                ? "Your plan is looking clear."
+
+                : "Checking your plan..."}
+
+          </p>
 
         </article>
 
+        {/* ==============================================
+            GEAR SYSTEM
+            ============================================== */}
 
+        <article
+          className="
+            overlay
+            gear-overlay
+          "
+        >
 
-        {/* GEAR SHEET */}
+          <small>
+            GEAR SYSTEM
+          </small>
 
-        <article className="gear-sheet">
-
-          <span className="gear-title">
-            △ &nbsp; GEAR SYSTEM
-          </span>
-
-
-          <div className="gear-rule" />
-
-
-          <div className="gear-row">
+          <p>
 
             <span>
-              ☑ &nbsp; Essential
+              Essential
             </span>
 
             <b>
               {essential}
             </b>
 
-          </div>
+          </p>
 
-
-          <div className="gear-row">
+          <p>
 
             <span>
-              ☑ &nbsp; Recommended
+              Recommended
             </span>
 
             <b>
               {recommended}
             </b>
 
-          </div>
+          </p>
 
-
-          <div className="gear-row">
+          <p>
 
             <span>
-              ☑ &nbsp; Optional
+              Optional
             </span>
 
             <b>
               {optional}
             </b>
 
-          </div>
+          </p>
 
-
-          <div className="gear-row">
+          <p>
 
             <span>
-              □ &nbsp; Already owned
+              Already owned
             </span>
 
             <b>
               {owned}
             </b>
 
-          </div>
+          </p>
 
-
-          <div className="gear-gap">
+          <p className="gear-gap">
 
             <span>
-              ☑ &nbsp; Gear gap
+              Gear gap
             </span>
 
             <b>
               {gap}
             </b>
 
-          </div>
-
+          </p>
 
           <button
+            type="button"
+
             onClick={() => {
 
               const query =
@@ -1297,57 +1665,134 @@ export default function WildPlanPage() {
 
         </article>
 
-
-
-        {/* PENCIL */}
-
-        <div
-          className="pencil"
-          aria-hidden="true"
-        />
-
-
       </section>
 
+      {/* ================================================
+          LEAFLET GLOBAL STYLES
+          ================================================ */}
 
+      <style jsx global>{`
+
+        html,
+        body {
+          margin: 0;
+          background:
+            #100b07;
+        }
+
+        .leaflet-container {
+          background:
+            #b9ad86;
+
+          font-family:
+            Georgia,
+            serif;
+        }
+
+        .journey-map-live
+        .leaflet-tile-pane {
+          filter:
+            sepia(.48)
+            saturate(.58)
+            contrast(.9)
+            brightness(.94);
+        }
+
+        .journey-map-live
+        .leaflet-control-container {
+          display:
+            none;
+        }
+
+        .roamlab-map-icon {
+          background:
+            transparent !important;
+
+          border:
+            0 !important;
+        }
+
+        .roamlab-pin {
+          display:
+            block;
+
+          width:
+            14px;
+
+          height:
+            14px;
+
+          border:
+            3px solid
+            rgba(
+              244,
+              225,
+              188,
+              .9
+            );
+
+          border-radius:
+            50%;
+
+          background:
+            #923a29;
+
+          box-shadow:
+            0 2px 5px
+            rgba(
+              45,
+              28,
+              18,
+              .45
+            ),
+            0 0 0 4px
+            rgba(
+              146,
+              58,
+              41,
+              .2
+            );
+        }
+
+        .roamlab-pin-wild {
+          width:
+            17px;
+
+          height:
+            17px;
+
+          background:
+            #7f2e23;
+        }
+
+      `}</style>
+            {/* ================================================
+          DESK + OVERLAY STYLES
+          ================================================ */}
 
       <style jsx>{`
 
-        :global(html) {
-          background: #100b07;
-        }
-
-        :global(body) {
-          margin: 0;
-          background: #100b07;
-        }
-
         button {
-          font: inherit;
+          font:
+            inherit;
         }
-
 
         /* =================================================
-           WORLD
+           PAGE
            ================================================= */
 
         .wild-desk {
-          position: relative;
+          min-height:
+            100vh;
 
-          min-height: 100vh;
-
-          overflow-x: hidden;
+          overflow-x:
+            hidden;
 
           color:
             #f2e7d4;
 
           background:
-            linear-gradient(
-              rgba(15, 9, 5, .25),
-              rgba(10, 6, 4, .46)
-            ),
-            url("/ways-in-desk.jpg")
-            center top / cover fixed;
+            #100b07;
 
           font-family:
             Arial,
@@ -1355,100 +1800,77 @@ export default function WildPlanPage() {
             sans-serif;
         }
 
-
-        .wild-desk::before {
-          content: "";
-
-          position: absolute;
-          inset: 0;
-
-          pointer-events: none;
-
-          background:
-            repeating-linear-gradient(
-              90deg,
-              transparent 0,
-              transparent 118px,
-              rgba(255,255,255,.018)
-              119px,
-              transparent 120px
-            );
-
-          mix-blend-mode:
-            soft-light;
-        }
-
-
-        .cinematic-light {
-          position: absolute;
-
-          left: -180px;
-          top: -200px;
-
-          width: 850px;
-          height: 850px;
-
-          pointer-events: none;
-
-          background:
-            radial-gradient(
-              circle,
-              rgba(255,172,78,.32),
-              rgba(255,133,44,.12) 30%,
-              transparent 68%
-            );
-
-          filter:
-            blur(8px);
-        }
-
-
-        .desk-vignette {
-          position: absolute;
-          inset: 0;
-
-          pointer-events: none;
-
-          box-shadow:
-            inset 0 0 220px
-            rgba(0,0,0,.72);
-        }
-
-
         /* =================================================
-           NAV
+           NAVIGATION
            ================================================= */
 
         .wild-nav {
-          position: relative;
-          z-index: 100;
+          position:
+            relative;
 
-          height: 86px;
+          z-index:
+            100;
 
-          display: flex;
-          align-items: center;
+          height:
+            82px;
+
+          display:
+            flex;
+
+          align-items:
+            center;
+
           justify-content:
             space-between;
 
           padding:
             0 5vw;
 
+          background:
+            linear-gradient(
+              180deg,
+              rgba(
+                12,
+                8,
+                5,
+                .98
+              ),
+              rgba(
+                12,
+                8,
+                5,
+                .84
+              )
+            );
+
           border-bottom:
             1px solid
-            rgba(255,240,218,.11);
+            rgba(
+              255,
+              240,
+              218,
+              .1
+            );
         }
-
 
         .wild-nav button {
-          border: 0;
-          background: transparent;
+          border:
+            0;
+
+          background:
+            transparent;
 
           color:
-            rgba(247,236,216,.74);
+            rgba(
+              247,
+              236,
+              216,
+              .74
+            );
 
-          cursor: pointer;
+          cursor:
+            pointer;
         }
-
 
         .brand {
           color:
@@ -1464,11 +1886,15 @@ export default function WildPlanPage() {
             .22em !important;
         }
 
-
         .wild-nav nav {
-          display: flex;
-          gap: 42px;
-          align-items: center;
+          display:
+            flex;
+
+          gap:
+            42px;
+
+          align-items:
+            center;
 
           font-size:
             10px;
@@ -1480,64 +1906,361 @@ export default function WildPlanPage() {
             .2em;
         }
 
-
         .wild-nav nav span {
           color:
             #e1a15f;
         }
 
-
         /* =================================================
-           DESK
+           MASTER DESK
+
+           IMPORTANT:
+           This is the uploaded photorealistic mother image.
+           The image determines the physical world.
+           React only supplies changing Wild data.
            ================================================= */
 
-        .table {
-          position: relative;
-
-          z-index: 5;
+        .desk-stage {
+          position:
+            relative;
 
           width:
-            min(1500px, 96vw);
+            min(
+              1536px,
+              100vw
+            );
 
-          height:
-            980px;
+          aspect-ratio:
+            3 / 2;
 
           margin:
             0 auto;
 
-          transform-origin:
-            top center;
+          overflow:
+            hidden;
+
+          isolation:
+            isolate;
+
+          background:
+            #1c120a;
         }
 
+        .desk-master {
+          position:
+            absolute;
+
+          z-index:
+            0;
+
+          inset:
+            0;
+
+          width:
+            100%;
+
+          height:
+            100%;
+
+          object-fit:
+            cover;
+
+          user-select:
+            none;
+
+          pointer-events:
+            none;
+        }
+
+        .desk-shade {
+          position:
+            absolute;
+
+          z-index:
+            1;
+
+          inset:
+            0;
+
+          pointer-events:
+            none;
+
+          background:
+            radial-gradient(
+              circle
+              at 48% 40%,
+
+              transparent
+              0 42%,
+
+              rgba(
+                11,
+                7,
+                4,
+                .08
+              )
+              70%,
+
+              rgba(
+                11,
+                7,
+                4,
+                .28
+              )
+              100%
+            );
+
+          box-shadow:
+            inset
+            0 0 100px
+            rgba(
+              0,
+              0,
+              0,
+              .25
+            );
+        }
 
         /* =================================================
-           PAPER
+           SHARED DYNAMIC OVERLAYS
            ================================================= */
 
-        .paper {
+        .overlay {
+          position:
+            absolute;
+
+          z-index:
+            30;
+
           color:
-            #34271c;
+            #34291f;
+
+          text-align:
+            left;
+        }
+
+        .overlay small {
+          color:
+            #74442f;
+
+          font-size:
+            clamp(
+              7px,
+              .68vw,
+              10px
+            );
+
+          font-weight:
+            900;
+
+          letter-spacing:
+            .18em;
+        }
+
+        /* =================================================
+           CURRENT WILD NOTE
+           ================================================= */
+
+        .current-wild-overlay {
+          left:
+            9.2%;
+
+          top:
+            13%;
+
+          width:
+            18%;
+
+          transform:
+            rotate(-3deg);
+
+          pointer-events:
+            none;
+        }
+
+        .current-wild-overlay h1 {
+          margin:
+            8% 0;
+
+          font:
+            400
+            clamp(
+              15px,
+              1.55vw,
+              25px
+            )
+            / 1.03
+            Georgia,
+            serif;
+        }
+
+        .current-wild-overlay p {
+          margin:
+            4.5% 0;
+
+          font:
+            400
+            clamp(
+              9px,
+              .88vw,
+              14px
+            )
+            / 1.3
+            Georgia,
+            serif;
+        }
+
+        /* =================================================
+           DYNAMIC JOURNEY MAP
+
+           This is no longer a CSS fake map.
+           Leaflet occupies the paper surface.
+           ================================================= */
+
+        .journey-map {
+          position:
+            absolute;
+
+          z-index:
+            18;
+
+          left:
+            25.4%;
+
+          top:
+            15.2%;
+
+          width:
+            45.2%;
+
+          height:
+            47.8%;
+
+          transform:
+            rotate(-1.2deg);
+
+          filter:
+            drop-shadow(
+              0 18px 22px
+              rgba(
+                0,
+                0,
+                0,
+                .34
+              )
+            );
+        }
+
+        .journey-map-paper {
+          position:
+            relative;
+
+          width:
+            100%;
+
+          height:
+            100%;
+
+          overflow:
+            hidden;
+
+          background:
+            #c8bc91;
+
+          clip-path:
+            polygon(
+              1% 1.5%,
+              24% .4%,
+              49% 1.3%,
+              73% .5%,
+              99% 1.7%,
+              98.7% 98%,
+              74% 99.2%,
+              49% 98.3%,
+              24% 99.3%,
+              .5% 98%
+            );
+        }
+
+        .journey-map-live {
+          position:
+            absolute;
+
+          z-index:
+            1;
+
+          inset:
+            0;
+        }
+
+        /* =================================================
+           MAP EMPTY STATE
+           ================================================= */
+
+        .journey-map-empty {
+          position:
+            absolute;
+
+          z-index:
+            1;
+
+          inset:
+            0;
+
+          display:
+            flex;
+
+          flex-direction:
+            column;
+
+          align-items:
+            center;
+
+          justify-content:
+            center;
+
+          padding:
+            12%;
+
+          text-align:
+            center;
+
+          color:
+            #493c2c;
 
           background:
             linear-gradient(
-              115deg,
-              rgba(255,255,255,.15),
-              transparent 40%
+              rgba(
+                211,
+                199,
+                158,
+                .72
+              ),
+              rgba(
+                196,
+                183,
+                143,
+                .82
+              )
             ),
-            #d8c3a0;
+            repeating-linear-gradient(
+              0deg,
+              transparent
+              0 34px,
 
-          box-shadow:
-            0 25px 55px
-            rgba(0,0,0,.55);
+              rgba(
+                76,
+                78,
+                57,
+                .12
+              )
+              35px
+            );
         }
 
-
-        .paper-label {
-          color:
-            #7d482d;
-
+        .journey-map-empty span {
           font-size:
-            10px;
+            9px;
 
           font-weight:
             900;
@@ -1546,390 +2269,247 @@ export default function WildPlanPage() {
             .2em;
         }
 
+        .journey-map-empty strong {
+          margin-top:
+            14px;
 
-        .rule {
-          height: 1px;
-
-          margin:
-            14px 0 20px;
-
-          background:
-            rgba(70,45,28,.26);
+          font:
+            400
+            clamp(
+              18px,
+              2vw,
+              30px
+            )
+            Georgia,
+            serif;
         }
 
+        .journey-map-empty p {
+          max-width:
+            360px;
+
+          font:
+            400 13px/1.6
+            Georgia,
+            serif;
+        }
 
         /* =================================================
-           CURRENT WILD
+           OLD PAPER TREATMENT
            ================================================= */
 
-        .current-wild {
-          position: absolute;
+        .paper-wash {
+          position:
+            absolute;
 
-          z-index: 20;
+          z-index:
+            3;
 
-          left: 7%;
-          top: 62px;
+          inset:
+            0;
 
-          width: 290px;
-
-          padding:
-            30px 32px 34px;
-
-          transform:
-            rotate(-4deg);
-        }
-
-
-        .current-wild h1 {
-          margin:
-            0 0 24px;
-
-          font:
-            400 30px/1.03
-            Georgia,
-            serif;
-        }
-
-
-        .wild-facts p {
-          display: flex;
-          gap: 12px;
-          align-items: center;
-
-          margin:
-            12px 0;
-
-          font:
-            400 14px/1.4
-            Georgia,
-            serif;
-        }
-
-
-        .wild-facts p span {
-          width: 20px;
-
-          color:
-            #7d482d;
-        }
-
-
-        .field-note {
-          margin:
-            24px 0 0;
-
-          color:
-            #574332;
-
-          font:
-            italic 15px/1.55
-            Georgia,
-            serif;
-
-          transform:
-            rotate(-1deg);
-        }
-
-
-        /* =================================================
-           MAIN MAP
-           ================================================= */
-
-        .map-sheet {
-          position: absolute;
-
-          z-index: 10;
-
-          left: 25%;
-          top: 100px;
-
-          width: 690px;
-          height: 490px;
-
-          overflow: hidden;
-
-          transform:
-            rotate(-1.4deg);
-
-          color:
-            #2f3529;
+          pointer-events:
+            none;
 
           background:
             linear-gradient(
-              rgba(205,196,159,.78),
-              rgba(194,183,145,.8)
+              112deg,
+
+              rgba(
+                255,
+                244,
+                208,
+                .16
+              ),
+
+              transparent
+              35%,
+
+              rgba(
+                81,
+                63,
+                40,
+                .08
+              )
+              70%,
+
+              rgba(
+                235,
+                216,
+                169,
+                .1
+              )
             ),
-            url("/destination-brief-v2.jpg")
-            center / cover;
 
-          background-blend-mode:
-            screen;
-
-          box-shadow:
-            0 28px 65px
-            rgba(0,0,0,.58);
-        }
-
-
-        .map-sheet::after {
-          content: "";
-
-          position: absolute;
-          inset: 0;
-
-          pointer-events: none;
-
-          background:
-            rgba(214,202,164,.58);
-        }
-
-
-        .map-grid {
-          position: absolute;
-          z-index: 2;
-          inset: 0;
-
-          opacity: .25;
-
-          background-image:
-            linear-gradient(
-              rgba(72,81,58,.28)
-              1px,
-              transparent 1px
-            ),
-            linear-gradient(
-              90deg,
-              rgba(72,81,58,.28)
-              1px,
-              transparent 1px
+            rgba(
+              204,
+              190,
+              145,
+              .12
             );
 
-          background-size:
-            38px 38px;
+          box-shadow:
+            inset
+            0 0 45px
+            rgba(
+              72,
+              54,
+              34,
+              .22
+            );
+
+          mix-blend-mode:
+            multiply;
         }
 
+        .paper-fold {
+          position:
+            absolute;
 
-        .map-fold {
-          position: absolute;
-          z-index: 3;
+          z-index:
+            4;
+
+          top:
+            0;
+
+          bottom:
+            0;
+
+          width:
+            1px;
+
+          pointer-events:
+            none;
 
           background:
-            rgba(85,68,44,.15);
+            rgba(
+              75,
+              61,
+              42,
+              .18
+            );
 
           box-shadow:
-            0 0 18px
-            rgba(70,55,35,.13);
+            2px 0 5px
+            rgba(
+              255,
+              245,
+              211,
+              .12
+            ),
+
+            -2px 0 6px
+            rgba(
+              70,
+              55,
+              38,
+              .08
+            );
         }
 
-
-        .fold-one {
-          top: 0;
-          bottom: 0;
-          left: 34%;
-
-          width: 1px;
+        .fold-a {
+          left:
+            34%;
         }
 
-
-        .fold-two {
-          top: 0;
-          bottom: 0;
-          left: 68%;
-
-          width: 1px;
+        .fold-b {
+          left:
+            68%;
         }
 
+        /* =================================================
+           START / WILD MAP LABELS
+           ================================================= */
 
-        .topo {
-          position: absolute;
-          z-index: 3;
+        .journey-start,
+        .journey-wild {
+          position:
+            absolute;
 
-          width: 190px;
-          height: 100px;
+          z-index:
+            8;
+
+          max-width:
+            29%;
+
+          padding:
+            7px 9px;
 
           border:
-            2px solid
-            rgba(73,83,57,.19);
+            0;
 
           border-radius:
-            50%;
-        }
-
-
-        .topo::before,
-        .topo::after {
-          content: "";
-
-          position: absolute;
-
-          border:
-            2px solid
-            rgba(73,83,57,.18);
-
-          border-radius:
-            50%;
-        }
-
-
-        .topo::before {
-          inset: 12px 20px;
-        }
-
-
-        .topo::after {
-          inset: 27px 45px;
-        }
-
-
-        .topo-one {
-          left: 30px;
-          top: 55px;
-        }
-
-
-        .topo-two {
-          right: 60px;
-          top: 35px;
-
-          transform:
-            rotate(18deg);
-        }
-
-
-        .topo-three {
-          right: 160px;
-          bottom: 35px;
-
-          transform:
-            rotate(-12deg);
-        }
-
-
-        .map-duration {
-          position: absolute;
-
-          z-index: 8;
-
-          left: 46%;
-          top: 100px;
-
-          display: flex;
-          flex-direction: column;
+            2px;
 
           color:
-            #27231e;
-
-          transform:
-            rotate(-6deg);
-
-          font:
-            700 25px/1.05
-            "Comic Sans MS",
-            cursive;
-        }
-
-
-        .route-path {
-          position: absolute;
-
-          z-index: 7;
-
-          left: 150px;
-          right: 130px;
-          top: 280px;
-
-          height: 100px;
-        }
-
-
-        .route-segment {
-          position: absolute;
-
-          height: 4px;
-
-          border-radius:
-            999px;
+            #31261d;
 
           background:
-            #a7442e;
+            rgba(
+              226,
+              213,
+              176,
+              .82
+            );
 
           box-shadow:
-            0 1px 0
-            rgba(255,255,255,.2);
+            0 4px 10px
+            rgba(
+              55,
+              39,
+              24,
+              .14
+            );
+
+          cursor:
+            pointer;
+
+          text-align:
+            left;
+
+          backdrop-filter:
+            blur(1px);
         }
 
+        .journey-start {
+          left:
+            5%;
 
-        .route-segment.a {
-          left: 0;
-          top: 50px;
-
-          width: 150px;
+          bottom:
+            7%;
 
           transform:
-            rotate(-8deg);
+            rotate(-2deg);
         }
 
+        .journey-wild {
+          right:
+            4%;
 
-        .route-segment.b {
-          left: 143px;
-          top: 39px;
-
-          width: 150px;
+          top:
+            7%;
 
           transform:
-            rotate(4deg);
+            rotate(1deg);
         }
 
+        .journey-start small,
+        .journey-wild small {
+          display:
+            block;
 
-        .route-segment.c {
-          left: 286px;
-          top: 29px;
-
-          width: 125px;
-
-          transform:
-            rotate(-13deg);
-        }
-
-
-        .map-point {
-          position: absolute;
-
-          z-index: 9;
+          margin-bottom:
+            3px;
 
           color:
-            #34281e;
-        }
-
-
-        .map-point i {
-          display: block;
-
-          width: 16px;
-          height: 16px;
-
-          margin-bottom: 7px;
-
-          border-radius:
-            50%;
-
-          background:
-            #a7442e;
-
-          box-shadow:
-            0 0 0 4px
-            rgba(167,68,46,.14);
-        }
-
-
-        .map-point small {
-          display: block;
-
-          color:
-            #9b402a;
+            #963c2a;
 
           font-size:
-            8px;
+            clamp(
+              6px,
+              .5vw,
+              8px
+            );
 
           font-weight:
             900;
@@ -1938,75 +2518,103 @@ export default function WildPlanPage() {
             .18em;
         }
 
-
-        .map-point b {
-          display: block;
-
-          max-width:
-            170px;
-
-          margin-top: 4px;
+        .journey-start b,
+        .journey-wild b {
+          display:
+            block;
 
           font:
-            600 17px/1.1
-            "Comic Sans MS",
-            cursive;
+            600
+            clamp(
+              8px,
+              .8vw,
+              13px
+            )
+            / 1.12
+            Georgia,
+            serif;
         }
 
+        /* =================================================
+           ROUTE NOTE
+           ================================================= */
 
-        .origin {
-          left: 100px;
-          bottom: 62px;
-        }
+        .journey-distance {
+          position:
+            absolute;
 
+          z-index:
+            8;
 
-        .destination {
-          right: 40px;
-          top: 220px;
-        }
+          left:
+            50%;
 
-
-        .distance-note {
-          position: absolute;
-
-          z-index: 9;
-
-          left: 45%;
-          bottom: 60px;
-
-          color:
-            #43372b;
+          bottom:
+            5%;
 
           transform:
-            rotate(-4deg);
+            translateX(-50%)
+            rotate(-2deg);
+
+          padding:
+            5px 9px;
+
+          white-space:
+            nowrap;
+
+          color:
+            #49372a;
+
+          background:
+            rgba(
+              222,
+              207,
+              167,
+              .8
+            );
 
           font:
-            600 15px
-            "Comic Sans MS",
-            cursive;
+            700
+            clamp(
+              7px,
+              .72vw,
+              11px
+            )
+            Georgia,
+            serif;
         }
 
+        .journey-edit {
+          position:
+            absolute;
 
-        .map-edit {
-          position: absolute;
+          z-index:
+            9;
 
-          z-index: 12;
+          right:
+            3%;
 
-          right: 25px;
-          bottom: 18px;
+          bottom:
+            3%;
 
-          border: 0;
+          border:
+            0;
 
           background:
             transparent;
 
           color:
-            #8d452c;
+            #8b402d;
 
-          cursor: pointer;
+          cursor:
+            pointer;
 
           font-size:
-            8px;
+            clamp(
+              6px,
+              .55vw,
+              9px
+            );
 
           font-weight:
             900;
@@ -2015,382 +2623,270 @@ export default function WildPlanPage() {
             .12em;
         }
 
-
         /* =================================================
-           POLAROIDS
+           DESTINATION POLAROID HOT ZONE
            ================================================= */
 
-        .polaroid {
-          border: 0;
+        .destination-overlay {
+          right:
+            8.7%;
 
-          color:
-            #382c21;
+          top:
+            25.5%;
 
-          background:
-            #e4d7bd;
-
-          box-shadow:
-            0 22px 50px
-            rgba(0,0,0,.58);
-        }
-
-
-        .photo-window {
-          width: 100%;
-
-          background-size:
-            cover;
-
-          background-position:
-            center;
-        }
-
-
-        .destination-photo {
-          position: absolute;
-
-          z-index: 30;
-
-          right: 8%;
-          top: 48px;
-
-          width: 260px;
+          width:
+            16%;
 
           padding:
-            12px 12px 23px;
+            5% 1.4% 1.2%;
+
+          border:
+            0;
+
+          background:
+            transparent;
+
+          cursor:
+            pointer;
 
           transform:
-            rotate(6deg);
-
-          cursor: pointer;
+            rotate(5deg);
         }
 
+        .destination-overlay strong {
+          display:
+            block;
 
-        .destination-image {
-          height: 190px;
-
-          background-image:
-            url("/destination-brief-v2.jpg");
-        }
-
-
-        .destination-photo span {
-          display: block;
-
-          margin-top: 14px;
-
-          text-align: center;
+          margin-top:
+            4%;
 
           font:
-            italic 15px/1.2
+            italic 400
+            clamp(
+              10px,
+              .9vw,
+              15px
+            )
+            / 1.15
             Georgia,
             serif;
         }
 
+        .destination-overlay span {
+          display:
+            block;
 
-        .vehicle-polaroid {
-          position: absolute;
-
-          z-index: 32;
-
-          left: 3%;
-          top: 450px;
-
-          width: 220px;
-
-          padding:
-            11px 11px 22px;
-
-          transform:
-            rotate(8deg);
-        }
-
-
-        .vehicle-image {
-          height: 145px;
-
-          background-image:
-            url("/drive-desk.jpg");
-        }
-
-
-        .vehicle-polaroid span {
-          display: block;
-
-          margin-top: 12px;
-
-          font:
-            italic 16px
-            Georgia,
-            serif;
-        }
-
-
-        .vehicle-polaroid small {
-          display: block;
-
-          margin-top: 5px;
+          margin-top:
+            5%;
 
           color:
-            #705844;
+            #87422f;
 
           font-size:
-            9px;
-
-          letter-spacing:
-            .12em;
-        }
-
-
-        /* =================================================
-           CONDITIONS
-           ================================================= */
-
-        .sticky {
-          border: 0;
-
-          color:
-            #3d301f;
-
-          background:
-            #cfb664;
-
-          box-shadow:
-            0 18px 42px
-            rgba(0,0,0,.5);
-
-          cursor: pointer;
-        }
-
-
-        .conditions {
-          position: absolute;
-
-          z-index: 35;
-
-          right: 3%;
-          top: 360px;
-
-          width: 270px;
-
-          padding:
-            25px 28px;
-
-          transform:
-            rotate(2deg);
-
-          text-align: left;
-        }
-
-
-        .sticky-title {
-          display: flex;
-
-          justify-content:
-            space-between;
-
-          align-items: center;
-
-          margin-bottom: 17px;
-
-          color:
-            #7f4a31;
-
-          font-size:
-            9px;
+            clamp(
+              6px,
+              .52vw,
+              8px
+            );
 
           font-weight:
             900;
 
           letter-spacing:
-            .18em;
+            .08em;
         }
 
+        /* =================================================
+           CONDITIONS NOTE
+           ================================================= */
 
-        .sticky-title b {
-          color:
-            #40301f;
+        .conditions-overlay {
+          right:
+            5.3%;
 
-          font-size:
-            24px;
-        }
+          top:
+            45%;
 
+          width:
+            15.8%;
 
-        .condition-line {
-          display: flex;
-
-          align-items: center;
-          justify-content:
-            space-between;
+          min-height:
+            13%;
 
           padding:
-            12px 0;
+            1.2% 1.5%;
 
-          border-top:
-            1px solid
-            rgba(60,45,25,.18);
+          border:
+            0;
+
+          background:
+            rgba(
+              207,
+              182,
+              100,
+              .12
+            );
+
+          cursor:
+            pointer;
+
+          transform:
+            rotate(1.5deg);
         }
 
+        .conditions-overlay strong {
+          display:
+            block;
 
-        .condition-line strong {
+          margin-top:
+            8%;
+
           font:
-            400 20px
+            400
+            clamp(
+              11px,
+              1vw,
+              16px
+            )
+            / 1.2
             Georgia,
             serif;
         }
 
+        .conditions-overlay span {
+          display:
+            block;
 
-        .condition-line span {
-          font-size:
-            9px;
-        }
-
-
-        .conditions p {
-          margin:
-            12px 0 0;
+          margin-top:
+            9%;
 
           color:
-            #59442c;
+            #7f412e;
 
-          font:
-            italic 11px/1.5
-            Georgia,
-            serif;
+          font-size:
+            clamp(
+              6px,
+              .52vw,
+              8px
+            );
+
+          font-weight:
+            900;
+
+          letter-spacing:
+            .08em;
         }
-
 
         /* =================================================
            BUDGET NOTEBOOK
            ================================================= */
 
-        .notebook {
-          border: 0;
+        .budget-overlay {
+          left:
+            7.5%;
 
-          color:
-            #392c20;
+          bottom:
+            7.2%;
 
-          cursor: pointer;
+          width:
+            17.2%;
 
-          background:
-            repeating-linear-gradient(
-              0deg,
-              transparent 0 30px,
-              rgba(81,64,43,.13)
-              31px
-            ),
-            #cbb88e;
-
-          box-shadow:
-            0 24px 55px
-            rgba(0,0,0,.58);
-        }
-
-
-        .budget-book {
-          position: absolute;
-
-          z-index: 25;
-
-          left: 4%;
-          bottom: 5px;
-
-          width: 340px;
-          height: 285px;
+          min-height:
+            20%;
 
           padding:
-            30px 34px;
+            1.6% 1.7%;
+
+          border:
+            0;
+
+          background:
+            rgba(
+              211,
+              194,
+              151,
+              .08
+            );
+
+          cursor:
+            pointer;
 
           transform:
             rotate(-2deg);
-
-          text-align: left;
         }
 
+        .budget-overlay > strong {
+          display:
+            block;
 
-        .book-title {
-          color:
-            #55412d;
-
-          font:
-            700 20px
-            "Comic Sans MS",
-            cursive;
-        }
-
-
-        .budget-number {
-          width: max-content;
+          width:
+            max-content;
 
           margin:
-            22px 0 15px;
+            8% 0;
 
           padding:
-            10px 18px;
+            3% 5%;
 
           background:
-            #d9bd62;
-
-          transform:
-            rotate(-2deg);
+            rgba(
+              211,
+              181,
+              87,
+              .78
+            );
 
           font:
-            500 35px
+            500
+            clamp(
+              16px,
+              1.7vw,
+              27px
+            )
             "Comic Sans MS",
             cursive;
-
-          box-shadow:
-            0 7px 15px
-            rgba(0,0,0,.12);
         }
 
-
-        .budget-row {
-          display: flex;
+        .budget-overlay p {
+          display:
+            flex;
 
           justify-content:
             space-between;
 
-          padding:
-            10px 0;
+          gap:
+            10px;
 
-          border-bottom:
-            1px solid
-            rgba(63,48,32,.2);
-        }
+          margin:
+            5% 0;
 
-
-        .budget-row span {
-          font-size:
-            8px;
-
-          font-weight:
-            900;
-
-          letter-spacing:
-            .12em;
-        }
-
-
-        .budget-row b {
           font:
-            400 12px
+            400
+            clamp(
+              8px,
+              .72vw,
+              11px
+            )
             Georgia,
             serif;
         }
 
-
-        .budget-book em {
-          display: block;
+        .budget-overlay em {
+          display:
+            block;
 
           margin-top:
-            15px;
+            8%;
 
           color:
-            #8e482c;
+            #86412d;
 
           font-size:
-            8px;
+            clamp(
+              6px,
+              .52vw,
+              8px
+            );
 
           font-style:
             normal;
@@ -2399,442 +2895,259 @@ export default function WildPlanPage() {
             900;
 
           letter-spacing:
-            .12em;
+            .08em;
         }
-
 
         /* =================================================
-           PLAN BOOK
+           PLAN CHECK NOTEBOOK
            ================================================= */
 
-        .plan-book {
-          position: absolute;
+        .plan-overlay {
+          left:
+            33.2%;
 
-          z-index: 28;
+          bottom:
+            4.5%;
 
-          left: 31%;
-          bottom: -35px;
+          width:
+            29%;
 
-          width: 610px;
-          height: 300px;
-
-          display: grid;
-
-          grid-template-columns:
-            1fr 1fr;
-
-          color:
-            #3c3025;
-
-          background:
-            #d5c5a7;
-
-          box-shadow:
-            0 30px 70px
-            rgba(0,0,0,.65);
-
-          transform:
-            rotate(1deg);
-
-          border-radius:
-            7px 10px 10px 7px;
-        }
-
-
-        .binding {
-          position: absolute;
-
-          z-index: 5;
-
-          top: 0;
-          bottom: 0;
-          left: 50%;
-
-          width: 2px;
-
-          background:
-            rgba(65,48,32,.2);
-
-          box-shadow:
-            0 0 12px
-            rgba(0,0,0,.25);
-        }
-
-
-        .book-page {
-          position: relative;
+          height:
+            20%;
 
           padding:
-            35px 38px;
+            1.5% 2%;
 
-          background:
-            repeating-linear-gradient(
-              0deg,
-              transparent 0 27px,
-              rgba(71,62,48,.11)
-              28px
-            );
+          transform:
+            rotate(.8deg);
+
+          pointer-events:
+            none;
         }
 
+        .plan-overlay ul {
+          margin:
+            6% 0 0;
 
-        .book-section {
-          color:
-            #5c4633;
+          padding:
+            0;
+
+          list-style:
+            none;
+        }
+
+        .plan-overlay li {
+          display:
+            flex;
+
+          gap:
+            8px;
+
+          align-items:
+            center;
+
+          margin:
+            3% 0;
 
           font:
-            700 17px
+            400
+            clamp(
+              8px,
+              .72vw,
+              12px
+            )
             "Comic Sans MS",
             cursive;
         }
 
-
-        .left-page ul {
-          margin:
-            24px 0 0;
-
-          padding: 0;
-
-          list-style: none;
-        }
-
-
-        .left-page li {
-          display: flex;
-
-          gap: 11px;
-
-          align-items: center;
-
-          margin:
-            13px 0;
-
-          font:
-            400 13px
-            "Comic Sans MS",
-            cursive;
-        }
-
-
-        .left-page li i {
-          width: 16px;
+        .plan-overlay i {
+          width:
+            14px;
 
           font-style:
             normal;
         }
 
-
-        .checked {
+        .plan-overlay .done {
           color:
             #315340;
         }
 
+        .plan-progress {
+          position:
+            absolute;
 
-        .hand-note {
-          display: block;
+          left:
+            55%;
 
-          margin-top:
-            5px;
+          top:
+            25%;
 
-          transform:
-            rotate(-2deg);
+          width:
+            37%;
 
-          font:
-            italic 15px/1.4
-            Georgia,
-            serif;
-        }
+          height:
+            8px;
 
-
-        .progress-line {
-          width: 200px;
-          height: 12px;
-
-          margin-top:
-            24px;
-
-          overflow: hidden;
+          overflow:
+            hidden;
 
           border:
             1px solid
-            #625240;
+            rgba(
+              80,
+              65,
+              47,
+              .8
+            );
 
           border-radius:
             999px;
         }
 
+        .plan-progress span {
+          display:
+            block;
 
-        .progress-line span {
-          display: block;
-
-          height: 100%;
-
-          background:
-            repeating-linear-gradient(
-              -45deg,
-              #617d7a 0 5px,
-              #839795 5px 8px
-            );
-        }
-
-
-        .issue-note {
-          margin-top:
-            26px;
-
-          padding:
-            16px;
+          height:
+            100%;
 
           background:
-            rgba(181,117,74,.13);
+            #6e8179;
         }
 
+        .plan-overlay > p {
+          position:
+            absolute;
 
-        .issue-note strong {
+          left:
+            55%;
+
+          top:
+            39%;
+
+          width:
+            38%;
+
+          margin:
+            0;
+
           font:
-            400 15px
+            italic 400
+            clamp(
+              8px,
+              .75vw,
+              12px
+            )
+            / 1.4
             Georgia,
             serif;
         }
-
-
-        .issue-note p {
-          margin:
-            8px 0 0;
-
-          font-size:
-            10px;
-
-          line-height:
-            1.5;
-        }
-
-
-        .mountain-sketch {
-          position: absolute;
-
-          left: 50px;
-          right: 50px;
-          bottom: 45px;
-
-          height: 80px;
-
-          opacity: .32;
-        }
-
-
-        .mountain {
-          position: absolute;
-
-          bottom: 0;
-
-          width: 80px;
-          height: 80px;
-
-          border-left:
-            2px solid #514536;
-
-          border-top:
-            2px solid #514536;
-
-          transform:
-            rotate(45deg)
-            skew(-8deg,-8deg);
-        }
-
-
-        .m1 {
-          left: 20px;
-        }
-
-
-        .m2 {
-          left: 85px;
-
-          width: 100px;
-          height: 100px;
-        }
-
-
-        .m3 {
-          right: 5px;
-
-          width: 65px;
-          height: 65px;
-        }
-
-
-        .pen {
-          position: absolute;
-
-          z-index: 20;
-
-          right: 18px;
-          bottom: -28px;
-
-          width: 9px;
-          height: 210px;
-
-          border-radius:
-            6px;
-
-          background:
-            linear-gradient(
-              90deg,
-              #171512,
-              #4b4339,
-              #171512
-            );
-
-          transform:
-            rotate(19deg);
-
-          box-shadow:
-            4px 6px 10px
-            rgba(0,0,0,.35);
-        }
-
 
         /* =================================================
-           GEAR SHEET
+           GEAR SYSTEM
            ================================================= */
 
-        .gear-sheet {
-          position: absolute;
+        .gear-overlay {
+          right:
+            5%;
 
-          z-index: 33;
+          bottom:
+            5.7%;
 
-          right: 2%;
-          bottom: -10px;
+          width:
+            17%;
 
-          width: 280px;
+          min-height:
+            22%;
 
           padding:
-            28px 28px 30px;
-
-          color:
-            #3a3025;
-
-          background:
-            linear-gradient(
-              rgba(255,255,255,.12),
-              transparent
-            ),
-            #d9ccb1;
-
-          box-shadow:
-            0 24px 55px
-            rgba(0,0,0,.58);
+            1.4% 1.6%;
 
           transform:
-            rotate(3deg);
+            rotate(2.5deg);
         }
 
-
-        .gear-sheet::before {
-          content: "";
-
-          position: absolute;
-
-          top: -4px;
-          left: 0;
-          right: 0;
-
-          height: 10px;
-
-          background:
-            repeating-linear-gradient(
-              135deg,
-              transparent 0 7px,
-              #d9ccb1 7px 14px
-            );
-        }
-
-
-        .gear-title {
-          font:
-            700 15px
-            Georgia,
-            serif;
-
-          letter-spacing:
-            .12em;
-        }
-
-
-        .gear-rule {
-          height: 1px;
-
-          margin:
-            19px 0 10px;
-
-          background:
-            rgba(57,47,36,.25);
-        }
-
-
-        .gear-row,
-        .gear-gap {
-          display: flex;
+        .gear-overlay > p {
+          display:
+            flex;
 
           justify-content:
             space-between;
 
-          align-items: center;
+          margin:
+            5% 0;
 
-          padding:
-            10px 0;
+          padding-bottom:
+            3%;
 
           border-bottom:
             1px solid
-            rgba(57,47,36,.14);
+            rgba(
+              63,
+              49,
+              37,
+              .16
+            );
 
           font:
-            400 13px
+            400
+            clamp(
+              8px,
+              .75vw,
+              12px
+            )
             Georgia,
             serif;
         }
 
-
-        .gear-row b,
-        .gear-gap b {
+        .gear-overlay > p b {
           font-size:
-            19px;
+            clamp(
+              11px,
+              1.1vw,
+              17px
+            );
 
           font-weight:
             400;
         }
 
-
-        .gear-gap {
-          margin-top:
-            5px;
-        }
-
-
+        .gear-overlay
         .gear-gap b {
           padding:
-            2px 8px;
-
-          background:
-            rgba(167,68,46,.18);
+            1px 6px;
 
           color:
-            #8f3e2a;
+            #8e3d2a;
+
+          background:
+            rgba(
+              167,
+              68,
+              46,
+              .16
+            );
         }
 
-
-        .gear-sheet button {
-          width: 100%;
+        .gear-overlay button {
+          width:
+            100%;
 
           margin-top:
-            18px;
+            5%;
 
           padding:
-            11px;
+            4%;
 
           border:
             1px solid
-            #584535;
+            rgba(
+              71,
+              56,
+              42,
+              .72
+            );
 
           background:
             transparent;
@@ -2842,380 +3155,26 @@ export default function WildPlanPage() {
           color:
             #3a3025;
 
-          cursor: pointer;
+          cursor:
+            pointer;
 
           font-size:
-            9px;
+            clamp(
+              6px,
+              .55vw,
+              9px
+            );
 
           font-weight:
             900;
 
           letter-spacing:
-            .12em;
+            .08em;
         }
-
-
-        /* =================================================
-           OBJECTS
-           ================================================= */
-
-        .keys {
-          position: absolute;
-
-          z-index: 40;
-
-          left: 1%;
-          top: 380px;
-
-          width: 90px;
-          height: 150px;
-
-          transform:
-            rotate(10deg);
-        }
-
-
-        .key-ring {
-          position: absolute;
-
-          left: 25px;
-          top: 0;
-
-          width: 42px;
-          height: 42px;
-
-          border:
-            4px solid #8e8577;
-
-          border-radius:
-            50%;
-        }
-
-
-        .key-fob {
-          position: absolute;
-
-          left: 22px;
-          top: 42px;
-
-          width: 46px;
-          height: 70px;
-
-          display: grid;
-          place-items: center;
-
-          border-radius:
-            14px 14px 19px 19px;
-
-          color:
-            #aaa;
-
-          background:
-            linear-gradient(
-              120deg,
-              #292723,
-              #0f0f0e
-            );
-
-          box-shadow:
-            8px 10px 18px
-            rgba(0,0,0,.5);
-        }
-
-
-        .key-fob span {
-          display: grid;
-          place-items: center;
-
-          width: 22px;
-          height: 22px;
-
-          border:
-            1px solid #777;
-
-          border-radius:
-            50%;
-
-          font-size:
-            10px;
-        }
-
-
-        .metal-key {
-          position: absolute;
-
-          left: 55px;
-          top: 84px;
-
-          width: 13px;
-          height: 68px;
-
-          background:
-            linear-gradient(
-              90deg,
-              #817c71,
-              #c1bbaa,
-              #6d685f
-            );
-
-          transform:
-            rotate(-18deg);
-        }
-
-
-        .compass {
-          position: absolute;
-
-          z-index: 42;
-
-          right: 5%;
-          top: 250px;
-
-          width: 80px;
-          height: 80px;
-
-          display: grid;
-          place-items: center;
-
-          border:
-            5px solid #25211b;
-
-          border-radius:
-            50%;
-
-          background:
-            radial-gradient(
-              circle,
-              #c9b889,
-              #6c5d45 70%,
-              #1d1a16 72%
-            );
-
-          box-shadow:
-            8px 14px 25px
-            rgba(0,0,0,.5);
-        }
-
-
-        .compass-inner {
-          position: relative;
-
-          width: 56px;
-          height: 56px;
-
-          border:
-            1px solid
-            #332c23;
-
-          border-radius:
-            50%;
-        }
-
-
-        .compass-inner span {
-          position: absolute;
-
-          top: 4px;
-          left: 50%;
-
-          transform:
-            translateX(-50%);
-
-          font-size:
-            9px;
-
-          font-weight:
-            900;
-        }
-
-
-        .compass-inner i {
-          position: absolute;
-
-          left: 25px;
-          top: 13px;
-
-          width: 6px;
-          height: 33px;
-
-          background:
-            linear-gradient(
-              #9d3f2b 0 50%,
-              #2e332b 50%
-            );
-
-          clip-path:
-            polygon(
-              50% 0,
-              100% 50%,
-              50% 100%,
-              0 50%
-            );
-
-          transform:
-            rotate(24deg);
-        }
-
-
-        .pencil {
-          position: absolute;
-
-          z-index: 22;
-
-          left: 25%;
-          bottom: 15px;
-
-          width: 220px;
-          height: 9px;
-
-          background:
-            linear-gradient(
-              #c28d42,
-              #e1b665,
-              #a87534
-            );
-
-          transform:
-            rotate(-16deg);
-
-          box-shadow:
-            3px 5px 8px
-            rgba(0,0,0,.35);
-        }
-
-
-        .pencil::after {
-          content: "";
-
-          position: absolute;
-
-          right: -18px;
-          top: 0;
-
-          border-top:
-            4.5px solid transparent;
-
-          border-bottom:
-            4.5px solid transparent;
-
-          border-left:
-            18px solid #d6b98d;
-        }
-
-
-        /* =================================================
-           LANTERN
-           ================================================= */
-
-        .lantern {
-          position: absolute;
-
-          z-index: 50;
-
-          left: -55px;
-          top: -55px;
-
-          width: 150px;
-          height: 230px;
-
-          pointer-events: none;
-        }
-
-
-        .lantern-glass {
-          position: absolute;
-
-          left: 36px;
-          top: 55px;
-
-          width: 76px;
-          height: 105px;
-
-          border:
-            6px solid
-            #33281c;
-
-          border-radius:
-            30px 30px 20px 20px;
-
-          background:
-            radial-gradient(
-              circle at 50% 65%,
-              #ffd083,
-              #d67728 30%,
-              rgba(89,49,19,.25)
-              65%
-            );
-
-          box-shadow:
-            0 0 85px
-            rgba(255,151,58,.7);
-        }
-
-
-        .lantern-top {
-          position: absolute;
-
-          left: 45px;
-          top: 34px;
-
-          width: 60px;
-          height: 28px;
-
-          border-radius:
-            50% 50% 0 0;
-
-          background:
-            #2a2219;
-        }
-
-
-        .lantern-base {
-          position: absolute;
-
-          left: 29px;
-          top: 160px;
-
-          width: 90px;
-          height: 34px;
-
-          border-radius:
-            5px 5px 18px 18px;
-
-          background:
-            #292119;
-        }
-
 
         /* =================================================
            RESPONSIVE
            ================================================= */
-
-        @media (
-          max-width: 1180px
-        ) {
-
-          .table {
-            width: 1180px;
-
-            transform:
-              scale(.82);
-
-            margin-top:
-              -20px;
-
-            margin-left:
-              50%;
-
-            left:
-              -590px;
-
-            margin-bottom:
-              -160px;
-          }
-
-        }
-
 
         @media (
           max-width: 900px
@@ -3226,58 +3185,60 @@ export default function WildPlanPage() {
               0 24px;
           }
 
-
           .wild-nav nav {
-            gap: 20px;
+            gap:
+              20px;
           }
 
+          /*
+            Preserve the physical desk composition.
+            We crop rather than allowing all the
+            objects to collapse into a SaaS stack.
+          */
 
-          .table {
+          .desk-stage {
+            width:
+              1180px;
+
+            max-width:
+              none;
+
+            left:
+              50%;
+
             transform:
-              scale(.68);
-
-            margin-bottom:
-              -300px;
+              translateX(-50%);
           }
 
         }
-
 
         @media (
           max-width: 680px
         ) {
 
           .wild-nav {
-            height: 68px;
+            height:
+              68px;
           }
-
 
           .brand {
             font-size:
               14px !important;
           }
 
-
           .wild-nav nav button {
-            display: none;
+            display:
+              none;
           }
-
 
           .wild-nav nav {
             font-size:
               8px;
           }
 
-
-          .table {
-            transform:
-              scale(.52);
-
-            margin-top:
-              -80px;
-
-            margin-bottom:
-              -440px;
+          .desk-stage {
+            width:
+              1050px;
           }
 
         }
@@ -3285,7 +3246,5 @@ export default function WildPlanPage() {
       `}</style>
 
     </main>
-
   );
-
 }
