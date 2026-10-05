@@ -444,16 +444,80 @@ export default function WildPlanPage() {
           <p>{schedule?.days ? `${schedule.days} Days · ${schedule.nights ?? 0} Nights` : dateLine}</p>
         </article>
 
-        <JourneyMap
-          origin={origin}
-          destination={dest}
-          originName={originName}
-          destinationName={destinationName}
-          savedDistanceKm={route?.distanceKm}
-          savedHours={route?.estimatedHours}
-          onEdit={() => router.push("/wild-plan/destination")}
-        />
+       <div
+  style={{
+    position: "absolute",
+    left: "25%",
+    top: "16%",
+    width: "46%",
+    height: "47%",
+    zIndex: 9999,
+    boxSizing: "border-box",
+    border: "8px solid red",
+    background: "#17100c",
+    color: "white",
+    padding: "22px",
+    fontFamily: "Arial, Helvetica, sans-serif",
+  }}
+>
+  <div
+    style={{
+      fontSize: "22px",
+      fontWeight: 900,
+      marginBottom: "16px",
+    }}
+  >
+    JOURNEY MAP DIAGNOSTIC
+  </div>
 
+  <div style={{ fontSize: "14px", lineHeight: 1.8 }}>
+    <div>
+      START COORDINATES:{" "}
+      <strong>
+        {origin
+          ? `OK — ${origin.latitude}, ${origin.longitude}`
+          : "MISSING"}
+      </strong>
+    </div>
+
+    <div>
+      DESTINATION COORDINATES:{" "}
+      <strong>
+        {dest
+          ? `OK — ${dest.latitude}, ${dest.longitude}`
+          : "MISSING"}
+      </strong>
+    </div>
+
+    <div>
+      MAP READY:{" "}
+      <strong>{origin && dest ? "YES" : "NO"}</strong>
+    </div>
+
+    <div>
+      SAVED ROUTE:{" "}
+      <strong>{route ? "PRESENT" : "NOT PRESENT"}</strong>
+    </div>
+
+    <div>
+      SAVED DISTANCE:{" "}
+      <strong>
+        {typeof route?.distanceKm === "number"
+          ? `${Math.round(route.distanceKm)} KM`
+          : "NOT SET"}
+      </strong>
+    </div>
+
+    <div>
+      SAVED HOURS:{" "}
+      <strong>
+        {typeof route?.estimatedHours === "number"
+          ? `${route.estimatedHours.toFixed(1)} HRS`
+          : "NOT SET"}
+      </strong>
+    </div>
+  </div>
+</div>
         <button className="destination overlay" onClick={() => router.push("/wild-plan/destination")}>
           <small>DESTINATION</small>
           <strong>{destinationName}</strong>
