@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Wild } from "@/types/wild";
-
 import {
   CURRENT_WILD_UPDATED_EVENT,
   getCurrentWild,
@@ -15,16 +14,11 @@ declare global {
   }
 }
 
-type Point = {
-  latitude: number;
-  longitude: number;
-};
+type Point = { latitude: number; longitude: number };
 
 function isPoint(value: unknown): value is Point {
   if (!value || typeof value !== "object") return false;
-
   const p = value as Partial<Point>;
-
   return (
     typeof p.latitude === "number" &&
     Number.isFinite(p.latitude) &&
@@ -35,14 +29,9 @@ function isPoint(value: unknown): value is Point {
 
 function titleCase(value?: string) {
   if (!value) return "Not set";
-
   return value
     .split("-")
-    .map(
-      (part) =>
-        part.charAt(0).toUpperCase() +
-        part.slice(1)
-    )
+    .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
     .join(" ");
 }
 
@@ -54,21 +43,11 @@ function tripLabel(value?: string) {
     remote: "Remote / Off-Grid",
   };
 
-  return value
-    ? labels[value] ?? titleCase(value)
-    : "Trip style not set";
+  return value ? labels[value] ?? titleCase(value) : "Trip style not set";
 }
 
-function money(
-  value?: number,
-  currency = "USD"
-) {
-  if (
-    value === undefined ||
-    !Number.isFinite(value)
-  ) {
-    return "Not set";
-  }
+function money(value?: number, currency = "USD") {
+  if (value === undefined || !Number.isFinite(value)) return "Not set";
 
   try {
     return new Intl.NumberFormat("en-US", {
@@ -77,131 +56,70 @@ function money(
       maximumFractionDigits: 0,
     }).format(value);
   } catch {
-    return `${currency} ${value.toLocaleString(
-      "en-US"
-    )}`;
+    return `${currency} ${value.toLocaleString("en-US")}`;
   }
 }
 
 function dateLabel(value?: string) {
   if (!value) return "";
 
-  const date = new Date(
-    `${value}T12:00:00`
-  );
+  const d = new Date(`${value}T12:00:00`);
 
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
+  if (Number.isNaN(d.getTime())) return value;
 
   return new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
   })
-    .format(date)
+    .format(d)
     .toUpperCase();
 }
 
-/* =========================================================
-   LEAFLET LOADER
-   ========================================================= */
-
 function ensureLeaflet(): Promise<any> {
-  if (typeof window === "undefined") {
-    return Promise.reject(
-      new Error(
-        "Leaflet requires the browser."
-      )
-    );
-  }
+  if (typeof window === "undefined") return Promise.reject();
 
-  if (window.L) {
-    return Promise.resolve(window.L);
-  }
+  if (window.L) return Promise.resolve(window.L);
 
-  if (
-    !document.getElementById(
-      "roamlab-leaflet-css"
-    )
-  ) {
-    const css =
-      document.createElement("link");
+  if (!document.getElementById("roamlab-leaflet-css")) {
+    const css = document.createElement("link");
 
     css.id = "roamlab-leaflet-css";
     css.rel = "stylesheet";
-
-    css.href =
-      "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+    css.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
 
     document.head.appendChild(css);
   }
 
-  return new Promise<any>(
-    (resolve, reject) => {
-      const existing =
-        document.getElementById(
-          "roamlab-leaflet-js"
-        ) as HTMLScriptElement | null;
+  return new Promise((resolve, reject) => {
+    const old = document.getElementById(
+      "roamlab-leaflet-js"
+    ) as HTMLScriptElement | null;
 
-      if (existing) {
-        const waitForLeaflet = () => {
-          if (window.L) {
-            resolve(window.L);
-            return;
-          }
+    if (old) {
+      const wait = () =>
+        window.L ? resolve(window.L) : window.setTimeout(wait, 50);
 
-          window.setTimeout(
-            waitForLeaflet,
-            50
-          );
-        };
-
-        waitForLeaflet();
-        return;
-      }
-
-      const script =
-        document.createElement("script");
-
-      script.id =
-        "roamlab-leaflet-js";
-
-      script.src =
-        "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
-
-      script.async = true;
-
-      script.onload = () => {
-        if (window.L) {
-          resolve(window.L);
-        } else {
-          reject(
-            new Error(
-              "Leaflet unavailable."
-            )
-          );
-        }
-      };
-
-      script.onerror = () => {
-        reject(
-          new Error(
-            "Leaflet failed to load."
-          )
-        );
-      };
-
-      document.body.appendChild(
-        script
-      );
+      wait();
+      return;
     }
-  );
-}
 
-/* =========================================================
-   DYNAMIC JOURNEY MAP
-   ========================================================= */
+    const js = document.createElement("script");
+
+    js.id = "roamlab-leaflet-js";
+    js.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+    js.async = true;
+
+    js.onload = () =>
+      window.L
+        ? resolve(window.L)
+        : reject(new Error("Leaflet unavailable"));
+
+    js.onerror = () => reject(new Error("Leaflet failed to load"));
+
+    document.body.appendChild(js);
+  });
+}
 
 function JourneyMap({
   origin,
@@ -214,55 +132,24 @@ function JourneyMap({
 }: {
   origin?: Point;
   destination?: Point;
-
   originName: string;
   destinationName: string;
-
   savedDistanceKm?: number;
   savedHours?: number;
-
   onEdit: () => void;
 }) {
-  const mapNodeRef =
-    useRef<HTMLDivElement | null>(null);
+  const node = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<any>(null);
 
-  const mapRef =
-    useRef<any>(null);
+  const [geometry, setGeometry] = useState<[number, number][]>([]);
+  const [liveDistance, setLiveDistance] = useState<number>();
+  const [liveHours, setLiveHours] = useState<number>();
 
-  const [
-    geometry,
-    setGeometry,
-  ] = useState<
-    [number, number][]
-  >([]);
-
-  const [
-    liveDistance,
-    setLiveDistance,
-  ] = useState<number>();
-
-  const [
-    liveHours,
-    setLiveHours,
-  ] = useState<number>();
-
-  const [
-    status,
-    setStatus,
-  ] = useState<
-    | "idle"
-    | "loading"
-    | "ready"
-    | "error"
+  const [status, setStatus] = useState<
+    "idle" | "loading" | "ready" | "error"
   >("idle");
 
-  const ready =
-    isPoint(origin) &&
-    isPoint(destination);
-
-  /* -------------------------------------------------------
-     LOAD REAL ACCESS ROUTE FROM OSRM
-     ------------------------------------------------------- */
+  const ready = isPoint(origin) && isPoint(destination);
 
   useEffect(() => {
     let cancelled = false;
@@ -276,69 +163,43 @@ function JourneyMap({
     const start = origin;
     const end = destination;
 
-    async function loadRoute() {
+    async function route() {
       setStatus("loading");
 
       try {
         const url =
-          "https://router.project-osrm.org/route/v1/driving/" +
-          `${start.longitude},${start.latitude};` +
-          `${end.longitude},${end.latitude}` +
-          "?overview=full" +
-          "&geometries=geojson" +
-          "&steps=false" +
-          "&alternatives=false";
+          `https://router.project-osrm.org/route/v1/driving/` +
+          `${start.longitude},${start.latitude};${end.longitude},${end.latitude}` +
+          `?overview=full&geometries=geojson&steps=false&alternatives=false`;
 
-        const response =
-          await fetch(url);
+        const response = await fetch(url);
 
         if (!response.ok) {
-          throw new Error(
-            "OSRM route request failed."
-          );
+          throw new Error("OSRM route failed");
         }
 
-        const data =
-          await response.json();
+        const data = await response.json();
+        const first = data?.routes?.[0];
 
-        const first =
-          data?.routes?.[0];
-
-        if (
-          !first?.geometry?.coordinates
-        ) {
-          throw new Error(
-            "No route geometry returned."
-          );
+        if (!first?.geometry?.coordinates) {
+          throw new Error("No route geometry");
         }
 
-        const routeGeometry:
-          [number, number][] =
-          first.geometry.coordinates.map(
-            (
-              point:
-                [number, number]
-            ) => [
-              point[1],
-              point[0],
-            ]
-          );
+        const line: [number, number][] = first.geometry.coordinates.map(
+          (p: [number, number]) => [p[1], p[0]]
+        );
 
         if (!cancelled) {
-          setGeometry(
-            routeGeometry
-          );
+          setGeometry(line);
 
           setLiveDistance(
-            typeof first.distance ===
-              "number"
+            typeof first.distance === "number"
               ? first.distance / 1000
               : undefined
           );
 
           setLiveHours(
-            typeof first.duration ===
-              "number"
+            typeof first.duration === "number"
               ? first.duration / 3600
               : undefined
           );
@@ -346,19 +207,15 @@ function JourneyMap({
           setStatus("ready");
         }
       } catch (error) {
-        console.error(
-          "Wild Plan route loading failed:",
-          error
-        );
+        console.error("Journey route failed:", error);
 
         if (!cancelled) {
-          setGeometry([]);
           setStatus("error");
         }
       }
     }
 
-    loadRoute();
+    route();
 
     return () => {
       cancelled = true;
@@ -371,60 +228,34 @@ function JourneyMap({
     destination?.longitude,
   ]);
 
-  /* -------------------------------------------------------
-     BUILD LEAFLET MAP
-     ------------------------------------------------------- */
-
   useEffect(() => {
     let cancelled = false;
 
-    if (
-      !mapNodeRef.current ||
-      !ready
-    ) {
-      return;
-    }
+    if (!node.current || !ready) return;
 
     const start = origin;
     const end = destination;
 
-    async function drawMap() {
+    async function draw() {
       try {
-        const L =
-          await ensureLeaflet();
+        const L = await ensureLeaflet();
 
-        if (
-          cancelled ||
-          !mapNodeRef.current
-        ) {
-          return;
-        }
+        if (cancelled || !node.current) return;
 
         if (mapRef.current) {
           mapRef.current.remove();
           mapRef.current = null;
         }
 
-        const map = L.map(
-          mapNodeRef.current,
-          {
-            zoomControl: false,
-            attributionControl: false,
-            scrollWheelZoom: false,
-            boxZoom: false,
-            keyboard: false,
-          }
-        );
+        const map = L.map(node.current, {
+          zoomControl: false,
+          attributionControl: false,
+          scrollWheelZoom: false,
+          boxZoom: false,
+          keyboard: false,
+        });
 
         mapRef.current = map;
-
-        /*
-          USGS Topographic Map
-
-          We deliberately keep the real map
-          underneath a warm paper treatment
-          so it belongs to the expedition desk.
-        */
 
         L.tileLayer(
           "https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}",
@@ -433,115 +264,66 @@ function JourneyMap({
           }
         ).addTo(map);
 
-        const startIcon =
-          L.divIcon({
-            className:
-              "roamlab-map-icon",
+        const startIcon = L.divIcon({
+          className: "rl-icon",
+          html: '<span class="rl-pin rl-start"></span>',
+          iconSize: [18, 18],
+          iconAnchor: [9, 9],
+        });
 
-            html:
-              '<span class="roamlab-pin roamlab-pin-start"></span>',
+        const endIcon = L.divIcon({
+          className: "rl-icon",
+          html: '<span class="rl-pin rl-end"></span>',
+          iconSize: [22, 22],
+          iconAnchor: [11, 11],
+        });
 
-            iconSize: [18, 18],
-            iconAnchor: [9, 9],
-          });
+        L.marker([start.latitude, start.longitude], {
+          icon: startIcon,
+        }).addTo(map);
 
-        const wildIcon =
-          L.divIcon({
-            className:
-              "roamlab-map-icon",
+        L.marker([end.latitude, end.longitude], {
+          icon: endIcon,
+        }).addTo(map);
 
-            html:
-              '<span class="roamlab-pin roamlab-pin-wild"></span>',
-
-            iconSize: [22, 22],
-            iconAnchor: [11, 11],
-          });
-
-        L.marker(
-          [
-            start.latitude,
-            start.longitude,
-          ],
-          {
-            icon: startIcon,
-          }
-        ).addTo(map);
-
-        L.marker(
-          [
-            end.latitude,
-            end.longitude,
-          ],
-          {
-            icon: wildIcon,
-          }
-        ).addTo(map);
-
-        const routePoints =
+        const line =
           geometry.length > 1
             ? geometry
             : [
-                [
-                  start.latitude,
-                  start.longitude,
-                ],
-                [
-                  end.latitude,
-                  end.longitude,
-                ],
+                [start.latitude, start.longitude],
+                [end.latitude, end.longitude],
               ];
 
-        L.polyline(
-          routePoints,
-          {
-            color: "#963b2a",
-            weight: 4,
-            opacity: 0.92,
-            lineCap: "round",
-            lineJoin: "round",
+        L.polyline(line, {
+          color: "#963b2a",
+          weight: 4,
+          opacity: 0.92,
+          lineCap: "round",
+          lineJoin: "round",
+        }).addTo(map);
+
+        const bounds = L.latLngBounds([
+          [start.latitude, start.longitude],
+          [end.latitude, end.longitude],
+          ...geometry,
+        ]);
+
+        map.fitBounds(bounds, {
+          padding: [55, 55],
+          maxZoom: 10,
+        });
+
+        window.setTimeout(() => {
+          if (!cancelled) {
+            map.invalidateSize();
           }
-        ).addTo(map);
-
-        const bounds =
-          L.latLngBounds([
-            [
-              start.latitude,
-              start.longitude,
-            ],
-
-            [
-              end.latitude,
-              end.longitude,
-            ],
-
-            ...geometry,
-          ]);
-
-        map.fitBounds(
-          bounds,
-          {
-            padding: [55, 55],
-            maxZoom: 10,
-          }
-        );
-
-        window.setTimeout(
-          () => {
-            if (!cancelled) {
-              map.invalidateSize();
-            }
-          },
-          100
-        );
+        }, 100);
       } catch (error) {
-        console.error(
-          "Wild Plan map loading failed:",
-          error
-        );
+        console.error("Journey map failed:", error);
       }
     }
 
-    drawMap();
+    draw();
 
     return () => {
       cancelled = true;
@@ -560,180 +342,81 @@ function JourneyMap({
     geometry,
   ]);
 
-  const distance =
-    liveDistance ??
-    savedDistanceKm;
-
-  const hours =
-    liveHours ??
-    savedHours;
+  const distance = liveDistance ?? savedDistanceKm;
+  const hours = liveHours ?? savedHours;
 
   const routeText = [
-    typeof distance === "number"
-      ? `${Math.round(
-          distance
-        )} KM`
-      : "",
-
-    typeof hours === "number"
-      ? `${hours.toFixed(
-          1
-        )} HRS`
-      : "",
+    typeof distance === "number" ? `${Math.round(distance)} KM` : "",
+    typeof hours === "number" ? `${hours.toFixed(1)} HRS` : "",
   ]
     .filter(Boolean)
     .join(" · ");
 
   return (
-    <article className="journey-map">
-
-      <div className="journey-map-paper">
-
+    <article className="journey">
+      <div className="map-paper">
         {ready ? (
-          <div
-            ref={mapNodeRef}
-            className="journey-map-live"
-          />
+          <div ref={node} className="live-map" />
         ) : (
-          <div className="journey-map-empty">
-
-            <span>
-              JOURNEY MAP
-            </span>
-
-            <strong>
-              Waiting for map
-              coordinates.
-            </strong>
-
+          <div className="map-empty">
+            <small>JOURNEY MAP</small>
+            <strong>Waiting for map coordinates.</strong>
             <p>
-              Set a starting point
-              and destination to
-              bring this paper map
-              to life.
+              Set a starting point and destination to bring this map to life.
             </p>
-
           </div>
         )}
 
-        <div
-          className="paper-wash"
-        />
+        <div className="map-wash" />
+        <div className="fold fold1" />
+        <div className="fold fold2" />
 
-        <div
-          className="paper-fold fold-a"
-        />
-
-        <div
-          className="paper-fold fold-b"
-        />
-
-        <button
-          type="button"
-          className="journey-start"
-          onClick={onEdit}
-        >
-          <small>
-            START
-          </small>
-
-          <b>
-            {originName}
-          </b>
+        <button className="map-label start-label" onClick={onEdit}>
+          <small>START</small>
+          <b>{originName}</b>
         </button>
 
-        <button
-          type="button"
-          className="journey-wild"
-          onClick={onEdit}
-        >
-          <small>
-            WILD
-          </small>
-
-          <b>
-            {destinationName}
-          </b>
+        <button className="map-label wild-label" onClick={onEdit}>
+          <small>WILD</small>
+          <b>{destinationName}</b>
         </button>
 
-        <div className="journey-distance">
-
+        <div className="route-note">
           {status === "loading"
             ? "DRAWING ACCESS ROUTE..."
-
             : status === "error"
-              ? routeText ||
-                "ROUTE UNAVAILABLE"
-
-              : routeText ||
-                "ROUTE IN PROGRESS"}
-
+              ? routeText || "ROUTE UNAVAILABLE"
+              : routeText || "ROUTE IN PROGRESS"}
         </div>
 
-        <button
-          type="button"
-          className="journey-edit"
-          onClick={onEdit}
-        >
+        <button className="edit-map" onClick={onEdit}>
           EDIT JOURNEY →
         </button>
-
       </div>
-
     </article>
   );
 }
 
-/* =========================================================
-   WILD PLAN PAGE
-   ========================================================= */
-
 export default function WildPlanPage() {
   const router = useRouter();
 
-  const [
-    wild,
-    setWild,
-  ] = useState<Wild | null>(
-    null
-  );
-
-  const [
-    loaded,
-    setLoaded,
-  ] = useState(false);
+  const [wild, setWild] = useState<Wild | null>(null);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     const load = () => {
-      setWild(
-        getCurrentWild()
-      );
-
+      setWild(getCurrentWild());
       setLoaded(true);
     };
 
     load();
 
-    window.addEventListener(
-      CURRENT_WILD_UPDATED_EVENT,
-      load
-    );
-
-    window.addEventListener(
-      "storage",
-      load
-    );
+    window.addEventListener(CURRENT_WILD_UPDATED_EVENT, load);
+    window.addEventListener("storage", load);
 
     return () => {
-      window.removeEventListener(
-        CURRENT_WILD_UPDATED_EVENT,
-        load
-      );
-
-      window.removeEventListener(
-        "storage",
-        load
-      );
+      window.removeEventListener(CURRENT_WILD_UPDATED_EVENT, load);
+      window.removeEventListener("storage", load);
     };
   }, []);
 
@@ -750,2496 +433,952 @@ export default function WildPlanPage() {
 
   if (!wild) {
     return (
-      <main className="empty-wild">
+      <main className="empty">
+        <section>
+          <small>ROAMLAB · WILD PLAN</small>
 
-        <section className="empty-paper">
+          <h1>Nothing on the table yet.</h1>
 
-          <small>
-            ROAMLAB · WILD PLAN
-          </small>
+          <p>Choose your way in and begin building your next Wild.</p>
 
-          <h1>
-            Nothing on the table yet.
-          </h1>
-
-          <p>
-            Choose your way in and
-            begin building your next
-            Wild.
-          </p>
-
-          <button
-            onClick={() =>
-              router.push(
-                "/ways-in"
-              )
-            }
-          >
+          <button onClick={() => router.push("/ways-in")}>
             START YOUR WILD →
           </button>
-
         </section>
 
         <style jsx>{`
-
-          .empty-wild {
+          .empty {
             min-height: 100vh;
-
             display: grid;
             place-items: center;
-
             padding: 30px;
-
+            background:
+              linear-gradient(rgba(10, 7, 4, 0.2), rgba(10, 7, 4, 0.6)),
+              url("/wild-plan-test.jpg") center / cover;
             color: #35291e;
-
-            background:
-              linear-gradient(
-                rgba(10,7,4,.2),
-                rgba(10,7,4,.6)
-              ),
-              url("/wild-plan-test.jpg")
-              center / cover;
           }
 
-          .empty-paper {
-            width:
-              min(560px, 90vw);
-
-            padding:
-              50px;
-
-            background:
-              rgba(
-                221,
-                207,
-                177,
-                .94
-              );
-
-            box-shadow:
-              0 30px 90px
-              rgba(0,0,0,.6);
-
-            transform:
-              rotate(-1deg);
+          section {
+            width: min(560px, 90vw);
+            padding: 50px;
+            background: rgba(221, 207, 177, 0.94);
+            box-shadow: 0 30px 90px #0009;
+            transform: rotate(-1deg);
           }
 
-          .empty-paper small {
-            font:
-              800 10px
-              Arial,
-              sans-serif;
-
-            letter-spacing:
-              .2em;
+          small {
+            font: 800 10px Arial;
+            letter-spacing: 0.2em;
           }
 
-          .empty-paper h1 {
-            margin:
-              18px 0 12px;
-
-            font:
-              400 44px
-              Georgia,
-              serif;
+          h1 {
+            font: 400 44px Georgia;
+            margin: 18px 0 12px;
           }
 
-          .empty-paper p {
-            font:
-              16px/1.6
-              Georgia,
-              serif;
+          p {
+            font: 16px/1.6 Georgia;
           }
 
-          .empty-paper button {
-            margin-top:
-              20px;
-
-            padding:
-              13px 17px;
-
+          button {
+            margin-top: 20px;
+            padding: 13px 17px;
             border: 0;
-
-            background:
-              #93432a;
-
-            color:
-              #fff1dc;
-
-            cursor:
-              pointer;
-
-            font:
-              800 10px
-              Arial,
-              sans-serif;
-
-            letter-spacing:
-              .12em;
+            background: #93432a;
+            color: #fff1dc;
+            cursor: pointer;
+            font: 800 10px Arial;
+            letter-spacing: 0.12em;
           }
-
         `}</style>
-
       </main>
     );
   }
-    const adventure =
-    wild.plan.adventure;
 
-  const schedule =
-    adventure.schedule;
+  const a = wild.plan.adventure;
+  const schedule = a.schedule;
+  const destination = a.destination;
+  const intent = a.intent;
 
-  const destination =
-    adventure.destination;
+  const route = wild.plan.route;
+  const conditions = wild.plan.conditions;
+  const gear = wild.plan.prepare?.gear;
+  const cost = wild.plan.cost;
+  const planning = wild.plan.planning;
 
-  const intent =
-    adventure.intent;
+  const items = gear?.items ?? [];
 
-  const route =
-    wild.plan.route;
+  const essential = items.filter(
+    (x) => x.priority === "essential"
+  ).length;
 
-  const conditions =
-    wild.plan.conditions;
+  const recommended = items.filter(
+    (x) => x.priority === "recommended"
+  ).length;
 
-  const gear =
-    wild.plan.prepare?.gear;
+  const optional = items.filter(
+    (x) => x.priority === "optional"
+  ).length;
 
-  const cost =
-    wild.plan.cost;
+  const owned = items.filter(
+    (x) => x.ownershipStatus === "owned"
+  ).length;
 
-  const planning =
-    wild.plan.planning;
+  const gap = items.filter((x) =>
+    ["to-buy", "borrow", "rent"].includes(x.ownershipStatus)
+  ).length;
 
-  const items =
-    gear?.items ?? [];
+  const issues = (planning?.issues ?? []).filter(
+    (x) => x.status === "open"
+  );
 
-  /* =======================================================
-     GEAR COUNTS
-     ======================================================= */
-
-  const essential =
-    items.filter(
-      (item) =>
-        item.priority ===
-        "essential"
-    ).length;
-
-  const recommended =
-    items.filter(
-      (item) =>
-        item.priority ===
-        "recommended"
-    ).length;
-
-  const optional =
-    items.filter(
-      (item) =>
-        item.priority ===
-        "optional"
-    ).length;
-
-  const owned =
-    items.filter(
-      (item) =>
-        item.ownershipStatus ===
-        "owned"
-    ).length;
-
-  const gap =
-    items.filter(
-      (item) =>
-        [
-          "to-buy",
-          "borrow",
-          "rent",
-        ].includes(
-          item.ownershipStatus
-        )
-    ).length;
-
-  /* =======================================================
-     PLAN / BUDGET
-     ======================================================= */
-
-  const issues =
-    (
-      planning?.issues ?? []
-    ).filter(
-      (issue) =>
-        issue.status === "open"
-    );
-
-  const currency =
-    cost?.currency ?? "USD";
+  const currency = cost?.currency ?? "USD";
 
   const projected =
-    planning?.projectedWildCost ??
-    cost?.estimatedTotal;
+    planning?.projectedWildCost ?? cost?.estimatedTotal;
 
   const remaining =
     cost?.remainingBudget ??
-    (
-      typeof cost?.totalWildBudget ===
-        "number" &&
-      typeof projected ===
-        "number"
-
-        ? cost.totalWildBudget -
-          projected
-
-        : undefined
-    );
-
-  /* =======================================================
-     SCHEDULE
-     ======================================================= */
+    (typeof cost?.totalWildBudget === "number" &&
+    typeof projected === "number"
+      ? cost.totalWildBudget - projected
+      : undefined);
 
   const dateLine =
-    schedule?.startDate &&
-    schedule?.endDate
-
-      ? `${dateLabel(
-          schedule.startDate
-        )} — ${dateLabel(
-          schedule.endDate
-        )}`
-
-      : schedule?.timingMode ===
-          "flexible"
-
+    schedule?.startDate && schedule?.endDate
+      ? `${dateLabel(schedule.startDate)} — ${dateLabel(schedule.endDate)}`
+      : schedule?.timingMode === "flexible"
         ? "FLEXIBLE DATES"
-
-        : schedule?.timingMode ===
-            "undecided"
-
+        : schedule?.timingMode === "undecided"
           ? "DATES UNDECIDED"
-
           : "DATES NOT SET";
 
-  /* =======================================================
-     JOURNEY DATA
-     ======================================================= */
-
   const originName =
-    intent?.startingFrom?.name ??
-    "Starting point not set";
+    intent?.startingFrom?.name ?? "Starting point not set";
 
   const destinationName =
-    destination?.name ??
-    "Choose your destination";
+    destination?.name ?? "Choose your destination";
 
-  const people =
-    adventure.crew?.people ?? 0;
+  const origin = isPoint(intent?.startingFrom?.coordinates)
+    ? intent.startingFrom.coordinates
+    : undefined;
 
-  const originCoordinates =
-    isPoint(
-      intent?.startingFrom
-        ?.coordinates
-    )
-
-      ? intent.startingFrom
-          .coordinates
-
-      : undefined;
-
-  const destinationCoordinates =
-    isPoint(
-      destination?.coordinates
-    )
-
-      ? destination.coordinates
-
-      : undefined;
-
-  /* =======================================================
-     KEEP EXISTING CONTEXT WHEN EDITING
-     ======================================================= */
+  const dest = isPoint(destination?.coordinates)
+    ? destination.coordinates
+    : undefined;
 
   function contextQuery() {
-    const params =
-      new URLSearchParams();
+    const p = new URLSearchParams();
 
-    if (
-      adventure.vehicle?.type
-    ) {
-      params.set(
-        "vehicle",
-        adventure.vehicle.type
-      );
+    if (a.vehicle?.type) {
+      p.set("vehicle", a.vehicle.type);
     }
 
-    if (
-      adventure.tripStyle
-    ) {
-      params.set(
-        "trip",
-        adventure.tripStyle
-      );
+    if (a.tripStyle) {
+      p.set("trip", a.tripStyle);
     }
 
-    if (
-      adventure.crew?.type
-    ) {
-      params.set(
-        "crew",
-        adventure.crew.type
-      );
+    if (a.crew?.type) {
+      p.set("crew", a.crew.type);
     }
 
-    if (
-      adventure.crew?.people
-    ) {
-      params.set(
-        "people",
-        String(
-          adventure.crew.people
-        )
-      );
+    if (a.crew?.people) {
+      p.set("people", String(a.crew.people));
     }
 
-    if (
-      schedule?.durationType
-    ) {
-      params.set(
-        "duration",
-        schedule.durationType
-      );
+    if (schedule?.durationType) {
+      p.set("duration", schedule.durationType);
     }
 
-    return params.toString();
+    return p.toString();
   }
 
-  /* =======================================================
-     PLAN CHECK PROGRESS
-     ======================================================= */
+  const readiness = wild.plan.readiness?.overallPercent;
 
-  const readinessPercent =
-    wild.plan.readiness
-      ?.overallPercent;
-
-  const planProgress =
-    typeof readinessPercent ===
-      "number"
-
-      ? Math.max(
-          0,
-          Math.min(
-            100,
-            readinessPercent
-          )
-        )
-
+  const progress =
+    typeof readiness === "number"
+      ? Math.max(0, Math.min(100, readiness))
       : items.length
         ? 58
         : 24;
 
-  /* =======================================================
-     PAGE
-     ======================================================= */
-
   return (
-    <main className="wild-desk">
-
-      {/* ================================================
-          GLOBAL NAVIGATION
-          ================================================ */}
-
-      <header className="wild-nav">
-
-        <button
-          className="brand"
-          onClick={() =>
-            router.push("/")
-          }
-        >
+    <main className="page">
+      <header>
+        <button className="brand" onClick={() => router.push("/")}>
           ROAMLAB
         </button>
 
         <nav>
+          <button onClick={() => router.push("/ways-in")}>EXPLORE</button>
 
-          <button
-            onClick={() =>
-              router.push(
-                "/ways-in"
-              )
-            }
-          >
-            EXPLORE
-          </button>
-
-          <button
-            onClick={() =>
-              router.push(
-                "/gear"
-              )
-            }
-          >
+          <button onClick={() => router.push("/gear")}>
             GEAR LAB
           </button>
 
-          <span>
-            WILD PLAN
-          </span>
-
+          <span>WILD PLAN</span>
         </nav>
-
       </header>
 
-      {/* ================================================
-          PHOTOREALISTIC DESK MASTER
-          ================================================ */}
-
-      <section className="desk-stage">
-
+      <section className="stage">
         <img
-          className="desk-master"
           src="/wild-plan-test.jpg"
+          className="master"
           alt=""
-          aria-hidden="true"
         />
 
-        <div
-          className="desk-shade"
-          aria-hidden="true"
-        />
+        <div className="shade" />
 
-        {/* ==============================================
-            CURRENT WILD
-            ============================================== */}
+        <article className="current overlay">
+          <small>CURRENT WILD</small>
 
-        <article
-          className="
-            overlay
-            current-wild-overlay
-          "
-        >
-
-          <small>
-            CURRENT WILD
-          </small>
-
-          <h1>
-            {destinationName}
-          </h1>
+          <h1>{destinationName}</h1>
 
           <p>
-            {titleCase(
-              adventure.wayIn
-            )}
-            {" · "}
-            {tripLabel(
-              adventure.tripStyle
-            )}
+            {titleCase(a.wayIn)} · {tripLabel(a.tripStyle)}
           </p>
 
           <p>
-            {people
-              ? `${people} ${
-                  people === 1
-                    ? "Person"
-                    : "People"
+            {a.crew?.people
+              ? `${a.crew.people} ${
+                  a.crew.people === 1 ? "Person" : "People"
                 }`
-
               : "Crew not set"}
           </p>
 
           <p>
             {schedule?.days
-              ? `${schedule.days} Days · ${
-                  schedule.nights ??
-                  0
-                } Nights`
-
+              ? `${schedule.days} Days · ${schedule.nights ?? 0} Nights`
               : dateLine}
           </p>
-
         </article>
 
-        {/* ==============================================
-            REAL DYNAMIC JOURNEY MAP
-            ============================================== */}
-
         <JourneyMap
-          origin={
-            originCoordinates
-          }
-
-          destination={
-            destinationCoordinates
-          }
-
-          originName={
-            originName
-          }
-
-          destinationName={
-            destinationName
-          }
-
-          savedDistanceKm={
-            route?.distanceKm
-          }
-
-          savedHours={
-            route?.estimatedHours
-          }
-
-          onEdit={() =>
-            router.push(
-              "/wild-plan/destination"
-            )
-          }
+          origin={origin}
+          destination={dest}
+          originName={originName}
+          destinationName={destinationName}
+          savedDistanceKm={route?.distanceKm}
+          savedHours={route?.estimatedHours}
+          onEdit={() => router.push("/wild-plan/destination")}
         />
 
-        {/* ==============================================
-            DESTINATION POLAROID HOT ZONE
-            ============================================== */}
-
         <button
-          type="button"
-
-          className="
-            overlay destination-overlay
-          "
-
-          onClick={() =>
-            router.push(
-              "/wild-plan/destination"
-            )
-          }
+          className="destination overlay"
+          onClick={() => router.push("/wild-plan/destination")}
         >
+          <small>DESTINATION</small>
 
-          <small>
-            DESTINATION
-          </small>
+          <strong>{destinationName}</strong>
 
-          <strong>
-            {destinationName}
-          </strong>
-
-          <span>
-            VIEW / CHANGE →
-          </span>
-
+          <span>VIEW / CHANGE →</span>
         </button>
 
-        {/* ==============================================
-            CONDITIONS NOTE
-            ============================================== */}
-
         <button
-          type="button"
-
-          className="
-            overlay conditions-overlay
-          "
-
-          onClick={() =>
-            router.push(
-              "/wild-plan/destination"
-            )
-          }
+          className="conditions overlay"
+          onClick={() => router.push("/wild-plan/destination")}
         >
-
-          <small>
-            CONDITIONS
-          </small>
+          <small>CONDITIONS</small>
 
           <strong>
-            {conditions
-              ?.weatherSummary ||
-              "Weather & terrain"}
+            {conditions?.weatherSummary || "Weather & terrain"}
           </strong>
 
-          <span>
-            OPEN INTELLIGENCE →
-          </span>
-
+          <span>OPEN INTELLIGENCE →</span>
         </button>
 
-        {/* ==============================================
-            BUDGET NOTEBOOK
-            ============================================== */}
-
         <button
-          type="button"
-
-          className="
-            overlay budget-overlay
-          "
-
+          className="budget overlay"
           onClick={() => {
-
-            const query =
-              contextQuery();
+            const q = contextQuery();
 
             router.push(
-              query
-                ? `/ways-in/drive/budget?${query}`
+              q
+                ? `/ways-in/drive/budget?${q}`
                 : "/ways-in/drive/budget"
             );
-
           }}
         >
-
-          <small>
-            BUDGET
-          </small>
+          <small>BUDGET</small>
 
           <strong>
-            {cost?.budgetStatus ===
-            "unknown"
-
+            {cost?.budgetStatus === "unknown"
               ? "NOT SET"
-
-              : money(
-                  cost?.totalWildBudget,
-                  currency
-                )}
+              : money(cost?.totalWildBudget, currency)}
           </strong>
 
           <p>
-
-            <span>
-              Projected
-            </span>
-
-            <b>
-              {money(
-                projected,
-                currency
-              )}
-            </b>
-
+            <span>Projected</span>
+            <b>{money(projected, currency)}</b>
           </p>
 
           <p>
-
-            <span>
-              Remaining
-            </span>
-
-            <b>
-              {money(
-                remaining,
-                currency
-              )}
-            </b>
-
+            <span>Remaining</span>
+            <b>{money(remaining, currency)}</b>
           </p>
 
-          <em>
-            EDIT BUDGET →
-          </em>
-
+          <em>EDIT BUDGET →</em>
         </button>
 
-        {/* ==============================================
-            PLAN CHECK NOTEBOOK
-            ============================================== */}
-
-        <article
-          className="
-            overlay plan-overlay
-          "
-        >
-
-          <small>
-            PLAN CHECK
-          </small>
+        <article className="plan overlay">
+          <small>PLAN CHECK</small>
 
           <ul>
-
             <li>
-
-              <i
-                className={
-                  route
-                    ? "done"
-                    : ""
-                }
-              >
-                {route
-                  ? "✓"
-                  : "□"}
+              <i className={route ? "done" : ""}>
+                {route ? "✓" : "□"}
               </i>
-
               Route & access
-
             </li>
 
             <li>
-
-              <i
-                className={
-                  items.length
-                    ? "done"
-                    : ""
-                }
-              >
-                {items.length
-                  ? "✓"
-                  : "□"}
+              <i className={items.length ? "done" : ""}>
+                {items.length ? "✓" : "□"}
               </i>
-
               Gear readiness
-
             </li>
 
             <li>
-
               <i
                 className={
-                  typeof cost
-                    ?.totalWildBudget ===
-                    "number"
-
+                  typeof cost?.totalWildBudget === "number"
                     ? "done"
                     : ""
                 }
               >
-                {typeof cost
-                  ?.totalWildBudget ===
-                  "number"
-
+                {typeof cost?.totalWildBudget === "number"
                   ? "✓"
                   : "□"}
               </i>
-
               Budget check
-
             </li>
 
             <li>
-
-              <i
-                className={
-                  conditions
-                    ? "done"
-                    : ""
-                }
-              >
-                {conditions
-                  ? "✓"
-                  : "□"}
+              <i className={conditions ? "done" : ""}>
+                {conditions ? "✓" : "□"}
               </i>
-
               Weather & terrain
-
             </li>
-
           </ul>
 
-          <div
-            className="
-              plan-progress
-            "
-          >
-
+          <div className="progress">
             <span
               style={{
-                width:
-                  `${planProgress}%`,
+                width: `${progress}%`,
               }}
             />
-
           </div>
 
           <p>
-
             {issues.length
-
               ? `${issues.length} ${
                   issues.length === 1
                     ? "thing needs"
                     : "things need"
                 } attention.`
-
               : planning
-
                 ? "Your plan is looking clear."
-
                 : "Checking your plan..."}
-
           </p>
-
         </article>
 
-        {/* ==============================================
-            GEAR SYSTEM
-            ============================================== */}
-
-        <article
-          className="
-            overlay gear-overlay
-          "
-        >
-
-          <small>
-            GEAR SYSTEM
-          </small>
+        <article className="gear overlay">
+          <small>GEAR SYSTEM</small>
 
           <p>
-
-            <span>
-              Essential
-            </span>
-
-            <b>
-              {essential}
-            </b>
-
+            <span>Essential</span>
+            <b>{essential}</b>
           </p>
 
           <p>
-
-            <span>
-              Recommended
-            </span>
-
-            <b>
-              {recommended}
-            </b>
-
+            <span>Recommended</span>
+            <b>{recommended}</b>
           </p>
 
           <p>
-
-            <span>
-              Optional
-            </span>
-
-            <b>
-              {optional}
-            </b>
-
+            <span>Optional</span>
+            <b>{optional}</b>
           </p>
 
           <p>
-
-            <span>
-              Already owned
-            </span>
-
-            <b>
-              {owned}
-            </b>
-
+            <span>Already owned</span>
+            <b>{owned}</b>
           </p>
 
-          <p className="gear-gap">
-
-            <span>
-              Gear gap
-            </span>
-
-            <b>
-              {gap}
-            </b>
-
+          <p className="gap">
+            <span>Gear gap</span>
+            <b>{gap}</b>
           </p>
 
           <button
-            type="button"
-
             onClick={() => {
-
-              const query =
-                contextQuery();
+              const q = contextQuery();
 
               router.push(
-                query
-                  ? `/ways-in/drive/gear?${query}`
+                q
+                  ? `/ways-in/drive/gear?${q}`
                   : "/ways-in/drive/gear"
               );
-
             }}
           >
             OPEN GEAR ROOM →
           </button>
-
         </article>
-
       </section>
 
-      {/* ================================================
-          LEAFLET GLOBAL STYLES
-          ================================================ */}
-
       <style jsx global>{`
-
         html,
         body {
           margin: 0;
-          background:
-            #100b07;
+          background: #100b07;
         }
 
         .leaflet-container {
-          background:
-            #b9ad86;
-
-          font-family:
-            Georgia,
-            serif;
+          background: #b8aa80;
         }
 
-        .journey-map-live
-        .leaflet-tile-pane {
-          filter:
-            sepia(.48)
-            saturate(.58)
-            contrast(.9)
-            brightness(.94);
+        .live-map .leaflet-tile-pane {
+          filter: sepia(0.5) saturate(0.58) contrast(0.9)
+            brightness(0.94);
         }
 
-        .journey-map-live
-        .leaflet-control-container {
-          display:
-            none;
+        .live-map .leaflet-control-container {
+          display: none;
         }
 
-        .roamlab-map-icon {
-          background:
-            transparent !important;
-
-          border:
-            0 !important;
+        .rl-icon {
+          background: transparent !important;
+          border: 0 !important;
         }
 
-        .roamlab-pin {
-          display:
-            block;
-
-          width:
-            14px;
-
-          height:
-            14px;
-
-          border:
-            3px solid
-            rgba(
-              244,
-              225,
-              188,
-              .9
-            );
-
-          border-radius:
-            50%;
-
-          background:
-            #923a29;
-
+        .rl-pin {
+          display: block;
+          width: 14px;
+          height: 14px;
+          border: 3px solid #ead8b8;
+          border-radius: 50%;
+          background: #963b2a;
           box-shadow:
-            0 2px 5px
-            rgba(
-              45,
-              28,
-              18,
-              .45
-            ),
-            0 0 0 4px
-            rgba(
-              146,
-              58,
-              41,
-              .2
-            );
+            0 2px 5px #2c1b12aa,
+            0 0 0 4px #963b2a33;
         }
 
-        .roamlab-pin-wild {
-          width:
-            17px;
-
-          height:
-            17px;
-
-          background:
-            #7f2e23;
+        .rl-end {
+          width: 17px;
+          height: 17px;
+          background: #7f2e23;
         }
-
       `}</style>
-            {/* ================================================
-          DESK + OVERLAY STYLES
-          ================================================ */}
 
       <style jsx>{`
-
         button {
-          font:
-            inherit;
+          font: inherit;
         }
 
-        /* =================================================
-           PAGE
-           ================================================= */
-
-        .wild-desk {
-          min-height:
-            100vh;
-
-          overflow-x:
-            hidden;
-
-          color:
-            #f2e7d4;
-
-          background:
-            #100b07;
-
-          font-family:
-            Arial,
-            Helvetica,
-            sans-serif;
+        .page {
+          min-height: 100vh;
+          overflow-x: hidden;
+          background: #100b07;
+          color: #f2e7d4;
+          font-family: Arial, Helvetica, sans-serif;
         }
 
-        /* =================================================
-           NAVIGATION
-           ================================================= */
-
-        .wild-nav {
-          position:
-            relative;
-
-          z-index:
-            100;
-
-          height:
-            82px;
-
-          display:
-            flex;
-
-          align-items:
-            center;
-
-          justify-content:
-            space-between;
-
-          padding:
-            0 5vw;
-
-          background:
-            linear-gradient(
-              180deg,
-              rgba(
-                12,
-                8,
-                5,
-                .98
-              ),
-              rgba(
-                12,
-                8,
-                5,
-                .84
-              )
-            );
-
-          border-bottom:
-            1px solid
-            rgba(
-              255,
-              240,
-              218,
-              .1
-            );
+        header {
+          position: relative;
+          z-index: 100;
+          height: 82px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0 5vw;
+          background: linear-gradient(#0c0805fa, #0c0805d5);
+          border-bottom: 1px solid #fff0da18;
         }
 
-        .wild-nav button {
-          border:
-            0;
-
-          background:
-            transparent;
-
-          color:
-            rgba(
-              247,
-              236,
-              216,
-              .74
-            );
-
-          cursor:
-            pointer;
+        header button {
+          border: 0;
+          background: transparent;
+          color: #f7ecd8bd;
+          cursor: pointer;
         }
 
         .brand {
-          color:
-            #fff5e5 !important;
-
-          font-size:
-            18px !important;
-
-          font-weight:
-            800 !important;
-
-          letter-spacing:
-            .22em !important;
+          color: #fff5e5 !important;
+          font-size: 18px !important;
+          font-weight: 800 !important;
+          letter-spacing: 0.22em !important;
         }
 
-        .wild-nav nav {
-          display:
-            flex;
-
-          gap:
-            42px;
-
-          align-items:
-            center;
-
-          font-size:
-            10px;
-
-          font-weight:
-            800;
-
-          letter-spacing:
-            .2em;
+        nav {
+          display: flex;
+          gap: 42px;
+          align-items: center;
+          font-size: 10px;
+          font-weight: 800;
+          letter-spacing: 0.2em;
         }
 
-        .wild-nav nav span {
-          color:
-            #e1a15f;
+        nav span {
+          color: #e1a15f;
         }
 
-        /* =================================================
-           MASTER DESK
-
-           IMPORTANT:
-           This is the uploaded photorealistic mother image.
-           The image determines the physical world.
-           React only supplies changing Wild data.
-           ================================================= */
-
-        .desk-stage {
-          position:
-            relative;
-
-          width:
-            min(
-              1536px,
-              100vw
-            );
-
-          aspect-ratio:
-            3 / 2;
-
-          margin:
-            0 auto;
-
-          overflow:
-            hidden;
-
-          isolation:
-            isolate;
-
-          background:
-            #1c120a;
+        .stage {
+          position: relative;
+          width: min(1536px, 100vw);
+          aspect-ratio: 3 / 2;
+          margin: 0 auto;
+          overflow: hidden;
+          isolation: isolate;
+          background: #1c120a;
         }
 
-        .desk-master {
-          position:
-            absolute;
-
-          z-index:
-            0;
-
-          inset:
-            0;
-
-          width:
-            100%;
-
-          height:
-            100%;
-
-          object-fit:
-            cover;
-
-          user-select:
-            none;
-
-          pointer-events:
-            none;
+        .master {
+          position: absolute;
+          z-index: 0;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          pointer-events: none;
+          user-select: none;
         }
 
-        .desk-shade {
-          position:
-            absolute;
-
-          z-index:
-            1;
-
-          inset:
-            0;
-
-          pointer-events:
-            none;
-
-          background:
-            radial-gradient(
-              circle
-              at 48% 40%,
-
-              transparent
-              0 42%,
-
-              rgba(
-                11,
-                7,
-                4,
-                .08
-              )
-              70%,
-
-              rgba(
-                11,
-                7,
-                4,
-                .28
-              )
-              100%
-            );
-
-          box-shadow:
-            inset
-            0 0 100px
-            rgba(
-              0,
-              0,
-              0,
-              .25
-            );
+        .shade {
+          position: absolute;
+          z-index: 1;
+          inset: 0;
+          pointer-events: none;
+          background: radial-gradient(
+            circle at 48% 40%,
+            transparent 0 43%,
+            #0b070414 72%,
+            #0b07043b 100%
+          );
         }
-
-        /* =================================================
-           SHARED DYNAMIC OVERLAYS
-           ================================================= */
 
         .overlay {
-          position:
-            absolute;
-
-          z-index:
-            30;
-
-          color:
-            #34291f;
-
-          text-align:
-            left;
+          position: absolute;
+          z-index: 30;
+          color: #34291f;
+          text-align: left;
         }
 
         .overlay small {
-          color:
-            #74442f;
-
-          font-size:
-            clamp(
-              7px,
-              .68vw,
-              10px
-            );
-
-          font-weight:
-            900;
-
-          letter-spacing:
-            .18em;
+          color: #74442f;
+          font-size: clamp(7px, 0.68vw, 10px);
+          font-weight: 900;
+          letter-spacing: 0.18em;
         }
 
-        /* =================================================
-           CURRENT WILD NOTE
-           ================================================= */
-
-        .current-wild-overlay {
-          left:
-            9.2%;
-
-          top:
-            13%;
-
-          width:
-            18%;
-
-          transform:
-            rotate(-3deg);
-
-          pointer-events:
-            none;
+        .current {
+          left: 9.2%;
+          top: 13%;
+          width: 18%;
+          transform: rotate(-3deg);
+          pointer-events: none;
         }
 
-        .current-wild-overlay h1 {
-          margin:
-            8% 0;
-
-          font:
-            400
-            clamp(
-              15px,
-              1.55vw,
-              25px
-            )
-            / 1.03
-            Georgia,
-            serif;
+        .current h1 {
+          margin: 8% 0;
+          font: 400 clamp(15px, 1.55vw, 25px) / 1.03 Georgia, serif;
         }
 
-        .current-wild-overlay p {
-          margin:
-            4.5% 0;
-
-          font:
-            400
-            clamp(
-              9px,
-              .88vw,
-              14px
-            )
-            / 1.3
-            Georgia,
-            serif;
+        .current p {
+          margin: 4.5% 0;
+          font: 400 clamp(9px, 0.88vw, 14px) / 1.3 Georgia, serif;
         }
 
-        /* =================================================
-           DYNAMIC JOURNEY MAP
-
-           This is no longer a CSS fake map.
-           Leaflet occupies the paper surface.
-           ================================================= */
-
-        .journey-map {
-          position:
-            absolute;
-
-          z-index:
-            18;
-
-          left:
-            25.4%;
-
-          top:
-            15.2%;
-
-          width:
-            45.2%;
-
-          height:
-            47.8%;
-
-          transform:
-            rotate(-1.2deg);
-
-          filter:
-            drop-shadow(
-              0 18px 22px
-              rgba(
-                0,
-                0,
-                0,
-                .34
-              )
-            );
+        .journey {
+          position: absolute;
+          z-index: 18;
+          left: 25.4%;
+          top: 15.2%;
+          width: 45.2%;
+          height: 47.8%;
+          transform: rotate(-1.2deg);
+          filter: drop-shadow(0 18px 22px #0006);
         }
 
-        .journey-map-paper {
-          position:
-            relative;
-
-          width:
-            100%;
-
-          height:
-            100%;
-
-          overflow:
-            hidden;
-
-          background:
-            #c8bc91;
-
-          clip-path:
-            polygon(
-              1% 1.5%,
-              24% .4%,
-              49% 1.3%,
-              73% .5%,
-              99% 1.7%,
-              98.7% 98%,
-              74% 99.2%,
-              49% 98.3%,
-              24% 99.3%,
-              .5% 98%
-            );
+        .map-paper {
+          position: relative;
+          width: 100%;
+          height: 100%;
+          overflow: hidden;
+          background: #c8bc91;
+          clip-path: polygon(
+            1% 1.5%,
+            24% 0.4%,
+            49% 1.3%,
+            73% 0.5%,
+            99% 1.7%,
+            98.7% 98%,
+            74% 99.2%,
+            49% 98.3%,
+            24% 99.3%,
+            0.5% 98%
+          );
         }
 
-        .journey-map-live {
-          position:
-            absolute;
-
-          z-index:
-            1;
-
-          inset:
-            0;
+        .live-map {
+          position: absolute;
+          z-index: 1;
+          inset: 0;
         }
 
-        /* =================================================
-           MAP EMPTY STATE
-           ================================================= */
-
-        .journey-map-empty {
-          position:
-            absolute;
-
-          z-index:
-            1;
-
-          inset:
-            0;
-
-          display:
-            flex;
-
-          flex-direction:
-            column;
-
-          align-items:
-            center;
-
-          justify-content:
-            center;
-
-          padding:
-            12%;
-
-          text-align:
-            center;
-
-          color:
-            #493c2c;
-
-          background:
-            linear-gradient(
-              rgba(
-                211,
-                199,
-                158,
-                .72
-              ),
-              rgba(
-                196,
-                183,
-                143,
-                .82
-              )
-            ),
-            repeating-linear-gradient(
-              0deg,
-              transparent
-              0 34px,
-
-              rgba(
-                76,
-                78,
-                57,
-                .12
-              )
-              35px
-            );
+        .map-empty {
+          position: absolute;
+          z-index: 1;
+          inset: 0;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 12%;
+          text-align: center;
+          color: #493c2c;
+          background: #c9bc91;
         }
 
-        .journey-map-empty span {
-          font-size:
-            9px;
-
-          font-weight:
-            900;
-
-          letter-spacing:
-            .2em;
+        .map-empty strong {
+          margin-top: 14px;
+          font: 400 clamp(18px, 2vw, 30px) Georgia, serif;
         }
 
-        .journey-map-empty strong {
-          margin-top:
-            14px;
-
-          font:
-            400
-            clamp(
-              18px,
-              2vw,
-              30px
-            )
-            Georgia,
-            serif;
+        .map-empty p {
+          max-width: 360px;
+          font: 400 13px/1.6 Georgia, serif;
         }
 
-        .journey-map-empty p {
-          max-width:
-            360px;
-
-          font:
-            400 13px/1.6
-            Georgia,
-            serif;
-        }
-
-        /* =================================================
-           OLD PAPER TREATMENT
-           ================================================= */
-
-        .paper-wash {
-          position:
-            absolute;
-
-          z-index:
-            3;
-
-          inset:
-            0;
-
-          pointer-events:
-            none;
-
+        .map-wash {
+          position: absolute;
+          z-index: 3;
+          inset: 0;
+          pointer-events: none;
           background:
             linear-gradient(
               112deg,
-
-              rgba(
-                255,
-                244,
-                208,
-                .16
-              ),
-
-              transparent
-              35%,
-
-              rgba(
-                81,
-                63,
-                40,
-                .08
-              )
-              70%,
-
-              rgba(
-                235,
-                216,
-                169,
-                .1
-              )
+              #fff4d029,
+              transparent 35%,
+              #513f2816 70%,
+              #ebd8a91a
             ),
+            #ccbe911f;
+          box-shadow: inset 0 0 45px #48362238;
+          mix-blend-mode: multiply;
+        }
 
-            rgba(
-              204,
-              190,
-              145,
-              .12
-            );
-
+        .fold {
+          position: absolute;
+          z-index: 4;
+          top: 0;
+          bottom: 0;
+          width: 1px;
+          pointer-events: none;
+          background: #4b3d2a2e;
           box-shadow:
-            inset
-            0 0 45px
-            rgba(
-              72,
-              54,
-              34,
-              .22
-            );
-
-          mix-blend-mode:
-            multiply;
+            2px 0 5px #fff5d31f,
+            -2px 0 6px #46372614;
         }
 
-        .paper-fold {
-          position:
-            absolute;
-
-          z-index:
-            4;
-
-          top:
-            0;
-
-          bottom:
-            0;
-
-          width:
-            1px;
-
-          pointer-events:
-            none;
-
-          background:
-            rgba(
-              75,
-              61,
-              42,
-              .18
-            );
-
-          box-shadow:
-            2px 0 5px
-            rgba(
-              255,
-              245,
-              211,
-              .12
-            ),
-
-            -2px 0 6px
-            rgba(
-              70,
-              55,
-              38,
-              .08
-            );
+        .fold1 {
+          left: 34%;
         }
 
-        .fold-a {
-          left:
-            34%;
+        .fold2 {
+          left: 68%;
         }
 
-        .fold-b {
-          left:
-            68%;
+        .map-label {
+          position: absolute;
+          z-index: 8;
+          max-width: 29%;
+          padding: 7px 9px;
+          border: 0;
+          color: #31261d;
+          background: #e2d5b0d9;
+          box-shadow: 0 4px 10px #37271824;
+          cursor: pointer;
+          text-align: left;
         }
 
-        /* =================================================
-           START / WILD MAP LABELS
-           ================================================= */
-
-        .journey-start,
-        .journey-wild {
-          position:
-            absolute;
-
-          z-index:
-            8;
-
-          max-width:
-            29%;
-
-          padding:
-            7px 9px;
-
-          border:
-            0;
-
-          border-radius:
-            2px;
-
-          color:
-            #31261d;
-
-          background:
-            rgba(
-              226,
-              213,
-              176,
-              .82
-            );
-
-          box-shadow:
-            0 4px 10px
-            rgba(
-              55,
-              39,
-              24,
-              .14
-            );
-
-          cursor:
-            pointer;
-
-          text-align:
-            left;
-
-          backdrop-filter:
-            blur(1px);
+        .start-label {
+          left: 5%;
+          bottom: 7%;
+          transform: rotate(-2deg);
         }
 
-        .journey-start {
-          left:
-            5%;
-
-          bottom:
-            7%;
-
-          transform:
-            rotate(-2deg);
+        .wild-label {
+          right: 4%;
+          top: 7%;
+          transform: rotate(1deg);
         }
 
-        .journey-wild {
-          right:
-            4%;
-
-          top:
-            7%;
-
-          transform:
-            rotate(1deg);
+        .map-label small {
+          display: block;
+          margin-bottom: 3px;
+          color: #963c2a;
+          font-size: clamp(6px, 0.5vw, 8px);
+          font-weight: 900;
+          letter-spacing: 0.18em;
         }
 
-        .journey-start small,
-        .journey-wild small {
-          display:
-            block;
-
-          margin-bottom:
-            3px;
-
-          color:
-            #963c2a;
-
-          font-size:
-            clamp(
-              6px,
-              .5vw,
-              8px
-            );
-
-          font-weight:
-            900;
-
-          letter-spacing:
-            .18em;
+        .map-label b {
+          display: block;
+          font: 600 clamp(8px, 0.8vw, 13px) / 1.12 Georgia, serif;
         }
 
-        .journey-start b,
-        .journey-wild b {
-          display:
-            block;
+        .route-note {
+          position: absolute;
+          z-index: 8;
+          left: 50%;
+          bottom: 5%;
+          transform: translateX(-50%) rotate(-2deg);
+          padding: 5px 9px;
+          white-space: nowrap;
+          color: #49372a;
+          background: #decfa7d9;
+          font: 700 clamp(7px, 0.72vw, 11px) Georgia, serif;
+        }
 
-          font:
-            600
-            clamp(
-              8px,
-              .8vw,
-              13px
-            )
-            / 1.12
-            Georgia,
+        .edit-map {
+          position: absolute;
+          z-index: 9;
+          right: 3%;
+          bottom: 3%;
+          border: 0;
+          background: transparent;
+          color: #8b402d;
+          cursor: pointer;
+          font-size: clamp(6px, 0.55vw, 9px);
+          font-weight: 900;
+          letter-spacing: 0.12em;
+        }
+
+        .destination {
+          right: 8.7%;
+          top: 25.5%;
+          width: 16%;
+          padding: 5% 1.4% 1.2%;
+          border: 0;
+          background: transparent;
+          cursor: pointer;
+          transform: rotate(5deg);
+        }
+
+        .destination strong {
+          display: block;
+          margin-top: 4%;
+          font: italic 400 clamp(10px, 0.9vw, 15px) / 1.15 Georgia,
             serif;
         }
 
-        /* =================================================
-           ROUTE NOTE
-           ================================================= */
-
-        .journey-distance {
-          position:
-            absolute;
-
-          z-index:
-            8;
-
-          left:
-            50%;
-
-          bottom:
-            5%;
-
-          transform:
-            translateX(-50%)
-            rotate(-2deg);
-
-          padding:
-            5px 9px;
-
-          white-space:
-            nowrap;
-
-          color:
-            #49372a;
-
-          background:
-            rgba(
-              222,
-              207,
-              167,
-              .8
-            );
-
-          font:
-            700
-            clamp(
-              7px,
-              .72vw,
-              11px
-            )
-            Georgia,
-            serif;
+        .destination span,
+        .conditions span {
+          display: block;
+          margin-top: 5%;
+          color: #87422f;
+          font-size: clamp(6px, 0.52vw, 8px);
+          font-weight: 900;
+          letter-spacing: 0.08em;
         }
 
-        .journey-edit {
-          position:
-            absolute;
-
-          z-index:
-            9;
-
-          right:
-            3%;
-
-          bottom:
-            3%;
-
-          border:
-            0;
-
-          background:
-            transparent;
-
-          color:
-            #8b402d;
-
-          cursor:
-            pointer;
-
-          font-size:
-            clamp(
-              6px,
-              .55vw,
-              9px
-            );
-
-          font-weight:
-            900;
-
-          letter-spacing:
-            .12em;
+        .conditions {
+          right: 5.3%;
+          top: 45%;
+          width: 15.8%;
+          min-height: 13%;
+          padding: 1.2% 1.5%;
+          border: 0;
+          background: #cfb6641f;
+          cursor: pointer;
+          transform: rotate(1.5deg);
         }
 
-        /* =================================================
-           DESTINATION POLAROID HOT ZONE
-           ================================================= */
-
-        .destination-overlay {
-          right:
-            8.7%;
-
-          top:
-            25.5%;
-
-          width:
-            16%;
-
-          padding:
-            5% 1.4% 1.2%;
-
-          border:
-            0;
-
-          background:
-            transparent;
-
-          cursor:
-            pointer;
-
-          transform:
-            rotate(5deg);
+        .conditions strong {
+          display: block;
+          margin-top: 8%;
+          font: 400 clamp(11px, 1vw, 16px) / 1.2 Georgia, serif;
         }
 
-        .destination-overlay strong {
-          display:
-            block;
-
-          margin-top:
-            4%;
-
-          font:
-            italic 400
-            clamp(
-              10px,
-              .9vw,
-              15px
-            )
-            / 1.15
-            Georgia,
-            serif;
+        .budget {
+          left: 7.5%;
+          bottom: 7.2%;
+          width: 17.2%;
+          min-height: 20%;
+          padding: 1.6% 1.7%;
+          border: 0;
+          background: #d3c29712;
+          cursor: pointer;
+          transform: rotate(-2deg);
         }
 
-        .destination-overlay span {
-          display:
-            block;
-
-          margin-top:
-            5%;
-
-          color:
-            #87422f;
-
-          font-size:
-            clamp(
-              6px,
-              .52vw,
-              8px
-            );
-
-          font-weight:
-            900;
-
-          letter-spacing:
-            .08em;
+        .budget > strong {
+          display: block;
+          width: max-content;
+          margin: 8% 0;
+          padding: 3% 5%;
+          background: #d3b557c7;
+          font: 500 clamp(16px, 1.7vw, 27px) "Comic Sans MS", cursive;
         }
 
-        /* =================================================
-           CONDITIONS NOTE
-           ================================================= */
-
-        .conditions-overlay {
-          right:
-            5.3%;
-
-          top:
-            45%;
-
-          width:
-            15.8%;
-
-          min-height:
-            13%;
-
-          padding:
-            1.2% 1.5%;
-
-          border:
-            0;
-
-          background:
-            rgba(
-              207,
-              182,
-              100,
-              .12
-            );
-
-          cursor:
-            pointer;
-
-          transform:
-            rotate(1.5deg);
+        .budget p {
+          display: flex;
+          justify-content: space-between;
+          gap: 10px;
+          margin: 5% 0;
+          font: 400 clamp(8px, 0.72vw, 11px) Georgia, serif;
         }
 
-        .conditions-overlay strong {
-          display:
-            block;
-
-          margin-top:
-            8%;
-
-          font:
-            400
-            clamp(
-              11px,
-              1vw,
-              16px
-            )
-            / 1.2
-            Georgia,
-            serif;
+        .budget em {
+          display: block;
+          margin-top: 8%;
+          color: #86412d;
+          font-size: clamp(6px, 0.52vw, 8px);
+          font-style: normal;
+          font-weight: 900;
+          letter-spacing: 0.08em;
         }
 
-        .conditions-overlay span {
-          display:
-            block;
-
-          margin-top:
-            9%;
-
-          color:
-            #7f412e;
-
-          font-size:
-            clamp(
-              6px,
-              .52vw,
-              8px
-            );
-
-          font-weight:
-            900;
-
-          letter-spacing:
-            .08em;
+        .plan {
+          left: 33.2%;
+          bottom: 4.5%;
+          width: 29%;
+          height: 20%;
+          padding: 1.5% 2%;
+          transform: rotate(0.8deg);
+          pointer-events: none;
         }
 
-        /* =================================================
-           BUDGET NOTEBOOK
-           ================================================= */
-
-        .budget-overlay {
-          left:
-            7.5%;
-
-          bottom:
-            7.2%;
-
-          width:
-            17.2%;
-
-          min-height:
-            20%;
-
-          padding:
-            1.6% 1.7%;
-
-          border:
-            0;
-
-          background:
-            rgba(
-              211,
-              194,
-              151,
-              .08
-            );
-
-          cursor:
-            pointer;
-
-          transform:
-            rotate(-2deg);
+        .plan ul {
+          margin: 6% 0 0;
+          padding: 0;
+          list-style: none;
         }
 
-        .budget-overlay > strong {
-          display:
-            block;
-
-          width:
-            max-content;
-
-          margin:
-            8% 0;
-
-          padding:
-            3% 5%;
-
-          background:
-            rgba(
-              211,
-              181,
-              87,
-              .78
-            );
-
-          font:
-            500
-            clamp(
-              16px,
-              1.7vw,
-              27px
-            )
-            "Comic Sans MS",
-            cursive;
+        .plan li {
+          display: flex;
+          gap: 8px;
+          align-items: center;
+          margin: 3% 0;
+          font: 400 clamp(8px, 0.72vw, 12px) "Comic Sans MS", cursive;
         }
 
-        .budget-overlay p {
-          display:
-            flex;
-
-          justify-content:
-            space-between;
-
-          gap:
-            10px;
-
-          margin:
-            5% 0;
-
-          font:
-            400
-            clamp(
-              8px,
-              .72vw,
-              11px
-            )
-            Georgia,
-            serif;
+        .plan i {
+          width: 14px;
+          font-style: normal;
         }
 
-        .budget-overlay em {
-          display:
-            block;
-
-          margin-top:
-            8%;
-
-          color:
-            #86412d;
-
-          font-size:
-            clamp(
-              6px,
-              .52vw,
-              8px
-            );
-
-          font-style:
-            normal;
-
-          font-weight:
-            900;
-
-          letter-spacing:
-            .08em;
+        .plan .done {
+          color: #315340;
         }
 
-        /* =================================================
-           PLAN CHECK NOTEBOOK
-           ================================================= */
-
-        .plan-overlay {
-          left:
-            33.2%;
-
-          bottom:
-            4.5%;
-
-          width:
-            29%;
-
-          height:
-            20%;
-
-          padding:
-            1.5% 2%;
-
-          transform:
-            rotate(.8deg);
-
-          pointer-events:
-            none;
+        .progress {
+          position: absolute;
+          left: 55%;
+          top: 25%;
+          width: 37%;
+          height: 8px;
+          overflow: hidden;
+          border: 1px solid #50412fcc;
+          border-radius: 999px;
         }
 
-        .plan-overlay ul {
-          margin:
-            6% 0 0;
-
-          padding:
-            0;
-
-          list-style:
-            none;
+        .progress span {
+          display: block;
+          height: 100%;
+          background: #6e8179;
         }
 
-        .plan-overlay li {
-          display:
-            flex;
-
-          gap:
-            8px;
-
-          align-items:
-            center;
-
-          margin:
-            3% 0;
-
-          font:
-            400
-            clamp(
-              8px,
-              .72vw,
-              12px
-            )
-            "Comic Sans MS",
-            cursive;
+        .plan > p {
+          position: absolute;
+          left: 55%;
+          top: 39%;
+          width: 38%;
+          margin: 0;
+          font: italic 400 clamp(8px, 0.75vw, 12px) / 1.4 Georgia, serif;
         }
 
-        .plan-overlay i {
-          width:
-            14px;
-
-          font-style:
-            normal;
+        .gear {
+          right: 5%;
+          bottom: 5.7%;
+          width: 17%;
+          min-height: 22%;
+          padding: 1.4% 1.6%;
+          transform: rotate(2.5deg);
         }
 
-        .plan-overlay .done {
-          color:
-            #315340;
+        .gear > p {
+          display: flex;
+          justify-content: space-between;
+          margin: 5% 0;
+          padding-bottom: 3%;
+          border-bottom: 1px solid #3f31252a;
+          font: 400 clamp(8px, 0.75vw, 12px) Georgia, serif;
         }
 
-        .plan-progress {
-          position:
-            absolute;
-
-          left:
-            55%;
-
-          top:
-            25%;
-
-          width:
-            37%;
-
-          height:
-            8px;
-
-          overflow:
-            hidden;
-
-          border:
-            1px solid
-            rgba(
-              80,
-              65,
-              47,
-              .8
-            );
-
-          border-radius:
-            999px;
+        .gear > p b {
+          font-size: clamp(11px, 1.1vw, 17px);
+          font-weight: 400;
         }
 
-        .plan-progress span {
-          display:
-            block;
-
-          height:
-            100%;
-
-          background:
-            #6e8179;
+        .gap b {
+          padding: 1px 6px;
+          color: #8e3d2a;
+          background: #a7442e29;
         }
 
-        .plan-overlay > p {
-          position:
-            absolute;
-
-          left:
-            55%;
-
-          top:
-            39%;
-
-          width:
-            38%;
-
-          margin:
-            0;
-
-          font:
-            italic 400
-            clamp(
-              8px,
-              .75vw,
-              12px
-            )
-            / 1.4
-            Georgia,
-            serif;
+        .gear button {
+          width: 100%;
+          margin-top: 5%;
+          padding: 4%;
+          border: 1px solid #47382ab8;
+          background: transparent;
+          color: #3a3025;
+          cursor: pointer;
+          font-size: clamp(6px, 0.55vw, 9px);
+          font-weight: 900;
+          letter-spacing: 0.08em;
         }
 
-        /* =================================================
-           GEAR SYSTEM
-           ================================================= */
-
-        .gear-overlay {
-          right:
-            5%;
-
-          bottom:
-            5.7%;
-
-          width:
-            17%;
-
-          min-height:
-            22%;
-
-          padding:
-            1.4% 1.6%;
-
-          transform:
-            rotate(2.5deg);
-        }
-
-        .gear-overlay > p {
-          display:
-            flex;
-
-          justify-content:
-            space-between;
-
-          margin:
-            5% 0;
-
-          padding-bottom:
-            3%;
-
-          border-bottom:
-            1px solid
-            rgba(
-              63,
-              49,
-              37,
-              .16
-            );
-
-          font:
-            400
-            clamp(
-              8px,
-              .75vw,
-              12px
-            )
-            Georgia,
-            serif;
-        }
-
-        .gear-overlay > p b {
-          font-size:
-            clamp(
-              11px,
-              1.1vw,
-              17px
-            );
-
-          font-weight:
-            400;
-        }
-
-        .gear-overlay
-        .gear-gap b {
-          padding:
-            1px 6px;
-
-          color:
-            #8e3d2a;
-
-          background:
-            rgba(
-              167,
-              68,
-              46,
-              .16
-            );
-        }
-
-        .gear-overlay button {
-          width:
-            100%;
-
-          margin-top:
-            5%;
-
-          padding:
-            4%;
-
-          border:
-            1px solid
-            rgba(
-              71,
-              56,
-              42,
-              .72
-            );
-
-          background:
-            transparent;
-
-          color:
-            #3a3025;
-
-          cursor:
-            pointer;
-
-          font-size:
-            clamp(
-              6px,
-              .55vw,
-              9px
-            );
-
-          font-weight:
-            900;
-
-          letter-spacing:
-            .08em;
-        }
-
-        /* =================================================
-           RESPONSIVE
-           ================================================= */
-
-        @media (
-          max-width: 900px
-        ) {
-
-          .wild-nav {
-            padding:
-              0 24px;
+        @media (max-width: 900px) {
+          header {
+            padding: 0 24px;
           }
 
-          .wild-nav nav {
-            gap:
-              20px;
+          nav {
+            gap: 20px;
           }
 
-          /*
-            Preserve the physical desk composition.
-            We crop rather than allowing all the
-            objects to collapse into a SaaS stack.
-          */
-
-          .desk-stage {
-            width:
-              1180px;
-
-            max-width:
-              none;
-
-            left:
-              50%;
-
-            transform:
-              translateX(-50%);
+          .stage {
+            width: 1180px;
+            max-width: none;
+            left: 50%;
+            transform: translateX(-50%);
           }
-
         }
 
-        @media (
-          max-width: 680px
-        ) {
-
-          .wild-nav {
-            height:
-              68px;
+        @media (max-width: 680px) {
+          header {
+            height: 68px;
           }
 
           .brand {
-            font-size:
-              14px !important;
+            font-size: 14px !important;
           }
 
-          .wild-nav nav button {
-            display:
-              none;
+          nav button {
+            display: none;
           }
 
-          .wild-nav nav {
-            font-size:
-              8px;
+          nav {
+            font-size: 8px;
           }
 
-          .desk-stage {
-            width:
-              1050px;
+          .stage {
+            width: 1050px;
           }
-
         }
-
       `}</style>
-
     </main>
   );
 }
