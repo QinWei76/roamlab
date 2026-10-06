@@ -114,7 +114,6 @@ function JourneyMap({
 }) {
   const node = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<any>(null);
-  const [geometry, setGeometry] = useState<[number, number][]>([]);
   const [liveDistance, setLiveDistance] = useState<number>();
   const [liveHours, setLiveHours] = useState<number>();
   const [status, setStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
@@ -125,7 +124,6 @@ function JourneyMap({
     let cancelled = false;
 
     if (!ready) {
-      setGeometry([]);
       setStatus("idle");
       return;
     }
@@ -152,7 +150,6 @@ function JourneyMap({
         );
 
         if (!cancelled) {
-          setGeometry(line);
           setLiveDistance(typeof first.distance === "number" ? first.distance / 1000 : undefined);
           setLiveHours(typeof first.duration === "number" ? first.duration / 3600 : undefined);
           setStatus("ready");
@@ -221,12 +218,10 @@ function JourneyMap({
         L.marker([start.latitude, start.longitude], { icon: startIcon }).addTo(map);
         L.marker([end.latitude, end.longitude], { icon: endIcon }).addTo(map);
 
-        const line = geometry.length > 1
-          ? geometry
-          : [
-              [start.latitude, start.longitude],
-              [end.latitude, end.longitude],
-            ];
+        const line: [number, number][] = [
+          [start.latitude, start.longitude],
+          [end.latitude, end.longitude],
+        ];
 
         L.polyline(line, {
           color: "#963b2a",
@@ -239,7 +234,6 @@ function JourneyMap({
         const bounds = L.latLngBounds([
           [start.latitude, start.longitude],
           [end.latitude, end.longitude],
-          ...geometry,
         ]);
 
         map.fitBounds(bounds, { padding: [55, 55], maxZoom: 10 });
@@ -264,7 +258,6 @@ function JourneyMap({
     origin?.longitude,
     destination?.latitude,
     destination?.longitude,
-    geometry,
   ]);
 
   const distance = liveDistance ?? savedDistanceKm;
@@ -444,80 +437,16 @@ export default function WildPlanPage() {
           <p>{schedule?.days ? `${schedule.days} Days · ${schedule.nights ?? 0} Nights` : dateLine}</p>
         </article>
 
-       <div
-  style={{
-    position: "absolute",
-    left: "25%",
-    top: "16%",
-    width: "46%",
-    height: "47%",
-    zIndex: 9999,
-    boxSizing: "border-box",
-    border: "8px solid red",
-    background: "#17100c",
-    color: "white",
-    padding: "22px",
-    fontFamily: "Arial, Helvetica, sans-serif",
-  }}
->
-  <div
-    style={{
-      fontSize: "22px",
-      fontWeight: 900,
-      marginBottom: "16px",
-    }}
-  >
-    JOURNEY MAP DIAGNOSTIC
-  </div>
+        <JourneyMap
+          origin={origin}
+          destination={dest}
+          originName={originName}
+          destinationName={destinationName}
+          savedDistanceKm={route?.distanceKm}
+          savedHours={route?.estimatedHours}
+          onEdit={() => router.push("/wild-plan/destination")}
+        />
 
-  <div style={{ fontSize: "14px", lineHeight: 1.8 }}>
-    <div>
-      START COORDINATES:{" "}
-      <strong>
-        {origin
-          ? `OK — ${origin.latitude}, ${origin.longitude}`
-          : "MISSING"}
-      </strong>
-    </div>
-
-    <div>
-      DESTINATION COORDINATES:{" "}
-      <strong>
-        {dest
-          ? `OK — ${dest.latitude}, ${dest.longitude}`
-          : "MISSING"}
-      </strong>
-    </div>
-
-    <div>
-      MAP READY:{" "}
-      <strong>{origin && dest ? "YES" : "NO"}</strong>
-    </div>
-
-    <div>
-      SAVED ROUTE:{" "}
-      <strong>{route ? "PRESENT" : "NOT PRESENT"}</strong>
-    </div>
-
-    <div>
-      SAVED DISTANCE:{" "}
-      <strong>
-        {typeof route?.distanceKm === "number"
-          ? `${Math.round(route.distanceKm)} KM`
-          : "NOT SET"}
-      </strong>
-    </div>
-
-    <div>
-      SAVED HOURS:{" "}
-      <strong>
-        {typeof route?.estimatedHours === "number"
-          ? `${route.estimatedHours.toFixed(1)} HRS`
-          : "NOT SET"}
-      </strong>
-    </div>
-  </div>
-</div>
         <button className="destination overlay" onClick={() => router.push("/wild-plan/destination")}>
           <small>DESTINATION</small>
           <strong>{destinationName}</strong>
@@ -571,13 +500,13 @@ export default function WildPlanPage() {
         html, body { margin:0; background:#100b07; }
         .leaflet-container { background:#b8aa80; }
         .live-map .leaflet-tile-pane { filter:sepia(.5) saturate(.58) contrast(.9) brightness(.94); }
-        .live-map .leaflet-control-container { display:none; }
+        .live-map .leaflet-control-zoom { display:none; }
         .rl-icon { background:transparent!important; border:0!important; }
         .rl-pin { display:block; width:14px; height:14px; border:3px solid #ead8b8; border-radius:50%; background:#963b2a; box-shadow:0 2px 5px #2c1b12aa,0 0 0 4px #963b2a33; }
         .rl-end { width:17px; height:17px; background:#7f2e23; }
       `}</style>
 
-      <style jsx>{`
+      <style jsx global>{`
         button { font:inherit; }
         .page { min-height:100vh; overflow-x:hidden; background:#100b07; color:#f2e7d4; font-family:Arial,Helvetica,sans-serif; }
         header { position:relative; z-index:100; height:82px; display:flex; align-items:center; justify-content:space-between; padding:0 5vw; background:linear-gradient(#0c0805fa,#0c0805d5); border-bottom:1px solid #fff0da18; }
@@ -598,7 +527,7 @@ export default function WildPlanPage() {
 
         .journey { position:absolute; z-index:18; left:25.4%; top:15.2%; width:45.2%; height:47.8%; transform:rotate(-1.2deg); filter:drop-shadow(0 18px 22px #0006); }
         .map-paper { position:relative; width:100%; height:100%; overflow:hidden; background:#c8bc91; clip-path:polygon(1% 1.5%,24% .4%,49% 1.3%,73% .5%,99% 1.7%,98.7% 98%,74% 99.2%,49% 98.3%,24% 99.3%,.5% 98%); }
-        .live-map { position:absolute; z-index:1; inset:0; }
+        .live-map { position:absolute; z-index:1; inset:0; width:100%; height:100%; min-height:100%; }
         .map-empty { position:absolute; z-index:1; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:12%; text-align:center; color:#493c2c; background:#c9bc91; }
         .map-empty strong { margin-top:14px; font:400 clamp(18px,2vw,30px) Georgia,serif; }
         .map-empty p { max-width:360px; font:400 13px/1.6 Georgia,serif; }
@@ -640,65 +569,6 @@ export default function WildPlanPage() {
         .gap b { padding:1px 6px; color:#8e3d2a; background:#a7442e29; }
         .gear button { width:100%; margin-top:5%; padding:4%; border:1px solid #47382ab8; background:transparent; color:#3a3025; cursor:pointer; font-size:clamp(6px,.55vw,9px); font-weight:900; letter-spacing:.08em; }
 
-
-        /* =========================================================
-           TEMP — JOURNEY MAP VISIBILITY TEST
-           Only for proving the central live map.
-           ========================================================= */
-        .journey {
-          position:absolute!important;
-          left:25%!important;
-          top:16%!important;
-          width:46%!important;
-          height:47%!important;
-          z-index:50!important;
-          transform:none!important;
-          filter:none!important;
-          background:#efe4c7!important;
-          opacity:1!important;
-          overflow:hidden!important;
-          border:4px solid #ff2a00!important;
-          box-sizing:border-box!important;
-        }
-
-        .map-paper {
-          position:relative!important;
-          width:100%!important;
-          height:100%!important;
-          opacity:1!important;
-          background:#efe4c7!important;
-          overflow:hidden!important;
-          clip-path:none!important;
-        }
-
-        .live-map {
-          position:absolute!important;
-          inset:0!important;
-          width:100%!important;
-          height:100%!important;
-          display:block!important;
-          opacity:1!important;
-          z-index:10!important;
-          filter:none!important;
-          mix-blend-mode:normal!important;
-          background:#d8cfb6!important;
-        }
-
-        .map-wash,
-        .fold {
-          display:none!important;
-        }
-
-        .map-empty {
-          z-index:10!important;
-          opacity:1!important;
-        }
-
-        .map-label,
-        .route-note,
-        .edit-map {
-          z-index:30!important;
-        }
 
         @media(max-width:900px) {
           header { padding:0 24px; }
