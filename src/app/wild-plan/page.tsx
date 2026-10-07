@@ -1,18 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Wild } from "@/types/wild";
 import {
   CURRENT_WILD_UPDATED_EVENT,
   getCurrentWild,
 } from "@/lib/wildStore";
-
-declare global {
-  interface Window {
-    L?: any;
-  }
-}
 
 type Point = { latitude: number; longitude: number };
 
@@ -66,246 +60,64 @@ function dateLabel(value?: string) {
   }).format(d).toUpperCase();
 }
 
-function ensureLeaflet(): Promise<any> {
-  if (typeof window === "undefined") return Promise.reject();
-  if (window.L) return Promise.resolve(window.L);
-
-  if (!document.getElementById("roamlab-leaflet-css")) {
-    const css = document.createElement("link");
-    css.id = "roamlab-leaflet-css";
-    css.rel = "stylesheet";
-    css.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
-    document.head.appendChild(css);
-  }
-
-  return new Promise((resolve, reject) => {
-    const old = document.getElementById("roamlab-leaflet-js") as HTMLScriptElement | null;
-    if (old) {
-      const wait = () => window.L ? resolve(window.L) : window.setTimeout(wait, 50);
-      wait();
-      return;
-    }
-    const js = document.createElement("script");
-    js.id = "roamlab-leaflet-js";
-    js.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
-    js.async = true;
-    js.onload = () => window.L ? resolve(window.L) : reject(new Error("Leaflet unavailable"));
-    js.onerror = () => reject(new Error("Leaflet failed to load"));
-    document.body.appendChild(js);
-  });
-}
-
 function JourneyMap({
-  origin,
-  destination,
-  originName,
-  destinationName,
-  savedDistanceKm,
-  savedHours,
-  onEdit,
+  origin, destination, originName, destinationName, savedDistanceKm, savedHours, onEdit,
 }: {
-  origin?: Point;
-  destination?: Point;
-  originName: string;
-  destinationName: string;
-  savedDistanceKm?: number;
-  savedHours?: number;
-  onEdit: () => void;
+  origin?: Point; destination?: Point; originName: string; destinationName: string;
+  savedDistanceKm?: number; savedHours?: number; onEdit: () => void;
 }) {
-  const node = useRef<HTMLDivElement | null>(null);
-  const mapRef = useRef<any>(null);
+  const [routePoints, setRoutePoints] = useState<Point[]>([]);
   const [liveDistance, setLiveDistance] = useState<number>();
   const [liveHours, setLiveHours] = useState<number>();
   const [status, setStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
-
   const ready = isPoint(origin) && isPoint(destination);
 
   useEffect(() => {
     let cancelled = false;
-
-    if (!ready) {
-      setStatus("idle");
-      return;
-    }
-
-    const start = origin;
-    const end = destination;
-
-    async function route() {
+    if (!ready) { setRoutePoints([]); setStatus("idle"); return; }
+    const start = origin; const end = destination;
+    async function loadRoute() {
       setStatus("loading");
       try {
-        const url =
-          `https://router.project-osrm.org/route/v1/driving/` +
-          `${start.longitude},${start.latitude};${end.longitude},${end.latitude}` +
-          `?overview=full&geometries=geojson&steps=false&alternatives=false`;
-
+        const url = `https://router.project-osrm.org/route/v1/driving/${start.longitude},${start.latitude};${end.longitude},${end.latitude}?overview=full&geometries=geojson&steps=false&alternatives=false`;
         const response = await fetch(url);
         if (!response.ok) throw new Error("OSRM route failed");
-        const data = await response.json();
-        const first = data?.routes?.[0];
-        if (!first?.geometry?.coordinates) throw new Error("No route geometry");
-
-        const line: [number, number][] = first.geometry.coordinates.map(
-          (p: [number, number]) => [p[1], p[0]]
-        );
-
-        if (!cancelled) {
-          setLiveDistance(typeof first.distance === "number" ? first.distance / 1000 : undefined);
-          setLiveHours(typeof first.duration === "number" ? first.duration / 3600 : undefined);
-          setStatus("ready");
-        }
-      } catch (error) {
-        console.error("Journey route failed:", error);
-        if (!cancelled) setStatus("error");
-      }
+        const data = await response.json(); const first = data?.routes?.[0];
+        if (!first?.geometry?.coordinates?.length) throw new Error("No route geometry");
+        const points: Point[] = first.geometry.coordinates.map((p: [number, number]) => ({ longitude:p[0], latitude:p[1] }));
+        if (cancelled) return;
+        setRoutePoints(points);
+        setLiveDistance(typeof first.distance === "number" ? first.distance/1000 : undefined);
+        setLiveHours(typeof first.duration === "number" ? first.duration/3600 : undefined);
+        setStatus("ready");
+      } catch (error) { console.error("Journey route failed:", error); if (!cancelled) setStatus("error"); }
     }
+    loadRoute(); return () => { cancelled = true; };
+  }, [ready, origin?.latitude, origin?.longitude, destination?.latitude, destination?.longitude]);
 
-    route();
-    return () => { cancelled = true; };
-  }, [
-    ready,
-    origin?.latitude,
-    origin?.longitude,
-    destination?.latitude,
-    destination?.longitude,
-  ]);
+  const distance = liveDistance ?? savedDistanceKm; const hours = liveHours ?? savedHours;
+  const routeText = [typeof distance === "number" ? `${Math.round(distance)} KM` : "", typeof hours === "number" ? `${hours.toFixed(1)} HRS` : ""].filter(Boolean).join(" · ");
+  const points = ready ? (routePoints.length > 1 ? routePoints : [origin, destination].filter(isPoint)) : [];
+  const lats=points.map(p=>p.latitude), lons=points.map(p=>p.longitude);
+  const minLat=lats.length?Math.min(...lats):0, maxLat=lats.length?Math.max(...lats):1, minLon=lons.length?Math.min(...lons):0, maxLon=lons.length?Math.max(...lons):1;
+  const latSpan=Math.max(maxLat-minLat,.0001), lonSpan=Math.max(maxLon-minLon,.0001);
+  const W=1000,H=620,PX=90,PY=72,IW=W-PX*2,IH=H-PY*2;
+  const project=(p:Point)=>({x:PX+((p.longitude-minLon)/lonSpan)*IW,y:PY+((maxLat-p.latitude)/latSpan)*IH});
+  const projected=points.map(project);
+  const pathD=projected.map((p,i)=>`${i?"L":"M"} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(" ");
+  const sp=ready&&origin?project(origin):undefined, ep=ready&&destination?project(destination):undefined;
 
-  useEffect(() => {
-    let cancelled = false;
-    if (!node.current || !ready) return;
-
-    const start = origin;
-    const end = destination;
-
-    async function draw() {
-      try {
-        const L = await ensureLeaflet();
-        if (cancelled || !node.current) return;
-
-        if (mapRef.current) {
-          mapRef.current.remove();
-          mapRef.current = null;
-        }
-
-        const map = L.map(node.current, {
-          zoomControl: false,
-          attributionControl: false,
-          scrollWheelZoom: false,
-          boxZoom: false,
-          keyboard: false,
-        });
-        mapRef.current = map;
-
-        L.tileLayer(
-          "https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}",
-          { maxZoom: 16 }
-        ).addTo(map);
-
-        const startIcon = L.divIcon({
-          className: "rl-icon",
-          html: '<span class="rl-pin rl-start"></span>',
-          iconSize: [18, 18],
-          iconAnchor: [9, 9],
-        });
-
-        const endIcon = L.divIcon({
-          className: "rl-icon",
-          html: '<span class="rl-pin rl-end"></span>',
-          iconSize: [22, 22],
-          iconAnchor: [11, 11],
-        });
-
-        L.marker([start.latitude, start.longitude], { icon: startIcon }).addTo(map);
-        L.marker([end.latitude, end.longitude], { icon: endIcon }).addTo(map);
-
-        const line: [number, number][] = [
-          [start.latitude, start.longitude],
-          [end.latitude, end.longitude],
-        ];
-
-        L.polyline(line, {
-          color: "#963b2a",
-          weight: 4,
-          opacity: 0.92,
-          lineCap: "round",
-          lineJoin: "round",
-        }).addTo(map);
-
-        const bounds = L.latLngBounds([
-          [start.latitude, start.longitude],
-          [end.latitude, end.longitude],
-        ]);
-
-        map.fitBounds(bounds, { padding: [55, 55], maxZoom: 10 });
-        window.setTimeout(() => !cancelled && map.invalidateSize(), 100);
-      } catch (error) {
-        console.error("Journey map failed:", error);
-      }
-    }
-
-    draw();
-
-    return () => {
-      cancelled = true;
-      if (mapRef.current) {
-        mapRef.current.remove();
-        mapRef.current = null;
-      }
-    };
-  }, [
-    ready,
-    origin?.latitude,
-    origin?.longitude,
-    destination?.latitude,
-    destination?.longitude,
-  ]);
-
-  const distance = liveDistance ?? savedDistanceKm;
-  const hours = liveHours ?? savedHours;
-  const routeText = [
-    typeof distance === "number" ? `${Math.round(distance)} KM` : "",
-    typeof hours === "number" ? `${hours.toFixed(1)} HRS` : "",
-  ].filter(Boolean).join(" · ");
-
-  return (
-    <article className="journey">
-      <div className="map-paper">
-        {ready ? (
-          <div ref={node} className="live-map" />
-        ) : (
-          <div className="map-empty">
-            <small>JOURNEY MAP</small>
-            <strong>Waiting for map coordinates.</strong>
-            <p>Set a starting point and destination to bring this map to life.</p>
-          </div>
-        )}
-
-        <div className="map-wash" />
-        <div className="fold fold1" />
-        <div className="fold fold2" />
-
-        <button className="map-label start-label" onClick={onEdit}>
-          <small>START</small>
-          <b>{originName}</b>
-        </button>
-
-        <button className="map-label wild-label" onClick={onEdit}>
-          <small>WILD</small>
-          <b>{destinationName}</b>
-        </button>
-
-        <div className="route-note">
-          {status === "loading"
-            ? "DRAWING ACCESS ROUTE..."
-            : status === "error"
-              ? routeText || "ROUTE UNAVAILABLE"
-              : routeText || "ROUTE IN PROGRESS"}
-        </div>
-
-        <button className="edit-map" onClick={onEdit}>EDIT JOURNEY →</button>
-      </div>
-    </article>
-  );
+  return <article className="journey"><div className="route-paper">
+    {ready && <svg className="journey-svg" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      {pathD && <><path d={pathD} fill="none" stroke="#ead8b8" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" opacity=".52"/><path d={pathD} fill="none" stroke="#8e3d2d" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" opacity=".9"/></>}
+      {sp && <><circle cx={sp.x} cy={sp.y} r="13" fill="#e7d7b5"/><circle cx={sp.x} cy={sp.y} r="8" fill="#93432f"/></>}
+      {ep && <><circle cx={ep.x} cy={ep.y} r="15" fill="#e7d7b5"/><circle cx={ep.x} cy={ep.y} r="9" fill="#7f2f24"/></>}
+    </svg>}
+    <button className="route-label route-start" onClick={onEdit}><small>START</small><b>{originName}</b></button>
+    <button className="route-label route-wild" onClick={onEdit}><small>WILD</small><b>{destinationName}</b></button>
+    <div className="route-distance">{status==="loading"?"DRAWING ROUTE...":status==="error"?(routeText||"ROUTE UNAVAILABLE"):(routeText||"JOURNEY ROUTE")}</div>
+    <button className="edit-map" onClick={onEdit}>EDIT JOURNEY →</button>
+  </div></article>;
 }
 
 export default function WildPlanPage() {
@@ -498,12 +310,6 @@ export default function WildPlanPage() {
 
       <style jsx global>{`
         html, body { margin:0; background:#100b07; }
-        .leaflet-container { background:#b8aa80; }
-        .live-map .leaflet-tile-pane { filter:sepia(.5) saturate(.58) contrast(.9) brightness(.94); }
-        .live-map .leaflet-control-zoom { display:none; }
-        .rl-icon { background:transparent!important; border:0!important; }
-        .rl-pin { display:block; width:14px; height:14px; border:3px solid #ead8b8; border-radius:50%; background:#963b2a; box-shadow:0 2px 5px #2c1b12aa,0 0 0 4px #963b2a33; }
-        .rl-end { width:17px; height:17px; background:#7f2e23; }
       `}</style>
 
       <style jsx global>{`
@@ -525,23 +331,16 @@ export default function WildPlanPage() {
         .current h1 { margin:8% 0; font:400 clamp(15px,1.55vw,25px)/1.03 Georgia,serif; }
         .current p { margin:4.5% 0; font:400 clamp(9px,.88vw,14px)/1.3 Georgia,serif; }
 
-        .journey { position:absolute; z-index:18; left:25.4%; top:15.2%; width:45.2%; height:47.8%; transform:rotate(-1.2deg); filter:drop-shadow(0 18px 22px #0006); }
-        .map-paper { position:relative; width:100%; height:100%; overflow:hidden; background:#c8bc91; clip-path:polygon(1% 1.5%,24% .4%,49% 1.3%,73% .5%,99% 1.7%,98.7% 98%,74% 99.2%,49% 98.3%,24% 99.3%,.5% 98%); }
-        .live-map { position:absolute; z-index:1; inset:0; width:100%; height:100%; min-height:100%; }
-        .map-empty { position:absolute; z-index:1; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:12%; text-align:center; color:#493c2c; background:#c9bc91; }
-        .map-empty strong { margin-top:14px; font:400 clamp(18px,2vw,30px) Georgia,serif; }
-        .map-empty p { max-width:360px; font:400 13px/1.6 Georgia,serif; }
-        .map-wash { position:absolute; z-index:3; inset:0; pointer-events:none; background:linear-gradient(112deg,#fff4d029,transparent 35%,#513f2816 70%,#ebd8a91a),#ccbe911f; box-shadow:inset 0 0 45px #48362238; mix-blend-mode:multiply; }
-        .fold { position:absolute; z-index:4; top:0; bottom:0; width:1px; pointer-events:none; background:#4b3d2a2e; box-shadow:2px 0 5px #fff5d31f,-2px 0 6px #46372614; }
-        .fold1 { left:34%; } .fold2 { left:68%; }
-
-        .map-label { position:absolute; z-index:8; max-width:29%; padding:7px 9px; border:0; color:#31261d; background:#e2d5b0d9; box-shadow:0 4px 10px #37271824; cursor:pointer; text-align:left; }
-        .start-label { left:5%; bottom:7%; transform:rotate(-2deg); }
-        .wild-label { right:4%; top:7%; transform:rotate(1deg); }
-        .map-label small { display:block; margin-bottom:3px; color:#963c2a; font-size:clamp(6px,.5vw,8px); font-weight:900; letter-spacing:.18em; }
-        .map-label b { display:block; font:600 clamp(8px,.8vw,13px)/1.12 Georgia,serif; }
-        .route-note { position:absolute; z-index:8; left:50%; bottom:5%; transform:translateX(-50%) rotate(-2deg); padding:5px 9px; white-space:nowrap; color:#49372a; background:#decfa7d9; font:700 clamp(7px,.72vw,11px) Georgia,serif; }
-        .edit-map { position:absolute; z-index:9; right:3%; bottom:3%; border:0; background:transparent; color:#8b402d; cursor:pointer; font-size:clamp(6px,.55vw,9px); font-weight:900; letter-spacing:.12em; }
+        .journey { position:absolute; z-index:18; left:25.4%; top:15.2%; width:45.2%; height:47.8%; transform:rotate(-1.2deg); pointer-events:none; }
+        .route-paper { position:relative; width:100%; height:100%; overflow:hidden; pointer-events:none; }
+        .journey-svg { position:absolute; z-index:4; inset:0; width:100%; height:100%; pointer-events:none; mix-blend-mode:multiply; filter:drop-shadow(0 1px 1px #4a2d1b33); }
+        .route-label { position:absolute; z-index:8; max-width:29%; padding:6px 8px; border:0; color:#31261d; background:#dfcfaaea; box-shadow:0 3px 8px #3727181f; cursor:pointer; text-align:left; pointer-events:auto; }
+        .route-start { left:5%; bottom:7%; transform:rotate(-2deg); }
+        .route-wild { right:4%; top:7%; transform:rotate(1deg); }
+        .route-label small { display:block; margin-bottom:3px; color:#963c2a; font-size:clamp(6px,.5vw,8px); font-weight:900; letter-spacing:.18em; }
+        .route-label b { display:block; font:600 clamp(8px,.8vw,13px)/1.12 Georgia,serif; }
+        .route-distance { position:absolute; z-index:8; left:50%; bottom:5%; transform:translateX(-50%) rotate(-2deg); padding:5px 9px; white-space:nowrap; color:#49372a; background:#decfa7e6; font:700 clamp(7px,.72vw,11px) Georgia,serif; }
+        .edit-map { position:absolute; z-index:9; right:3%; bottom:3%; border:0; background:transparent; color:#8b402d; cursor:pointer; font-size:clamp(6px,.55vw,9px); font-weight:900; letter-spacing:.12em; pointer-events:auto; }
 
         .destination { right:8.7%; top:25.5%; width:16%; padding:5% 1.4% 1.2%; border:0; background:transparent; cursor:pointer; transform:rotate(5deg); }
         .destination strong { display:block; margin-top:4%; font:italic 400 clamp(10px,.9vw,15px)/1.15 Georgia,serif; }
