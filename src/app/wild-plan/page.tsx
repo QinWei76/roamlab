@@ -8,7 +8,10 @@ import {
   getCurrentWild,
 } from "@/lib/wildStore";
 
-type Point = { latitude: number; longitude: number };
+type Point = {
+  latitude: number;
+  longitude: number;
+};
 
 function isPoint(value: unknown): value is Point {
   if (!value || typeof value !== "object") return false;
@@ -81,14 +84,16 @@ function dateLabel(value?: string) {
 
 /* =========================================================
    JOURNEY MAP
-   ---------------------------------------------------------
-   The physical map comes from wild-plan-master.jpg.
 
-   React only draws:
-   - real OSRM route
+   Physical map:
+   /public/wild-plan-master.jpg
+
+   Dynamic layer:
+   - OSRM real driving route
    - start point
    - destination point
-   - distance / driving time
+   - distance
+   - driving time
 
    No Leaflet tiles.
    No digital map rectangle.
@@ -234,10 +239,6 @@ function JourneyMap({
   const latSpan = Math.max(maxLat - minLat, 0.0001);
   const lonSpan = Math.max(maxLon - minLon, 0.0001);
 
-  /*
-   * These numbers define the fixed route drawing surface.
-   * Do not move them when destination changes.
-   */
   const W = 1000;
   const H = 620;
 
@@ -274,7 +275,6 @@ function JourneyMap({
   return (
     <article className="journey">
       <div className="route-paper">
-
         {ready && (
           <svg
             className="journey-svg"
@@ -357,7 +357,6 @@ function JourneyMap({
               ? routeText || "ROUTE UNAVAILABLE"
               : routeText || "JOURNEY ROUTE"}
         </div>
-
       </div>
     </article>
   );
@@ -508,14 +507,12 @@ export default function WildPlanPage() {
   const route = wild.plan.route;
   const conditions = wild.plan.conditions;
 
-  const gear =
-    wild.plan.prepare?.gear;
+  const gear = wild.plan.prepare?.gear;
 
   const cost = wild.plan.cost;
   const planning = wild.plan.planning;
 
-  const items =
-    gear?.items ?? [];
+  const items = gear?.items ?? [];
 
   const essential =
     items.filter(
@@ -534,8 +531,7 @@ export default function WildPlanPage() {
 
   const owned =
     items.filter(
-      (x) =>
-        x.ownershipStatus === "owned"
+      (x) => x.ownershipStatus === "owned"
     ).length;
 
   const gap =
@@ -656,12 +652,6 @@ export default function WildPlanPage() {
 
   return (
     <main className="page">
-
-      {/* =========================
-          REAL CODE NAVIGATION
-          Never bake this into image.
-         ========================= */}
-
       <header>
         <button
           className="brand"
@@ -695,12 +685,7 @@ export default function WildPlanPage() {
         </nav>
       </header>
 
-      {/* =========================
-          FIXED DESK WORLD
-         ========================= */}
-
       <section className="stage">
-
         <img
           src="/wild-plan-master.jpg"
           className="master"
@@ -708,8 +693,6 @@ export default function WildPlanPage() {
         />
 
         <div className="shade" />
-
-        {/* CURRENT WILD */}
 
         <article className="current overlay">
           <small>
@@ -745,8 +728,6 @@ export default function WildPlanPage() {
           </p>
         </article>
 
-        {/* CENTRAL JOURNEY */}
-
         <JourneyMap
           origin={origin}
           destination={dest}
@@ -766,8 +747,6 @@ export default function WildPlanPage() {
             )
           }
         />
-
-        {/* DESTINATION POLAROID */}
 
         <button
           className="destination overlay"
@@ -790,8 +769,6 @@ export default function WildPlanPage() {
           </span>
         </button>
 
-        {/* CONDITIONS */}
-
         <button
           className="conditions overlay"
           onClick={() =>
@@ -813,8 +790,6 @@ export default function WildPlanPage() {
             OPEN INTELLIGENCE →
           </span>
         </button>
-
-        {/* BUDGET */}
 
         <button
           className="budget overlay"
@@ -873,8 +848,6 @@ export default function WildPlanPage() {
             EDIT BUDGET →
           </em>
         </button>
-
-        {/* PLAN CHECK */}
 
         <article className="plan overlay">
           <small>
@@ -970,8 +943,6 @@ export default function WildPlanPage() {
           </p>
         </article>
 
-        {/* GEAR */}
-
         <article className="gear overlay">
           <small>
             GEAR SYSTEM
@@ -1027,7 +998,6 @@ export default function WildPlanPage() {
             OPEN GEAR ROOM →
           </button>
         </article>
-
       </section>
 
       <style jsx global>{`
@@ -1039,7 +1009,6 @@ export default function WildPlanPage() {
       `}</style>
 
       <style jsx global>{`
-
         button {
           font: inherit;
         }
@@ -1055,10 +1024,6 @@ export default function WildPlanPage() {
             sans-serif;
         }
 
-        /* =========================
-           HEADER
-           ========================= */
-
         header {
           position: relative;
           z-index: 100;
@@ -1067,8 +1032,7 @@ export default function WildPlanPage() {
 
           display: flex;
           align-items: center;
-          justify-content:
-            space-between;
+          justify-content: space-between;
 
           padding: 0 5vw;
 
@@ -1117,24 +1081,26 @@ export default function WildPlanPage() {
           color: #e1a15f;
         }
 
-        /* =========================
-           MASTER IMAGE
-           ========================= */
+        /* ==========================================
+           MASTER STAGE
+
+           IMPORTANT:
+           wild-plan-master.jpg = 1672 × 941.
+
+           This stage now uses the exact same ratio.
+           From this point onward all overlay positions
+           can be locked relative to the mother image.
+           ========================================== */
 
         .stage {
           position: relative;
 
-          width:
-            min(
-              1536px,
-              100vw
-            );
+          width: min(
+            1536px,
+            100vw
+          );
 
-          /*
-           * Keep this locked while
-           * calibrating the master.
-           */
-          aspect-ratio: 3 / 2;
+          aspect-ratio: 1672 / 941;
 
           margin: 0 auto;
 
@@ -1181,11 +1147,8 @@ export default function WildPlanPage() {
 
         .overlay {
           position: absolute;
-
           z-index: 30;
-
           color: #34291f;
-
           text-align: left;
         }
 
@@ -1204,10 +1167,6 @@ export default function WildPlanPage() {
           letter-spacing:
             0.18em;
         }
-
-        /* =========================
-           CURRENT WILD
-           ========================= */
 
         .current {
           left: 9.2%;
@@ -1252,14 +1211,11 @@ export default function WildPlanPage() {
         }
 
         /* ==========================================
-           FINAL JOURNEY MAP
+           JOURNEY
 
-           IMPORTANT:
-           This rectangle is locked to the physical
-           map printed in wild-plan-master.jpg.
-
-           Destination changes may change route shape.
-           They must NEVER move this rectangle.
+           Fixed physical area.
+           We will calibrate its exact coordinates
+           after the corrected master ratio is visible.
            ========================================== */
 
         .journey {
@@ -1302,8 +1258,7 @@ export default function WildPlanPage() {
 
           pointer-events: none;
 
-          mix-blend-mode:
-            multiply;
+          mix-blend-mode: multiply;
 
           opacity: 0.9;
 
@@ -1316,10 +1271,6 @@ export default function WildPlanPage() {
             );
         }
 
-        /*
-         * Invisible click surface.
-         * Keeps the physical map clean.
-         */
         .journey-hit {
           position: absolute;
 
@@ -1329,18 +1280,13 @@ export default function WildPlanPage() {
 
           border: 0;
 
-          background:
-            transparent;
+          background: transparent;
 
           cursor: pointer;
 
           pointer-events: auto;
         }
 
-        /*
-         * Only one small data label remains
-         * on the physical map.
-         */
         .route-distance {
           position: absolute;
 
@@ -1353,11 +1299,9 @@ export default function WildPlanPage() {
             translateX(-50%)
             rotate(-1deg);
 
-          padding:
-            3px 7px;
+          padding: 3px 7px;
 
-          white-space:
-            nowrap;
+          white-space: nowrap;
 
           color: #5b4030;
 
@@ -1389,10 +1333,6 @@ export default function WildPlanPage() {
           pointer-events: none;
         }
 
-        /* =========================
-           DESTINATION
-           ========================= */
-
         .destination {
           right: 8.7%;
           top: 25.5%;
@@ -1406,8 +1346,7 @@ export default function WildPlanPage() {
 
           border: 0;
 
-          background:
-            transparent;
+          background: transparent;
 
           cursor: pointer;
 
@@ -1454,10 +1393,6 @@ export default function WildPlanPage() {
             0.08em;
         }
 
-        /* =========================
-           CONDITIONS
-           ========================= */
-
         .conditions {
           right: 5.3%;
           top: 45%;
@@ -1497,10 +1432,6 @@ export default function WildPlanPage() {
             serif;
         }
 
-        /* =========================
-           BUDGET
-           ========================= */
-
         .budget {
           left: 7.5%;
           bottom: 7.2%;
@@ -1526,13 +1457,11 @@ export default function WildPlanPage() {
         .budget > strong {
           display: block;
 
-          width:
-            max-content;
+          width: max-content;
 
           margin: 8% 0;
 
-          padding:
-            3% 5%;
+          padding: 3% 5%;
 
           background:
             #d3b557c7;
@@ -1590,10 +1519,6 @@ export default function WildPlanPage() {
             0.08em;
         }
 
-        /* =========================
-           PLAN CHECK
-           ========================= */
-
         .plan {
           left: 33.2%;
           bottom: 4.5%;
@@ -1612,21 +1537,14 @@ export default function WildPlanPage() {
         }
 
         .plan ul {
-          margin:
-            6%
-            0
-            0;
-
+          margin: 6% 0 0;
           padding: 0;
-
           list-style: none;
         }
 
         .plan li {
           display: flex;
-
           gap: 8px;
-
           align-items: center;
 
           margin: 3% 0;
@@ -1644,9 +1562,7 @@ export default function WildPlanPage() {
 
         .plan i {
           width: 14px;
-
-          font-style:
-            normal;
+          font-style: normal;
         }
 
         .plan .done {
@@ -1668,8 +1584,7 @@ export default function WildPlanPage() {
             1px solid
             #50412fcc;
 
-          border-radius:
-            999px;
+          border-radius: 999px;
         }
 
         .progress span {
@@ -1677,8 +1592,7 @@ export default function WildPlanPage() {
 
           height: 100%;
 
-          background:
-            #6e8179;
+          background: #6e8179;
         }
 
         .plan > p {
@@ -1703,10 +1617,6 @@ export default function WildPlanPage() {
             Georgia,
             serif;
         }
-
-        /* =========================
-           GEAR
-           ========================= */
 
         .gear {
           right: 5%;
@@ -1760,14 +1670,11 @@ export default function WildPlanPage() {
         }
 
         .gap b {
-          padding:
-            1px 6px;
+          padding: 1px 6px;
 
-          color:
-            #8e3d2a;
+          color: #8e3d2a;
 
-          background:
-            #a7442e29;
+          background: #a7442e29;
         }
 
         .gear button {
@@ -1781,11 +1688,9 @@ export default function WildPlanPage() {
             1px solid
             #47382ab8;
 
-          background:
-            transparent;
+          background: transparent;
 
-          color:
-            #3a3025;
+          color: #3a3025;
 
           cursor: pointer;
 
@@ -1802,18 +1707,9 @@ export default function WildPlanPage() {
             0.08em;
         }
 
-        /* =========================
-           RESPONSIVE
-
-           Desktop composition remains fixed.
-           Smaller screens see the same physical
-           desk instead of reflowing all objects.
-           ========================= */
-
         @media (max-width: 900px) {
           header {
-            padding:
-              0 24px;
+            padding: 0 24px;
           }
 
           nav {
@@ -1822,7 +1718,6 @@ export default function WildPlanPage() {
 
           .stage {
             width: 1180px;
-
             max-width: none;
 
             left: 50%;
