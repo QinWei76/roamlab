@@ -43,9 +43,7 @@ function tripLabel(value?: string) {
     remote: "Remote / Off-Grid",
   };
 
-  return value
-    ? labels[value] ?? titleCase(value)
-    : "Trip style not set";
+  return value ? labels[value] ?? titleCase(value) : "Trip style not set";
 }
 
 function money(value?: number, currency = "USD") {
@@ -84,18 +82,6 @@ function dateLabel(value?: string) {
 
 /* =========================================================
    JOURNEY MAP
-
-   Mother image:
-   /public/wild-plan-master.jpg
-
-   IMPORTANT:
-   - OSRM still provides the real driving geometry.
-   - Distance and travel time remain real OSRM values.
-   - No Leaflet tiles.
-   - No fake straight-line route.
-   - The real geometry is visually fitted into a SAFE AREA
-     inside the physical paper map.
-   - START / WILD therefore never need to enter the Polaroid.
    ========================================================= */
 
 function JourneyMap({
@@ -116,15 +102,8 @@ function JourneyMap({
   onEdit: () => void;
 }) {
   const [routePoints, setRoutePoints] = useState<Point[]>([]);
-
-  const [liveDistance, setLiveDistance] = useState<number | undefined>(
-    undefined
-  );
-
-  const [liveHours, setLiveHours] = useState<number | undefined>(
-    undefined
-  );
-
+  const [liveDistance, setLiveDistance] = useState<number | undefined>();
+  const [liveHours, setLiveHours] = useState<number | undefined>();
   const [status, setStatus] = useState<
     "idle" | "loading" | "ready" | "error"
   >("idle");
@@ -200,15 +179,13 @@ function JourneyMap({
         setRoutePoints(points);
 
         setLiveDistance(
-          typeof first.distance === "number" &&
-            Number.isFinite(first.distance)
+          typeof first.distance === "number" && Number.isFinite(first.distance)
             ? first.distance / 1000
             : undefined
         );
 
         setLiveHours(
-          typeof first.duration === "number" &&
-            Number.isFinite(first.duration)
+          typeof first.duration === "number" && Number.isFinite(first.duration)
             ? first.duration / 3600
             : undefined
         );
@@ -252,55 +229,19 @@ function JourneyMap({
     .filter(Boolean)
     .join(" · ");
 
-  /*
-   * Only real OSRM geometry is rendered.
-   * If OSRM is loading or unavailable, there is no fake route.
-   */
-  const points =
-    ready && routePoints.length > 1
-      ? routePoints
-      : [];
+  const points = ready && routePoints.length > 1 ? routePoints : [];
 
   const lats = points.map((p) => p.latitude);
   const lons = points.map((p) => p.longitude);
 
-  const minLat =
-    lats.length > 0
-      ? Math.min(...lats)
-      : 0;
+  const minLat = lats.length > 0 ? Math.min(...lats) : 0;
+  const maxLat = lats.length > 0 ? Math.max(...lats) : 1;
+  const minLon = lons.length > 0 ? Math.min(...lons) : 0;
+  const maxLon = lons.length > 0 ? Math.max(...lons) : 1;
 
-  const maxLat =
-    lats.length > 0
-      ? Math.max(...lats)
-      : 1;
+  const latSpan = Math.max(maxLat - minLat, 0.0001);
+  const lonSpan = Math.max(maxLon - minLon, 0.0001);
 
-  const minLon =
-    lons.length > 0
-      ? Math.min(...lons)
-      : 0;
-
-  const maxLon =
-    lons.length > 0
-      ? Math.max(...lons)
-      : 1;
-
-  const latSpan = Math.max(
-    maxLat - minLat,
-    0.0001
-  );
-
-  const lonSpan = Math.max(
-    maxLon - minLon,
-    0.0001
-  );
-
-  /*
-   * SVG coordinate system.
-   *
-   * The route does NOT use the entire SVG.
-   * SAFE LEFT / RIGHT / TOP / BOTTOM reserve physical
-   * space around the route so it stays on the paper map.
-   */
   const W = 1000;
   const H = 620;
 
@@ -309,179 +250,126 @@ function JourneyMap({
   const SAFE_TOP = 145;
   const SAFE_BOTTOM = 120;
 
-  const safeWidth =
-    W - SAFE_LEFT - SAFE_RIGHT;
+  const safeWidth = W - SAFE_LEFT - SAFE_RIGHT;
+  const safeHeight = H - SAFE_TOP - SAFE_BOTTOM;
 
-  const safeHeight =
-    H - SAFE_TOP - SAFE_BOTTOM;
+  const xScale = safeWidth / lonSpan;
+  const yScale = safeHeight / latSpan;
+  const scale = Math.min(xScale, yScale);
 
-  /*
-   * Preserve the geographical aspect ratio of the route
-   * instead of stretching longitude and latitude independently.
-   */
-  const xScale =
-    safeWidth / lonSpan;
+  const renderedWidth = lonSpan * scale;
+  const renderedHeight = latSpan * scale;
 
-  const yScale =
-    safeHeight / latSpan;
-
-  const scale =
-    Math.min(xScale, yScale);
-
-  const renderedWidth =
-    lonSpan * scale;
-
-  const renderedHeight =
-    latSpan * scale;
-
-  /*
-   * Center the real route geometry inside the physical
-   * paper-map safe area.
-   *
-   * Slight upward/left bias leaves extra breathing room
-   * toward the destination Polaroid on the upper-right.
-   */
-  const offsetX =
-    SAFE_LEFT +
-    (safeWidth - renderedWidth) / 2 -
-    18;
-
-  const offsetY =
-    SAFE_TOP +
-    (safeHeight - renderedHeight) / 2 +
-    10;
+  const offsetX = SAFE_LEFT + (safeWidth - renderedWidth) / 2 - 18;
+  const offsetY = SAFE_TOP + (safeHeight - renderedHeight) / 2 + 10;
 
   function project(p: Point) {
     return {
-      x:
-        offsetX +
-        (p.longitude - minLon) *
-          scale,
-
-      y:
-        offsetY +
-        (maxLat - p.latitude) *
-          scale,
+      x: offsetX + (p.longitude - minLon) * scale,
+      y: offsetY + (maxLat - p.latitude) * scale,
     };
   }
 
-  const projected =
-    points.map(project);
+  const projected = points.map(project);
 
-  const pathD =
-    projected
-      .map((p, index) => {
-        const command =
-          index === 0
-            ? "M"
-            : "L";
+  const pathD = projected
+    .map((p, index) => {
+      const command = index === 0 ? "M" : "L";
 
-        return `${command} ${p.x.toFixed(
-          1
-        )} ${p.y.toFixed(1)}`;
-      })
-      .join(" ");
+      return `${command} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`;
+    })
+    .join(" ");
 
   const startProjected =
-    projected.length > 1
-      ? projected[0]
-      : undefined;
+    projected.length > 1 ? projected[0] : undefined;
 
   const endProjected =
-    projected.length > 1
-      ? projected[
-          projected.length - 1
-        ]
-      : undefined;
+    projected.length > 1 ? projected[projected.length - 1] : undefined;
 
   return (
     <article className="journey">
       <div className="route-paper">
-        {ready &&
-          routePoints.length > 1 &&
-          pathD && (
-            <svg
-              className="journey-svg"
-              viewBox={`0 0 ${W} ${H}`}
-              preserveAspectRatio="xMidYMid meet"
-              aria-hidden="true"
-            >
-              {/* soft pencil / paper shadow */}
-              <path
-                d={pathD}
-                fill="none"
-                stroke="#e7d7b8"
-                strokeWidth="8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                opacity=".32"
-              />
+        {ready && routePoints.length > 1 && pathD && (
+          <svg
+            className="journey-svg"
+            viewBox={`0 0 ${W} ${H}`}
+            preserveAspectRatio="xMidYMid meet"
+            aria-hidden="true"
+          >
+            <path
+              d={pathD}
+              fill="none"
+              stroke="#e7d7b8"
+              strokeWidth="8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              opacity=".32"
+            />
 
-              {/* actual route */}
-              <path
-                d={pathD}
-                fill="none"
-                stroke="#80382b"
-                strokeWidth="3.6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                opacity=".82"
-              />
+            <path
+              d={pathD}
+              fill="none"
+              stroke="#80382b"
+              strokeWidth="3.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              opacity=".82"
+            />
 
-              {startProjected && (
-                <>
-                  <circle
-                    cx={startProjected.x}
-                    cy={startProjected.y}
-                    r="10"
-                    fill="#e7d7b5"
-                  />
+            {startProjected && (
+              <>
+                <circle
+                  cx={startProjected.x}
+                  cy={startProjected.y}
+                  r="10"
+                  fill="#e7d7b5"
+                />
 
-                  <circle
-                    cx={startProjected.x}
-                    cy={startProjected.y}
-                    r="5.5"
-                    fill="#93432f"
-                  />
+                <circle
+                  cx={startProjected.x}
+                  cy={startProjected.y}
+                  r="5.5"
+                  fill="#93432f"
+                />
 
-                  <text
-                    x={startProjected.x + 14}
-                    y={startProjected.y + 4}
-                    className="route-marker-text"
-                  >
-                    START
-                  </text>
-                </>
-              )}
+                <text
+                  x={startProjected.x + 14}
+                  y={startProjected.y + 4}
+                  className="route-marker-text"
+                >
+                  START
+                </text>
+              </>
+            )}
 
-              {endProjected && (
-                <>
-                  <circle
-                    cx={endProjected.x}
-                    cy={endProjected.y}
-                    r="11"
-                    fill="#e7d7b5"
-                  />
+            {endProjected && (
+              <>
+                <circle
+                  cx={endProjected.x}
+                  cy={endProjected.y}
+                  r="11"
+                  fill="#e7d7b5"
+                />
 
-                  <circle
-                    cx={endProjected.x}
-                    cy={endProjected.y}
-                    r="6"
-                    fill="#7f2f24"
-                  />
+                <circle
+                  cx={endProjected.x}
+                  cy={endProjected.y}
+                  r="6"
+                  fill="#7f2f24"
+                />
 
-                  <text
-                    x={endProjected.x - 14}
-                    y={endProjected.y - 14}
-                    textAnchor="end"
-                    className="route-marker-text route-marker-wild"
-                  >
-                    WILD
-                  </text>
-                </>
-              )}
-            </svg>
-          )}
+                <text
+                  x={endProjected.x - 14}
+                  y={endProjected.y - 14}
+                  textAnchor="end"
+                  className="route-marker-text route-marker-wild"
+                >
+                  WILD
+                </text>
+              </>
+            )}
+          </svg>
+        )}
 
         <button
           type="button"
@@ -497,13 +385,13 @@ function JourneyMap({
               ? "DRAWING ROUTE..."
               : status === "error"
                 ? "ROUTE UNAVAILABLE"
-                : routeText ||
-                  "JOURNEY ROUTE"}
+                : routeText || "JOURNEY ROUTE"}
         </div>
       </div>
     </article>
   );
 }
+
 export default function WildPlanPage() {
   const router = useRouter();
 
@@ -518,26 +406,12 @@ export default function WildPlanPage() {
 
     load();
 
-    window.addEventListener(
-      CURRENT_WILD_UPDATED_EVENT,
-      load
-    );
-
-    window.addEventListener(
-      "storage",
-      load
-    );
+    window.addEventListener(CURRENT_WILD_UPDATED_EVENT, load);
+    window.addEventListener("storage", load);
 
     return () => {
-      window.removeEventListener(
-        CURRENT_WILD_UPDATED_EVENT,
-        load
-      );
-
-      window.removeEventListener(
-        "storage",
-        load
-      );
+      window.removeEventListener(CURRENT_WILD_UPDATED_EVENT, load);
+      window.removeEventListener("storage", load);
     };
   }, []);
 
@@ -556,24 +430,15 @@ export default function WildPlanPage() {
     return (
       <main className="empty">
         <section>
-          <small>
-            ROAMLAB · WILD PLAN
-          </small>
+          <small>ROAMLAB · WILD PLAN</small>
 
-          <h1>
-            Nothing on the table yet.
-          </h1>
+          <h1>Nothing on the table yet.</h1>
 
           <p>
-            Choose your way in and begin
-            building your next Wild.
+            Choose your way in and begin building your next Wild.
           </p>
 
-          <button
-            onClick={() =>
-              router.push("/ways-in")
-            }
-          >
+          <button onClick={() => router.push("/ways-in")}>
             START YOUR WILD →
           </button>
         </section>
@@ -584,30 +449,21 @@ export default function WildPlanPage() {
             display: grid;
             place-items: center;
             padding: 30px;
-
             background:
               linear-gradient(
                 rgba(10, 7, 4, 0.2),
                 rgba(10, 7, 4, 0.6)
               ),
-              url("/wild-plan-master.jpg")
-                center / cover;
-
+              url("/wild-plan-master.jpg") center / cover;
             color: #35291e;
           }
 
           section {
             width: min(560px, 90vw);
             padding: 50px;
-
-            background:
-              rgba(221, 207, 177, 0.94);
-
-            box-shadow:
-              0 30px 90px #0009;
-
-            transform:
-              rotate(-1deg);
+            background: rgba(221, 207, 177, 0.94);
+            box-shadow: 0 30px 90px #0009;
+            transform: rotate(-1deg);
           }
 
           small {
@@ -617,29 +473,20 @@ export default function WildPlanPage() {
 
           h1 {
             margin: 18px 0 12px;
-
-            font:
-              400 44px Georgia,
-              serif;
+            font: 400 44px Georgia, serif;
           }
 
           p {
-            font:
-              16px/1.6 Georgia,
-              serif;
+            font: 16px/1.6 Georgia, serif;
           }
 
           button {
             margin-top: 20px;
             padding: 13px 17px;
-
             border: 0;
-
             background: #93432a;
             color: #fff1dc;
-
             cursor: pointer;
-
             font: 800 10px Arial;
             letter-spacing: 0.12em;
           }
@@ -648,83 +495,43 @@ export default function WildPlanPage() {
     );
   }
 
-  const adventure =
-    wild.plan.adventure;
+  const adventure = wild.plan.adventure;
+  const schedule = adventure.schedule;
+  const destination = adventure.destination;
+  const intent = adventure.intent;
+  const route = wild.plan.route;
+  const conditions = wild.plan.conditions;
+  const gear = wild.plan.prepare?.gear;
+  const cost = wild.plan.cost;
+  const planning = wild.plan.planning;
 
-  const schedule =
-    adventure.schedule;
+  const items = gear?.items ?? [];
 
-  const destination =
-    adventure.destination;
+  const essential = items.filter(
+    (item) => item.priority === "essential"
+  ).length;
 
-  const intent =
-    adventure.intent;
+  const recommended = items.filter(
+    (item) => item.priority === "recommended"
+  ).length;
 
-  const route =
-    wild.plan.route;
+  const optional = items.filter(
+    (item) => item.priority === "optional"
+  ).length;
 
-  const conditions =
-    wild.plan.conditions;
+  const owned = items.filter(
+    (item) => item.ownershipStatus === "owned"
+  ).length;
 
-  const gear =
-    wild.plan.prepare?.gear;
+  const gap = items.filter((item) =>
+    ["to-buy", "borrow", "rent"].includes(item.ownershipStatus)
+  ).length;
 
-  const cost =
-    wild.plan.cost;
+  const issues = (planning?.issues ?? []).filter(
+    (issue) => issue.status === "open"
+  );
 
-  const planning =
-    wild.plan.planning;
-
-  const items =
-    gear?.items ?? [];
-
-  const essential =
-    items.filter(
-      (item) =>
-        item.priority ===
-        "essential"
-    ).length;
-
-  const recommended =
-    items.filter(
-      (item) =>
-        item.priority ===
-        "recommended"
-    ).length;
-
-  const optional =
-    items.filter(
-      (item) =>
-        item.priority ===
-        "optional"
-    ).length;
-
-  const owned =
-    items.filter(
-      (item) =>
-        item.ownershipStatus ===
-        "owned"
-    ).length;
-
-  const gap =
-    items.filter((item) =>
-      [
-        "to-buy",
-        "borrow",
-        "rent",
-      ].includes(
-        item.ownershipStatus
-      )
-    ).length;
-
-  const issues =
-    (planning?.issues ?? []).filter(
-      (issue) =>
-        issue.status === "open"
-    );
-
-  const currency =
-    cost?.currency ?? "USD";
+  const currency = cost?.currency ?? "USD";
 
   const projected =
     planning?.projectedWildCost ??
@@ -732,28 +539,19 @@ export default function WildPlanPage() {
 
   const remaining =
     cost?.remainingBudget ??
-    (
-      typeof cost?.totalWildBudget ===
-        "number" &&
-      typeof projected === "number"
-        ? cost.totalWildBudget -
-          projected
-        : undefined
-    );
+    (typeof cost?.totalWildBudget === "number" &&
+    typeof projected === "number"
+      ? cost.totalWildBudget - projected
+      : undefined);
 
   const dateLine =
-    schedule?.startDate &&
-    schedule?.endDate
-      ? `${dateLabel(
-          schedule.startDate
-        )} — ${dateLabel(
+    schedule?.startDate && schedule?.endDate
+      ? `${dateLabel(schedule.startDate)} — ${dateLabel(
           schedule.endDate
         )}`
-      : schedule?.timingMode ===
-          "flexible"
+      : schedule?.timingMode === "flexible"
         ? "FLEXIBLE DATES"
-        : schedule?.timingMode ===
-            "undecided"
+        : schedule?.timingMode === "undecided"
           ? "DATES UNDECIDED"
           : "DATES NOT SET";
 
@@ -765,167 +563,80 @@ export default function WildPlanPage() {
     destination?.name ??
     "Choose your destination";
 
-  const origin =
-    isPoint(
-      intent?.startingFrom
-        ?.coordinates
-    )
-      ? intent.startingFrom
-          .coordinates
-      : undefined;
+  const origin = isPoint(intent?.startingFrom?.coordinates)
+    ? intent.startingFrom.coordinates
+    : undefined;
 
-  const dest =
-    isPoint(
-      destination?.coordinates
-    )
-      ? destination.coordinates
-      : undefined;
+  const dest = isPoint(destination?.coordinates)
+    ? destination.coordinates
+    : undefined;
 
   function contextQuery() {
-    const params =
-      new URLSearchParams();
+    const params = new URLSearchParams();
 
     if (adventure.vehicle?.type) {
-      params.set(
-        "vehicle",
-        adventure.vehicle.type
-      );
+      params.set("vehicle", adventure.vehicle.type);
     }
 
     if (adventure.tripStyle) {
-      params.set(
-        "trip",
-        adventure.tripStyle
-      );
+      params.set("trip", adventure.tripStyle);
     }
 
     if (adventure.crew?.type) {
-      params.set(
-        "crew",
-        adventure.crew.type
-      );
+      params.set("crew", adventure.crew.type);
     }
 
     if (adventure.crew?.people) {
-      params.set(
-        "people",
-        String(
-          adventure.crew.people
-        )
-      );
+      params.set("people", String(adventure.crew.people));
     }
 
-    if (
-      schedule?.durationType
-    ) {
-      params.set(
-        "duration",
-        schedule.durationType
-      );
+    if (schedule?.durationType) {
+      params.set("duration", schedule.durationType);
     }
 
     return params.toString();
   }
 
-  const readiness =
-    wild.plan.readiness
-      ?.overallPercent;
+  const readiness = wild.plan.readiness?.overallPercent;
 
   const progress =
     typeof readiness === "number"
-      ? Math.max(
-          0,
-          Math.min(
-            100,
-            readiness
-          )
-        )
+      ? Math.max(0, Math.min(100, readiness))
       : items.length
         ? 58
         : 24;
 
-  const peopleLabel =
-    adventure.crew?.people
-      ? `${adventure.crew.people} ${
-          adventure.crew.people === 1
-            ? "PERSON"
-            : "PEOPLE"
-        }`
-      : "CREW NOT SET";
+  const peopleLabel = adventure.crew?.people
+    ? `${adventure.crew.people} ${
+        adventure.crew.people === 1 ? "PERSON" : "PEOPLE"
+      }`
+    : "CREW NOT SET";
 
-  const durationLabel =
-    schedule?.days
-      ? `${schedule.days} DAYS · ${
-          schedule.nights ?? 0
-        } NIGHTS`
-      : dateLine;
+  const durationLabel = schedule?.days
+    ? `${schedule.days} DAYS · ${schedule.nights ?? 0} NIGHTS`
+    : dateLine;
 
-  const vehicleLabel =
-    adventure.vehicle?.type
-      ? titleCase(
-          adventure.vehicle.type
-        )
-      : "VEHICLE NOT SET";
+  const vehicleLabel = adventure.vehicle?.type
+    ? titleCase(adventure.vehicle.type)
+    : "VEHICLE NOT SET";
 
-  const wayInLabel =
-    adventure.wayIn
-      ? titleCase(
-          adventure.wayIn
-        )
-      : "WAY IN NOT SET";
+  const wayInLabel = adventure.wayIn
+    ? titleCase(adventure.wayIn)
+    : "WAY IN NOT SET";
 
-  const tripStyleLabel =
-    adventure.tripStyle
-      ? tripLabel(
-          adventure.tripStyle
-        )
-      : "STYLE NOT SET";
+  const tripStyleLabel = adventure.tripStyle
+    ? tripLabel(adventure.tripStyle)
+    : "STYLE NOT SET";
 
   return (
     <main className="page">
       {/* ===================================================
-          NAVIGATION
+          IMPORTANT:
+          STAGE NOW STARTS AT PAGE Y = 0.
 
-          The navigation now floats OVER the mother image.
-          There is no separate black website header.
+          HEADER LIVES INSIDE STAGE.
+          IT DOES NOT CREATE ITS OWN ROW.
           =================================================== */}
-
-      <header className="floating-nav">
-        <button
-          className="brand"
-          onClick={() =>
-            router.push("/")
-          }
-        >
-          ROAMLAB
-        </button>
-
-        <nav>
-          <button
-            onClick={() =>
-              router.push(
-                "/ways-in"
-              )
-            }
-          >
-            EXPLORE
-          </button>
-
-          <button
-            onClick={() =>
-              router.push(
-                "/gear"
-              )
-            }
-          >
-            GEAR LAB
-          </button>
-
-          <span>
-            WILD PLAN
-          </span>
-        </nav>
-      </header>
 
       <section className="stage">
         <img
@@ -935,15 +646,32 @@ export default function WildPlanPage() {
         />
 
         <div className="top-readable-gradient" />
-
         <div className="edge-shade" />
 
-        {/* =================================================
-            CURRENT WILD
+        {/* NAVIGATION OVER THE MOTHER IMAGE */}
 
-            Every live value has its OWN fixed position.
-            Nothing flows vertically and pushes another field.
-            ================================================= */}
+        <header className="floating-nav">
+          <button
+            className="brand"
+            onClick={() => router.push("/")}
+          >
+            ROAMLAB
+          </button>
+
+          <nav>
+            <button onClick={() => router.push("/ways-in")}>
+              EXPLORE
+            </button>
+
+            <button onClick={() => router.push("/gear")}>
+              GEAR LAB
+            </button>
+
+            <span>WILD PLAN</span>
+          </nav>
+        </header>
+
+        {/* CURRENT WILD */}
 
         <article
           className="current-zone"
@@ -974,70 +702,44 @@ export default function WildPlanPage() {
           </div>
         </article>
 
-        {/* =================================================
-            REAL JOURNEY ROUTE
-            ================================================= */}
+        {/* REAL JOURNEY ROUTE */}
 
         <JourneyMap
           origin={origin}
           destination={dest}
           originName={originName}
-          destinationName={
-            destinationName
-          }
-          savedDistanceKm={
-            route?.distanceKm
-          }
-          savedHours={
-            route?.estimatedHours
-          }
+          destinationName={destinationName}
+          savedDistanceKm={route?.distanceKm}
+          savedHours={route?.estimatedHours}
           onEdit={() =>
-            router.push(
-              "/wild-plan/destination"
-            )
+            router.push("/wild-plan/destination")
           }
         />
 
-        {/* =================================================
-            DESTINATION POLAROID CAPTION
-            ================================================= */}
+        {/* DESTINATION POLAROID */}
 
         <button
           type="button"
           className="destination-caption"
           onClick={() =>
-            router.push(
-              "/wild-plan/destination"
-            )
+            router.push("/wild-plan/destination")
           }
         >
-          <strong>
-            {destinationName}
-          </strong>
-
-          <span>
-            DESTINATION →
-          </span>
+          <strong>{destinationName}</strong>
+          <span>DESTINATION →</span>
         </button>
 
-        {/* =================================================
-            CONDITIONS NOTE
-
-            Fixed slots rather than one flowing text block.
-            ================================================= */}
+        {/* CONDITIONS */}
 
         <button
           type="button"
           className="conditions-zone"
           onClick={() =>
-            router.push(
-              "/wild-plan/destination"
-            )
+            router.push("/wild-plan/destination")
           }
         >
           <span className="condition-weather">
-            {conditions?.weatherSummary ??
-              "WEATHER"}
+            {conditions?.weatherSummary ?? "WEATHER"}
           </span>
 
           <span className="condition-terrain">
@@ -1049,19 +751,13 @@ export default function WildPlanPage() {
           </span>
         </button>
 
-        {/* =================================================
-            BUDGET NOTEBOOK
-
-            $3,599 etc. remains LIVE Current Wild data.
-            Each value has a fixed physical slot.
-            ================================================= */}
+        {/* BUDGET */}
 
         <button
           type="button"
           className="budget-zone"
           onClick={() => {
-            const query =
-              contextQuery();
+            const query = contextQuery();
 
             router.push(
               query
@@ -1071,27 +767,17 @@ export default function WildPlanPage() {
           }}
         >
           <span className="budget-total">
-            {cost?.budgetStatus ===
-            "unknown"
+            {cost?.budgetStatus === "unknown"
               ? "NOT SET"
-              : money(
-                  cost?.totalWildBudget,
-                  currency
-                )}
+              : money(cost?.totalWildBudget, currency)}
           </span>
 
           <span className="budget-projected">
-            {money(
-              projected,
-              currency
-            )}
+            {money(projected, currency)}
           </span>
 
           <span className="budget-remaining">
-            {money(
-              remaining,
-              currency
-            )}
+            {money(remaining, currency)}
           </span>
 
           <span className="budget-edit">
@@ -1099,9 +785,7 @@ export default function WildPlanPage() {
           </span>
         </button>
 
-        {/* =================================================
-            PLAN CHECK NOTEBOOK
-            ================================================= */}
+        {/* PLAN CHECK */}
 
         <article className="plan-zone">
           <span
@@ -1114,40 +798,30 @@ export default function WildPlanPage() {
 
           <span
             className={`plan-check plan-gear ${
-              items.length
-                ? "complete"
-                : ""
+              items.length ? "complete" : ""
             }`}
           >
-            {items.length
-              ? "✓"
-              : "□"}
+            {items.length ? "✓" : "□"}
           </span>
 
           <span
             className={`plan-check plan-budget ${
-              typeof cost?.totalWildBudget ===
-              "number"
+              typeof cost?.totalWildBudget === "number"
                 ? "complete"
                 : ""
             }`}
           >
-            {typeof cost?.totalWildBudget ===
-            "number"
+            {typeof cost?.totalWildBudget === "number"
               ? "✓"
               : "□"}
           </span>
 
           <span
             className={`plan-check plan-conditions ${
-              conditions
-                ? "complete"
-                : ""
+              conditions ? "complete" : ""
             }`}
           >
-            {conditions
-              ? "✓"
-              : "□"}
+            {conditions ? "✓" : "□"}
           </span>
 
           <span className="plan-route-label">
@@ -1187,11 +861,7 @@ export default function WildPlanPage() {
           </p>
         </article>
 
-        {/* =================================================
-            GEAR PAPER
-
-            Again: each number is independently positioned.
-            ================================================= */}
+        {/* GEAR */}
 
         <article className="gear-zone">
           <span className="gear-essential">
@@ -1218,8 +888,7 @@ export default function WildPlanPage() {
             type="button"
             className="gear-open"
             onClick={() => {
-              const query =
-                contextQuery();
+              const query = contextQuery();
 
               router.push(
                 query
@@ -1232,12 +901,12 @@ export default function WildPlanPage() {
           </button>
         </article>
       </section>
-            <style jsx global>{`
+
+      <style jsx global>{`
         html,
         body {
           margin: 0;
           padding: 0;
-
           background: #100b07;
         }
 
@@ -1251,26 +920,100 @@ export default function WildPlanPage() {
 
         .page {
           position: relative;
-
           min-height: 100vh;
-
           overflow-x: hidden;
-
           background: #100b07;
-
           color: #f2e7d4;
-
-          font-family:
-            Arial,
-            Helvetica,
-            sans-serif;
+          font-family: Arial, Helvetica, sans-serif;
         }
 
         /* ==================================================
-           FLOATING NAVIGATION
+           MASTER STAGE
 
-           No separate black header.
-           The mother image continues underneath the nav.
+           CRITICAL FIX:
+           stage begins at page top.
+           There is no header row above it.
+           ================================================== */
+
+        .stage {
+          position: relative;
+
+          width: min(1536px, 100vw);
+
+          aspect-ratio: 1672 / 941;
+
+          margin: 0 auto;
+
+          overflow: hidden;
+
+          isolation: isolate;
+
+          background: #1c120a;
+        }
+
+        .master {
+          position: absolute;
+
+          z-index: 1;
+
+          inset: 0;
+
+          display: block;
+
+          width: 100%;
+          height: 100%;
+
+          object-fit: cover;
+
+          pointer-events: none;
+          user-select: none;
+        }
+
+        .top-readable-gradient {
+          position: absolute;
+
+          z-index: 2;
+
+          top: 0;
+          left: 0;
+          right: 0;
+
+          height: 12%;
+
+          pointer-events: none;
+
+          background: linear-gradient(
+            to bottom,
+            rgba(9, 6, 4, 0.46) 0%,
+            rgba(9, 6, 4, 0.13) 58%,
+            transparent 100%
+          );
+        }
+
+        .edge-shade {
+          position: absolute;
+
+          z-index: 3;
+
+          inset: 0;
+
+          pointer-events: none;
+
+          background: radial-gradient(
+            ellipse at 49% 44%,
+            transparent 0%,
+            transparent 54%,
+            rgba(8, 5, 3, 0.08) 76%,
+            rgba(8, 5, 3, 0.26) 100%
+          );
+        }
+
+        /* ==================================================
+           FLOATING NAV
+
+           INSIDE .stage.
+           No document height.
+           No solid background.
            ================================================== */
 
         .floating-nav {
@@ -1279,12 +1022,9 @@ export default function WildPlanPage() {
           z-index: 100;
 
           top: 0;
-          left: 50%;
+          left: 0;
 
-          width: min(
-            1536px,
-            100vw
-          );
+          width: 100%;
 
           height: clamp(
             62px,
@@ -1292,13 +1032,11 @@ export default function WildPlanPage() {
             92px
           );
 
-          transform:
-            translateX(-50%);
-
           display: flex;
+
           align-items: center;
-          justify-content:
-            space-between;
+
+          justify-content: space-between;
 
           padding:
             0
@@ -1336,25 +1074,18 @@ export default function WildPlanPage() {
           color: #fff5e6;
 
           text-shadow:
-            0 2px 10px
-            rgba(
-              0,
-              0,
-              0,
-              0.55
-            );
+            0 2px 10px rgba(0, 0, 0, 0.7),
+            0 1px 2px rgba(0, 0, 0, 0.8);
 
-          font-size:
-            clamp(
-              14px,
-              1.25vw,
-              19px
-            );
+          font-size: clamp(
+            14px,
+            1.25vw,
+            19px
+          );
 
           font-weight: 900;
 
-          letter-spacing:
-            0.22em;
+          letter-spacing: 0.22em;
         }
 
         .floating-nav nav {
@@ -1362,46 +1093,37 @@ export default function WildPlanPage() {
 
           align-items: center;
 
-          gap:
-            clamp(
-              20px,
-              3vw,
-              46px
-            );
+          gap: clamp(
+            20px,
+            3vw,
+            46px
+          );
 
-          font-size:
-            clamp(
-              8px,
-              0.7vw,
-              11px
-            );
+          font-size: clamp(
+            8px,
+            0.7vw,
+            11px
+          );
 
           font-weight: 900;
 
-          letter-spacing:
-            0.18em;
+          letter-spacing: 0.18em;
         }
 
         .floating-nav nav button {
           margin: 0;
+
           padding: 8px 0;
 
-          color:
-            rgba(
-              255,
-              244,
-              226,
-              0.83
-            );
+          color: rgba(
+            255,
+            244,
+            226,
+            0.9
+          );
 
           text-shadow:
-            0 2px 9px
-            rgba(
-              0,
-              0,
-              0,
-              0.65
-            );
+            0 2px 9px rgba(0, 0, 0, 0.8);
         }
 
         .floating-nav nav button:hover {
@@ -1412,150 +1134,11 @@ export default function WildPlanPage() {
           color: #e9ad6b;
 
           text-shadow:
-            0 2px 9px
-            rgba(
-              0,
-              0,
-              0,
-              0.65
-            );
+            0 2px 9px rgba(0, 0, 0, 0.8);
         }
 
         /* ==================================================
-           MASTER STAGE
-
-           Mother image:
-           1672 × 941
-
-           Every live overlay below is positioned in %
-           relative to this exact physical composition.
-           ================================================== */
-
-        .stage {
-          position: relative;
-
-          width: min(
-            1536px,
-            100vw
-          );
-
-          aspect-ratio:
-            1672 / 941;
-
-          margin: 0 auto;
-
-          overflow: hidden;
-
-          isolation: isolate;
-
-          background: #1c120a;
-        }
-
-        .master {
-          position: absolute;
-
-          z-index: 1;
-
-          inset: 0;
-
-          display: block;
-
-          width: 100%;
-          height: 100%;
-
-          object-fit: cover;
-
-          pointer-events: none;
-          user-select: none;
-        }
-
-        /*
-         * Only a subtle readability wash behind
-         * the floating navigation.
-         *
-         * This is a gradient, not a header bar.
-         */
-
-        .top-readable-gradient {
-          position: absolute;
-
-          z-index: 2;
-
-          top: 0;
-          left: 0;
-          right: 0;
-
-          height: 14%;
-
-          pointer-events: none;
-
-          background:
-            linear-gradient(
-              to bottom,
-              rgba(
-                9,
-                6,
-                4,
-                0.48
-              )
-              0%,
-              rgba(
-                9,
-                6,
-                4,
-                0.16
-              )
-              58%,
-              transparent
-              100%
-            );
-        }
-
-        .edge-shade {
-          position: absolute;
-
-          z-index: 3;
-
-          inset: 0;
-
-          pointer-events: none;
-
-          background:
-            radial-gradient(
-              ellipse
-              at
-              49%
-              44%,
-              transparent
-              0%,
-              transparent
-              54%,
-              rgba(
-                8,
-                5,
-                3,
-                0.08
-              )
-              76%,
-              rgba(
-                8,
-                5,
-                3,
-                0.26
-              )
-              100%
-            );
-        }
-
-        /* ==================================================
-           CURRENT WILD NOTE
-
-           The mother image already provides:
-           - paper
-           - icons
-           - dotted writing lines
-
-           React only fills those physical slots.
+           CURRENT WILD
            ================================================== */
 
         .current-zone {
@@ -1571,8 +1154,7 @@ export default function WildPlanPage() {
 
           color: #3d3025;
 
-          transform:
-            rotate(-2.8deg);
+          transform: rotate(-2.8deg);
 
           pointer-events: none;
         }
@@ -1588,8 +1170,7 @@ export default function WildPlanPage() {
 
           white-space: nowrap;
 
-          text-overflow:
-            ellipsis;
+          text-overflow: ellipsis;
 
           color: #403228;
 
@@ -1598,23 +1179,16 @@ export default function WildPlanPage() {
             "Bradley Hand",
             cursive;
 
-          font-size:
-            clamp(
-              7px,
-              0.72vw,
-              11px
-            );
+          font-size: clamp(
+            7px,
+            0.72vw,
+            11px
+          );
 
           line-height: 1;
 
-          letter-spacing:
-            0.01em;
+          letter-spacing: 0.01em;
         }
-
-        /*
-         * Destination receives the largest writing slot
-         * near the top of the Current Wild note.
-         */
 
         .current-destination {
           top: 14%;
@@ -1623,19 +1197,17 @@ export default function WildPlanPage() {
 
           width: 86% !important;
 
-          color:
-            #563527 !important;
+          color: #563527 !important;
 
           font-family:
             Georgia,
             serif !important;
 
-          font-size:
-            clamp(
-              10px,
-              1.05vw,
-              17px
-            ) !important;
+          font-size: clamp(
+            10px,
+            1.05vw,
+            17px
+          ) !important;
 
           font-style: italic;
 
@@ -1663,14 +1235,7 @@ export default function WildPlanPage() {
         }
 
         /* ==================================================
-           JOURNEY MAP
-
-           The container itself is also kept inside the
-           central physical map.
-
-           The JourneyMap component adds an additional
-           internal SAFE AREA, so the route has two levels
-           of protection from the Polaroids.
+           JOURNEY
            ================================================== */
 
         .journey {
@@ -1684,8 +1249,7 @@ export default function WildPlanPage() {
           width: 40.5%;
           height: 39.5%;
 
-          transform:
-            rotate(-0.8deg);
+          transform: rotate(-0.8deg);
 
           pointer-events: none;
         }
@@ -1717,21 +1281,12 @@ export default function WildPlanPage() {
 
           pointer-events: none;
 
-          mix-blend-mode:
-            multiply;
+          mix-blend-mode: multiply;
 
-          filter:
-            drop-shadow(
-              0
-              0.5px
-              0.7px
-              rgba(
-                61,
-                35,
-                21,
-                0.2
-              )
-            );
+          filter: drop-shadow(
+            0 0.5px 0.7px
+              rgba(61, 35, 21, 0.2)
+          );
         }
 
         .route-marker-text {
@@ -1746,18 +1301,15 @@ export default function WildPlanPage() {
 
           font-weight: 900;
 
-          letter-spacing:
-            2px;
+          letter-spacing: 2px;
 
-          paint-order:
-            stroke;
+          paint-order: stroke;
 
           stroke: #e8d9bc;
 
           stroke-width: 4px;
 
-          stroke-linejoin:
-            round;
+          stroke-linejoin: round;
         }
 
         .route-marker-wild {
@@ -1795,34 +1347,20 @@ export default function WildPlanPage() {
             translateX(-50%)
             rotate(-0.8deg);
 
-          padding:
-            3px
-            8px;
+          padding: 3px 8px;
 
           white-space: nowrap;
 
           color: #553c2e;
 
-          background:
-            rgba(
-              224,
-              210,
-              176,
-              0.66
-            );
+          background: rgba(
+            224,
+            210,
+            176,
+            0.66
+          );
 
           border-radius: 2px;
-
-          box-shadow:
-            0
-            1px
-            3px
-            rgba(
-              42,
-              27,
-              17,
-              0.1
-            );
 
           font:
             700
@@ -1834,18 +1372,13 @@ export default function WildPlanPage() {
             Georgia,
             serif;
 
-          letter-spacing:
-            0.04em;
+          letter-spacing: 0.04em;
 
           pointer-events: none;
         }
 
         /* ==================================================
-           DESTINATION POLAROID
-
-           Only the caption area is dynamic.
-           The photograph itself remains part of the
-           physical mother image.
+           DESTINATION
            ================================================== */
 
         .destination-caption {
@@ -1860,6 +1393,7 @@ export default function WildPlanPage() {
           height: 8.4%;
 
           margin: 0;
+
           padding:
             1.2%
             1.1%;
@@ -1876,8 +1410,7 @@ export default function WildPlanPage() {
 
           cursor: pointer;
 
-          transform:
-            rotate(5deg);
+          transform: rotate(5deg);
         }
 
         .destination-caption strong {
@@ -1887,8 +1420,7 @@ export default function WildPlanPage() {
 
           white-space: nowrap;
 
-          text-overflow:
-            ellipsis;
+          text-overflow: ellipsis;
 
           color: #4d3528;
 
@@ -1911,24 +1443,19 @@ export default function WildPlanPage() {
 
           color: #8a4934;
 
-          font-size:
-            clamp(
-              5px,
-              0.46vw,
-              7px
-            );
+          font-size: clamp(
+            5px,
+            0.46vw,
+            7px
+          );
 
           font-weight: 900;
 
-          letter-spacing:
-            0.1em;
+          letter-spacing: 0.1em;
         }
 
         /* ==================================================
-           CONDITIONS NOTE
-
-           Dynamic values sit on the physical note's
-           existing writing areas.
+           CONDITIONS
            ================================================== */
 
         .conditions-zone {
@@ -1953,8 +1480,7 @@ export default function WildPlanPage() {
 
           cursor: pointer;
 
-          transform:
-            rotate(1.2deg);
+          transform: rotate(1.2deg);
         }
 
         .conditions-zone span {
@@ -1966,8 +1492,7 @@ export default function WildPlanPage() {
 
           white-space: nowrap;
 
-          text-overflow:
-            ellipsis;
+          text-overflow: ellipsis;
 
           font-family:
             "Comic Sans MS",
@@ -1985,12 +1510,11 @@ export default function WildPlanPage() {
 
           text-align: left;
 
-          font-size:
-            clamp(
-              7px,
-              0.68vw,
-              10px
-            );
+          font-size: clamp(
+            7px,
+            0.68vw,
+            10px
+          );
         }
 
         .condition-terrain {
@@ -2003,12 +1527,11 @@ export default function WildPlanPage() {
 
           text-align: left;
 
-          font-size:
-            clamp(
-              7px,
-              0.68vw,
-              10px
-            );
+          font-size: clamp(
+            7px,
+            0.68vw,
+            10px
+          );
         }
 
         .condition-link {
@@ -2022,23 +1545,19 @@ export default function WildPlanPage() {
             Helvetica,
             sans-serif !important;
 
-          font-size:
-            clamp(
-              5px,
-              0.45vw,
-              7px
-            ) !important;
+          font-size: clamp(
+            5px,
+            0.45vw,
+            7px
+          ) !important;
 
           font-weight: 900;
 
-          letter-spacing:
-            0.08em;
+          letter-spacing: 0.08em;
         }
-                /* ==================================================
-           BUDGET NOTEBOOK
 
-           All values are live Current Wild data.
-           Each value has its own fixed physical slot.
+        /* ==================================================
+           BUDGET
            ================================================== */
 
         .budget-zone {
@@ -2063,8 +1582,7 @@ export default function WildPlanPage() {
 
           cursor: pointer;
 
-          transform:
-            rotate(-1.7deg);
+          transform: rotate(-1.7deg);
         }
 
         .budget-zone > span {
@@ -2072,10 +1590,6 @@ export default function WildPlanPage() {
 
           display: block;
         }
-
-        /*
-         * Main yellow budget field.
-         */
 
         .budget-total {
           left: 27%;
@@ -2098,21 +1612,16 @@ export default function WildPlanPage() {
             "Bradley Hand",
             cursive;
 
-          font-size:
-            clamp(
-              13px,
-              1.45vw,
-              23px
-            );
+          font-size: clamp(
+            13px,
+            1.45vw,
+            23px
+          );
 
           font-weight: 600;
 
           line-height: 1;
         }
-
-        /*
-         * Lower notebook lines.
-         */
 
         .budget-projected {
           left: 52%;
@@ -2175,25 +1684,19 @@ export default function WildPlanPage() {
             Helvetica,
             sans-serif;
 
-          font-size:
-            clamp(
-              5px,
-              0.45vw,
-              7px
-            );
+          font-size: clamp(
+            5px,
+            0.45vw,
+            7px
+          );
 
           font-weight: 900;
 
-          letter-spacing:
-            0.09em;
+          letter-spacing: 0.09em;
         }
 
         /* ==================================================
-           PLAN CHECK NOTEBOOK
-
-           The open notebook itself is in the mother image.
-           React only supplies checks, labels, progress,
-           and the current planning message.
+           PLAN CHECK
            ================================================== */
 
         .plan-zone {
@@ -2209,8 +1712,7 @@ export default function WildPlanPage() {
 
           color: #3e3329;
 
-          transform:
-            rotate(0.6deg);
+          transform: rotate(0.6deg);
 
           pointer-events: none;
         }
@@ -2226,16 +1728,13 @@ export default function WildPlanPage() {
 
           text-align: center;
 
-          font-family:
-            Georgia,
-            serif;
+          font-family: Georgia, serif;
 
-          font-size:
-            clamp(
-              9px,
-              0.9vw,
-              14px
-            );
+          font-size: clamp(
+            9px,
+            0.9vw,
+            14px
+          );
 
           line-height: 1;
         }
@@ -2281,12 +1780,11 @@ export default function WildPlanPage() {
             "Bradley Hand",
             cursive;
 
-          font-size:
-            clamp(
-              7px,
-              0.66vw,
-              10px
-            );
+          font-size: clamp(
+            7px,
+            0.66vw,
+            10px
+          );
 
           line-height: 1;
         }
@@ -2320,22 +1818,16 @@ export default function WildPlanPage() {
 
           border:
             1px solid
-            rgba(
-              66,
-              53,
-              42,
-              0.62
-            );
+            rgba(66, 53, 42, 0.62);
 
           border-radius: 999px;
 
-          background:
-            rgba(
-              75,
-              60,
-              47,
-              0.08
-            );
+          background: rgba(
+            75,
+            60,
+            47,
+            0.08
+          );
         }
 
         .plan-progress > span {
@@ -2374,12 +1866,7 @@ export default function WildPlanPage() {
         }
 
         /* ==================================================
-           GEAR SYSTEM PAPER
-
-           The torn paper and printed guide marks belong
-           to the mother image.
-
-           These are only the live numbers.
+           GEAR
            ================================================== */
 
         .gear-zone {
@@ -2395,8 +1882,7 @@ export default function WildPlanPage() {
 
           color: #3e3228;
 
-          transform:
-            rotate(2.3deg);
+          transform: rotate(2.3deg);
         }
 
         .gear-zone > span {
@@ -2415,12 +1901,11 @@ export default function WildPlanPage() {
             "Bradley Hand",
             cursive;
 
-          font-size:
-            clamp(
-              9px,
-              0.9vw,
-              14px
-            );
+          font-size: clamp(
+            9px,
+            0.9vw,
+            14px
+          );
 
           font-weight: 600;
 
@@ -2446,8 +1931,7 @@ export default function WildPlanPage() {
         .gear-gap {
           top: 78%;
 
-          color:
-            #8a3e2d !important;
+          color: #8a3e2d !important;
         }
 
         .gear-open {
@@ -2459,6 +1943,7 @@ export default function WildPlanPage() {
           width: 67%;
 
           margin: 0;
+
           padding: 2.5% 3%;
 
           border: 0;
@@ -2474,17 +1959,15 @@ export default function WildPlanPage() {
             Helvetica,
             sans-serif;
 
-          font-size:
-            clamp(
-              5px,
-              0.45vw,
-              7px
-            );
+          font-size: clamp(
+            5px,
+            0.45vw,
+            7px
+          );
 
           font-weight: 900;
 
-          letter-spacing:
-            0.08em;
+          letter-spacing: 0.08em;
 
           text-align: center;
         }
@@ -2497,8 +1980,7 @@ export default function WildPlanPage() {
         .conditions-zone:hover,
         .budget-zone:hover,
         .gear-open:hover {
-          filter:
-            brightness(1.06);
+          filter: brightness(1.06);
         }
 
         .destination-caption:focus-visible,
@@ -2507,46 +1989,33 @@ export default function WildPlanPage() {
         .gear-open:focus-visible,
         .journey-hit:focus-visible,
         .floating-nav button:focus-visible {
-          outline:
-            2px solid
-            rgba(
-              235,
-              180,
-              111,
-              0.85
-            );
+          outline: 2px solid
+            rgba(235, 180, 111, 0.85);
 
           outline-offset: 3px;
         }
 
         /* ==================================================
-           RESPONSIVE BEHAVIOUR
+           RESPONSIVE
 
-           Important:
-           We DO NOT reflow the desk objects.
-
-           On narrower screens the entire physical desk keeps
-           its composition and is viewed through a narrower
-           viewport. This preserves all locked coordinates.
+           Keep the physical desk composition locked.
            ================================================== */
 
         @media (max-width: 900px) {
-          .floating-nav {
-            width: 1180px;
-
-            padding:
-              0
-              48px;
-          }
-
           .stage {
             width: 1180px;
+
             max-width: none;
 
             left: 50%;
 
-            transform:
-              translateX(-50%);
+            transform: translateX(-50%);
+          }
+
+          .floating-nav {
+            width: 100%;
+
+            padding: 0 48px;
           }
 
           .floating-nav nav {
@@ -2555,18 +2024,16 @@ export default function WildPlanPage() {
         }
 
         @media (max-width: 680px) {
-          .floating-nav {
+          .stage {
             width: 1050px;
+          }
+
+          .floating-nav {
+            width: 100%;
 
             height: 66px;
 
-            padding:
-              0
-              40px;
-          }
-
-          .stage {
-            width: 1050px;
+            padding: 0 40px;
           }
 
           .brand {
