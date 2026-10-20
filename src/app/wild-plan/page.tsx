@@ -1338,54 +1338,31 @@ export default function WildPlanPage() {
            ===================================================== */
 
         .journey {
-          position: absolute;
+  position: absolute;
+  z-index: 20;
+  left: 25.5%;
+  top: 24%;
+  width: 42%;
+  height: 37%;
+  transform: none;
+  pointer-events: none;
+}
 
-          z-index: 20;
+.route-paper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
 
-          left: 25.5%;
-          top: 24%;
-
-          width: 42%;
-          height: 37%;
-
-          transform:
-            rotate(-1deg);
-
-          pointer-events: none;
-        }
-
-
-        .route-paper {
-          position: relative;
-
-          width: 100%;
-          height: 100%;
-        }
-
-
-        .journey-svg {
-          position: absolute;
-
-          inset: 0;
-
-          width: 100%;
-          height: 100%;
-
-          overflow: visible;
-
-          filter:
-            drop-shadow(
-              0 1px 1px
-              rgba(
-                255,
-                240,
-                215,
-                0.25
-              )
-            );
-        }
-
-
+.journey-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  clip-path: inset(0 27% 0 0);
+  filter: drop-shadow(0 1px 1px rgba(255, 240, 215, 0.25));
+}
         .journey-hit {
           position: absolute;
 
