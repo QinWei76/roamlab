@@ -561,7 +561,7 @@ export default function WildPlanPage() {
   }
 
 
-  if (!wild) {
+  if (!wild || !wild.plan || !wild.plan.adventure) {
     return (
       <main className="empty-state">
         <div className="empty-inner">
