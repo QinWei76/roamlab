@@ -1214,108 +1214,75 @@ export default function WildPlanPage() {
            No document-flow positioning.
            ===================================================== */
 
-        .current-card {
-          position: absolute;
+        
+.current-card {
+  position: absolute;
+  z-index: 30;
 
-          z-index: 30;
+  left: 9.2%;
+  top: 17.2%;
 
-          left: 9.2%;
-          top: 17.2%;
+  width: 18%;
+  height: 27%;
 
-          width: 18%;
-          height: 27%;
+  transform: rotate(-2deg);
+  color: #3d3025;
+  pointer-events: none;
+}
 
-          transform:
-            rotate(-2deg);
+.current-card strong,
+.current-card span {
+  position: absolute;
+  display: block;
 
-          color: #3d3025;
+  left: 12%;
+  width: 82%;
 
-          pointer-events: none;
-        }
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 
+  line-height: 1.35;
+  box-sizing: border-box;
+}
 
-        .current-card strong,
-        .current-card span {
-          position: absolute;
+.current-card strong {
+  top: 7%;
+  left: 6%;
+  width: 90%;
 
-          left: 17%;
+  color: #563527;
+  font-family: Georgia, serif;
+  font-size: clamp(9px, 0.9vw, 16px);
+  font-style: italic;
+  font-weight: 700;
+}
 
-          width: 78%;
+.current-card span {
+  font-family: "Comic Sans MS", "Bradley Hand", cursive;
+  font-size: clamp(7px, 0.62vw, 10px);
+  font-weight: 700;
+}
 
-          overflow: hidden;
+.current-way {
+  top: 27%;
+}
 
-          white-space: nowrap;
+.current-vehicle {
+  top: 41%;
+}
 
-          text-overflow: ellipsis;
-        }
+.current-style {
+  top: 54%;
+}
 
+.current-crew {
+  top: 67%;
+}
 
-        .current-card strong {
-          top: 8%;
-
-          left: 7%;
-
-          width: 88%;
-
-          color: #563527;
-
-          font-family:
-            Georgia,
-            serif;
-
-          font-size:
-            clamp(
-              9px,
-              0.9vw,
-              16px
-            );
-
-          font-style: italic;
-
-          font-weight: 700;
-        }
-
-
-        .current-card span {
-          font-family:
-            "Comic Sans MS",
-            "Bradley Hand",
-            cursive;
-
-          font-size:
-            clamp(
-              6px,
-              0.58vw,
-              10px
-            );
-
-          font-weight: 700;
-        }
-
-
-        .current-way {
-          top: 31%;
-        }
-
-
-        .current-vehicle {
-          top: 44%;
-        }
-
-
-        .current-style {
-          top: 57%;
-        }
-
-
-        .current-crew {
-          top: 70%;
-        }
-
-
-        .current-duration {
-          top: 83%;
-        }
+.current-duration {
+  top: 80%;
+}
 
 
         /* =====================================================
