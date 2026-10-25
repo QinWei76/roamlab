@@ -1035,44 +1035,32 @@ export default function WildPlanPage() {
            Everything uses this exact coordinate system.
            ===================================================== */
 
-        .wild-stage {
-          position: relative;
+        
+.wild-stage {
+  position: relative;
+  width: 100%;
+  max-width: none;
+  aspect-ratio: 1672 / 941;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  isolation: isolate;
+  background: #181009;
+}
 
-          width: 100vw;
-          max-width: none;
-
-          aspect-ratio: 1672 / 941;
-
-          margin: 0;
-          padding: 0;
-
-          overflow: hidden;
-
-          isolation: isolate;
-
-          background: #181009;
-        }
-
-
-        .wild-master {
-          position: absolute;
-
-          inset: 0;
-
-          z-index: 1;
-
-          display: block;
-
-          width: 100%;
-          height: 100%;
-
-          margin: 0;
-
-          object-fit: cover;
-
-          pointer-events: none;
-          user-select: none;
-        }
+.wild-master {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  object-fit: cover;
+  object-position: center center;
+  pointer-events: none;
+  user-select: none;
+}
 
 
         /* =====================================================
