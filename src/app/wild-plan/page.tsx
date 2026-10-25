@@ -1235,8 +1235,8 @@ export default function WildPlanPage() {
   position: absolute;
   display: block;
 
-  left: 12%;
-  width: 82%;
+  left: 23%;
+  width: 70%;
 
   overflow: hidden;
   white-space: nowrap;
@@ -1245,7 +1245,6 @@ export default function WildPlanPage() {
   line-height: 1.35;
   box-sizing: border-box;
 }
-
 .current-card strong {
   top: 7%;
   left: 6%;
