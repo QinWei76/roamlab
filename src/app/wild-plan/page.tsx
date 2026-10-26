@@ -1423,8 +1423,6 @@ export default function WildPlanPage() {
 
   line-height: 1.1;
 }
-
-
 /* =====================================================
    JOURNEY
 
