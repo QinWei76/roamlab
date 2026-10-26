@@ -1247,7 +1247,7 @@ export default function WildPlanPage() {
   width: 18%;
   height: 27%;
 
-  transform: none;
+  transform: rotate(-2.8deg);
 
   color: #3d3025;
   pointer-events: none;
