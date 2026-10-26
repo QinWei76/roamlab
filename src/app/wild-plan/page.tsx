@@ -1303,10 +1303,10 @@ export default function WildPlanPage() {
    ===================================================== */
 
 .current-location {
-  top: 34%;
-  left: 25%;
+  top: 32%;
+  left: 30%;
 
-  width: 66%;
+  width: 57%;
 
   color: #44342a;
 
@@ -1335,10 +1335,10 @@ export default function WildPlanPage() {
    ===================================================== */
 
 .current-drive {
-  top: 47%;
-  left: 23%;
+  top: 51%;
+  left: 30%;
 
-  width: 70%;
+  width: 57%;
 
   color: #44342a;
 
@@ -1363,10 +1363,10 @@ export default function WildPlanPage() {
 /* Crew is secondary information inside row 2. */
 
 .current-crew {
-  top: 56%;
-  left: 23%;
+  top: 59%;
+  left: 30%;
 
-  width: 70%;
+  width: 57%;
 
   color: rgba(
     68,
@@ -1401,9 +1401,9 @@ export default function WildPlanPage() {
 
 .current-duration {
   top: 76%;
-  left: 23%;
+  left: 30%;
 
-  width: 70%;
+  width: 57%;
 
   color: #44342a;
 
