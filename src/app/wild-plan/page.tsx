@@ -794,7 +794,6 @@ export default function WildPlanPage() {
             A — CURRENT WILD
             ================================================= */}
 
-       <article className="current-card">
          <article className="current-card">
   <strong className="current-title">
     YOUR NEXT WILD
