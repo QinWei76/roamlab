@@ -1303,10 +1303,10 @@ export default function WildPlanPage() {
    ===================================================== */
 
 .current-location {
-  top: 28%;
-  left: 23%;
+  top: 34%;
+  left: 25%;
 
-  width: 70%;
+  width: 66%;
 
   color: #44342a;
 
