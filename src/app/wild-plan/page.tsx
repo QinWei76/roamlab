@@ -1238,6 +1238,9 @@ export default function WildPlanPage() {
   position: absolute;
   z-index: 30;
 
+  /*
+   * Locked to the physical CURRENT WILD sheet.
+   */
   left: 9.2%;
   top: 17.2%;
 
@@ -1247,7 +1250,6 @@ export default function WildPlanPage() {
   transform: rotate(-2deg);
 
   color: #3d3025;
-
   pointer-events: none;
 }
 
@@ -1263,11 +1265,16 @@ export default function WildPlanPage() {
   text-overflow: ellipsis;
 }
 
-.current-title {
-  top: 7%;
-  left: 7%;
 
-  width: 86%;
+/* =====================================================
+   TITLE
+   ===================================================== */
+
+.current-title {
+  top: 5%;
+  left: 5%;
+
+  width: 90%;
 
   color: #563527;
 
@@ -1278,42 +1285,30 @@ export default function WildPlanPage() {
   font-size:
     clamp(
       9px,
-      0.9vw,
-      16px
+      0.88vw,
+      15px
     );
 
   font-style: italic;
   font-weight: 700;
-  line-height: 1.2;
+
+  line-height: 1.1;
 }
+
+
+/* =====================================================
+   ROW 1 — DESTINATION
+
+   Physical row beside the map-pin icon.
+   ===================================================== */
 
 .current-location {
-  top: 31%;
-  left: 24%;
+  top: 28%;
+  left: 23%;
 
-  width: 68%;
+  width: 70%;
 
-  font-family:
-    "Comic Sans MS",
-    "Bradley Hand",
-    cursive;
-
-  font-size:
-    clamp(
-      7px,
-      0.62vw,
-      10px
-    );
-
-  font-weight: 700;
-  line-height: 1.2;
-}
-
-.current-drive {
-  top: 49%;
-  left: 24%;
-
-  width: 68%;
+  color: #44342a;
 
   font-family:
     "Comic Sans MS",
@@ -1328,20 +1323,56 @@ export default function WildPlanPage() {
     );
 
   font-weight: 700;
-  line-height: 1.2;
+
+  line-height: 1.1;
 }
 
-.current-crew {
-  top: 62%;
-  left: 24%;
 
-  width: 68%;
+/* =====================================================
+   ROW 2 — WAY IN · VEHICLE · STYLE
+
+   Physical row beside the vehicle icon.
+   ===================================================== */
+
+.current-drive {
+  top: 47%;
+  left: 23%;
+
+  width: 70%;
+
+  color: #44342a;
+
+  font-family:
+    "Comic Sans MS",
+    "Bradley Hand",
+    cursive;
+
+  font-size:
+    clamp(
+      5px,
+      0.50vw,
+      8px
+    );
+
+  font-weight: 700;
+
+  line-height: 1.1;
+}
+
+
+/* Crew is secondary information inside row 2. */
+
+.current-crew {
+  top: 56%;
+  left: 23%;
+
+  width: 70%;
 
   color: rgba(
-    61,
-    48,
-    37,
-    0.78
+    68,
+    52,
+    42,
+    0.72
   );
 
   font-family:
@@ -1352,19 +1383,29 @@ export default function WildPlanPage() {
   font-size:
     clamp(
       5px,
-      0.48vw,
-      8px
+      0.43vw,
+      7px
     );
 
   font-weight: 700;
-  line-height: 1.2;
+
+  line-height: 1.1;
 }
 
-.current-duration {
-  top: 79%;
-  left: 24%;
 
-  width: 68%;
+/* =====================================================
+   ROW 3 — DURATION
+
+   Physical row beside the calendar icon.
+   ===================================================== */
+
+.current-duration {
+  top: 76%;
+  left: 23%;
+
+  width: 70%;
+
+  color: #44342a;
 
   font-family:
     "Comic Sans MS",
@@ -1373,13 +1414,14 @@ export default function WildPlanPage() {
 
   font-size:
     clamp(
-      7px,
-      0.62vw,
-      10px
+      6px,
+      0.56vw,
+      9px
     );
 
   font-weight: 700;
-  line-height: 1.2;
+
+  line-height: 1.1;
 }
 
 
