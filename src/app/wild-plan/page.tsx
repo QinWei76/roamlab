@@ -794,33 +794,7 @@ export default function WildPlanPage() {
             A — CURRENT WILD
             ================================================= */}
 
-        <article className="current-card">
-          <strong>
-            {destination?.name ??
-              "YOUR NEXT WILD"}
-          </strong>
-
-          <span className="current-way">
-            {wayIn}
-          </span>
-
-          <span className="current-vehicle">
-            {vehicle}
-          </span>
-
-          <span className="current-style">
-            {style}
-          </span>
-
-          <span className="current-crew">
-            {people}
-          </span>
-
-          <span className="current-duration">
-            {duration}
-          </span>
-        </article>
-
+       <article className="current-card">
 
         {/* =================================================
             B — JOURNEY
@@ -1215,73 +1189,7 @@ export default function WildPlanPage() {
            ===================================================== */
 
         
-.current-card {
-  position: absolute;
-  z-index: 30;
-
-  left: 9.2%;
-  top: 17.2%;
-
-  width: 18%;
-  height: 27%;
-
-  transform: rotate(-2deg);
-  color: #3d3025;
-  pointer-events: none;
-}
-
-.current-card strong,
-.current-card span {
-  position: absolute;
-  display: block;
-
-  left: 23%;
-  width: 70%;
-
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-
-  line-height: 1.35;
-  box-sizing: border-box;
-}
-.current-card strong {
-  top: 7%;
-  left: 6%;
-  width: 90%;
-
-  color: #563527;
-  font-family: Georgia, serif;
-  font-size: clamp(9px, 0.9vw, 16px);
-  font-style: italic;
-  font-weight: 700;
-}
-
-.current-card span {
-  font-family: "Comic Sans MS", "Bradley Hand", cursive;
-  font-size: clamp(7px, 0.62vw, 10px);
-  font-weight: 700;
-}
-
-.current-way {
-  top: 27%;
-}
-
-.current-vehicle {
-  top: 41%;
-}
-
-.current-style {
-  top: 54%;
-}
-
-.current-crew {
-  top: 67%;
-}
-
-.current-duration {
-  top: 80%;
-}
+current-card {
 
 
         /* =====================================================
