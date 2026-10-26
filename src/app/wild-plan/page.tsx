@@ -795,6 +795,46 @@ export default function WildPlanPage() {
             ================================================= */}
 
        <article className="current-card">
+         <article className="current-card">
+  <strong className="current-title">
+    YOUR NEXT WILD
+  </strong>
+
+  <span className="current-location">
+    {destination?.name ?? "DESTINATION NOT SET"}
+  </span>
+
+  <span className="current-drive">
+    {[
+      adventure.wayIn
+        ? titleCase(adventure.wayIn)
+        : null,
+
+      adventure.vehicle?.type
+        ? titleCase(adventure.vehicle.type)
+        : null,
+
+      adventure.tripStyle
+        ? tripStyleLabel(adventure.tripStyle)
+        : null,
+    ]
+      .filter(Boolean)
+      .join(" · ") || "TRAVEL SETUP NOT SET"}
+  </span>
+
+  <span className="current-crew">
+    {people}
+  </span>
+
+  <span className="current-duration">
+    {duration}
+  </span>
+</article>
+
+
+{/* =================================================
+    B — JOURNEY
+    ================================================= */}
 
         {/* =================================================
             B — JOURNEY
@@ -1189,7 +1229,167 @@ export default function WildPlanPage() {
            ===================================================== */
 
         
-current-card {
+/* =====================================================
+   CURRENT WILD
+
+   Fixed to the physical Current Wild paper.
+   ===================================================== */
+
+.current-card {
+  position: absolute;
+  z-index: 30;
+
+  left: 9.2%;
+  top: 17.2%;
+
+  width: 18%;
+  height: 27%;
+
+  transform: rotate(-2deg);
+
+  color: #3d3025;
+
+  pointer-events: none;
+}
+
+.current-card strong,
+.current-card span {
+  position: absolute;
+  display: block;
+
+  box-sizing: border-box;
+
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.current-title {
+  top: 7%;
+  left: 7%;
+
+  width: 86%;
+
+  color: #563527;
+
+  font-family:
+    Georgia,
+    serif;
+
+  font-size:
+    clamp(
+      9px,
+      0.9vw,
+      16px
+    );
+
+  font-style: italic;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.current-location {
+  top: 31%;
+  left: 24%;
+
+  width: 68%;
+
+  font-family:
+    "Comic Sans MS",
+    "Bradley Hand",
+    cursive;
+
+  font-size:
+    clamp(
+      7px,
+      0.62vw,
+      10px
+    );
+
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.current-drive {
+  top: 49%;
+  left: 24%;
+
+  width: 68%;
+
+  font-family:
+    "Comic Sans MS",
+    "Bradley Hand",
+    cursive;
+
+  font-size:
+    clamp(
+      6px,
+      0.56vw,
+      9px
+    );
+
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.current-crew {
+  top: 62%;
+  left: 24%;
+
+  width: 68%;
+
+  color: rgba(
+    61,
+    48,
+    37,
+    0.78
+  );
+
+  font-family:
+    "Comic Sans MS",
+    "Bradley Hand",
+    cursive;
+
+  font-size:
+    clamp(
+      5px,
+      0.48vw,
+      8px
+    );
+
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.current-duration {
+  top: 79%;
+  left: 24%;
+
+  width: 68%;
+
+  font-family:
+    "Comic Sans MS",
+    "Bradley Hand",
+    cursive;
+
+  font-size:
+    clamp(
+      7px,
+      0.62vw,
+      10px
+    );
+
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+
+/* =====================================================
+   JOURNEY
+
+   Restricted to the physical map.
+   Right edge deliberately stops before Polaroid.
+   ===================================================== */
 
 
         /* =====================================================
