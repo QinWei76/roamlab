@@ -125,7 +125,7 @@ export default function DrivePage() {
 
         {/* PLANNER PROGRESS */}
 
-        <PlannerProgress currentStep={1} />
+        <PlannerProgress currentStep={2} />
 
 
         {/* SUV */}
