@@ -554,73 +554,12 @@ export default function BudgetPage() {
           ← DURATION
         </Link>
 
-        {/* =========================
+               {/* =========================
             BOTTOM PROGRESS
         ========================= */}
 
         <div className="budget2-planner-progress">
-  <PlannerProgress currentStep={1} />
-</div>
-
-          <Link
-            href="/ways-in/drive"
-            className="budget2-progress-step done"
-          >
-            <b>✓</b>
-            VEHICLE
-          </Link>
-
-          <i />
-
-          <Link
-            href={
-              `/ways-in/drive/setup` +
-              `?vehicle=${vehicle}`
-            }
-            className="budget2-progress-step done"
-          >
-            <b>✓</b>
-            TRIP STYLE
-          </Link>
-
-          <i />
-
-          <Link
-            href={
-              `/ways-in/drive/crew` +
-              `?vehicle=${vehicle}` +
-              `&trip=${trip}`
-            }
-            className="budget2-progress-step done"
-          >
-            <b>✓</b>
-            CREW
-          </Link>
-
-          <i />
-
-          <Link
-            href={durationUrl}
-            className="budget2-progress-step done"
-          >
-            <b>✓</b>
-            DURATION
-          </Link>
-
-          <i />
-
-          <div className="budget2-progress-step current">
-            <b>5</b>
-            BUDGET
-          </div>
-
-          <i />
-
-          <div className="budget2-progress-step future">
-            <b>6</b>
-            GEAR
-          </div>
-
+          <PlannerProgress currentStep={1} />
         </div>
 
       </section>
