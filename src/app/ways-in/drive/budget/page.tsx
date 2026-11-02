@@ -1,5 +1,5 @@
 "use client";
-
+import PlannerProgress from "@/components/PlannerProgress";
 import Link from "next/link";
 import {
   useEffect,
