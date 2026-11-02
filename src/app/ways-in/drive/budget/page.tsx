@@ -165,13 +165,7 @@ export default function BudgetPage() {
     setReady(true);
   }, []);
 
-  const gearRoomUrl =
-    `/ways-in/drive/gear` +
-    `?vehicle=${vehicle}` +
-    `&trip=${trip}` +
-    `&crew=${crew}` +
-    `&people=${people}` +
-    `&duration=${duration}`;
+  const vehicleUrl = "/ways-in/drive";
 
   const durationUrl =
     `/ways-in/drive/duration` +
@@ -206,7 +200,7 @@ export default function BudgetPage() {
     );
 
     window.location.href =
-      gearRoomUrl;
+      vehicleUrl;
   };
 
   const continueWithoutBudget =
@@ -216,7 +210,7 @@ export default function BudgetPage() {
       );
 
       window.location.href =
-        gearRoomUrl;
+        vehicleUrl;
     };
 
   const formattedBudget =
@@ -343,7 +337,7 @@ export default function BudgetPage() {
         ========================= */}
 
         <div className="budget2-step">
-          DRIVE · STEP 5 OF 6
+          DRIVE · STEP 1 OF 7
         </div>
 
         {/* =========================
@@ -548,41 +542,30 @@ export default function BudgetPage() {
         ========================= */}
 
         <Link
-          href={durationUrl}
+          href="/ways-in"
           className="budget2-back"
         >
-          ← DURATION
+          ← CHANGE WAY IN
         </Link>
 
-               {/* =========================
+        {/* =========================
             BOTTOM PROGRESS
         ========================= */}
 
-        <div className="budget2-planner-progress">
-          <PlannerProgress currentStep={1} />
-        </div>
+        <PlannerProgress currentStep={1} />
 
       </section>
 
       <style jsx>{`
 
-        .budget2-planner-progress {
-  position: absolute;
-  z-index: 30;
-  left: 50%;
-  bottom: 3.8%;
-  width: min(900px, 76%);
-  transform: translateX(-50%);
-}
-
-.budget2-planner-progress :global(.planner-progress) {
-  position: relative;
-  top: auto;
-  left: auto;
-  transform: none;
-  width: 100%;
-  height: auto;
-}
+        :global(.planner-progress) {
+          top: auto !important;
+          bottom: 4.5% !important;
+          left: 50% !important;
+          width: min(900px, 82%) !important;
+          transform: translateX(-50%) !important;
+          z-index: 30 !important;
+        }
 
         /* BACKGROUND */
 
