@@ -558,7 +558,9 @@ export default function BudgetPage() {
             BOTTOM PROGRESS
         ========================= */}
 
-        <div className="budget2-progress">
+        <div className="budget2-planner-progress">
+  <PlannerProgress currentStep={1} />
+</div>
 
           <Link
             href="/ways-in/drive"
@@ -625,22 +627,23 @@ export default function BudgetPage() {
 
       <style jsx>{`
 
-        .budget2-page {
-          width: 100%;
-          min-height: 100vh;
-          margin: 0;
-          background: #080806;
-          overflow: hidden;
-          color: #f0e7d5;
-        }
+        .budget2-planner-progress {
+  position: absolute;
+  z-index: 30;
+  left: 50%;
+  bottom: 3.8%;
+  width: min(900px, 76%);
+  transform: translateX(-50%);
+}
 
-        .budget2-stage {
-          position: relative;
-          width: 100%;
-          min-height: 100vh;
-          isolation: isolate;
-          overflow: hidden;
-        }
+.budget2-planner-progress :global(.planner-progress) {
+  position: relative;
+  top: auto;
+  left: auto;
+  transform: none;
+  width: 100%;
+  height: auto;
+}
 
         /* BACKGROUND */
 
