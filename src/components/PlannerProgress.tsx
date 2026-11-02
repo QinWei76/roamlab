@@ -1,16 +1,24 @@
 import Link from "next/link";
 
 type PlannerProgressProps = {
-  currentStep: 1 | 2 | 3 | 4 | 5 | 6;
+  currentStep: 1 | 2 | 3 | 4 | 5 | 6 | 7;
   vehicle?: string;
   trip?: string;
+  crew?: string;
+  people?: number;
 };
 
 export default function PlannerProgress({
   currentStep,
   vehicle,
   trip,
+  crew,
+  people,
 }: PlannerProgressProps) {
+  const budgetHref = "/wild-plan/budget";
+
+  const vehicleHref = "/ways-in/drive";
+
   const tripHref = vehicle
     ? `/ways-in/drive/setup?vehicle=${vehicle}`
     : null;
@@ -20,23 +28,54 @@ export default function PlannerProgress({
       ? `/ways-in/drive/crew?vehicle=${vehicle}&trip=${trip}`
       : null;
 
+  const durationHref =
+    vehicle && trip && crew
+      ? `/ways-in/drive/duration?vehicle=${vehicle}&trip=${trip}&crew=${crew}${
+          people ? `&people=${people}` : ""
+        }`
+      : null;
+
+  function stepClass(step: number) {
+    return `planner-step ${
+      currentStep === step
+        ? "is-current"
+        : currentStep > step
+        ? "is-done"
+        : ""
+    }`;
+  }
+
+  function stepNumber(step: number) {
+    return currentStep > step ? "✓" : String(step);
+  }
+
   return (
     <div className="planner-progress">
       <div className="planner-progress-inner">
 
-        {/* 1 — VEHICLE */}
+        {/* 1 — BUDGET */}
         <Link
-          href="/ways-in/drive"
-          className={`planner-step ${
-            currentStep === 1
-              ? "is-current"
-              : currentStep > 1
-              ? "is-done"
-              : ""
-          }`}
+          href={budgetHref}
+          className={stepClass(1)}
         >
           <span className="planner-step-number">
-            {currentStep > 1 ? "✓" : "1"}
+            {stepNumber(1)}
+          </span>
+
+          <span className="planner-step-label">
+            BUDGET
+          </span>
+        </Link>
+
+        <span className="planner-line" />
+
+        {/* 2 — VEHICLE */}
+        <Link
+          href={vehicleHref}
+          className={stepClass(2)}
+        >
+          <span className="planner-step-number">
+            {stepNumber(2)}
           </span>
 
           <span className="planner-step-label">
@@ -46,20 +85,14 @@ export default function PlannerProgress({
 
         <span className="planner-line" />
 
-        {/* 2 — TRIP STYLE */}
+        {/* 3 — TRIP STYLE */}
         {tripHref ? (
           <Link
             href={tripHref}
-            className={`planner-step ${
-              currentStep === 2
-                ? "is-current"
-                : currentStep > 2
-                ? "is-done"
-                : ""
-            }`}
+            className={stepClass(3)}
           >
             <span className="planner-step-number">
-              {currentStep > 2 ? "✓" : "2"}
+              {stepNumber(3)}
             </span>
 
             <span className="planner-step-label">
@@ -67,17 +100,9 @@ export default function PlannerProgress({
             </span>
           </Link>
         ) : (
-          <div
-            className={`planner-step ${
-              currentStep === 2
-                ? "is-current"
-                : currentStep > 2
-                ? "is-done"
-                : ""
-            }`}
-          >
+          <div className={stepClass(3)}>
             <span className="planner-step-number">
-              {currentStep > 2 ? "✓" : "2"}
+              {stepNumber(3)}
             </span>
 
             <span className="planner-step-label">
@@ -88,20 +113,14 @@ export default function PlannerProgress({
 
         <span className="planner-line" />
 
-        {/* 3 — CREW */}
+        {/* 4 — CREW */}
         {crewHref ? (
           <Link
             href={crewHref}
-            className={`planner-step ${
-              currentStep === 3
-                ? "is-current"
-                : currentStep > 3
-                ? "is-done"
-                : ""
-            }`}
+            className={stepClass(4)}
           >
             <span className="planner-step-number">
-              {currentStep > 3 ? "✓" : "3"}
+              {stepNumber(4)}
             </span>
 
             <span className="planner-step-label">
@@ -109,17 +128,9 @@ export default function PlannerProgress({
             </span>
           </Link>
         ) : (
-          <div
-            className={`planner-step ${
-              currentStep === 3
-                ? "is-current"
-                : currentStep > 3
-                ? "is-done"
-                : ""
-            }`}
-          >
+          <div className={stepClass(4)}>
             <span className="planner-step-number">
-              {currentStep > 3 ? "✓" : "3"}
+              {stepNumber(4)}
             </span>
 
             <span className="planner-step-label">
@@ -130,39 +141,38 @@ export default function PlannerProgress({
 
         <span className="planner-line" />
 
-        {/* 4 — DURATION */}
-        <div
-          className={`planner-step ${
-            currentStep === 4
-              ? "is-current"
-              : currentStep > 4
-              ? "is-done"
-              : ""
-          }`}
-        >
-          <span className="planner-step-number">
-            {currentStep > 4 ? "✓" : "4"}
-          </span>
+        {/* 5 — DURATION */}
+        {durationHref ? (
+          <Link
+            href={durationHref}
+            className={stepClass(5)}
+          >
+            <span className="planner-step-number">
+              {stepNumber(5)}
+            </span>
 
-          <span className="planner-step-label">
-            DURATION
-          </span>
-        </div>
+            <span className="planner-step-label">
+              DURATION
+            </span>
+          </Link>
+        ) : (
+          <div className={stepClass(5)}>
+            <span className="planner-step-number">
+              {stepNumber(5)}
+            </span>
+
+            <span className="planner-step-label">
+              DURATION
+            </span>
+          </div>
+        )}
 
         <span className="planner-line" />
 
-        {/* 5 — DESTINATION */}
-        <div
-          className={`planner-step ${
-            currentStep === 5
-              ? "is-current"
-              : currentStep > 5
-              ? "is-done"
-              : ""
-          }`}
-        >
+        {/* 6 — DESTINATION */}
+        <div className={stepClass(6)}>
           <span className="planner-step-number">
-            {currentStep > 5 ? "✓" : "5"}
+            {stepNumber(6)}
           </span>
 
           <span className="planner-step-label">
@@ -172,20 +182,14 @@ export default function PlannerProgress({
 
         <span className="planner-line" />
 
-        {/* 6 — GEAR */}
-        <div
-          className={`planner-step ${
-            currentStep === 6
-              ? "is-current"
-              : ""
-          }`}
-        >
+        {/* 7 — WILD PLAN */}
+        <div className={stepClass(7)}>
           <span className="planner-step-number">
-            6
+            {stepNumber(7)}
           </span>
 
           <span className="planner-step-label">
-            GEAR
+            WILD PLAN
           </span>
         </div>
 
