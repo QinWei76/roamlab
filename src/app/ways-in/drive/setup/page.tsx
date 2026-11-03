@@ -194,7 +194,7 @@ export default function TripStylePage() {
         {/* PLANNER PROGRESS */}
 
         <PlannerProgress
-          currentStep={2}
+          currentStep={3}
           vehicle={vehicle}
         />
 
