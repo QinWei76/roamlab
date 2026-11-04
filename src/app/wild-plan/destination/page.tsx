@@ -1269,6 +1269,7 @@ export default function WildDestinationPage() {
   margin: 0 !important;
 }
 
+
 .progressWrap :global(.planner-progress-inner) {
   display: flex !important;
   flex-direction: column !important;
@@ -1277,9 +1278,12 @@ export default function WildDestinationPage() {
   gap: 0 !important;
   width: 100% !important;
   padding: 14px 12px !important;
-  background: rgba(12, 11, 9, 0.88) !important;
-  border: 1px solid rgba(205, 164, 92, 0.25);
-  border-radius: 12px;
+
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
 }
 
 .progressWrap :global(.planner-step) {
