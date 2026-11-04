@@ -1418,7 +1418,7 @@ export default function DurationPage() {
           {/* PROGRESS */}
 
           <PlannerProgress
-            currentStep={4}
+            currentStep={5}
             vehicle={vehicle}
             trip={trip}
           />
