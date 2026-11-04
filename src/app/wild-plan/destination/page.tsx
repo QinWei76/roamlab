@@ -1246,18 +1246,73 @@ export default function WildDestinationPage() {
         .topNav { display: flex; align-items: center; gap: 25px; }
         .topNav button { padding: 0; color: rgba(255,255,255,.76); font-family: Georgia, "Times New Roman", serif; font-size: 8px; font-weight: 800; letter-spacing: .13em; }
         .topNav .startWild { padding: 11px 16px; background: #d66524; color: #fff9ef; }
-        .progressWrap {
+        
+.progressWrap {
   position: fixed;
   z-index: 100;
-  top: 84px;
+  top: 50%;
   bottom: auto;
-  left: 50%;
-  width: min(1040px, calc(100vw - 80px));
-  transform: translateX(-50%);
+  left: 20px;
+  width: 190px;
+  transform: translateY(-50%);
   display: block;
   visibility: visible;
   opacity: 1;
-}        .boardStage { position: relative; z-index: 10; width: min(1220px, calc(100vw - 100px)); height: calc(100vh - 130px); min-height: 610px; margin: -58px auto 0; }
+}
+
+.progressWrap :global(.planner-progress) {
+  position: relative !important;
+  inset: auto !important;
+  width: 100% !important;
+  max-width: none !important;
+  transform: none !important;
+  margin: 0 !important;
+}
+
+.progressWrap :global(.planner-progress-inner) {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  gap: 0 !important;
+  width: 100% !important;
+  padding: 14px 12px !important;
+  background: rgba(12, 11, 9, 0.88) !important;
+  border: 1px solid rgba(205, 164, 92, 0.25);
+  border-radius: 12px;
+}
+
+.progressWrap :global(.planner-step) {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+  width: 100% !important;
+  min-height: 34px;
+  white-space: nowrap;
+}
+
+.progressWrap :global(.planner-step-number) {
+  flex-shrink: 0;
+}
+
+.progressWrap :global(.planner-step-label) {
+  white-space: nowrap;
+  font-size: 10px !important;
+  letter-spacing: 0.7px;
+}
+
+.progressWrap :global(.planner-line) {
+  display: block !important;
+  width: 1px !important;
+  height: 13px !important;
+  min-width: 1px !important;
+  min-height: 13px !important;
+  margin-left: 15px !important;
+  background: rgba(205, 164, 92, 0.35) !important;
+}
+       .boardStage { position: relative; z-index: 10; width: min(1220px, calc(100vw - 100px)); height: calc(100vh - 130px); min-height: 610px; margin: -58px auto 0; }
 
         .entryTools { position: absolute; left: 50%; bottom: 7.5%; transform: translateX(-50%); display: flex; gap: 12px; }
         .sceneTag { width: 205px; min-height: 62px; padding: 11px 14px; display: grid; grid-template-columns: 26px 1fr; grid-template-rows: auto auto; column-gap: 9px; text-align: left; border: 1px solid rgba(231,208,169,.35); background: rgba(13,11,8,.78); color: #f2eadc; cursor: pointer; box-shadow: 0 10px 32px rgba(0,0,0,.28); backdrop-filter: blur(4px); }
