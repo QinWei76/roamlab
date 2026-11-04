@@ -731,7 +731,7 @@ export default function WildDestinationPage() {
       </header>
 
       <div className="progressWrap">
-        <PlannerProgress currentStep={5} vehicle={vehicle} trip={trip} />
+        <PlannerProgress currentStep={6} vehicle={vehicle} trip={trip} />
       </div>
 
       <section className="boardStage">
