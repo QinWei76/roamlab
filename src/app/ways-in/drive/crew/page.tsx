@@ -296,7 +296,7 @@ export default function CrewPage() {
         {/* PLANNER PROGRESS */}
 
         <PlannerProgress
-          currentStep={3}
+          currentStep={4}
           vehicle={vehicle}
           trip={trip}
         />
