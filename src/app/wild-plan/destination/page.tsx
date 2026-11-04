@@ -1252,7 +1252,7 @@ export default function WildDestinationPage() {
   z-index: 100;
   top: 50%;
   bottom: auto;
-  left: 20px;
+  left: 110px;
   width: 190px;
   transform: translateY(-50%);
   display: block;
