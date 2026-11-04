@@ -1246,8 +1246,18 @@ export default function WildDestinationPage() {
         .topNav { display: flex; align-items: center; gap: 25px; }
         .topNav button { padding: 0; color: rgba(255,255,255,.76); font-family: Georgia, "Times New Roman", serif; font-size: 8px; font-weight: 800; letter-spacing: .13em; }
         .topNav .startWild { padding: 11px 16px; background: #d66524; color: #fff9ef; }
-        .progressWrap { position: fixed; z-index: 40; left: 50%; bottom: 14px; width: min(890px, calc(100vw - 220px)); transform: translateX(-50%); }
-        .boardStage { position: relative; z-index: 10; width: min(1220px, calc(100vw - 100px)); height: calc(100vh - 130px); min-height: 610px; margin: -58px auto 0; }
+        .progressWrap {
+  position: fixed;
+  z-index: 100;
+  top: 84px;
+  bottom: auto;
+  left: 50%;
+  width: min(1040px, calc(100vw - 80px));
+  transform: translateX(-50%);
+  display: block;
+  visibility: visible;
+  opacity: 1;
+}        .boardStage { position: relative; z-index: 10; width: min(1220px, calc(100vw - 100px)); height: calc(100vh - 130px); min-height: 610px; margin: -58px auto 0; }
 
         .entryTools { position: absolute; left: 50%; bottom: 7.5%; transform: translateX(-50%); display: flex; gap: 12px; }
         .sceneTag { width: 205px; min-height: 62px; padding: 11px 14px; display: grid; grid-template-columns: 26px 1fr; grid-template-rows: auto auto; column-gap: 9px; text-align: left; border: 1px solid rgba(231,208,169,.35); background: rgba(13,11,8,.78); color: #f2eadc; cursor: pointer; box-shadow: 0 10px 32px rgba(0,0,0,.28); backdrop-filter: blur(4px); }
