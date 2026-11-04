@@ -256,7 +256,7 @@ export default function WildAdvisorPage() {
         )}
       </div>
 
-      <style jsx>{`
+     <style jsx global>{`
         .advisor-page {
           min-height: 100vh;
           background: #111714;
