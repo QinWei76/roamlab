@@ -128,18 +128,38 @@ export function savePreparationPlan(
  * Existing task decisions are preserved by
  * stable task ID.
  */
+
+/**
+ * Regenerate preparation guidance using the
+ * Current Wild and saved Traveler Profile.
+ *
+ * Preserve task decisions by stable task ID.
+ */
 export function refreshPreparationPlan(
   wild: Wild
 ): PreparationPlan {
+  // 1. Read previously saved task progress.
   const previous = getSavedPreparationPlan(wild.id);
 
-  const generated = generatePreparationPlan(wild);
+  // 2. Generate the standard preparation plan.
+  const basePlan = generatePreparationPlan(wild);
 
+  // 3. Read the traveler profile for this Wild.
+  const profile = getSavedTravelerProfile(wild.id);
+
+  // 4. Apply personalized recommendations.
+  const personalizedPlan = personalizePreparationPlan(
+    basePlan,
+    profile
+  );
+
+  // 5. Preserve previously completed task decisions.
   const merged = mergePreparationPlan(
-    generated,
+    personalizedPlan,
     previous ?? undefined
   );
 
+  // 6. Save the updated preparation plan.
   return savePreparationPlan(merged);
 }
 
