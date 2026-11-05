@@ -1,6 +1,6 @@
 
 "use client";
-
+import { getActionGuidance } from "@/lib/wildActionGuidance";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
@@ -78,6 +78,8 @@ const statuses: {
 export default function PreparationPage() {
   const [wild, setWild] = useState<Wild | null>(null);
   const [plan, setPlan] = useState<PreparationPlan | null>(null);
+  const [expandedTaskId, setExpandedTaskId] =
+  useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState("");
 
@@ -100,7 +102,11 @@ export default function PreparationPage() {
       setLoaded(true);
     }
   }, []);
-
+function toggleGuide(taskId: string) {
+  setExpandedTaskId((current) =>
+    current === taskId ? null : taskId
+  );
+}
   function changeStatus(
     taskId: string,
     status: PreparationStatus
@@ -336,6 +342,57 @@ export default function PreparationPage() {
                             ))}
                           </select>
                         </div>
+
+<div className="action-guide-section">
+  <button
+    type="button"
+    className="guide-toggle"
+    aria-expanded={expandedTaskId === task.id}
+    aria-controls={`guide-${task.id}`}
+    onClick={() => toggleGuide(task.id)}
+  >
+    {expandedTaskId === task.id
+      ? "− HIDE ACTION GUIDE"
+      : "+ VIEW ACTION GUIDE"}
+  </button>
+
+  {expandedTaskId === task.id && (() => {
+    const guide = getActionGuidance(task);
+
+    return (
+      <div
+        id={`guide-${task.id}`}
+        className="action-guide-content"
+      >
+        <h4>HOW TO DO IT</h4>
+        <ol>
+          {guide.steps.map((step, index) => (
+            <li key={index}>{step}</li>
+          ))}
+        </ol>
+
+        <h4>WHAT TO PREPARE</h4>
+        <ul>
+          {guide.materials.map((material, index) => (
+            <li key={index}>{material}</li>
+          ))}
+        </ul>
+
+        <h4>HOW TO VERIFY COMPLETION</h4>
+        <ul>
+          {guide.completionCriteria.map(
+            (criterion, index) => (
+              <li key={index}>{criterion}</li>
+            )
+          )}
+        </ul>
+
+        <h4>IF THE PLAN DOESN'T WORK</h4>
+        <p>{guide.fallback}</p>
+      </div>
+    );
+  })()}
+</div>
 
                         {area.id === "gear" && (
                           <Link
@@ -609,4 +666,61 @@ export default function PreparationPage() {
       `}</style>
     </main>
   );
+
+.preparation-page .action-guide-section {
+  margin-top: 24px;
+}
+
+.preparation-page .guide-toggle {
+  width: 100%;
+  background: #303d31;
+  color: #e3c18d;
+  border: 1px solid #756d51;
+  border-radius: 4px;
+  padding: 14px 18px;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.preparation-page .guide-toggle:hover {
+  background: #405040;
+}
+
+.preparation-page .action-guide-content {
+  margin-top: 14px;
+  padding: 22px;
+  background: #121c15;
+  border: 1px solid #485344;
+  border-radius: 5px;
+}
+
+.preparation-page .action-guide-content h4 {
+  color: #d5ae78;
+  font-size: 11px;
+  letter-spacing: 1.4px;
+  margin: 24px 0 12px;
+}
+
+.preparation-page .action-guide-content h4:first-child {
+  margin-top: 0;
+}
+
+.preparation-page .action-guide-content ol,
+.preparation-page .action-guide-content ul {
+  padding-left: 22px;
+  color: #d4d5ca;
+  line-height: 1.8;
+}
+
+.preparation-page .action-guide-content li {
+  margin-bottom: 9px;
+}
+
+.preparation-page .action-guide-content p {
+  color: #d4d5ca;
+  line-height: 1.8;
+}
 }
