@@ -1,6 +1,6 @@
 
 "use client";
-import { getActionGuidance } from "@/lib/wildActionGuidance";
+
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
@@ -19,6 +19,19 @@ import {
   updatePreparationTaskStatus,
   getPreparationProgress,
 } from "@/lib/wildPreparationStore";
+
+import { getActionGuidance } from "@/lib/wildActionGuidance";
+
+/**
+ * ROAMLAB
+ * PREPARATION PLAN + ACTION GUIDANCE V4
+ *
+ * Reads Current Wild.
+ * Displays preparation tasks.
+ * Saves task status changes.
+ * Preserves progress after refresh.
+ * Shows practical action guidance.
+ */
 
 const areas: {
   id: PreparationArea;
@@ -53,7 +66,8 @@ const areas: {
   {
     id: "safety",
     title: "06 / SAFETY & SKILLS",
-    description: "Risk, communication and emergency plans",
+    description:
+      "Risk, communication and emergency plans",
   },
 ];
 
@@ -72,17 +86,29 @@ const statuses: {
   { value: "todo", label: "To Do" },
   { value: "in-progress", label: "In Progress" },
   { value: "done", label: "Done" },
-  { value: "not-applicable", label: "Not Applicable" },
+  {
+    value: "not-applicable",
+    label: "Not Applicable",
+  },
 ];
 
 export default function PreparationPage() {
   const [wild, setWild] = useState<Wild | null>(null);
-  const [plan, setPlan] = useState<PreparationPlan | null>(null);
-  const [expandedTaskId, setExpandedTaskId] =
-  useState<string | null>(null);
+
+  const [plan, setPlan] =
+    useState<PreparationPlan | null>(null);
+
   const [loaded, setLoaded] = useState(false);
+
   const [error, setError] = useState("");
 
+  const [expandedTaskId, setExpandedTaskId] =
+    useState<string | null>(null);
+
+  /**
+   * Load the current Wild and its saved
+   * preparation plan.
+   */
   useEffect(() => {
     try {
       const current = getCurrentWild();
@@ -90,7 +116,10 @@ export default function PreparationPage() {
       setWild(current);
 
       if (current) {
-        setPlan(getOrCreatePreparationPlan(current));
+        const preparation =
+          getOrCreatePreparationPlan(current);
+
+        setPlan(preparation);
       }
     } catch (err) {
       setError(
@@ -102,11 +131,19 @@ export default function PreparationPage() {
       setLoaded(true);
     }
   }, []);
-function toggleGuide(taskId: string) {
-  setExpandedTaskId((current) =>
-    current === taskId ? null : taskId
-  );
-}
+
+  /**
+   * Expand or collapse one task guide.
+   */
+  function toggleGuide(taskId: string) {
+    setExpandedTaskId((current) =>
+      current === taskId ? null : taskId
+    );
+  }
+
+  /**
+   * Save a task status immediately.
+   */
   function changeStatus(
     taskId: string,
     status: PreparationStatus
@@ -116,11 +153,12 @@ function toggleGuide(taskId: string) {
     try {
       setError("");
 
-      const updated = updatePreparationTaskStatus(
-        wild.id,
-        taskId,
-        status
-      );
+      const updated =
+        updatePreparationTaskStatus(
+          wild.id,
+          taskId,
+          status
+        );
 
       setPlan(updated);
     } catch (err) {
@@ -132,6 +170,13 @@ function toggleGuide(taskId: string) {
     }
   }
 
+  /**
+   * Recalculate the plan using the latest
+   * Current Wild and Traveler Profile.
+   *
+   * Existing task decisions are preserved
+   * by the preparation store.
+   */
   function regenerate() {
     if (!wild) return;
 
@@ -141,12 +186,19 @@ function toggleGuide(taskId: string) {
       const current = getCurrentWild();
 
       if (!current || current.id !== wild.id) {
-        setError("Current Wild has changed. Reload this page.");
+        setError(
+          "Current Wild has changed. Reload this page."
+        );
         return;
       }
 
       setWild(current);
-      setPlan(refreshPreparationPlan(current));
+
+      const updated =
+        refreshPreparationPlan(current);
+
+      setPlan(updated);
+      setExpandedTaskId(null);
     } catch (err) {
       setError(
         err instanceof Error
@@ -167,6 +219,7 @@ function toggleGuide(taskId: string) {
           <Link href="/wild-plan/advisor">
             ← WILD ADVISOR
           </Link>
+
           <Link href="/wild-plan">
             WILD PLAN →
           </Link>
@@ -185,10 +238,15 @@ function toggleGuide(taskId: string) {
           </p>
         </header>
 
-        {!loaded && <p>Loading preparation plan...</p>}
+        {!loaded && (
+          <p>Loading preparation plan...</p>
+        )}
 
         {error && (
-          <div className="error-message" role="alert">
+          <div
+            className="error-message"
+            role="alert"
+          >
             {error}
           </div>
         )}
@@ -196,10 +254,12 @@ function toggleGuide(taskId: string) {
         {loaded && !wild && (
           <section className="panel">
             <h2>No active Wild found</h2>
+
             <p>
               Create your Wild Plan before building
               a preparation plan.
             </p>
+
             <Link href="/wild-plan">
               OPEN WILD PLAN →
             </Link>
@@ -214,36 +274,42 @@ function toggleGuide(taskId: string) {
               </span>
 
               <h2>
-                {wild.plan.adventure.destination?.name ??
+                {wild.plan.adventure.destination
+                  ?.name ??
                   "Destination not confirmed"}
               </h2>
 
               <p>
-                {wild.plan.adventure.schedule?.days ??
-                  "?"}{" "}
-                DAYS ·{" "}
-                {wild.plan.adventure.crew?.people ??
-                  "?"}{" "}
-                PEOPLE
+                {wild.plan.adventure.schedule
+                  ?.days ?? "?"}
+                {" "}DAYS ·{" "}
+                {wild.plan.adventure.crew
+                  ?.people ?? "?"}
+                {" "}PEOPLE
               </p>
 
               <div className="progress-line">
                 <div
                   className="progress-fill"
                   style={{
-                    width: `${progress?.percent ?? 0}%`,
+                    width: `${
+                      progress?.percent ?? 0
+                    }%`,
                   }}
                 />
               </div>
 
               <div className="progress-details">
                 <strong>
-                  {progress?.percent ?? 0}% TASKS COMPLETED
+                  {progress?.percent ?? 0}%
+                  {" "}TASKS COMPLETED
                 </strong>
 
                 <span>
-                  {progress?.completed ?? 0} /{" "}
-                  {progress?.total ?? 0} ACTIONABLE TASKS
+                  {progress?.completed ?? 0}
+                  {" / "}
+                  {progress?.total ?? 0}
+                  {" "}ACTIONABLE TASKS
                 </span>
               </div>
 
@@ -258,10 +324,13 @@ function toggleGuide(taskId: string) {
 
             {areas.map((area) => {
               const tasks = plan.tasks.filter(
-                (task) => task.area === area.id
+                (task) =>
+                  task.area === area.id
               );
 
-              if (tasks.length === 0) return null;
+              if (tasks.length === 0) {
+                return null;
+              }
 
               return (
                 <section
@@ -273,137 +342,191 @@ function toggleGuide(taskId: string) {
                       {area.title}
                     </span>
 
-                    <p>{area.description}</p>
+                    <p>
+                      {area.description}
+                    </p>
                   </div>
 
                   <div className="task-list">
-                    {tasks.map((task) => (
-                      <article
-                        key={task.id}
-                        className="task panel"
-                      >
-                        <div className="task-top">
-                          <span className="phase">
-                            {phases[task.phase] ??
-                              task.phase}
-                          </span>
+                    {tasks.map((task) => {
+                      const isExpanded =
+                        expandedTaskId === task.id;
 
-                          <span
-                            className={`priority ${task.priority}`}
-                          >
-                            {task.priority.toUpperCase()}
-                          </span>
-                        </div>
+                      const guide = isExpanded
+                        ? getActionGuidance(task)
+                        : null;
 
-                        <h3>{task.title}</h3>
+                      return (
+                        <article
+                          key={task.id}
+                          className="task panel"
+                        >
+                          <div className="task-top">
+                            <span className="phase">
+                              {phases[task.phase] ??
+                                task.phase}
+                            </span>
 
-                        <p className="reason">
-                          <strong>WHY IT MATTERS</strong>
-                          {task.reason}
-                        </p>
+                            <span
+                              className={
+                                `priority ${task.priority}`
+                              }
+                            >
+                              {task.priority.toUpperCase()}
+                            </span>
+                          </div>
 
-                        <p className="action">
-                          <strong>WHAT TO DO</strong>
-                          {task.action}
-                        </p>
+                          <h3>
+                            {task.title}
+                          </h3>
 
-                        {task.needsConfirmation && (
-                          <p className="confirmation">
-                            Information needs confirmation
-                            before specific advice is possible.
+                          <p className="reason">
+                            <strong>
+                              WHY IT MATTERS
+                            </strong>
+
+                            {task.reason}
                           </p>
-                        )}
 
-                        <div className="task-footer">
-                          <label
-                            htmlFor={`status-${task.id}`}
-                          >
-                            PREPARATION STATUS
-                          </label>
+                          <p className="action">
+                            <strong>
+                              WHAT TO DO
+                            </strong>
 
-                          <select
-                            id={`status-${task.id}`}
-                            value={task.status}
-                            onChange={(event) =>
-                              changeStatus(
-                                task.id,
-                                event.target
-                                  .value as PreparationStatus
-                              )
-                            }
-                          >
-                            {statuses.map((status) => (
-                              <option
-                                key={status.value}
-                                value={status.value}
+                            {task.action}
+                          </p>
+
+                          {task.needsConfirmation && (
+                            <p className="confirmation">
+                              Information needs
+                              confirmation before
+                              specific advice is possible.
+                            </p>
+                          )}
+
+                          {/* ACTION GUIDANCE */}
+
+                          <div className="action-guide-section">
+                            <button
+                              type="button"
+                              className="guide-toggle"
+                              aria-expanded={isExpanded}
+                              aria-controls={
+                                `guide-${task.id}`
+                              }
+                              onClick={() =>
+                                toggleGuide(task.id)
+                              }
+                            >
+                              {isExpanded
+                                ? "− HIDE ACTION GUIDE"
+                                : "+ VIEW ACTION GUIDE"}
+                            </button>
+
+                            {guide && (
+                              <div
+                                id={`guide-${task.id}`}
+                                className="action-guide-content"
                               >
-                                {status.label}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
+                                <h4>
+                                  HOW TO DO IT
+                                </h4>
 
-<div className="action-guide-section">
-  <button
-    type="button"
-    className="guide-toggle"
-    aria-expanded={expandedTaskId === task.id}
-    aria-controls={`guide-${task.id}`}
-    onClick={() => toggleGuide(task.id)}
-  >
-    {expandedTaskId === task.id
-      ? "− HIDE ACTION GUIDE"
-      : "+ VIEW ACTION GUIDE"}
-  </button>
+                                <ol>
+                                  {guide.steps.map(
+                                    (step, index) => (
+                                      <li key={index}>
+                                        {step}
+                                      </li>
+                                    )
+                                  )}
+                                </ol>
 
-  {expandedTaskId === task.id && (() => {
-    const guide = getActionGuidance(task);
+                                <h4>
+                                  WHAT TO PREPARE
+                                </h4>
 
-    return (
-      <div
-        id={`guide-${task.id}`}
-        className="action-guide-content"
-      >
-        <h4>HOW TO DO IT</h4>
-        <ol>
-          {guide.steps.map((step, index) => (
-            <li key={index}>{step}</li>
-          ))}
-        </ol>
+                                <ul>
+                                  {guide.materials.map(
+                                    (material, index) => (
+                                      <li key={index}>
+                                        {material}
+                                      </li>
+                                    )
+                                  )}
+                                </ul>
 
-        <h4>WHAT TO PREPARE</h4>
-        <ul>
-          {guide.materials.map((material, index) => (
-            <li key={index}>{material}</li>
-          ))}
-        </ul>
+                                <h4>
+                                  HOW TO VERIFY COMPLETION
+                                </h4>
 
-        <h4>HOW TO VERIFY COMPLETION</h4>
-        <ul>
-          {guide.completionCriteria.map(
-            (criterion, index) => (
-              <li key={index}>{criterion}</li>
-            )
-          )}
-        </ul>
+                                <ul>
+                                  {guide.completionCriteria.map(
+                                    (criterion, index) => (
+                                      <li key={index}>
+                                        {criterion}
+                                      </li>
+                                    )
+                                  )}
+                                </ul>
 
-        <h4>IF THE PLAN DOESN'T WORK</h4>
-        <p>{guide.fallback}</p>
-      </div>
-    );
-  })()}
-</div>
+                                <h4>
+                                  IF THE PLAN DOESN&apos;T WORK
+                                </h4>
 
-                        {area.id === "gear" && (
-                          <Link
-                            className="gear-link"
-                            href="/ways-in/drive/gear"
-                          >
-                            OPEN GEAR ROOM →
-                          </Link>
-                        )}
-                      </article>
-                    ))}
+                                <p>
+                                  {guide.fallback}
+                                </p>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* TASK STATUS */}
+
+                          <div className="task-footer">
+                            <label
+                              htmlFor={
+                                `status-${task.id}`
+                              }
+                            >
+                              PREPARATION STATUS
+                            </label>
+
+                            <select
+                              id={`status-${task.id}`}
+                              value={task.status}
+                              onChange={(event) =>
+                                changeStatus(
+                                  task.id,
+                                  event.target
+                                    .value as PreparationStatus
+                                )
+                              }
+                            >
+                              {statuses.map(
+                                (status) => (
+                                  <option
+                                    key={status.value}
+                                    value={status.value}
+                                  >
+                                    {status.label}
+                                  </option>
+                                )
+                              )}
+                            </select>
+                          </div>
+
+                          {area.id === "gear" && (
+                            <Link
+                              className="gear-link"
+                              href="/ways-in/drive/gear"
+                            >
+                              OPEN GEAR ROOM →
+                            </Link>
+                          )}
+                        </article>
+                      );
+                    })}
                   </div>
                 </section>
               );
@@ -411,15 +534,22 @@ function toggleGuide(taskId: string) {
 
             <footer className="preparation-footer">
               <p>
-                Task completion tracks preparation work.
-                It does not certify an expedition as safe.
-                Verify weather, access, permits and
-                local conditions independently.
+                Task completion tracks preparation
+                work. It does not certify an
+                expedition as safe. Verify weather,
+                access, permits and local conditions
+                independently.
               </p>
 
-              <Link href="/wild-plan/advisor">
-                ← RETURN TO ADVISOR
+              <Link href="/wild-plan/advisor/profile">
+                REVIEW TRAVELER PROFILE →
               </Link>
+
+              <p>
+                <Link href="/wild-plan/advisor">
+                  ← RETURN TO ADVISOR
+                </Link>
+              </p>
             </footer>
           </>
         )}
@@ -471,7 +601,11 @@ function toggleGuide(taskId: string) {
         }
 
         .preparation-page h1 {
-          font-size: clamp(35px, 5vw, 60px);
+          font-size: clamp(
+            35px,
+            5vw,
+            60px
+          );
           margin: 15px 0;
         }
 
@@ -650,6 +784,66 @@ function toggleGuide(taskId: string) {
           margin: 20px 0;
         }
 
+        /* ACTION GUIDANCE V4 */
+
+        .preparation-page .action-guide-section {
+          margin-top: 24px;
+        }
+
+        .preparation-page .guide-toggle {
+          width: 100%;
+          background: #303d31;
+          color: #e3c18d;
+          border: 1px solid #756d51;
+          border-radius: 4px;
+          padding: 14px 18px;
+          font-size: 11px;
+          font-weight: bold;
+          letter-spacing: 1px;
+          text-align: left;
+          cursor: pointer;
+        }
+
+        .preparation-page .guide-toggle:hover {
+          background: #405040;
+        }
+
+        .preparation-page .action-guide-content {
+          margin-top: 14px;
+          padding: 22px;
+          background: #121c15;
+          border: 1px solid #485344;
+          border-radius: 5px;
+        }
+
+        .preparation-page .action-guide-content h4 {
+          color: #d5ae78;
+          font-size: 11px;
+          letter-spacing: 1.4px;
+          margin: 24px 0 12px;
+        }
+
+        .preparation-page
+        .action-guide-content h4:first-child {
+          margin-top: 0;
+        }
+
+        .preparation-page .action-guide-content ol,
+        .preparation-page .action-guide-content ul {
+          padding-left: 22px;
+          color: #d4d5ca;
+          line-height: 1.8;
+        }
+
+        .preparation-page .action-guide-content li {
+          margin-bottom: 9px;
+        }
+
+        .preparation-page .action-guide-content p {
+          color: #d4d5ca;
+          line-height: 1.8;
+        }
+
         @media (max-width: 600px) {
           .preparation-page {
             padding: 25px 16px 55px;
@@ -662,65 +856,12 @@ function toggleGuide(taskId: string) {
           .preparation-header {
             padding-top: 45px;
           }
+
+          .preparation-page .action-guide-content {
+            padding: 16px;
+          }
         }
       `}</style>
     </main>
   );
-
-.preparation-page .action-guide-section {
-  margin-top: 24px;
-}
-
-.preparation-page .guide-toggle {
-  width: 100%;
-  background: #303d31;
-  color: #e3c18d;
-  border: 1px solid #756d51;
-  border-radius: 4px;
-  padding: 14px 18px;
-  font-size: 11px;
-  font-weight: bold;
-  letter-spacing: 1px;
-  text-align: left;
-  cursor: pointer;
-}
-
-.preparation-page .guide-toggle:hover {
-  background: #405040;
-}
-
-.preparation-page .action-guide-content {
-  margin-top: 14px;
-  padding: 22px;
-  background: #121c15;
-  border: 1px solid #485344;
-  border-radius: 5px;
-}
-
-.preparation-page .action-guide-content h4 {
-  color: #d5ae78;
-  font-size: 11px;
-  letter-spacing: 1.4px;
-  margin: 24px 0 12px;
-}
-
-.preparation-page .action-guide-content h4:first-child {
-  margin-top: 0;
-}
-
-.preparation-page .action-guide-content ol,
-.preparation-page .action-guide-content ul {
-  padding-left: 22px;
-  color: #d4d5ca;
-  line-height: 1.8;
-}
-
-.preparation-page .action-guide-content li {
-  margin-bottom: 9px;
-}
-
-.preparation-page .action-guide-content p {
-  color: #d4d5ca;
-  line-height: 1.8;
-}
 }
