@@ -275,3 +275,52 @@
     }
   }
 }
+
+/* Mobile viewport correction */
+
+@media screen and (max-width: 767px) {
+  html,
+  body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .roam-desktop-layout {
+    display: none !important;
+  }
+
+  .roam-mobile-layout {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .pocket-page {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+
+  .pocket-scene {
+    position: relative !important;
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    aspect-ratio: 2 / 3 !important;
+    overflow: hidden !important;
+  }
+
+  .pocket-scene-image {
+    display: block !important;
+    position: relative !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100% !important;
+    object-fit: fill !important;
+  }
+}
+
