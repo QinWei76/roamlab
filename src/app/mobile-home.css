@@ -324,3 +324,110 @@
   }
 }
 
+/* ==========================================
+   ROAMLAB MOBILE HOME V1.1
+   Visual Refinement
+========================================== */
+
+@media screen and (max-width: 767px) {
+
+  /* Natural page height */
+
+  .pocket-page {
+    min-height: 0 !important;
+    height: auto !important;
+    overflow-x: hidden;
+    background: #1b100a;
+  }
+
+  .pocket-scene {
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 2 / 3 !important;
+    overflow: hidden;
+  }
+
+  /* Hero typography */
+
+  .pocket-hero-title {
+    top: 10.5%;
+  }
+
+  .pocket-hero-title h1 {
+    font-size: clamp(43px, 11.5vw, 66px);
+    font-weight: 400;
+    line-height: 1.05;
+    letter-spacing: -1px;
+  }
+
+  .pocket-red-stroke {
+    width: 35%;
+    height: 2px;
+    margin: 6px auto 8px;
+  }
+
+  .pocket-hero-title p {
+    font-size: clamp(15px, 4.2vw, 21px);
+    line-height: 1.2;
+    font-weight: 500;
+  }
+
+  /* Parchment text alignment */
+
+  .pocket-paper-link {
+    gap: 3px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+  }
+
+  .pocket-card-icon {
+    height: 23px;
+  }
+
+  .pocket-card-icon svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .pocket-paper-link strong {
+    font-size: clamp(14px, 3.8vw, 20px);
+    letter-spacing: -0.3px;
+    line-height: 1.15;
+  }
+
+  .pocket-paper-link small {
+    font-size: clamp(8px, 2.2vw, 11px);
+    line-height: 1.3;
+  }
+
+  .pocket-coming-soon {
+    font-size: 7px;
+    letter-spacing: 0.8px;
+  }
+
+  /* Footer */
+
+  .pocket-footer-nav a {
+    gap: 4px;
+    font-size: clamp(10px, 2.8vw, 14px);
+  }
+
+  .pocket-footer-nav a svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* Remove excessive empty space below scene */
+
+  .roam-mobile-layout {
+    min-height: 0 !important;
+    background: #1b100a;
+  }
+
+  .pocket-page::after {
+    content: "";
+    display: block;
+    height: 0;
+  }
+}
+
