@@ -46,8 +46,7 @@ type IconName =
   | "map"
   | "image"
   | "tent"
-  | "book"
-  | "chevron";
+  | "book";
 
 function PocketIcon({
   name,
@@ -89,7 +88,6 @@ function PocketIcon({
         <path d="M12 6v14" />
       </>
     ),
-    chevron: <path d="m9 5 7 7-7 7" />,
   };
 
   return (
@@ -145,59 +143,80 @@ function MobileHome() {
   return (
     <main className="pocket-v2">
       <header className="pocket-v2-header">
-        <Link href="/" className="pocket-v2-brand" aria-label="RoamLab Home">
-  <img
-    src="/roamlab-logo-header.png"
-    alt="RoamLab"
-    className="pocket-v2-logo"
-  />
-</Link>
+        <Link
+          href="/"
+          className="pocket-v2-brand"
+          aria-label="RoamLab Home"
+        >
+          <img
+            src="/roamlab-logo-header.png"
+            alt="RoamLab"
+            className="pocket-v2-logo"
+          />
+        </Link>
 
-        <nav className="pocket-v2-header-actions" aria-label="Quick links">
-          <Link href="/start-here/discover" aria-label="Explore">
+        <nav
+          className="pocket-v2-header-actions"
+          aria-label="Quick links"
+        >
+          <Link
+            href="/start-here/discover"
+            aria-label="Explore"
+          >
             <PocketIcon name="search" />
           </Link>
-          <Link href="/start-here" aria-label="Get started">
+          <Link
+            href="/start-here"
+            aria-label="Get started"
+          >
             <PocketIcon name="menu" />
           </Link>
         </nav>
       </header>
 
-      <section className="pocket-v2-scene">
-       <div className="pocket-v2-hero">
-  <h1 className="pocket-v2-hero-title">
-    <img
-      src="/roamlab-script.png"
-      alt="RoamLab"
-      className="pocket-v2-script-image"
-    />
-  </h1>
+      <section
+        className="pocket-v2-scene"
+        aria-label="RoamLab adventure"
+      >
+        <div className="pocket-v2-hero">
+          <h1 className="pocket-v2-hero-title">
+            <img
+              src="/roamlab-script.png"
+              alt="RoamLab"
+              className="pocket-v2-script-image"
+            />
+          </h1>
 
-  <p className="pocket-v2-slogan">
-    <img
-      src="/roamlab-slogan.png"
-      alt="Plan Your Wild. Live Your Stories."
-      className="pocket-v2-slogan-image"
-    />
-  </p>
-</div>
+          <p className="pocket-v2-slogan">
+            <img
+              src="/roamlab-slogan.png"
+              alt="Plan Your Wild. Live Your Stories."
+              className="pocket-v2-slogan-image"
+            />
+          </p>
+        </div>
       </section>
 
-      <section className="pocket-v2-services" aria-label="Choose a service">
+      <section
+        className="pocket-v2-services"
+        aria-label="Choose a service"
+      >
         <nav className="pocket-v2-grid">
           {services.map((service) => {
             const contents = (
               <>
                 <span className="pocket-v2-icon">
-                  <PocketIcon name={service.icon} size={34} />
+                  <PocketIcon
+                    name={service.icon}
+                    size={25}
+                  />
                 </span>
+
                 <strong>{service.title}</strong>
+
                 <small>{service.description}</small>
-                {service.href ? (
-                  <span className="pocket-v2-arrow">
-                    <PocketIcon name="chevron" size={21} />
-                  </span>
-                ) : (
+
+                {!service.href && (
                   <span className="pocket-v2-soon">
                     COMING SOON
                   </span>
@@ -235,6 +254,7 @@ export default function HomePage() {
       <div className="roam-desktop-layout">
         <DesktopHome />
       </div>
+
       <div className="roam-mobile-layout">
         <MobileHome />
       </div>
