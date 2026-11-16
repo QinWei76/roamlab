@@ -277,8 +277,8 @@
   }
 }
 
-/* Adventure Pocket V2.1 — Brand assets & refinement */
 
+/* Adventure Pocket V2.1 — Brand assets & refinement */
 
 @media screen and (max-width: 767px) {
   .pocket-v2-header {
@@ -307,10 +307,6 @@
     object-fit: contain;
     object-position: left center;
   }
-}
-
-
-  /* Independent handwritten image assets */
 
   .pocket-v2-hero {
     top: 15%;
@@ -351,8 +347,6 @@
     object-fit: contain;
     filter: drop-shadow(0 2px 5px rgba(0,0,0,.4));
   }
-
-  /* More compact, paper-like service cards */
 
   .pocket-v2-services {
     padding: 15px 4% 30px;
@@ -417,3 +411,4 @@
     }
   }
 }
+
