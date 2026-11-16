@@ -397,9 +397,18 @@
     line-height: 1.35;
   }
 
+  
   .pocket-v2-arrow {
     margin-top: auto;
   }
+
+  @media screen and (max-width: 360px) {
+    .pocket-v2-card {
+      min-height: 150px;
+      padding: 13px 7px 10px;
+    }
+  }
+}
 
 
     .pocket-v2-card {
