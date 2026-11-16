@@ -1,9 +1,9 @@
 
-/* ===================================================
-   ROAMLAB — ADVENTURE POCKET V2.3
-   Immersive mobile homepage
-   Desktop design remains unchanged
-   =================================================== */
+/* ================================================
+   ROAMLAB — ADVENTURE POCKET V2.4
+   Mobile card refinement
+   Desktop remains unchanged
+   ================================================ */
 
 .roam-desktop-layout {
   display: block;
@@ -30,7 +30,7 @@
     box-sizing: border-box;
   }
 
-  /* FULL-SCREEN ADVENTURE BACKGROUND */
+  /* FULL-SCREEN BACKGROUND */
 
   .pocket-v2 {
     position: relative;
@@ -45,6 +45,7 @@
 
     margin: 0;
     overflow-x: clip;
+
     color: #fff0d9;
     background: #201108;
   }
@@ -69,6 +70,7 @@
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center center;
+
     pointer-events: none;
   }
 
@@ -110,10 +112,12 @@
 
   .pocket-v2-logo {
     display: block;
+
     width: 100%;
     max-width: 215px;
     height: auto;
     max-height: 51px;
+
     object-fit: contain;
     object-position: left center;
 
@@ -146,10 +150,11 @@
     );
   }
 
-  /* MOUNTAIN SCENE / HERO AREA */
+  /* HERO AREA */
 
   .pocket-v2-scene {
     position: relative;
+
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -172,6 +177,7 @@
 
     width: 94%;
     max-width: 500px;
+
     margin: clamp(34px, 8svh, 80px) auto 0;
 
     text-align: center;
@@ -189,10 +195,12 @@
 
   .pocket-v2-script-image {
     display: block;
+
     width: 100%;
     max-width: 390px;
     height: auto;
     margin: 0 auto;
+
     object-fit: contain;
 
     filter: drop-shadow(
@@ -206,10 +214,12 @@
 
   .pocket-v2-slogan-image {
     display: block;
+
     width: 80%;
     max-width: 310px;
     height: auto;
     margin: 0 auto;
+
     object-fit: contain;
 
     filter: drop-shadow(
@@ -217,7 +227,9 @@
     );
   }
 
-  /* FOUR SERVICE CARDS IN ONE ROW */
+  /* ================================================
+     FOUR SERVICE CARDS — V2.4
+     ================================================ */
 
   .pocket-v2-services {
     position: relative;
@@ -227,7 +239,10 @@
     width: 100%;
     margin: 0;
 
-    padding: 8px 3% max(12px, env(safe-area-inset-bottom));
+    padding:
+      8px
+      3%
+      max(12px, env(safe-area-inset-bottom));
 
     background: linear-gradient(
       to bottom,
@@ -238,16 +253,20 @@
 
   .pocket-v2-grid {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+
+    grid-template-columns:
+      repeat(4, minmax(0, 1fr));
+
     align-items: stretch;
 
     gap: 6px;
+
     width: 100%;
     max-width: 600px;
     margin: 0 auto;
   }
 
-  /* PARCHMENT CARDS */
+  /* PARCHMENT CARD */
 
   .pocket-v2-card {
     position: relative;
@@ -258,9 +277,10 @@
     justify-content: flex-start;
 
     min-width: 0;
-    min-height: 138px;
-    padding: 10px 3px 8px;
-    gap: 5px;
+    min-height: 120px;
+
+    padding: 8px 3px 7px;
+    gap: 4px;
 
     color: #26190f;
     text-align: center;
@@ -290,28 +310,44 @@
     -webkit-tap-highlight-color: transparent;
   }
 
-  .pocket-v2-card:active:not(.pocket-v2-disabled) {
+  .pocket-v2-card:active:not(
+    .pocket-v2-disabled
+  ) {
     transform: translateY(2px);
   }
+
+  /* ICON ALIGNMENT */
 
   .pocket-v2-icon {
     display: flex;
     align-items: center;
     justify-content: center;
 
-    min-height: 26px;
+    flex: 0 0 24px;
+
+    width: 100%;
+    height: 24px;
+
     color: #33271a;
   }
 
   .pocket-v2-icon svg {
-    width: 25px;
-    height: 25px;
+    display: block;
+    width: 23px;
+    height: 23px;
   }
 
+  /* TITLE ALIGNMENT */
+
   .pocket-v2-card strong {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
     width: 100%;
-    max-width: 100%;
+    min-height: 30px;
+
+    margin: 0;
 
     font-family: Georgia, serif;
     font-size: clamp(10px, 2.8vw, 14px);
@@ -321,19 +357,25 @@
     overflow-wrap: normal;
   }
 
+  /* DESCRIPTION */
+
   .pocket-v2-card small {
     display: block;
+
     width: 100%;
-    max-width: 100%;
+    margin: 0;
 
     font-family: Arial, sans-serif;
     font-size: clamp(8px, 2.1vw, 10px);
     font-weight: 400;
-    line-height: 1.2;
+    line-height: 1.22;
+
     color: #503927;
 
     overflow-wrap: anywhere;
   }
+
+  /* COMING SOON */
 
   .pocket-v2-disabled {
     cursor: default;
@@ -341,13 +383,16 @@
 
   .pocket-v2-soon {
     display: block;
+
     margin-top: auto;
+    padding-top: 4px;
 
     font-family: Arial, sans-serif;
     font-size: 7px;
     font-weight: 800;
     line-height: 1.2;
     letter-spacing: .3px;
+
     color: #97522b;
   }
 
@@ -385,22 +430,32 @@
     }
 
     .pocket-v2-card {
-      min-height: 132px;
-      padding: 9px 2px 7px;
-      gap: 4px;
+      min-height: 116px;
+      padding: 7px 2px 6px;
+      gap: 3px;
+    }
+
+    .pocket-v2-icon {
+      height: 22px;
+      flex-basis: 22px;
     }
 
     .pocket-v2-icon svg {
-      width: 22px;
-      height: 22px;
+      width: 21px;
+      height: 21px;
     }
 
     .pocket-v2-card strong {
+      min-height: 27px;
       font-size: 10px;
     }
 
     .pocket-v2-card small {
       font-size: 8px;
+    }
+
+    .pocket-v2-soon {
+      font-size: 6.5px;
     }
   }
 
@@ -422,10 +477,9 @@
     }
 
     .pocket-v2-card {
-      min-height: 120px;
-      padding-top: 7px;
+      min-height: 112px;
+      padding-top: 6px;
       padding-bottom: 6px;
     }
   }
-
 }
