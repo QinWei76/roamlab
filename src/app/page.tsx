@@ -8,32 +8,32 @@ function DesktopHome() {
       <section className="roam-desk">
         <img
           src="/wild-desk.jpg"
-          alt="RoamLab — Go Wild. Show It."
+          alt="RoamLab adventure workbench"
           className="roam-background"
           draggable={false}
         />
 
         <Link href="/badges" className="desk-zone zone-badge" aria-label="Achievements" />
-        <Link href="/explore" className="desk-zone zone-explore" aria-label="Explore" />
-        <Link href="/prepare" className="desk-zone zone-checklist" aria-label="Adventure Checklist" />
+        <Link href="/start-here/discover" className="desk-zone zone-explore" aria-label="Explore" />
+        <Link href="/prepare" className="desk-zone zone-checklist" aria-label="Checklist" />
         <Link href="/ways-in" className="desk-zone zone-vehicle" aria-label="Ways In" />
         <Link href="/prepare" className="desk-zone zone-backpack" aria-label="Prepare" />
         <Link href="/safety" className="desk-zone zone-firstaid" aria-label="Safety" />
         <Link href="/learn" className="desk-zone zone-guide" aria-label="Learn" />
-        <Link href="/journal" className="desk-zone zone-journal" aria-label="My Wild Journal" />
-        <Link href="/stories" className="desk-zone zone-stories" aria-label="The Wild Wall" />
-        <Link href="/plan" className="desk-zone zone-plan" aria-label="Plan Your Wild" />
+        <Link href="/journal" className="desk-zone zone-journal" aria-label="Journal" />
+        <Link href="/journal" className="desk-zone zone-stories" aria-label="Stories" />
+        <Link href="/wild-plan" className="desk-zone zone-plan" aria-label="Plan Your Wild" />
 
-        <Link href="/explore" className="top-zone top-explore" aria-label="Explore" />
-        <Link href="/plan" className="top-zone top-plan" aria-label="Plan" />
+        <Link href="/start-here/discover" className="top-zone top-explore" aria-label="Explore" />
+        <Link href="/wild-plan" className="top-zone top-plan" aria-label="Plan" />
         <Link href="/prepare" className="top-zone top-prepare" aria-label="Prepare" />
         <Link href="/safety" className="top-zone top-safety" aria-label="Safety" />
         <Link href="/learn" className="top-zone top-learn" aria-label="Learn" />
         <Link href="/journal" className="top-zone top-journal" aria-label="Journal" />
-        <Link href="/stories" className="top-zone top-stories" aria-label="Stories" />
+        <Link href="/journal" className="top-zone top-stories" aria-label="Stories" />
         <Link href="/badges" className="top-zone top-badges" aria-label="Badges" />
-        <Link href="/signin" className="top-zone top-signin" aria-label="Sign In" />
-        <Link href="/start-here" className="top-zone top-start" aria-label="Start Your Wild" />
+        <Link href="/start-here" className="top-zone top-signin" aria-label="Get Started" />
+        <Link href="/start-here" className="top-zone top-start" aria-label="Start" />
         <Link href="/start-here" className="center-start-zone" aria-label="Start Your Wild" />
       </section>
     </main>
@@ -41,32 +41,22 @@ function DesktopHome() {
 }
 
 type IconName =
-  | "mountain"
   | "search"
   | "menu"
   | "map"
   | "image"
-  | "backpack"
+  | "tent"
   | "book"
-  | "trees"
-  | "clipboard"
-  | "shield"
   | "chevron";
 
 function PocketIcon({
   name,
-  size = 24,
+  size = 26,
 }: {
   name: IconName;
   size?: number;
 }) {
   const paths: Record<IconName, React.ReactNode> = {
-    mountain: (
-      <>
-        <path d="m2 20 7-10 4 5 3-9 6 14H2Z" />
-        <path d="m6 14 3-4 4 5 3-9 3 7" />
-      </>
-    ),
     search: (
       <>
         <circle cx="10.5" cy="10.5" r="6.5" />
@@ -83,40 +73,20 @@ function PocketIcon({
     image: (
       <>
         <rect x="3" y="3" width="18" height="18" rx="2" />
-        <circle cx="8.5" cy="8.5" r="1.5" />
-        <path d="m3 17 6-6 4 4 3-3 5 5" />
+        <circle cx="8" cy="8" r="1.5" />
+        <path d="m3 18 6-7 4 4 3-3 5 6" />
       </>
     ),
-    backpack: (
+    tent: (
       <>
-        <rect x="5" y="7" width="14" height="15" rx="3" />
-        <path d="M9 7V5a3 3 0 0 1 6 0v2M5 11H3v7h2M19 11h2v7h-2" />
-        <rect x="9" y="14" width="6" height="5" rx="1" />
+        <path d="M12 3 2 21h20L12 3Z" />
+        <path d="m12 3 4 18M12 13l-4 8" />
       </>
     ),
     book: (
       <>
-        <path d="M12 6c-3-2-6-2-10-1v14c4-1 7-1 10 1 3-2 6-2 10-1V5c-4-1-7-1-10 1Z" />
+        <path d="M12 6C9 4 6 4 2 5v14c4-1 7-1 10 1 3-2 6-2 10-1V5c-4-1-7-1-10 1Z" />
         <path d="M12 6v14" />
-      </>
-    ),
-    trees: (
-      <>
-        <path d="m7 3-5 8h3l-4 6h12l-4-6h3L7 3ZM7 17v5" />
-        <path d="m17 5-4 6h3l-3 5h10l-3-5h2l-5-6ZM17 16v6" />
-      </>
-    ),
-    clipboard: (
-      <>
-        <rect x="5" y="4" width="14" height="18" rx="2" />
-        <rect x="9" y="2" width="6" height="4" rx="1" />
-        <path d="m9 15 2 2 4-5" />
-      </>
-    ),
-    shield: (
-      <>
-        <path d="M12 2 3 6v6c0 5 3.5 8 9 10 5.5-2 9-5 9-10V6l-9-4Z" />
-        <path d="m8 12 3 3 5-6" />
       </>
     ),
     chevron: <path d="m9 5 7 7-7 7" />,
@@ -139,129 +109,110 @@ function PocketIcon({
   );
 }
 
-const primary = [
+const services: {
+  title: string;
+  description: string;
+  icon: IconName;
+  href: string | null;
+}[] = [
   {
     title: "Plan Your Wild",
-    subtitle: "Routes · Destinations · Preparation",
-    icon: "map" as IconName,
+    description: "Routes · Destinations · Preparation",
+    icon: "map",
     href: "/wild-plan",
-    className: "pocket-card-one",
   },
   {
     title: "Share Your Wild",
-    subtitle: "Photos · Captions · Social Posts",
-    icon: "image" as IconName,
-    href: "",
-    className: "pocket-card-two",
+    description: "Photos · Captions · Social Posts",
+    icon: "image",
+    href: null,
   },
   {
     title: "Gear Lab",
-    subtitle: "Equipment · Recommendations",
-    icon: "backpack" as IconName,
+    description: "Equipment · Recommendations",
+    icon: "tent",
     href: "/gear",
-    className: "pocket-card-three",
   },
   {
     title: "My Wild Stories",
-    subtitle: "Travel Journals · Memories",
-    icon: "book" as IconName,
+    description: "Travel Journals · Memories",
+    icon: "book",
     href: "/journal",
-    className: "pocket-card-four",
   },
-];
-
-const secondary = [
-  { title: "Explore", icon: "trees" as IconName, href: "/start-here/discover" },
-  { title: "Prepare", icon: "clipboard" as IconName, href: "/prepare" },
-  { title: "Safety", icon: "shield" as IconName, href: "/safety" },
-  { title: "Learn", icon: "book" as IconName, href: "/learn" },
 ];
 
 function MobileHome() {
   return (
-    <main className="pocket-page">
-      <div className="pocket-scene">
-        <img
-          src="/adventure-pocket-bg.png"
-          alt=""
-          className="pocket-scene-image"
-          draggable={false}
-        />
+    <main className="pocket-v2">
+      <header className="pocket-v2-header">
+        <Link href="/" className="pocket-v2-brand">
+          ROAMLAB
+        </Link>
 
-        <header className="pocket-topbar">
-          <Link href="/" className="pocket-brand">
-            <PocketIcon name="mountain" size={27} />
-            <span>RoamLab</span>
+        <nav className="pocket-v2-header-actions" aria-label="Quick links">
+          <Link href="/start-here/discover" aria-label="Explore">
+            <PocketIcon name="search" />
           </Link>
+          <Link href="/start-here" aria-label="Get started">
+            <PocketIcon name="menu" />
+          </Link>
+        </nav>
+      </header>
 
-          <div className="pocket-header-actions">
-            <Link href="/start-here/discover" aria-label="Explore">
-              <PocketIcon name="search" size={22} />
-            </Link>
-            <Link href="/start-here" aria-label="Get started">
-              <PocketIcon name="menu" size={25} />
-            </Link>
-          </div>
-        </header>
-
-        <div className="pocket-hero-title">
+      <section className="pocket-v2-scene">
+        <div className="pocket-v2-hero">
           <h1>RoamLab</h1>
-          <span className="pocket-red-stroke" />
+          <span className="pocket-v2-brush" aria-hidden="true" />
           <p>
             Plan Your Wild.
             <br />
-            Live Your Story.
+            Live Your Stories.
           </p>
         </div>
+      </section>
 
-        <nav className="pocket-main-links" aria-label="Main navigation">
-          {primary.map((item) => {
-            const content = (
+      <section className="pocket-v2-services" aria-label="Choose a service">
+        <nav className="pocket-v2-grid">
+          {services.map((service) => {
+            const contents = (
               <>
-                <span className="pocket-card-icon">
-                  <PocketIcon name={item.icon} size={25} />
+                <span className="pocket-v2-icon">
+                  <PocketIcon name={service.icon} size={34} />
                 </span>
-                <strong>{item.title}</strong>
-                <small>{item.subtitle}</small>
-                {item.href ? (
-                  <span className="pocket-card-chevron">
-                    <PocketIcon name="chevron" size={24} />
+                <strong>{service.title}</strong>
+                <small>{service.description}</small>
+                {service.href ? (
+                  <span className="pocket-v2-arrow">
+                    <PocketIcon name="chevron" size={21} />
                   </span>
                 ) : (
-                  <span className="pocket-coming-soon">COMING SOON</span>
+                  <span className="pocket-v2-soon">
+                    COMING SOON
+                  </span>
                 )}
               </>
             );
 
-            return item.href ? (
+            return service.href ? (
               <Link
-                key={item.title}
-                href={item.href}
-                className={`pocket-paper-link ${item.className}`}
+                key={service.title}
+                href={service.href}
+                className="pocket-v2-card"
               >
-                {content}
+                {contents}
               </Link>
             ) : (
               <div
-                key={item.title}
-                className={`pocket-paper-link pocket-unavailable ${item.className}`}
-                aria-label={`${item.title}, coming soon`}
+                key={service.title}
+                className="pocket-v2-card pocket-v2-disabled"
+                aria-label={`${service.title} coming soon`}
               >
-                {content}
+                {contents}
               </div>
             );
           })}
         </nav>
-
-        <nav className="pocket-footer-nav" aria-label="Quick navigation">
-          {secondary.map((item) => (
-            <Link key={item.title} href={item.href}>
-              <PocketIcon name={item.icon} size={27} />
-              <span>{item.title}</span>
-            </Link>
-          ))}
-        </nav>
-      </div>
+      </section>
     </main>
   );
 }
