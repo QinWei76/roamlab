@@ -145,9 +145,13 @@ function MobileHome() {
   return (
     <main className="pocket-v2">
       <header className="pocket-v2-header">
-        <Link href="/" className="pocket-v2-brand">
-          ROAMLAB
-        </Link>
+        <Link href="/" className="pocket-v2-brand" aria-label="RoamLab Home">
+  <img
+    src="/roamlab-logo.png"
+    alt="RoamLab"
+    className="pocket-v2-logo"
+  />
+</Link>
 
         <nav className="pocket-v2-header-actions" aria-label="Quick links">
           <Link href="/start-here/discover" aria-label="Explore">
@@ -160,15 +164,23 @@ function MobileHome() {
       </header>
 
       <section className="pocket-v2-scene">
-        <div className="pocket-v2-hero">
-          <h1>RoamLab</h1>
-          <span className="pocket-v2-brush" aria-hidden="true" />
-          <p>
-            Plan Your Wild.
-            <br />
-            Live Your Stories.
-          </p>
-        </div>
+       <div className="pocket-v2-hero">
+  <h1 className="pocket-v2-hero-title">
+    <img
+      src="/roamlab-script.png"
+      alt="RoamLab"
+      className="pocket-v2-script-image"
+    />
+  </h1>
+
+  <p className="pocket-v2-slogan">
+    <img
+      src="/roamlab-slogan.png"
+      alt="Plan Your Wild. Live Your Stories."
+      className="pocket-v2-slogan-image"
+    />
+  </p>
+</div>
       </section>
 
       <section className="pocket-v2-services" aria-label="Choose a service">
