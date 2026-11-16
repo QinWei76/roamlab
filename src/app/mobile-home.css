@@ -276,3 +276,136 @@
     }
   }
 }
+
+/* Adventure Pocket V2.1 — Brand assets & refinement */
+
+@media screen and (max-width: 767px) {
+
+  /* Official header logo */
+
+  .pocket-v2-brand {
+    display: flex;
+    align-items: center;
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: 62%;
+    height: 100%;
+  }
+
+  .pocket-v2-logo {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    max-height: 47px;
+    object-fit: contain;
+    object-position: left center;
+  }
+
+  /* Independent handwritten image assets */
+
+  .pocket-v2-hero {
+    top: 15%;
+    left: 5%;
+    width: 90%;
+    text-align: center;
+    text-shadow: none;
+  }
+
+  .pocket-v2-hero-title,
+  .pocket-v2-slogan {
+    display: block;
+    margin: 0;
+    padding: 0;
+    line-height: 0;
+  }
+
+  .pocket-v2-script-image {
+    display: block;
+    width: 100%;
+    max-width: 390px;
+    height: auto;
+    margin: 0 auto;
+    object-fit: contain;
+    filter: drop-shadow(0 3px 8px rgba(0,0,0,.3));
+  }
+
+  .pocket-v2-slogan {
+    margin-top: 6px;
+  }
+
+  .pocket-v2-slogan-image {
+    display: block;
+    width: 78%;
+    max-width: 300px;
+    height: auto;
+    margin: 0 auto;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 5px rgba(0,0,0,.4));
+  }
+
+  /* More compact, paper-like service cards */
+
+  .pocket-v2-services {
+    padding: 15px 4% 30px;
+  }
+
+  .pocket-v2-grid {
+    gap: 12px;
+  }
+
+  .pocket-v2-card {
+    min-height: 158px;
+    padding: 16px 9px 12px;
+    gap: 7px;
+    border-radius: 4px 11px 6px 9px;
+    border: 1px solid rgba(112, 67, 34, .4);
+
+    background:
+      repeating-linear-gradient(
+        108deg,
+        rgba(109, 62, 24, .025) 0px,
+        transparent 2px,
+        transparent 9px
+      ),
+      radial-gradient(
+        ellipse at 48% 40%,
+        #f9e4bd 0%,
+        #f0d2a4 72%,
+        #d7aa76 100%
+      );
+
+    box-shadow:
+      2px 5px 11px rgba(0,0,0,.35),
+      inset 0 0 14px rgba(115,66,26,.12);
+  }
+
+  .pocket-v2-icon {
+    min-height: 34px;
+  }
+
+  .pocket-v2-card strong {
+    font-size: clamp(16px, 4.5vw, 21px);
+    line-height: 1.1;
+  }
+
+  .pocket-v2-card small {
+    font-size: clamp(10px, 2.6vw, 12px);
+    line-height: 1.35;
+  }
+
+  .pocket-v2-arrow {
+    margin-top: auto;
+  }
+
+  @media (max-width: 360px) {
+    .pocket-v2-logo {
+      max-height: 39px;
+    }
+
+    .pocket-v2-card {
+      min-height: 150px;
+      padding: 13px 7px 10px;
+    }
+  }
+}
