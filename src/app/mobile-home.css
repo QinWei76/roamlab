@@ -1,7 +1,12 @@
 
-/* ROAMLAB — ADVENTURE POCKET V2.0 */
+/* =========================================================
+   ROAMLAB — ADVENTURE POCKET V2.2
+   Mobile homepage
+   Desktop layout remains unchanged
+   ========================================================= */
 
-/* Desktop stays unchanged */
+/* Desktop / mobile layout switching */
+
 .roam-desktop-layout {
   display: block;
 }
@@ -11,6 +16,7 @@
 }
 
 @media screen and (max-width: 767px) {
+
   .roam-desktop-layout {
     display: none !important;
   }
@@ -21,6 +27,8 @@
     min-width: 0;
   }
 
+  /* Base */
+
   .pocket-v2,
   .pocket-v2 * {
     box-sizing: border-box;
@@ -28,39 +36,60 @@
 
   .pocket-v2 {
     width: 100%;
+    min-width: 0;
     min-height: 100dvh;
     overflow-x: clip;
     color: #f9ead3;
     background: #201108;
   }
 
-  /* Header */
+  /* =====================================================
+     HEADER
+     ===================================================== */
 
   .pocket-v2-header {
     position: relative;
     z-index: 5;
-    width: 100%;
-    height: 66px;
-    padding: 0 5%;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    width: 100%;
+    height: 76px;
+    min-height: 76px;
+    padding: 0 5%;
+    overflow: visible;
     background: #0b1113;
   }
 
   .pocket-v2-brand {
-    color: #f8ebd8;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex: 0 1 62%;
+    width: 62%;
+    max-width: 62%;
+    min-width: 0;
+    height: 100%;
+    overflow: visible;
     text-decoration: none;
-    font-family: Impact, "Arial Narrow", sans-serif;
-    font-size: clamp(23px, 7vw, 32px);
-    font-weight: 700;
-    letter-spacing: 3px;
-    line-height: 1;
+    line-height: normal;
+  }
+
+  .pocket-v2-logo {
+    display: block;
+    width: 100%;
+    max-width: 220px;
+    height: auto;
+    max-height: 60px;
+    object-fit: contain;
+    object-position: left center;
   }
 
   .pocket-v2-header-actions {
     display: flex;
     align-items: center;
+    justify-content: flex-end;
+    flex-shrink: 0;
     gap: 12px;
   }
 
@@ -74,246 +103,43 @@
     text-decoration: none;
   }
 
-  /* Cinematic background */
+  /* =====================================================
+     CINEMATIC MOUNTAIN SCENE
+     ===================================================== */
 
   .pocket-v2-scene {
     position: relative;
     width: 100%;
     aspect-ratio: 9 / 13;
     overflow: hidden;
+
     background-image:
       linear-gradient(
         to bottom,
-        rgba(4, 9, 12, .08) 0%,
-        rgba(4, 9, 12, .18) 35%,
-        rgba(4, 9, 12, .04) 65%,
-        rgba(25, 12, 5, .08) 100%
+        rgba(4, 9, 12, 0.08) 0%,
+        rgba(4, 9, 12, 0.18) 35%,
+        rgba(4, 9, 12, 0.04) 65%,
+        rgba(25, 12, 5, 0.08) 100%
       ),
       url("/adventure-pocket-v2-bg.png");
+
     background-size: cover;
     background-position: center top;
     background-repeat: no-repeat;
   }
 
-  /* Handwritten hero */
+  /* =====================================================
+     HANDWRITTEN HERO ASSETS
+     ===================================================== */
 
   .pocket-v2-hero {
     position: absolute;
     z-index: 2;
-    top: 16%;
-    left: 5%;
-    width: 90%;
-    text-align: center;
-    color: #fff0da;
-    text-shadow: 0 3px 12px rgba(0, 0, 0, .65);
-  }
-
-  .pocket-v2-hero h1 {
-    margin: 0;
-    font-family:
-      "Brush Script MT",
-      "Segoe Script",
-      cursive;
-    font-size: clamp(57px, 15vw, 88px);
-    font-weight: 400;
-    font-style: italic;
-    line-height: 1.05;
-    letter-spacing: -2px;
-  }
-
-  .pocket-v2-brush {
-    display: block;
-    width: 60%;
-    height: 5px;
-    margin: 5px auto 13px;
-    border-radius: 100% 20% 100% 30%;
-    background: #db681e;
-    transform: rotate(-3deg);
-  }
-
-  .pocket-v2-hero p {
-    margin: 0;
-    font-family:
-      "Brush Script MT",
-      "Segoe Script",
-      cursive;
-    font-size: clamp(25px, 7vw, 42px);
-    font-weight: 400;
-    font-style: italic;
-    line-height: 1.2;
-  }
-
-  /* Service area */
-
-  .pocket-v2-services {
-    position: relative;
-    width: 100%;
-    margin: 0;
-    padding: 18px 4% 40px;
-    background:
-      repeating-linear-gradient(
-        2deg,
-        transparent 0,
-        transparent 24px,
-        rgba(0, 0, 0, .12) 25px,
-        transparent 27px
-      ),
-      linear-gradient(
-        90deg,
-        #241208 0%,
-        #4b2814 38%,
-        #30190d 72%,
-        #1c0f08 100%
-      );
-  }
-
-  .pocket-v2-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-    max-width: 520px;
-    margin: 0 auto;
-  }
-
-  .pocket-v2-card {
-    position: relative;
-    min-width: 0;
-    min-height: 186px;
-    padding: 20px 10px 15px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 9px;
-    text-align: center;
-    text-decoration: none;
-    color: #21160e;
-
-    background:
-      radial-gradient(
-        circle at 35% 20%,
-        rgba(255, 255, 255, .38),
-        transparent 48%
-      ),
-      linear-gradient(
-        135deg,
-        #f3d6a9 0%,
-        #f7dfb7 45%,
-        #d6a873 100%
-      );
-
-    border: 1px solid #d7ae7e;
-    border-radius: 7px 13px 8px 12px;
-    box-shadow:
-      2px 5px 12px rgba(0, 0, 0, .45),
-      inset 0 0 17px rgba(129, 74, 29, .18);
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .pocket-v2-card:active:not(.pocket-v2-disabled) {
-    transform: translateY(2px);
-  }
-
-  .pocket-v2-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 38px;
-    color: #2c2016;
-  }
-
-  .pocket-v2-card strong {
-    max-width: 100%;
-    font-family: Georgia, serif;
-    font-size: clamp(18px, 5vw, 24px);
-    line-height: 1.05;
-    font-weight: 700;
-  }
-
-  .pocket-v2-card small {
-    max-width: 100%;
-    font-family: Arial, sans-serif;
-    font-size: clamp(10px, 2.65vw, 12px);
-    line-height: 1.4;
-    color: #4d3726;
-  }
-
-  .pocket-v2-arrow {
-    margin-top: auto;
-    display: flex;
-    color: #382315;
-  }
-
-  .pocket-v2-disabled {
-    cursor: default;
-  }
-
-  .pocket-v2-soon {
-    margin-top: auto;
-    color: #97522b;
-    font-family: Arial, sans-serif;
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 1px;
-  }
-
-  @media (max-width: 360px) {
-    .pocket-v2-header {
-      height: 58px;
-    }
-
-    .pocket-v2-card {
-      min-height: 170px;
-      padding: 16px 8px 12px;
-    }
-
-    .pocket-v2-card strong {
-      font-size: 17px;
-    }
-
-    .pocket-v2-card small {
-      font-size: 10px;
-    }
-  }
-}
-
-
-/* Adventure Pocket V2.1 — Brand assets & refinement */
-
-@media screen and (max-width: 767px) {
-  .pocket-v2-header {
-    height: 76px;
-    min-height: 76px;
-    overflow: visible;
-  }
-
-  .pocket-v2-brand {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    width: 62%;
-    max-width: 62%;
-    height: 76px;
-    min-width: 0;
-    overflow: visible;
-  }
-
-  
-.pocket-v2-logo {
-  display: block;
-  width: 100%;
-  height: auto;
-  max-width: 220px;
-  max-height: 60px;
-  object-fit: contain;
-  object-position: left center;
-}
-
-  .pocket-v2-hero {
     top: 15%;
     left: 5%;
     width: 90%;
     text-align: center;
+    color: #fff0da;
     text-shadow: none;
   }
 
@@ -332,7 +158,9 @@
     height: auto;
     margin: 0 auto;
     object-fit: contain;
-    filter: drop-shadow(0 3px 8px rgba(0,0,0,.3));
+    filter: drop-shadow(
+      0 3px 8px rgba(0, 0, 0, 0.3)
+    );
   }
 
   .pocket-v2-slogan {
@@ -346,28 +174,74 @@
     height: auto;
     margin: 0 auto;
     object-fit: contain;
-    filter: drop-shadow(0 2px 5px rgba(0,0,0,.4));
+    filter: drop-shadow(
+      0 2px 5px rgba(0, 0, 0, 0.4)
+    );
   }
 
+  /* =====================================================
+     WOODEN SERVICE AREA
+     ===================================================== */
+
   .pocket-v2-services {
+    position: relative;
+    width: 100%;
+    margin: 0;
     padding: 15px 4% 30px;
+
+    background:
+      repeating-linear-gradient(
+        2deg,
+        transparent 0,
+        transparent 24px,
+        rgba(0, 0, 0, 0.12) 25px,
+        transparent 27px
+      ),
+      linear-gradient(
+        90deg,
+        #241208 0%,
+        #4b2814 38%,
+        #30190d 72%,
+        #1c0f08 100%
+      );
   }
 
   .pocket-v2-grid {
+    display: grid;
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
     gap: 12px;
+    max-width: 520px;
+    margin: 0 auto;
   }
 
+  /* =====================================================
+     PARCHMENT SERVICE CARDS
+     ===================================================== */
+
   .pocket-v2-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 7px;
+
+    min-width: 0;
     min-height: 158px;
     padding: 16px 9px 12px;
-    gap: 7px;
+
+    text-align: center;
+    text-decoration: none;
+    color: #21160e;
+
+    border: 1px solid rgba(112, 67, 34, 0.4);
     border-radius: 4px 11px 6px 9px;
-    border: 1px solid rgba(112, 67, 34, .4);
 
     background:
       repeating-linear-gradient(
         108deg,
-        rgba(109, 62, 24, .025) 0px,
+        rgba(109, 62, 24, 0.025) 0px,
         transparent 2px,
         transparent 9px
       ),
@@ -379,42 +253,87 @@
       );
 
     box-shadow:
-      2px 5px 11px rgba(0,0,0,.35),
-      inset 0 0 14px rgba(115,66,26,.12);
+      2px 5px 11px rgba(0, 0, 0, 0.35),
+      inset 0 0 14px rgba(115, 66, 26, 0.12);
+
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .pocket-v2-card:active:not(
+    .pocket-v2-disabled
+  ) {
+    transform: translateY(2px);
   }
 
   .pocket-v2-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     min-height: 34px;
+    color: #2c2016;
   }
 
   .pocket-v2-card strong {
+    max-width: 100%;
+    font-family: Georgia, serif;
     font-size: clamp(16px, 4.5vw, 21px);
+    font-weight: 700;
     line-height: 1.1;
   }
 
   .pocket-v2-card small {
+    max-width: 100%;
+    font-family: Arial, sans-serif;
     font-size: clamp(10px, 2.6vw, 12px);
     line-height: 1.35;
+    color: #4d3726;
   }
 
-  
   .pocket-v2-arrow {
+    display: flex;
     margin-top: auto;
+    color: #382315;
   }
+
+  .pocket-v2-disabled {
+    cursor: default;
+  }
+
+  .pocket-v2-soon {
+    margin-top: auto;
+    color: #97522b;
+    font-family: Arial, sans-serif;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1px;
+  }
+
+  /* =====================================================
+     SMALL PHONES
+     ===================================================== */
 
   @media screen and (max-width: 360px) {
+
+    .pocket-v2-header-actions {
+      gap: 6px;
+    }
+
+    .pocket-v2-header-actions a {
+      width: 38px;
+    }
+
     .pocket-v2-card {
       min-height: 150px;
       padding: 13px 7px 10px;
     }
-  }
-}
 
+    .pocket-v2-card strong {
+      font-size: 16px;
+    }
 
-    .pocket-v2-card {
-      min-height: 150px;
-      padding: 13px 7px 10px;
+    .pocket-v2-card small {
+      font-size: 10px;
     }
   }
-}
 
+}
