@@ -147,7 +147,7 @@ function MobileHome() {
       <header className="pocket-v2-header">
         <Link href="/" className="pocket-v2-brand" aria-label="RoamLab Home">
   <img
-    src="/roamlab-logo.png"
+    src="/roamlab-logo-header.png"
     alt="RoamLab"
     className="pocket-v2-logo"
   />
