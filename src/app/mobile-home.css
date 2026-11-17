@@ -483,3 +483,121 @@
     }
   }
 }
+
+/* ============================================
+   ROAMLAB ADVENTURE POCKET V2.5
+   Independent parchment artwork cards
+   ============================================ */
+
+@media screen and (max-width: 767px) {
+
+  .pocket-v2-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(3px, 1.2vw, 7px);
+    align-items: stretch;
+  }
+
+  .pocket-v2-card.pocket-v25-card {
+    position: relative;
+    display: block;
+
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+    aspect-ratio: 3 / 4.5;
+
+    margin: 0;
+    padding: 0;
+    gap: 0;
+
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    overflow: visible;
+
+    color: #352015;
+    text-align: center;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .pocket-v25-art {
+    position: absolute;
+    inset: 0;
+
+    display: block;
+    width: 100%;
+    height: 100%;
+
+    object-fit: fill;
+
+    filter: drop-shadow(
+      1px 4px 5px rgba(0, 0, 0, 0.4)
+    );
+
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .pocket-v25-title {
+    position: absolute;
+    z-index: 2;
+
+    top: 56%;
+    left: 5%;
+    width: 90%;
+
+    transform: translateY(-50%);
+
+    display: block;
+
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(9px, 2.6vw, 15px);
+    font-weight: 700;
+    line-height: 1.12;
+
+    color: #392317;
+    text-shadow: 0 1px 0 rgba(255, 237, 196, 0.55);
+
+    overflow-wrap: normal;
+    pointer-events: none;
+  }
+
+  .pocket-v25-stamp {
+    position: absolute;
+    z-index: 3;
+
+    bottom: 13%;
+    left: 50%;
+    transform: translateX(-50%) rotate(-5deg);
+
+    max-width: 90%;
+    padding: 2px 3px;
+
+    border: 1px solid rgba(140, 55, 37, 0.8);
+    border-radius: 2px;
+
+    font-family: Arial, sans-serif;
+    font-size: clamp(5px, 1.45vw, 8px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: 0;
+
+    color: #923e2e;
+    background: rgba(238, 201, 148, 0.18);
+
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  .pocket-v25-card:active:not(.pocket-v2-disabled) {
+    transform: translateY(2px);
+  }
+
+  @media screen and (max-width: 360px) {
+    .pocket-v25-title {
+      font-size: 9px;
+    }
+  }
+}
