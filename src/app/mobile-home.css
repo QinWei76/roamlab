@@ -664,3 +664,15 @@
   }
 
 }
+
+/* V2.5 — Wider Parchment Only */
+
+@media screen and (max-width: 767px) {
+
+  .pocket-v25-art {
+    left: -5%;
+    width: 110%;
+    right: auto;
+  }
+
+}
