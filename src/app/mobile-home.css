@@ -601,3 +601,24 @@
     }
   }
 }
+
+/* V2.5 — Adjust Card Title Position */
+
+@media screen and (max-width: 767px) {
+
+  .pocket-v25-title {
+    top: 72%;
+    left: 6%;
+    width: 88%;
+
+    transform: translateY(-50%);
+
+    text-align: center;
+    line-height: 1.12;
+  }
+
+  .pocket-v25-stamp {
+    bottom: 8%;
+  }
+
+}
