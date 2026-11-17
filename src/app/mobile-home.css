@@ -641,3 +641,26 @@
   }
 
 }
+
+/* V2.5 — Final Card Typography Refinement */
+
+@media screen and (max-width: 767px) {
+
+  /* First card: allow two lines */
+  .pocket-v25-card:first-child .pocket-v25-title {
+    left: 8%;
+    width: 84%;
+    max-width: 84%;
+
+    font-size: clamp(10px, 2.5vw, 13px);
+    line-height: 1.1;
+    white-space: normal;
+    overflow-wrap: normal;
+  }
+
+  /* Coming Soon: move above mountain artwork */
+  .pocket-v25-stamp {
+    bottom: 19%;
+  }
+
+}
