@@ -107,37 +107,30 @@ function PocketIcon({
   );
 }
 
-const services: {
-  title: string;
-  description: string;
-  icon: IconName;
-  href: string | null;
-}[] = [
+
+const services = [
   {
     title: "Plan Your Wild",
-    description: "Routes · Destinations · Preparation",
-    icon: "map",
+    image: "/card-plan.png",
     href: "/wild-plan",
   },
   {
     title: "Share Your Wild",
-    description: "Photos · Captions · Social Posts",
-    icon: "image",
+    image: "/card-share.png",
     href: null,
   },
   {
     title: "Gear Lab",
-    description: "Equipment · Recommendations",
-    icon: "tent",
+    image: "/card-gear.png",
     href: "/gear",
   },
   {
     title: "My Wild Stories",
-    description: "Travel Journals · Memories",
-    icon: "book",
+    image: "/card-stories.png",
     href: "/journal",
   },
 ];
+
 
 function MobileHome() {
   return (
@@ -201,48 +194,50 @@ function MobileHome() {
         className="pocket-v2-services"
         aria-label="Choose a service"
       >
-        <nav className="pocket-v2-grid">
-          {services.map((service) => {
-            const contents = (
-              <>
-                <span className="pocket-v2-icon">
-                  <PocketIcon
-                    name={service.icon}
-                    size={25}
-                  />
-                </span>
+        
+<nav className="pocket-v2-grid">
+  {services.map((service) => {
+    const content = (
+      <>
+        <img
+          src={service.image}
+          alt=""
+          className="pocket-v25-art"
+          draggable={false}
+        />
 
-                <strong>{service.title}</strong>
+        <span className="pocket-v25-title">
+          {service.title}
+        </span>
 
-                <small>{service.description}</small>
+        {!service.href && (
+          <span className="pocket-v25-stamp">
+            COMING SOON
+          </span>
+        )}
+      </>
+    );
 
-                {!service.href && (
-                  <span className="pocket-v2-soon">
-                    COMING SOON
-                  </span>
-                )}
-              </>
-            );
-
-            return service.href ? (
-              <Link
-                key={service.title}
-                href={service.href}
-                className="pocket-v2-card"
-              >
-                {contents}
-              </Link>
-            ) : (
-              <div
-                key={service.title}
-                className="pocket-v2-card pocket-v2-disabled"
-                aria-label={`${service.title} coming soon`}
-              >
-                {contents}
-              </div>
-            );
-          })}
-        </nav>
+    return service.href ? (
+      <Link
+        key={service.title}
+        href={service.href}
+        className="pocket-v2-card pocket-v25-card"
+        aria-label={service.title}
+      >
+        {content}
+      </Link>
+    ) : (
+      <div
+        key={service.title}
+        className="pocket-v2-card pocket-v25-card pocket-v2-disabled"
+        aria-label={`${service.title} coming soon`}
+      >
+        {content}
+      </div>
+    );
+  })}
+</nav>
       </section>
     </main>
   );
