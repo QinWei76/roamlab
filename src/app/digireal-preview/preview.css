@@ -1,0 +1,21 @@
+.digireal-preview { width:100%; min-height:100svh; background:#160e09; color:#fff2de; margin:0 auto; overflow-x:hidden; }
+.digireal-preview * { box-sizing:border-box; }
+.digireal-artboard { position:relative; width:100%; max-width:520px; aspect-ratio:866 / 1362; margin:0 auto; overflow:hidden; }
+/* Visible source crop: x=31..897, y=82..1444 in the 941×1672 reference. */
+.digireal-art { position:absolute; width:108.66%; max-width:none; height:auto; left:-3.58%; top:-6.02%; user-select:none; pointer-events:none; }
+.digireal-hotspot { position:absolute; display:block; z-index:2; border-radius:10px; -webkit-tap-highlight-color:rgba(255,169,33,.2); }
+.digireal-hotspot:focus-visible { outline:3px solid #ffb02a; outline-offset:-3px; }
+/* Coordinates are percentages of the SAME cropped image, not viewport pixels. */
+.digireal-hotspot.account { left:77.5%; top:1.8%; width:9%; height:5%; }
+.digireal-hotspot.menu { left:88%; top:1.8%; width:10%; height:5%; }
+.digireal-hotspot.explorer { left:2.6%; top:55.4%; width:31%; height:18.4%; }
+.digireal-hotspot.adventure { left:35.2%; top:55.4%; width:31%; height:18.4%; }
+.digireal-hotspot.together { left:67.6%; top:55.4%; width:30%; height:18.4%; }
+.digireal-hotspot.real { left:2.6%; top:75.3%; width:95%; height:10.8%; }
+.digireal-hotspot.story { left:2.6%; top:87.1%; width:95%; height:10.8%; }
+.digireal-bottom-nav { position:sticky; bottom:0; z-index:10; display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:0; max-width:520px; margin:0 auto; padding:9px 4px max(12px,env(safe-area-inset-bottom)); background:linear-gradient(180deg,#3d2819,#20150e); border-top:1px solid #9a6637; box-shadow:0 -8px 20px #10080288; }
+.digireal-bottom-nav a { min-height:55px; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:4px; text-align:center; text-decoration:none; color:#f5e8d4; font:500 clamp(9px,2.6vw,12px)/1.15 system-ui,sans-serif; }
+.digireal-bottom-nav a.active { color:#ffac23; }
+.digireal-tab-icon { font:normal 27px/1 Georgia,serif; }
+.digireal-preview-note { max-width:520px; margin:0 auto; padding:12px 14px 20px; font:12px/1.5 system-ui,sans-serif; text-align:center; color:#c5a78d; }
+@media(min-width:768px) { .digireal-preview { padding:20px 0; } .digireal-artboard { border-radius:16px 16px 0 0; } }
