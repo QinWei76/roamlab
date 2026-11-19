@@ -10,7 +10,8 @@
   "dependencies": {
     "next": "15.5.7",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "@google/model-viewer": "^4.0.0"
   },
   "devDependencies": {
     "typescript": "^5",
