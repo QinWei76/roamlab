@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { createElement, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import "./studio-preview.css";
 
@@ -25,6 +25,9 @@ export default function Explorer3DPreview() {
   const [explorer, setExplorer] = useState<Explorer>(defaults);
   const [status, setStatus] = useState<"checking" | "missing" | "ready">("checking");
   const [saved, setSaved] = useState(false);
+  const [viewerState, setViewerState] = useState<"loading" | "loaded" | "error">("loading");
+  const [viewerMessage, setViewerMessage] = useState("");
+  const viewerRef = useRef<HTMLElement | null>(null);
   const [tab, setTab] = useState<"Look" | "Outfit" | "Gear" | "Details">("Look");
   const [started, setStarted] = useState(false);
   const steps = ["Look","Outfit","Gear","Details"] as const;
@@ -44,6 +47,45 @@ export default function Explorer3DPreview() {
       .catch(() => { if (active) setStatus("missing"); });
     return () => { active = false; };
   }, [modelPath]);
+  useEffect(() => {
+    if (!started || status !== "ready") return;
+    let active = true;
+    setViewerState("loading");
+    setViewerMessage("");
+    const el = viewerRef.current;
+    if (!el) return;
+    const onLoad = () => { if (active) setViewerState("loaded"); };
+    const onError = (event: Event) => {
+      if (!active) return;
+      const detail = (event as CustomEvent<{type?:string}>).detail;
+      setViewerMessage(detail?.type || "Model could not be rendered");
+      setViewerState("error");
+    };
+    el.addEventListener("load", onLoad);
+    el.addEventListener("error", onError);
+    const src = "https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js";
+    let script = document.querySelector<HTMLScriptElement>('script[data-explorer-viewer="true"]');
+    if (!script) {
+      script = document.createElement("script");
+      script.type = "module";
+      script.src = src;
+      script.dataset.explorerViewer = "true";
+      script.onerror = () => { if (active) { setViewerState("error"); setViewerMessage("3D viewer script failed to load"); } };
+      document.head.appendChild(script);
+    }
+    const timeout = window.setTimeout(() => {
+      if (active && !customElements.get("model-viewer")) {
+        setViewerState("error");
+        setViewerMessage("3D viewer did not initialize on this browser");
+      }
+    }, 12000);
+    return () => {
+      active = false;
+      window.clearTimeout(timeout);
+      el.removeEventListener("load", onLoad);
+      el.removeEventListener("error", onError);
+    };
+  }, [started, status, modelPath]);
   const change = (patch: Partial<Explorer>) => { setExplorer(e => ({ ...e, ...patch })); setSaved(false); };
   const save = () => {
     try {
@@ -72,7 +114,24 @@ export default function Explorer3DPreview() {
         {!started && <div className="studio-intro"><div className="studio-intro-art" /><p>They’ll be with you in every journey.</p><button type="button" onClick={() => setStarted(true)}>Create My Explorer →</button></div>}
         {started && <section className="studio-stage" style={{ marginTop: 18, border: "1px solid #77543b", borderRadius: 16, overflow: "hidden", background: "radial-gradient(circle at 50% 35%, #8d694b, #29251e 70%)", minHeight: 330, display: "grid", placeItems: "center" }}>
           {status === "ready" ? (
-            <iframe key={modelPath} title="Interactive 3D explorer model viewer" srcDoc={`<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent}model-viewer{width:100%;height:100%;--poster-color:transparent}</style><script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script></head><body><model-viewer src="${modelPath}" camera-controls auto-rotate shadow-intensity="1" exposure="1.15" alt="RoamLab 3D explorer"></model-viewer></body></html>`} style={{ width: "100%", height: 370, border: 0 }} />
+            <div style={{ position: "relative", width: "100%", height: 390 }}>
+              {createElement("model-viewer", {
+                key: modelPath,
+                ref: (node: HTMLElement | null) => { viewerRef.current = node; },
+                src: modelPath,
+                alt: "3D RoamLab explorer prototype",
+                "camera-controls": true,
+                "auto-rotate": true,
+                "shadow-intensity": "1",
+                exposure: "1.15",
+                "camera-orbit": "0deg 78deg 6m",
+                "camera-target": "0m 1.8m 0m",
+                style: { display: "block", width: "100%", height: "100%", background: "transparent" }
+              })}
+              {viewerState !== "loaded" && <div role="status" style={{ position: "absolute", bottom: 12, left: 12, right: 12, padding: 10, borderRadius: 9, background: "#21170ee8", color: "#f6d3aa", font: "12px Arial, sans-serif", textAlign: "center" }}>
+                {viewerState === "error" ? `3D loading error: ${viewerMessage}` : "Loading 3D Explorer…"}
+              </div>}
+            </div>
           ) : <div style={{ padding: 26, textAlign: "center" }}>
             <div style={{ fontSize: 38 }}>◇</div>
             <h2 style={{ fontSize: 22, fontWeight: "normal" }}>{status === "checking" ? "Checking character model…" : "Your Explorer"}</h2>
