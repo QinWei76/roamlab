@@ -42,7 +42,7 @@ export default function CreateExplorer(){
  <header className="ex-header"><Link href="/digireal-preview">← DigiReal</Link><span>ROAMLAB · EXPLORER STUDIO</span></header>
  <div className="ex-heading"><p>CREATE YOUR EXPLORER</p><h1>Make your own legend.</h1><p>One explorer. Every adventure. Unmistakably yours.</p></div>
  <div className="ex-preview"><div className="ex-sun"/><div className="ex-mountains"/>{ready&&<ExplorerFigure e={e}/>}<span className="ex-preview-label">LIVE CHARACTER PREVIEW</span></div>
- <div className="ex-controls"><label className="ex-label" htmlFor="explorer-name">Explorer Name</label><input id="explorer-name" maxLength={28} value={e.name} onChange={v=>update({name:v.target.value})}/>
+ <div className="ex-controls"><label className="ex-label" htmlFor="explorer-name">Explorer Name</label><input id="explorer-name" maxLength={28} value={e.name} onChange={event=>update({name:event.target.value})}/>
  <h2>01 / Look</h2><label className="ex-label">Body Type</label><div className="ex-options">{(["compact","classic","tall"] as const).map(v=><button key={v} className={e.body===v?"active":""} onClick={()=>update({body:v})}>{v}</button>)}</div>
  <label className="ex-label">Skin Tone</label><Swatches values={colors.skin} value={e.skin} onChange={skin=>update({skin})}/>
  <label className="ex-label">Hair Style</label><div className="ex-options">{(["short","swept","curly","long"] as const).map(v=><button key={v} className={e.hairStyle===v?"active":""} onClick={()=>update({hairStyle:v})}>{v}</button>)}</div>
