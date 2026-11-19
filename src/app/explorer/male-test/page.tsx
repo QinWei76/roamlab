@@ -53,7 +53,7 @@ export default function MaleTestPage() {
         <div style={{ marginTop: 18, height: "min(68vh, 630px)", minHeight: 350, borderRadius: 18, overflow: "hidden", border: "1px solid #785c46", background: "radial-gradient(circle, #786550, #392d24 70%)" }}>
           {createElement("model-viewer", {
             ref: viewer, src: MODEL, alt: "RoamLab full-body male explorer blockout",
-            "camera-controls": "", "orientation": "0deg 0deg 90deg", "auto-rotate": rotate ? "" : undefined, "auto-rotate-delay": "0",
+            "camera-controls": "", "orientation": "-90deg 0deg 0deg", "auto-rotate": rotate ? "" : undefined, "auto-rotate-delay": "0",
             "shadow-intensity": "1", "environment-image": "neutral",
             "camera-orbit": "0deg 80deg auto", "field-of-view": "30deg",
             style: { width: "100%", height: "100%", display: "block" }
