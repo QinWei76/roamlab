@@ -3,6 +3,7 @@
 import { createElement, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import "./studio-preview.css";
+import { recolorExplorerGlb } from "./recolor-glb";
 
 type Explorer = {
   base: "original-male" | "original-female";
@@ -28,6 +29,8 @@ export default function Explorer3DPreview() {
   const [viewerState, setViewerState] = useState<"loading" | "loaded" | "error">("loading");
   const [viewerMessage, setViewerMessage] = useState("");
   const viewerRef = useRef<HTMLElement | null>(null);
+  const [renderSrc, setRenderSrc] = useState<string | null>(null);
+  const modelBytes = useRef<Map<string, ArrayBuffer>>(new Map());
   const [tab, setTab] = useState<"Look" | "Outfit" | "Gear" | "Details">("Look");
   const [started, setStarted] = useState(false);
   const steps = ["Look","Outfit","Gear","Details"] as const;
@@ -47,6 +50,39 @@ export default function Explorer3DPreview() {
       .catch(() => { if (active) setStatus("missing"); });
     return () => { active = false; };
   }, [modelPath]);
+  useEffect(() => {
+    if (!started || status !== "ready") return;
+    let active = true;
+    let url: string | null = null;
+    const update = async () => {
+      try {
+        let buffer = modelBytes.current.get(modelPath);
+        if (!buffer) {
+          const response = await fetch(modelPath);
+          if (!response.ok) throw new Error("Model HTTP " + response.status);
+          buffer = await response.arrayBuffer();
+          if (!active) return;
+          modelBytes.current.set(modelPath, buffer);
+        }
+        const blob = recolorExplorerGlb(buffer, explorer);
+        if (!active) return;
+        url = URL.createObjectURL(blob);
+        setRenderSrc(url);
+      } catch (error) {
+        if (active) {
+          setRenderSrc(null);
+          setViewerState("error");
+          setViewerMessage("Color update failed: " + String(error));
+        }
+      }
+    };
+    const timer = window.setTimeout(update, 100);
+    return () => {
+      active = false;
+      window.clearTimeout(timer);
+      if (url) URL.revokeObjectURL(url);
+    };
+  }, [started, status, modelPath, explorer.skin, explorer.hairColor, explorer.jacket, explorer.pants, explorer.pack]);
   useEffect(() => {
     if (!started || status !== "ready") return;
     let active = true;
@@ -117,9 +153,9 @@ export default function Explorer3DPreview() {
           {status === "ready" ? (
             <div style={{ position: "relative", width: "100%", height: 390 }}>
               {createElement("model-viewer", {
-                key: modelPath,
+                key: "explorer-viewer",
                 ref: (node: HTMLElement | null) => { viewerRef.current = node; },
-                src: modelPath,
+                src: renderSrc || undefined,
                 alt: "3D RoamLab explorer prototype",
                 "camera-controls": true,
                 "auto-rotate": true,
