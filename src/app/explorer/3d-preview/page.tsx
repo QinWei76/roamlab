@@ -98,6 +98,7 @@ export default function Explorer3DPreview() {
           {tab === "Details" && <><label htmlFor="explorer-name">Explorer name</label><input id="explorer-name" value={explorer.name} maxLength={50} onChange={e => change({ name: e.target.value })} style={{ display: "block", width: "100%", boxSizing: "border-box", marginTop: 12, padding: 14, borderRadius: 9, border: "1px solid #785a40", background: "#382a20", color: "#fff" }}/></>}
         </section>
         <div className="studio-footer">{stepIndex > 0 && <button className="studio-back" type="button" onClick={() => setTab(steps[stepIndex - 1])}>← Back</button>}<button className="studio-next" type="button" onClick={() => stepIndex < steps.length - 1 ? setTab(steps[stepIndex + 1]) : save()}>{stepIndex < steps.length - 1 ? "Next →" : saved ? "Explorer Saved ✓" : "Save Explorer →"}</button></div>
+        </>}
 
       </div>
     </main>
