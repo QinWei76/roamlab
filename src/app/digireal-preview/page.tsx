@@ -2,7 +2,7 @@ import Link from "next/link";
 import "./preview.css";
 
 const areas = [
-  { label: "Create Your Explorer — preview", className: "explorer", href: "/start-here" },
+  { label: "Create Your Explorer — customize your character", className: "explorer", href: "/explorer/create" },
   { label: "Build Your Adventure — create a virtual adventure", className: "adventure", href: "/adventure/create" },
   { label: "Explore Together — preview", className: "together", href: "/start-here" },
   { label: "Bring It to Life — real trip planning", className: "real", href: "/ways-in" },
