@@ -19,7 +19,7 @@ const palette: Record<string,string[]> = {
   pants: ["#4C5148","#5B493D","#697282","#B49B7A"],
   pack: ["#61745C","#B47B45","#4E6575","#8C554B"]
 };
-const asset = (base: Explorer["base"]) => `/explorer/models/${base}.glb`;
+const asset = (base: Explorer["base"]) => `/${base}.glb`;
 
 export default function Explorer3DPreview() {
   const [explorer, setExplorer] = useState<Explorer>(defaults);
