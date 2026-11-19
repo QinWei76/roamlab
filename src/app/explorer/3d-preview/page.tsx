@@ -63,22 +63,23 @@ export default function Explorer3DPreview() {
     };
     el.addEventListener("load", onLoad);
     el.addEventListener("error", onError);
-    const src = "https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js";
-    let script = document.querySelector<HTMLScriptElement>('script[data-explorer-viewer="true"]');
-    if (!script) {
-      script = document.createElement("script");
-      script.type = "module";
-      script.src = src;
-      script.dataset.explorerViewer = "true";
-      script.onerror = () => { if (active) { setViewerState("error"); setViewerMessage("3D viewer script failed to load"); } };
-      document.head.appendChild(script);
-    }
+    // Load the viewer from the application bundle: mobile browsers may block CDN modules.
+    import("@google/model-viewer")
+      .then(() => {
+        if (active && customElements.get("model-viewer")) setViewerMessage("");
+      })
+      .catch((error: unknown) => {
+        if (active) {
+          setViewerState("error");
+          setViewerMessage("Viewer module failed: " + String(error));
+        }
+      });
     const timeout = window.setTimeout(() => {
       if (active && !customElements.get("model-viewer")) {
         setViewerState("error");
         setViewerMessage("3D viewer did not initialize on this browser");
       }
-    }, 12000);
+    }, 20000);
     return () => {
       active = false;
       window.clearTimeout(timeout);
