@@ -70,7 +70,7 @@ export default function Explorer3DPreview() {
           <p style={{ font: "13px/1.6 Arial, sans-serif", color: "#d3baa0" }}>Design your own adventure companion.</p>
         </div>
         {!started && <div className="studio-intro"><div className="studio-intro-art" /><p>They’ll be with you in every journey.</p><button type="button" onClick={() => setStarted(true)}>Create My Explorer →</button></div>}
-        <section className="studio-stage" style={{ marginTop: 18, border: "1px solid #77543b", borderRadius: 16, overflow: "hidden", background: "radial-gradient(circle at 50% 35%, #8d694b, #29251e 70%)", minHeight: 330, display: "grid", placeItems: "center" }}>
+        {started && <section className="studio-stage" style={{ marginTop: 18, border: "1px solid #77543b", borderRadius: 16, overflow: "hidden", background: "radial-gradient(circle at 50% 35%, #8d694b, #29251e 70%)", minHeight: 330, display: "grid", placeItems: "center" }}>
           {status === "ready" ? (
             <iframe key={modelPath} title="Interactive 3D explorer model viewer" srcDoc={`<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent}model-viewer{width:100%;height:100%;--poster-color:transparent}</style><script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script></head><body><model-viewer src="${modelPath}" camera-controls auto-rotate shadow-intensity="1" exposure="1.15" alt="RoamLab 3D explorer"></model-viewer></body></html>`} style={{ width: "100%", height: 370, border: 0 }} />
           ) : <div style={{ padding: 26, textAlign: "center" }}>
@@ -78,8 +78,8 @@ export default function Explorer3DPreview() {
             <h2 style={{ fontSize: 22, fontWeight: "normal" }}>{status === "checking" ? "Checking character model…" : "Your Explorer"}</h2>
             <p style={{ font: "13px/1.7 Arial, sans-serif", color: "#dbc7b1" }}>The approved 3D character model is still being built. Your choices are saved, but cannot yet change the model preview.</p>
           </div>}
-        </section>
-        <div className="studio-tabs" style={{ marginTop: 16, display: "flex", gap: 8 }}>
+        </section>}
+        {started && <><div className="studio-tabs" style={{ marginTop: 16, display: "flex", gap: 8 }}>
           {(["Look","Outfit","Gear","Details"] as const).map(t => <button type="button" key={t} onClick={() => setTab(t)} aria-pressed={tab === t} style={{ flex: 1, padding: "12px 2px", border: 0, borderBottom: tab === t ? "3px solid #e7a25e" : "2px solid #5d4635", background: "transparent", color: tab === t ? "#ffcf97" : "#d3baa0", cursor: "pointer", fontSize: 13 }}>{t}</button>)}
         </div>
         <section className="studio-controls" style={{ padding: "18px 4px", font: "14px Arial, sans-serif", minHeight: 175 }}>
