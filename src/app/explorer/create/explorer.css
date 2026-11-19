@@ -18,3 +18,5 @@
 }
 
 .ex-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin:0 0 16px}.ex-tabs button{min-width:0;border:1px solid #76583d;background:#3a2b20;color:#e9d5b8;border-radius:8px;padding:12px 3px;text-transform:capitalize;font:12px Arial,sans-serif;cursor:pointer}.ex-tabs button.active{background:#81552d;border-color:#e9af64;color:#fff3d9}.ex-tabs button:focus-visible{outline:2px solid #e9af64;outline-offset:2px}
+
+.ex-section-title{font:normal 21px Georgia,serif;color:#f4e7d1;border-bottom:1px solid #66513e;padding:0 0 10px;margin:18px 0 14px;position:static;overflow:visible;transform:none}
