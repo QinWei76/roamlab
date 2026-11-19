@@ -3,7 +3,7 @@ import "./preview.css";
 
 const areas = [
   { label: "Create Your Explorer — preview", className: "explorer", href: "/start-here" },
-  { label: "Build Your Adventure — existing planner", className: "adventure", href: "/wild-plan" },
+  { label: "Build Your Adventure — create a virtual adventure", className: "adventure", href: "/adventure/create" },
   { label: "Explore Together — preview", className: "together", href: "/start-here" },
   { label: "Bring It to Life — real trip planning", className: "real", href: "/ways-in" },
   { label: "Share Your Story — journal", className: "story", href: "/journal" },
