@@ -3,7 +3,7 @@
 .studio-shell { position:relative; }
 .studio-heading h1 {font-family:Georgia,serif;font-style:italic;line-height:1.04;text-shadow:0 3px 14px #110c09;font-size:clamp(30px,8vw,43px)!important;}
 .studio-heading > div {color:#e7b67c!important;}
-.studio-stage {min-height:370px!important; border-radius:20px!important; border:2px solid #6c4b31!important; box-shadow:inset 0 0 0 3px #23160e,0 14px 28px #09070588!important; background:linear-gradient(180deg,#9f856b1a 0%,#2c251e99 75%),url('/digireal-mobile-approved-reference.png') center 30% / cover no-repeat!important;}
+.studio-stage {min-height:370px!important; border-radius:20px!important; border:2px solid #6c4b31!important; box-shadow:inset 0 0 0 3px #23160e,0 14px 28px #09070588!important; background:radial-gradient(ellipse at 50% 35%,#8c7962 0%,#514b42 42%,#292a27 76%,#211a15 100%)!important;}
 .studio-stage > div {background:#1b130dcc;border:1px solid #97704c;border-radius:15px;max-width:85%;backdrop-filter:blur(6px);}
 .studio-stage h2 {font-style:italic;}
 .studio-tabs {background:linear-gradient(180deg,#533a27,#291b14 60%,#1b120e);border:2px solid #775437;border-radius:16px;padding:7px 5px;box-shadow:0 5px 0 #120b08, inset 0 2px 1px #b68b5a55!important;}
@@ -25,3 +25,7 @@
 .studio-intro p{font-size:15px;}
 .studio-intro button{width:100%;padding:16px;border:1px solid #ffe0a0;border-radius:12px;background:linear-gradient(#ffd06c,#f99a1c);font-weight:700;font-size:18px;box-shadow:0 5px 0 #7b3f10;}
 @media(max-width:420px){.studio-page{padding:16px 12px 50px!important}.studio-stage{min-height:330px!important}.studio-heading h1{font-size:34px!important}.studio-controls{padding:13px!important}}
+
+/* Never reuse the homepage composite as the character scene: it includes baked-in homepage UI. */
+.studio-stage {position:relative;isolation:isolate;}
+.studio-stage:before{content:'';position:absolute;inset:0;z-index:-1;opacity:.45;background:linear-gradient(155deg,transparent 48%,#25332f 48.5% 60%,transparent 60.5%) 0 100%/100% 65% no-repeat,linear-gradient(25deg,transparent 43%,#34403b 43.5% 64%,transparent 64.5%) 0 100%/100% 48% no-repeat;}
