@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import "./studio-preview.css";
 
 type Explorer = {
   base: "original-male" | "original-female";
@@ -25,6 +26,9 @@ export default function Explorer3DPreview() {
   const [status, setStatus] = useState<"checking" | "missing" | "ready">("checking");
   const [saved, setSaved] = useState(false);
   const [tab, setTab] = useState<"Look" | "Outfit" | "Gear" | "Details">("Look");
+  const [started, setStarted] = useState(false);
+  const steps = ["Look","Outfit","Gear","Details"] as const;
+  const stepIndex = steps.indexOf(tab);
   const modelPath = asset(explorer.base);
   useEffect(() => {
     try {
@@ -54,30 +58,31 @@ export default function Explorer3DPreview() {
     <div style={{ marginTop: 16 }}><div style={{ marginBottom: 9, fontSize: 13 }}>{label}</div><div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>{palette[key].map(color =>
       <button key={color} type="button" aria-label={label + " " + color} aria-pressed={explorer[key] === color} onClick={() => change({ [key]: color })} style={{ width: 38, height: 38, borderRadius: "50%", background: color, border: explorer[key] === color ? "3px solid #f5d3a2" : "2px solid #645043", outline: explorer[key] === color ? "2px solid #b87c46" : "none", cursor: "pointer" }} />)}</div></div>;
   return (
-    <main style={{ minHeight: "100vh", background: "#211a15", color: "#f2dfc3", padding: "20px 16px 60px", fontFamily: "Georgia, serif" }}>
-      <div style={{ maxWidth: 560, margin: "0 auto" }}>
+    <main className="studio-page" style={{ minHeight: "100vh", background: "#211a15", color: "#f2dfc3", padding: "20px 16px 60px", fontFamily: "Georgia, serif" }}>
+      <div className="studio-shell" style={{ maxWidth: 560, margin: "0 auto" }}>
         <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, marginBottom: 22 }}>
           <Link href="/explorer/create" style={{ color: "#e5b67e", textDecoration: "none" }}>← Explorer Studio</Link>
           <span style={{ font: "10px Arial, sans-serif", letterSpacing: 2 }}>ROAMLAB · 3D LAB</span>
         </header>
-        <div style={{ textAlign: "center" }}>
-          <div style={{ font: "11px Arial, sans-serif", letterSpacing: 3, color: "#e3a45f" }}>CHARACTER CUSTOMIZATION TEST</div>
+        <div className="studio-heading" style={{ textAlign: "center" }}>
+          <div style={{ font: "11px Arial, sans-serif", letterSpacing: 3, color: "#e3a45f" }}>DIGIREAL ADVENTURE</div>
           <h1 style={{ fontSize: 32, margin: "12px 0" }}>Create Your Explorer</h1>
-          <p style={{ font: "13px/1.6 Arial, sans-serif", color: "#d3baa0" }}>Choose your character and customize the details.</p>
+          <p style={{ font: "13px/1.6 Arial, sans-serif", color: "#d3baa0" }}>Design your own adventure companion.</p>
         </div>
-        <section style={{ marginTop: 18, border: "1px solid #77543b", borderRadius: 16, overflow: "hidden", background: "radial-gradient(circle at 50% 35%, #8d694b, #29251e 70%)", minHeight: 330, display: "grid", placeItems: "center" }}>
+        {!started && <div className="studio-intro"><div className="studio-intro-art" /><p>They’ll be with you in every journey.</p><button type="button" onClick={() => setStarted(true)}>Create My Explorer →</button></div>}
+        <section className="studio-stage" style={{ marginTop: 18, border: "1px solid #77543b", borderRadius: 16, overflow: "hidden", background: "radial-gradient(circle at 50% 35%, #8d694b, #29251e 70%)", minHeight: 330, display: "grid", placeItems: "center" }}>
           {status === "ready" ? (
             <iframe key={modelPath} title="Interactive 3D explorer model viewer" srcDoc={`<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent}model-viewer{width:100%;height:100%;--poster-color:transparent}</style><script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script></head><body><model-viewer src="${modelPath}" camera-controls auto-rotate shadow-intensity="1" exposure="1.15" alt="RoamLab 3D explorer"></model-viewer></body></html>`} style={{ width: "100%", height: 370, border: 0 }} />
           ) : <div style={{ padding: 26, textAlign: "center" }}>
             <div style={{ fontSize: 38 }}>◇</div>
-            <h2 style={{ fontSize: 22, fontWeight: "normal" }}>{status === "checking" ? "Checking character model…" : "3D model in production"}</h2>
-            <p style={{ font: "13px/1.7 Arial, sans-serif", color: "#dbc7b1" }}>Your selections can be saved now. The approved 3D character model is not uploaded yet, so the preview cannot show these changes.</p>
+            <h2 style={{ fontSize: 22, fontWeight: "normal" }}>{status === "checking" ? "Checking character model…" : "Your Explorer"}</h2>
+            <p style={{ font: "13px/1.7 Arial, sans-serif", color: "#dbc7b1" }}>The approved 3D character model is still being built. Your choices are saved, but cannot yet change the model preview.</p>
           </div>}
         </section>
-        <div style={{ marginTop: 16, display: "flex", gap: 8 }}>
+        <div className="studio-tabs" style={{ marginTop: 16, display: "flex", gap: 8 }}>
           {(["Look","Outfit","Gear","Details"] as const).map(t => <button type="button" key={t} onClick={() => setTab(t)} aria-pressed={tab === t} style={{ flex: 1, padding: "12px 2px", border: 0, borderBottom: tab === t ? "3px solid #e7a25e" : "2px solid #5d4635", background: "transparent", color: tab === t ? "#ffcf97" : "#d3baa0", cursor: "pointer", fontSize: 13 }}>{t}</button>)}
         </div>
-        <section style={{ padding: "18px 4px", font: "14px Arial, sans-serif", minHeight: 175 }}>
+        <section className="studio-controls" style={{ padding: "18px 4px", font: "14px Arial, sans-serif", minHeight: 175 }}>
           {tab === "Look" && <>
             <p>Explorer base</p><div style={{ display: "flex", gap: 10 }}>
               {option("Male", "male", explorer.base === "original-male", () => change({ base: "original-male" }))}
@@ -92,8 +97,8 @@ export default function Explorer3DPreview() {
           {tab === "Gear" && swatches("pack", "Backpack color")}
           {tab === "Details" && <><label htmlFor="explorer-name">Explorer name</label><input id="explorer-name" value={explorer.name} maxLength={50} onChange={e => change({ name: e.target.value })} style={{ display: "block", width: "100%", boxSizing: "border-box", marginTop: 12, padding: 14, borderRadius: 9, border: "1px solid #785a40", background: "#382a20", color: "#fff" }}/></>}
         </section>
-        <button type="button" onClick={save} style={{ width: "100%", padding: 16, background: "#c67b3f", border: 0, borderRadius: 10, color: "#20170f", fontWeight: 700, cursor: "pointer" }}>{saved ? "Explorer Saved ✓" : "Save Explorer Choices"}</button>
-        <p style={{ color: "#c6aa8c", font: "12px/1.6 Arial, sans-serif" }}>Prototype: selection and local saving work. Real-time 3D part replacement will be enabled when compatible character assets are ready.</p>
+        <div className="studio-footer">{stepIndex > 0 && <button className="studio-back" type="button" onClick={() => setTab(steps[stepIndex - 1])}>← Back</button>}<button className="studio-next" type="button" onClick={() => stepIndex < steps.length - 1 ? setTab(steps[stepIndex + 1]) : save()}>{stepIndex < steps.length - 1 ? "Next →" : saved ? "Explorer Saved ✓" : "Save Explorer →"}</button></div>
+
       </div>
     </main>
   );
