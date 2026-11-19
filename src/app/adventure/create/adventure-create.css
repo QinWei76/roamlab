@@ -1,0 +1,96 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import "./adventure-create.css";
+
+type World = "mountains" | "forest" | "lakeside";
+type Mode = "hike" | "ride" | "paddle";
+type Weather = "sunny" | "misty" | "snowy";
+type Duration = "day" | "weekend" | "expedition";
+type Adventure = { id: string; world: World; mode: Mode; weather: Weather; duration: Duration; createdAt: string };
+
+const worldOptions: { id: World; title: string; icon: string; description: string }[] = [
+  { id: "mountains", title: "Alpine Peaks", icon: "⛰", description: "High trails & big horizons" },
+  { id: "forest", title: "Enchanted Forest", icon: "🌲", description: "Hidden paths & quiet wonder" },
+  { id: "lakeside", title: "Wild Lakes", icon: "🏞", description: "Still waters & open skies" },
+];
+const modeOptions: { id: Mode; title: string; icon: string }[] = [
+  { id: "hike", title: "On Foot", icon: "🥾" },
+  { id: "ride", title: "On Wheels", icon: "🚲" },
+  { id: "paddle", title: "On Water", icon: "🛶" },
+];
+const weatherOptions: { id: Weather; title: string; icon: string }[] = [
+  { id: "sunny", title: "Golden Sun", icon: "☀" },
+  { id: "misty", title: "Morning Mist", icon: "🌫" },
+  { id: "snowy", title: "Snowfall", icon: "❄" },
+];
+const durationOptions: { id: Duration; title: string }[] = [
+  { id: "day", title: "One Day" },
+  { id: "weekend", title: "Weekend" },
+  { id: "expedition", title: "Long Expedition" },
+];
+
+export default function AdventureCreatePage() {
+  const [step, setStep] = useState(1);
+  const [world, setWorld] = useState<World>("mountains");
+  const [mode, setMode] = useState<Mode>("hike");
+  const [weather, setWeather] = useState<Weather>("sunny");
+  const [duration, setDuration] = useState<Duration>("weekend");
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState("");
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem("roamlab-digireal-draft-v1");
+      if (raw) {
+        const draft = JSON.parse(raw) as Partial<Adventure>;
+        if (worldOptions.some((x) => x.id === draft.world)) setWorld(draft.world as World);
+        if (modeOptions.some((x) => x.id === draft.mode)) setMode(draft.mode as Mode);
+        if (weatherOptions.some((x) => x.id === draft.weather)) setWeather(draft.weather as Weather);
+        if (durationOptions.some((x) => x.id === draft.duration)) setDuration(draft.duration as Duration);
+      }
+    } catch { /* Ignore malformed local draft. */ }
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    try {
+      window.localStorage.setItem("roamlab-digireal-draft-v1", JSON.stringify({ world, mode, weather, duration }));
+    } catch { /* Private browsing may disable local storage. */ }
+  }, [world, mode, weather, duration, hydrated]);
+
+  function saveAdventure() {
+    const adventure: Adventure = {
+      id: `adv-${Date.now()}`,
+      world, mode, weather, duration,
+      createdAt: new Date().toISOString(),
+    };
+    try {
+      const raw = window.localStorage.getItem("roamlab-digireal-adventures-v1");
+      const parsed: unknown = raw ? JSON.parse(raw) : [];
+      const existing = Array.isArray(parsed) ? parsed : [];
+      window.localStorage.setItem("roamlab-digireal-adventures-v1", JSON.stringify([adventure, ...existing].slice(0, 50)));
+      setSaved(true);
+      setError("");
+    } catch {
+      setError("Could not save on this device. Check your browser storage settings.");
+    }
+  }
+
+  const worldName = worldOptions.find((x) => x.id === world)?.title;
+  const modeName = modeOptions.find((x) => x.id === mode)?.title;
+  const weatherName = weatherOptions.find((x) => x.id === weather)?.title;
+  const durationName = durationOptions.find((x) => x.id === duration)?.title;
+
+  return (
+    <main className="dac-page">
+      <div className="dac-shell">
+        <header className="dac-header">
+          <Link href="/digireal-preview" className="dac-back" aria-label="Back to DigiReal homepage">←</Link>
+          <div className="dac-brand"><strong>RoamLab</strong><span>DIGIREAL ADVENTURE</span></div>
+          <span className="dac-progress">{step} / 3</span>
+        </header>
+
