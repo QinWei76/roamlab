@@ -1,3 +1,37 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import "./adventure-create.css";
+
+type World = "mountains" | "forest" | "lake";
+type Mode = "hike" | "drive" | "ride" | "paddle";
+type Weather = "sunny" | "misty" | "rainy";
+type Duration = "day" | "weekend" | "week";
+type Adventure = { id: string; world: World; mode: Mode; weather: Weather; duration: Duration; createdAt: string };
+
+const worldOptions: { id: World; title: string; description: string; icon: string }[] = [
+  { id: "mountains", title: "Mountains", description: "High peaks & wild trails", icon: "🏔️" },
+  { id: "forest", title: "Forest", description: "Deep woods & hidden paths", icon: "🌲" },
+  { id: "lake", title: "Lakeside", description: "Quiet shores & open water", icon: "🏞️" },
+];
+const modeOptions: { id: Mode; title: string; icon: string }[] = [
+  { id: "hike", title: "Hike", icon: "🥾" },
+  { id: "drive", title: "Drive", icon: "🚙" },
+  { id: "ride", title: "Ride", icon: "🚴" },
+  { id: "paddle", title: "Paddle", icon: "🛶" },
+];
+const weatherOptions: { id: Weather; title: string; icon: string }[] = [
+  { id: "sunny", title: "Sunny", icon: "☀️" },
+  { id: "misty", title: "Misty", icon: "🌫️" },
+  { id: "rainy", title: "Rainy", icon: "🌧️" },
+];
+const durationOptions: { id: Duration; title: string }[] = [
+  { id: "day", title: "One Day" },
+  { id: "weekend", title: "Weekend" },
+  { id: "week", title: "One Week" },
+];
+
 export default function AdventureCreatePage() {
   const [step, setStep] = useState(1);
   const [world, setWorld] = useState<World>("mountains");
@@ -125,3 +159,5 @@ export default function AdventureCreatePage() {
         <footer className="dac-footer">CREATE YOUR OWN ADVENTURE · FROM IMAGINATION TO REALITY</footer>
       </div>
     </main>
+  );
+}
