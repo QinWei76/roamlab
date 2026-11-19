@@ -1,96 +1,28 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import "./adventure-create.css";
-
-type World = "mountains" | "forest" | "lakeside";
-type Mode = "hike" | "ride" | "paddle";
-type Weather = "sunny" | "misty" | "snowy";
-type Duration = "day" | "weekend" | "expedition";
-type Adventure = { id: string; world: World; mode: Mode; weather: Weather; duration: Duration; createdAt: string };
-
-const worldOptions: { id: World; title: string; icon: string; description: string }[] = [
-  { id: "mountains", title: "Alpine Peaks", icon: "⛰", description: "High trails & big horizons" },
-  { id: "forest", title: "Enchanted Forest", icon: "🌲", description: "Hidden paths & quiet wonder" },
-  { id: "lakeside", title: "Wild Lakes", icon: "🏞", description: "Still waters & open skies" },
-];
-const modeOptions: { id: Mode; title: string; icon: string }[] = [
-  { id: "hike", title: "On Foot", icon: "🥾" },
-  { id: "ride", title: "On Wheels", icon: "🚲" },
-  { id: "paddle", title: "On Water", icon: "🛶" },
-];
-const weatherOptions: { id: Weather; title: string; icon: string }[] = [
-  { id: "sunny", title: "Golden Sun", icon: "☀" },
-  { id: "misty", title: "Morning Mist", icon: "🌫" },
-  { id: "snowy", title: "Snowfall", icon: "❄" },
-];
-const durationOptions: { id: Duration; title: string }[] = [
-  { id: "day", title: "One Day" },
-  { id: "weekend", title: "Weekend" },
-  { id: "expedition", title: "Long Expedition" },
-];
-
-export default function AdventureCreatePage() {
-  const [step, setStep] = useState(1);
-  const [world, setWorld] = useState<World>("mountains");
-  const [mode, setMode] = useState<Mode>("hike");
-  const [weather, setWeather] = useState<Weather>("sunny");
-  const [duration, setDuration] = useState<Duration>("weekend");
-  const [saved, setSaved] = useState(false);
-  const [error, setError] = useState("");
-  const [hydrated, setHydrated] = useState(false);
-
-  useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem("roamlab-digireal-draft-v1");
-      if (raw) {
-        const draft = JSON.parse(raw) as Partial<Adventure>;
-        if (worldOptions.some((x) => x.id === draft.world)) setWorld(draft.world as World);
-        if (modeOptions.some((x) => x.id === draft.mode)) setMode(draft.mode as Mode);
-        if (weatherOptions.some((x) => x.id === draft.weather)) setWeather(draft.weather as Weather);
-        if (durationOptions.some((x) => x.id === draft.duration)) setDuration(draft.duration as Duration);
-      }
-    } catch { /* Ignore malformed local draft. */ }
-    setHydrated(true);
-  }, []);
-
-  useEffect(() => {
-    if (!hydrated) return;
-    try {
-      window.localStorage.setItem("roamlab-digireal-draft-v1", JSON.stringify({ world, mode, weather, duration }));
-    } catch { /* Private browsing may disable local storage. */ }
-  }, [world, mode, weather, duration, hydrated]);
-
-  function saveAdventure() {
-    const adventure: Adventure = {
-      id: `adv-${Date.now()}`,
-      world, mode, weather, duration,
-      createdAt: new Date().toISOString(),
-    };
-    try {
-      const raw = window.localStorage.getItem("roamlab-digireal-adventures-v1");
-      const parsed: unknown = raw ? JSON.parse(raw) : [];
-      const existing = Array.isArray(parsed) ? parsed : [];
-      window.localStorage.setItem("roamlab-digireal-adventures-v1", JSON.stringify([adventure, ...existing].slice(0, 50)));
-      setSaved(true);
-      setError("");
-    } catch {
-      setError("Could not save on this device. Check your browser storage settings.");
-    }
-  }
-
-  const worldName = worldOptions.find((x) => x.id === world)?.title;
-  const modeName = modeOptions.find((x) => x.id === mode)?.title;
-  const weatherName = weatherOptions.find((x) => x.id === weather)?.title;
-  const durationName = durationOptions.find((x) => x.id === duration)?.title;
-
-  return (
-    <main className="dac-page">
-      <div className="dac-shell">
-        <header className="dac-header">
-          <Link href="/digireal-preview" className="dac-back" aria-label="Back to DigiReal homepage">←</Link>
-          <div className="dac-brand"><strong>RoamLab</strong><span>DIGIREAL ADVENTURE</span></div>
-          <span className="dac-progress">{step} / 3</span>
-        </header>
-
+/* DigiReal Adventure creator — isolated responsive styles */
+.dac-page,.dac-page *{box-sizing:border-box}
+.dac-page{min-height:100svh;background:radial-gradient(ellipse at 50% 10%,#64402a 0%,#2b1b14 48%,#130e0c 100%);color:#f8ead4;padding:18px 14px 48px;font-family:Arial,Helvetica,sans-serif}
+.dac-shell{width:min(100%,700px);margin:0 auto}
+.dac-header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.dac-back{display:grid;place-items:center;width:44px;height:44px;border:1px solid #98714c;border-radius:50%;color:#fff0d8;text-decoration:none;font-size:26px}
+.dac-brand{display:flex;flex-direction:column;align-items:center;gap:3px}.dac-brand strong{font:700 24px Georgia,serif}.dac-brand span,.dac-progress,.dac-eyebrow{font-size:10px;letter-spacing:2px;color:#e7b36c}
+.dac-progress-track{height:4px;background:#5d4230;border-radius:4px;margin:20px 0 25px;overflow:hidden}.dac-progress-track>div{height:100%;background:#e9a74f;transition:width .2s}
+.dac-intro{text-align:center;margin-bottom:20px}.dac-intro h1{font:700 clamp(29px,8vw,48px) Georgia,serif;margin:9px 0}.dac-intro h1 em{color:#ffc277}.dac-intro>p:last-child{color:#e5cfb6;font-size:14px}
+.dac-scene{height:clamp(175px,45vw,290px);position:relative;overflow:hidden;border-radius:18px;border:1px solid #956741;background:linear-gradient(#304d54 0%,#b47b52 57%,#493829 100%);box-shadow:0 12px 35px #0006;margin-bottom:22px}
+.dac-sun{position:absolute;top:17%;right:18%;width:70px;height:70px;background:#ffcb83;border-radius:50%;filter:blur(3px);box-shadow:0 0 55px #ffb96b}
+.dac-mountain{position:absolute;bottom:18%;width:120%;height:75%;left:-10%;clip-path:polygon(0 100%,23% 38%,37% 72%,56% 16%,76% 66%,89% 37%,100% 100%)}.dac-mountain-back{background:#64716c;opacity:.75}.dac-mountain-front{background:#273f3d;transform:translateY(35px) scale(1.1)}
+.dac-ground{position:absolute;bottom:0;width:100%;height:24%;background:linear-gradient(#3b4b34,#202b23)}
+.dac-scene-icon{position:absolute;left:50%;top:45%;transform:translate(-50%,-50%);font-size:64px;filter:drop-shadow(0 5px 10px #0008)}
+.dac-scene-caption{position:absolute;bottom:10px;left:12px;font-size:12px;text-shadow:0 2px 4px #000}
+.dac-panel{background:linear-gradient(140deg,#493122,#2a1d17);border:1px solid #8a6341;border-radius:18px;padding:20px 16px;box-shadow:0 10px 25px #0004}
+.dac-section-heading span{color:#efb66d;font-size:11px;letter-spacing:1.8px}.dac-section-heading h2{font:700 27px Georgia,serif;margin:9px 0}.dac-section-heading p{color:#dbc4a8;margin:0 0 20px;font-size:14px}
+.dac-panel h3{font:700 17px Georgia,serif;margin:22px 0 12px}
+.dac-world-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.dac-world-option,.dac-choice,.dac-duration{color:#f9e6cb;background:#3b2b23;border:1px solid #896044;border-radius:12px;cursor:pointer;min-height:48px;font:inherit}
+.dac-world-option{display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 7px;text-align:center}.dac-world-icon{font-size:34px}.dac-world-option strong{font-size:14px}.dac-world-option small{font-size:11px;line-height:1.35;color:#d4bfa8}
+.dac-world-option.is-selected,.dac-choice.is-selected,.dac-duration.is-selected{border-color:#ffc276;background:#70452a;box-shadow:inset 0 0 0 1px #ffc276}
+.dac-choice-grid,.dac-duration-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.dac-choice{padding:12px;display:flex;align-items:center;justify-content:center;gap:8px}.dac-duration{padding:12px}.dac-duration-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.dac-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.dac-summary>div{padding:15px;border:1px solid #7b573b;border-radius:10px;background:#34251d;display:flex;flex-direction:column;gap:7px}.dac-summary span{font-size:10px;letter-spacing:1px;color:#e6af6e}.dac-summary strong{font:700 18px Georgia,serif}
+.dac-note,.dac-success,.dac-error{font-size:13px;line-height:1.5;margin:20px 0 0}.dac-success{color:#bde2b4}.dac-error{color:#ffaaa1}
+.dac-actions{display:flex;gap:10px;justify-content:flex-end;margin:20px 0}.dac-actions button{border-radius:11px;min-height:50px;padding:12px 22px;font-weight:700;cursor:pointer}.dac-primary{flex:1;background:#e9a65b;color:#2b190f;border:1px solid #ffd098}.dac-primary:disabled{opacity:.7;cursor:default}.dac-secondary{background:#33231b;border:1px solid #9a704d;color:#fff0da}
+.dac-footer{text-align:center;color:#b68c67;font-size:9px;letter-spacing:1.2px;line-height:1.5;margin-top:22px}
+@media(max-width:360px){.dac-page{padding-left:9px;padding-right:9px}.dac-panel{padding:16px 10px}.dac-world-option{padding:12px 4px}.dac-world-option strong{font-size:12px}.dac-world-option small{font-size:10px}}
+@media(min-width:768px){.dac-page{padding-top:35px}.dac-panel{padding:30px}}
