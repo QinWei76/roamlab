@@ -44,19 +44,19 @@ export default function CreateExplorer(){
  <div className="ex-heading"><p>CREATE YOUR EXPLORER</p><h1>Make your own legend.</h1><p>One explorer. Every adventure. Unmistakably yours.</p></div>
  <div className="ex-preview"><div className="ex-sun"/><div className="ex-mountains"/>{ready&&<ExplorerFigure e={e}/>}<span className="ex-preview-label">LIVE CHARACTER PREVIEW</span></div>
  <div className="ex-controls"><nav className="ex-tabs" aria-label="Explorer customization">{(["look","outfit","gear","details"] as const).map(t=><button type="button" key={t} aria-pressed={tab===t} className={tab===t?"active":""} onClick={()=>setTab(t)}>{t}</button>)}</nav>
- {tab==="look"&&<><div className="ex-section-title">01 / Look</div><label className="ex-label">Explorer Base</label><div className="ex-options">{([{id:"original-male",label:"Original Male"},{id:"original-female",label:"Original Female"}] as const).map(v=><button key={v.id} className={e.base===v.id?"active":""} onClick={()=>update({base:v.id})}>{v.label}</button>)}</div><label className="ex-label">Body Type</label><div className="ex-options">{(["compact","classic","tall"] as const).map(v=><button key={v} className={e.body===v?"active":""} onClick={()=>update({body:v})}>{v}</button>)}</div>
+ {tab==="look"&&<><label className="ex-label">Explorer Base</label><div className="ex-options">{([{id:"original-male",label:"Original Male"},{id:"original-female",label:"Original Female"}] as const).map(v=><button key={v.id} className={e.base===v.id?"active":""} onClick={()=>update({base:v.id})}>{v.label}</button>)}</div><label className="ex-label">Body Type</label><div className="ex-options">{(["compact","classic","tall"] as const).map(v=><button key={v} className={e.body===v?"active":""} onClick={()=>update({body:v})}>{v}</button>)}</div>
  <label className="ex-label">Skin Tone</label><Swatches values={colors.skin} value={e.skin} onChange={skin=>update({skin})}/>
  <label className="ex-label">Hair Style</label><div className="ex-options">{(["short","swept","curly","long"] as const).map(v=><button key={v} className={e.hairStyle===v?"active":""} onClick={()=>update({hairStyle:v})}>{v}</button>)}</div>
  <label className="ex-label">Hair Color</label><Swatches values={colors.hair} value={e.hairColor} onChange={hairColor=>update({hairColor})}/>
  <label className="ex-label">Facial Hair</label><div className="ex-options">{(["none","stubble","mustache","goatee","short","full"] as const).map(v=><button key={v} className={e.beard===v?"active":""} onClick={()=>update({beard:v})}>{v}</button>)}</div>
  {e.beard!=="none"&&<><label className="ex-label">Beard Color</label><Swatches values={colors.hair} value={e.beardColor} onChange={beardColor=>update({beardColor})}/><button className="ex-link" onClick={()=>update({beardColor:e.hairColor})}>Match hair color</button></>}
  </>}
- {tab==="outfit"&&<><div className="ex-section-title">02 / Outfit</div><label className="ex-label">Jacket</label><Swatches values={colors.jacket} value={e.jacket} onChange={jacket=>update({jacket})}/>
+ {tab==="outfit"&&<><label className="ex-label">Jacket</label><Swatches values={colors.jacket} value={e.jacket} onChange={jacket=>update({jacket})}/>
  <label className="ex-label">Pants</label><Swatches values={colors.pants} value={e.pants} onChange={pants=>update({pants})}/>
  </>}
- {tab==="gear"&&<><div className="ex-section-title">03 / Gear</div><label className="ex-label">Backpack</label><Swatches values={colors.pack} value={e.pack} onChange={pack=>update({pack})}/>
+ {tab==="gear"&&<><label className="ex-label">Backpack</label><Swatches values={colors.pack} value={e.pack} onChange={pack=>update({pack})}/>
  </>}
- {tab==="details"&&<><div className="ex-section-title">04 / Details</div><label className="ex-label" htmlFor="explorer-name">Explorer Name</label><input id="explorer-name" maxLength={28} value={e.name} onChange={event=>update({name:event.target.value})}/></>}
+ {tab==="details"&&<><label className="ex-label" htmlFor="explorer-name">Explorer Name</label><input id="explorer-name" maxLength={28} value={e.name} onChange={event=>update({name:event.target.value})}/></>}
  <button className="ex-save" onClick={save}>Save My Explorer</button>
  {saved&&<div className="ex-success" role="status">✓ Explorer saved on this device. <Link href="/adventure/create">Build Your Adventure →</Link></div>}
  <p className="ex-note">First interactive prototype: layered vector character. Character art is still a functional placeholder. Male and female base selection is stored, but the approved character artwork is not yet integrated.</p>
