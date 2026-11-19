@@ -6,7 +6,7 @@ const MODEL = "/roamlab_explorer_male_fullbody_blockout_v01.glb";
 
 export default function MaleTestPage() {
   const [status, setStatus] = useState("Preparing 3D viewer...");
-  const [rotate, setRotate] = useState(true);
+  const [rotate, setRotate] = useState(false);
   const [view, setView] = useState<"front" | "side" | "back">("front");
   const viewer = useRef<HTMLElement | null>(null);
 
@@ -49,11 +49,11 @@ export default function MaleTestPage() {
       <div style={{ maxWidth: 760, margin: "0 auto" }}>
         <p style={{ fontSize: 12, letterSpacing: 3, color: "#e5b785" }}>ROAMLAB · EXPLORER LAB</p>
         <h1 style={{ fontSize: "clamp(24px, 5vw, 36px)", margin: "10px 0" }}>Male Explorer · Full-body Test</h1>
-        <p style={{ lineHeight: 1.6, color: "#d6c2aa" }}>V1.0 geometry blockout · Review proportions, silhouette and gear placement</p>
+        <p style={{ lineHeight: 1.6, color: "#d6c2aa" }}>Geometry-only prototype · Corrected upright orientation · Not final character art</p>
         <div style={{ marginTop: 18, height: "min(68vh, 630px)", minHeight: 350, borderRadius: 18, overflow: "hidden", border: "1px solid #785c46", background: "radial-gradient(circle, #786550, #392d24 70%)" }}>
           {createElement("model-viewer", {
             ref: viewer, src: MODEL, alt: "RoamLab full-body male explorer blockout",
-            "camera-controls": "", "auto-rotate": rotate ? "" : undefined, "auto-rotate-delay": "0",
+            "camera-controls": "", "orientation": "0deg 0deg 90deg", "auto-rotate": rotate ? "" : undefined, "auto-rotate-delay": "0",
             "shadow-intensity": "1", "environment-image": "neutral",
             "camera-orbit": "0deg 80deg auto", "field-of-view": "30deg",
             style: { width: "100%", height: "100%", display: "block" }
