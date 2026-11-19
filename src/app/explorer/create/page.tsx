@@ -3,10 +3,10 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import "./explorer.css";
 
-type Explorer = { id:string; name:string; body:"compact"|"classic"|"tall"; skin:string; hairStyle:"short"|"swept"|"curly"|"long"; hairColor:string; beard:"none"|"stubble"|"mustache"|"goatee"|"short"|"full"; beardColor:string; jacket:string; pants:string; pack:string };
+type Explorer = { base:"original-male"|"original-female"; id:string; name:string; body:"compact"|"classic"|"tall"; skin:string; hairStyle:"short"|"swept"|"curly"|"long"; hairColor:string; beard:"none"|"stubble"|"mustache"|"goatee"|"short"|"full"; beardColor:string; jacket:string; pants:string; pack:string };
 const KEY="roamlab-digireal-explorer-v1";
 const colors={skin:["#F1C7A4","#DDA47E","#B97855","#875238","#543628"],hair:["#28211F","#503629","#8F593A","#D9B66E","#B95D35","#B8B9BB","#EEE9DF","#6B8DAA"],jacket:["#C87836","#5B785E","#5C7189","#A65B4A","#D1B98D"],pants:["#4C5148","#5B493D","#697282","#B49B7A"],pack:["#61745C","#B47B45","#4E6575","#8C554B"]};
-const initial:Explorer={id:"",name:"My Explorer",body:"classic",skin:colors.skin[1],hairStyle:"swept",hairColor:colors.hair[1],beard:"none",beardColor:colors.hair[1],jacket:colors.jacket[0],pants:colors.pants[0],pack:colors.pack[0]};
+const initial:Explorer={base:"original-male",id:"",name:"My Explorer",body:"classic",skin:colors.skin[1],hairStyle:"swept",hairColor:colors.hair[1],beard:"none",beardColor:colors.hair[1],jacket:colors.jacket[0],pants:colors.pants[0],pack:colors.pack[0]};
 function Swatches({values,value,onChange}:{values:string[];value:string;onChange:(v:string)=>void}){return <div className="ex-swatches">{values.map(c=><button type="button" key={c} title={c} aria-label={c} aria-pressed={value===c} onClick={()=>onChange(c)} style={{background:c}} className={value===c?"selected":""}/>)}</div>}
 function ExplorerFigure({e}:{e:Explorer}){
  const h=e.body==="compact"?0.93:e.body==="tall"?1.08:1;
@@ -35,6 +35,7 @@ function ExplorerFigure({e}:{e:Explorer}){
 }
 export default function CreateExplorer(){
  const [e,setE]=useState<Explorer>(initial),[ready,setReady]=useState(false),[saved,setSaved]=useState(false);
+ const [tab,setTab]=useState<"look"|"outfit"|"gear"|"details">("look");
  useEffect(()=>{try{const raw=localStorage.getItem(KEY);if(raw){setE({...initial,...JSON.parse(raw)})}}catch{}setReady(true)},[]);
  const update=(patch:Partial<Explorer>)=>{setE(v=>({...v,...patch}));setSaved(false)};
  const save=()=>{const data={...e,id:e.id||`explorer-${Date.now()}`};localStorage.setItem(KEY,JSON.stringify(data));setE(data);setSaved(true)};
@@ -42,18 +43,22 @@ export default function CreateExplorer(){
  <header className="ex-header"><Link href="/digireal-preview">← DigiReal</Link><span>ROAMLAB · EXPLORER STUDIO</span></header>
  <div className="ex-heading"><p>CREATE YOUR EXPLORER</p><h1>Make your own legend.</h1><p>One explorer. Every adventure. Unmistakably yours.</p></div>
  <div className="ex-preview"><div className="ex-sun"/><div className="ex-mountains"/>{ready&&<ExplorerFigure e={e}/>}<span className="ex-preview-label">LIVE CHARACTER PREVIEW</span></div>
- <div className="ex-controls"><label className="ex-label" htmlFor="explorer-name">Explorer Name</label><input id="explorer-name" maxLength={28} value={e.name} onChange={event=>update({name:event.target.value})}/>
- <h2>01 / Look</h2><label className="ex-label">Body Type</label><div className="ex-options">{(["compact","classic","tall"] as const).map(v=><button key={v} className={e.body===v?"active":""} onClick={()=>update({body:v})}>{v}</button>)}</div>
+ <div className="ex-controls"><nav className="ex-tabs" aria-label="Explorer customization">{(["look","outfit","gear","details"] as const).map(t=><button type="button" key={t} aria-pressed={tab===t} className={tab===t?"active":""} onClick={()=>setTab(t)}>{t}</button>)}</nav>
+ {tab==="look"&&<><h2>01 / Look</h2><label className="ex-label">Explorer Base</label><div className="ex-options">{([{id:"original-male",label:"Original Male"},{id:"original-female",label:"Original Female"}] as const).map(v=><button key={v.id} className={e.base===v.id?"active":""} onClick={()=>update({base:v.id})}>{v.label}</button>)}</div><label className="ex-label">Body Type</label><div className="ex-options">{(["compact","classic","tall"] as const).map(v=><button key={v} className={e.body===v?"active":""} onClick={()=>update({body:v})}>{v}</button>)}</div>
  <label className="ex-label">Skin Tone</label><Swatches values={colors.skin} value={e.skin} onChange={skin=>update({skin})}/>
  <label className="ex-label">Hair Style</label><div className="ex-options">{(["short","swept","curly","long"] as const).map(v=><button key={v} className={e.hairStyle===v?"active":""} onClick={()=>update({hairStyle:v})}>{v}</button>)}</div>
  <label className="ex-label">Hair Color</label><Swatches values={colors.hair} value={e.hairColor} onChange={hairColor=>update({hairColor})}/>
  <label className="ex-label">Facial Hair</label><div className="ex-options">{(["none","stubble","mustache","goatee","short","full"] as const).map(v=><button key={v} className={e.beard===v?"active":""} onClick={()=>update({beard:v})}>{v}</button>)}</div>
  {e.beard!=="none"&&<><label className="ex-label">Beard Color</label><Swatches values={colors.hair} value={e.beardColor} onChange={beardColor=>update({beardColor})}/><button className="ex-link" onClick={()=>update({beardColor:e.hairColor})}>Match hair color</button></>}
- <h2>02 / Outfit & Gear</h2><label className="ex-label">Jacket</label><Swatches values={colors.jacket} value={e.jacket} onChange={jacket=>update({jacket})}/>
+ </>}
+ {tab==="outfit"&&<><h2>02 / Outfit</h2><label className="ex-label">Jacket</label><Swatches values={colors.jacket} value={e.jacket} onChange={jacket=>update({jacket})}/>
  <label className="ex-label">Pants</label><Swatches values={colors.pants} value={e.pants} onChange={pants=>update({pants})}/>
- <label className="ex-label">Backpack</label><Swatches values={colors.pack} value={e.pack} onChange={pack=>update({pack})}/>
+ </>}
+ {tab==="gear"&&<><h2>03 / Gear</h2><label className="ex-label">Backpack</label><Swatches values={colors.pack} value={e.pack} onChange={pack=>update({pack})}/>
+ </>}
+ {tab==="details"&&<><h2>04 / Details</h2><label className="ex-label" htmlFor="explorer-name">Explorer Name</label><input id="explorer-name" maxLength={28} value={e.name} onChange={event=>update({name:event.target.value})}/></>}
  <button className="ex-save" onClick={save}>Save My Explorer</button>
  {saved&&<div className="ex-success" role="status">✓ Explorer saved on this device. <Link href="/adventure/create">Build Your Adventure →</Link></div>}
- <p className="ex-note">First interactive prototype: layered vector character. Final character artwork will follow the approved DigiReal homepage character master.</p>
+ <p className="ex-note">First interactive prototype: layered vector character. Character art is still a functional placeholder. Male and female base selection is stored, but the approved character artwork is not yet integrated.</p>
  </div></div></main>;
 }
