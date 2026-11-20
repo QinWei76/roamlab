@@ -8,9 +8,10 @@ type MaterialMode = "original" | "clay";
 export default function GlbDiagnostic() {
   const viewerRef = useRef<HTMLElement | null>(null);
   const urlRef = useRef<string | null>(null);
-  const [src, setSrc] = useState("");
-  const [filename, setFilename] = useState("");
-  const [status, setStatus] = useState("Choose a GLB file to begin.");
+  const [src, setSrc] = useState("/explorer-female-github.glb");
+  const [character, setCharacter] = useState<"female" | "male" | "local">("female");
+  const [filename, setFilename] = useState("explorer-female-github.glb");
+  const [status, setStatus] = useState("Loading female Explorer from RoamLab...");
   const [view, setView] = useState<View>("front");
   const [mode, setMode] = useState<MaterialMode>("original");
   const [loaded, setLoaded] = useState(false);
@@ -25,7 +26,7 @@ export default function GlbDiagnostic() {
     const el = viewerRef.current;
     if (!el) return;
     const onLoad = () => { setLoaded(true); setStatus("Loaded. Compare original and clay views."); };
-    const onError = () => { setLoaded(false); setStatus("Could not render GLB. Try another file."); };
+    const onError = () => { setLoaded(false); setStatus("Could not load this model. Check whether the matching GLB has been uploaded to GitHub public."); };
     el.addEventListener("load", onLoad);
     el.addEventListener("error", onError);
     return () => { el.removeEventListener("load", onLoad); el.removeEventListener("error", onError); };
@@ -68,9 +69,16 @@ export default function GlbDiagnostic() {
     if (urlRef.current) URL.revokeObjectURL(urlRef.current);
     const url = URL.createObjectURL(file);
     urlRef.current = url;
-    setLoaded(false); setMode("original"); setView("front"); setSrc(url);
+    setLoaded(false); setMode("original"); setView("front"); setCharacter("local"); setSrc(url);
     setFilename(file.name);
     setStatus("Loading " + file.name + " (" + (file.size / 1048576).toFixed(1) + " MB)...");
+  };
+
+  const chooseCharacter = (gender: "female" | "male") => {
+    setLoaded(false); setMode("original"); setView("front"); setSpin(false); setCharacter(gender);
+    setFilename(`explorer-${gender}-github.glb`);
+    setStatus(`Loading ${gender} Explorer from RoamLab...`);
+    setSrc(`/explorer-${gender}-github.glb`);
   };
 
   const buttonStyle = (active: boolean): React.CSSProperties => ({
@@ -83,9 +91,10 @@ export default function GlbDiagnostic() {
       <div style={{ maxWidth: 1000, margin: "0 auto" }}>
         <a href="/explorer" style={{ color: "#d4ad82", textDecoration: "none", fontSize: 13 }}>← Explorer</a>
         <h1 style={{ fontSize: 25, margin: "15px 0 6px" }}>RoamLab · GLB Diagnostic</h1>
-        <p style={{ color: "#bdb3a7", lineHeight: 1.6, marginTop: 0 }}>Select a GLB from your device. The file stays in your browser and is not uploaded to RoamLab.</p>
+        <p style={{ color: "#bdb3a7", lineHeight: 1.6, marginTop: 0 }}>Models load automatically from RoamLab. You can also inspect a local GLB file without uploading it.</p>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 9, marginBottom: 14 }}><button onClick={() => chooseCharacter("female")} style={buttonStyle(character === "female")}>Female Explorer</button><button onClick={() => chooseCharacter("male")} style={buttonStyle(character === "male")}>Male Explorer</button></div>
         <label style={{ display: "inline-block", padding: "12px 17px", background: "#ae7545", borderRadius: 9, cursor: "pointer", fontWeight: 650, color: "#181714" }}>
-          Choose GLB file
+          Choose local GLB (optional)
           <input type="file" accept=".glb,model/gltf-binary" onChange={(e) => pickFile(e.target.files?.[0])} style={{ display: "none" }} />
         </label>
         <p role="status" style={{ color: "#d3c3ad", fontSize: 13, minHeight: 20 }}>{status}</p>
