@@ -16,11 +16,63 @@ export default function GlbDiagnostic() {
   const [mode, setMode] = useState<MaterialMode>("original");
   const [loaded, setLoaded] = useState(false);
   const [spin, setSpin] = useState(false);
+  const [networkReport, setNetworkReport] = useState("Select an online model to inspect its network response.");
 
   useEffect(() => {
     import("@google/model-viewer").catch((err) => setStatus("Viewer initialization failed: " + String(err)));
     return () => { if (urlRef.current) URL.revokeObjectURL(urlRef.current); };
   }, []);
+
+  useEffect(() => {
+    if (!src.startsWith("/")) {
+      setNetworkReport("Local file: network test not applicable.");
+      return;
+    }
+    const controller = new AbortController();
+    let active = true;
+    const started = Date.now();
+    const timeout = setTimeout(() => controller.abort(), 20000);
+    setNetworkReport("Checking " + src + "...");
+    (async () => {
+      try {
+        const response = await fetch(src, { cache: "no-store", signal: controller.signal });
+        const type = response.headers.get("content-type") || "(missing)";
+        const declared = response.headers.get("content-length") || "(missing)";
+        if (!response.ok) {
+          if (active) setNetworkReport("HTTP " + response.status + " | Type: " + type + " | Length: " + declared);
+          return;
+        }
+        const reader = response.body?.getReader();
+        let bytes = 0;
+        let header = new Uint8Array(0);
+        if (reader) {
+          while (true) {
+            const result = await reader.read();
+            if (result.done) break;
+            bytes += result.value.byteLength;
+            if (header.length < 12) {
+              const needed = 12 - header.length;
+              const next = new Uint8Array(header.length + Math.min(needed, result.value.length));
+              next.set(header);
+              next.set(result.value.subarray(0, needed), header.length);
+              header = next;
+            }
+            if (active) setNetworkReport("HTTP " + response.status + " | Downloaded " + bytes + " bytes | Type: " + type);
+          }
+        } else {
+          const buffer = await response.arrayBuffer();
+          bytes = buffer.byteLength;
+          header = new Uint8Array(buffer.slice(0, 12));
+        }
+        const magic = header.length >= 4 ? String.fromCharCode(...header.slice(0, 4)) : "(short)";
+        const declaredGLB = header.length >= 12 ? new DataView(header.buffer, header.byteOffset, header.byteLength).getUint32(8, true) : 0;
+        if (active) setNetworkReport("HTTP " + response.status + " | Type: " + type + " | Header length: " + declared + " | Received: " + bytes + " bytes | GLB magic: " + magic + " | GLB declared bytes: " + declaredGLB + " | " + (Date.now()-started) + " ms");
+      } catch (err) {
+        if (active) setNetworkReport("Network test error: " + String(err));
+      } finally { clearTimeout(timeout); }
+    })();
+    return () => { active = false; clearTimeout(timeout); controller.abort(); };
+  }, [src]);
 
   useEffect(() => {
     const el = viewerRef.current;
@@ -106,6 +158,7 @@ export default function GlbDiagnostic() {
           <input type="file" accept=".glb,model/gltf-binary" onChange={(e) => pickFile(e.target.files?.[0])} style={{ display: "none" }} />
         </label>
         <p role="status" style={{ color: "#d3c3ad", fontSize: 13, minHeight: 20 }}>{status}</p>
+        <div style={{ border: "1px solid #75604c", borderRadius: 9, padding: 12, marginBottom: 14, fontSize: 13, lineHeight: 1.6, overflowWrap: "anywhere" }}><strong>Online GLB network diagnostic</strong><p style={{ margin: "6px 0 0" }}>{networkReport}</p></div>
         <div style={{ position: "relative", width: "100%", height: "min(64vh, 650px)", minHeight: 360, border: "1px solid #514a40", borderRadius: 14, overflow: "hidden", background: "radial-gradient(circle at 50% 42%, #6b665d 0%, #353733 52%, #1c211f 100%)" }}>
           {src ? createElement("model-viewer", {
             key: src, ref: viewerRef, src, alt: filename || "GLB character model",
