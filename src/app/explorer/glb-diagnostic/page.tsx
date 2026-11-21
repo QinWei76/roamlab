@@ -5,13 +5,13 @@ import { createElement, useEffect, useRef, useState } from "react";
 type View = "front" | "right" | "back" | "left";
 type MaterialMode = "original" | "clay";
 
-export default function GlbDiagnostic() {
+export default function GlbDiagnostic({ initialModel = "/explorer-female-github.glb" }: { initialModel?: string }) {
   const viewerRef = useRef<HTMLElement | null>(null);
   const urlRef = useRef<string | null>(null);
-  const [src, setSrc] = useState("/explorer-female-github.glb");
-  const [character, setCharacter] = useState<"female" | "male" | "local">("female");
-  const [filename, setFilename] = useState("explorer-female-github.glb");
-  const [status, setStatus] = useState("Loading female Explorer from RoamLab...");
+  const [src, setSrc] = useState(initialModel);
+  const [character, setCharacter] = useState<"female" | "male" | "local">(initialModel.includes("male-v2") ? "local" : "female");
+  const [filename, setFilename] = useState(initialModel.split("/").pop() || "explorer-female-github.glb");
+  const [status, setStatus] = useState("Loading Explorer from RoamLab...");
   const [view, setView] = useState<View>("front");
   const [mode, setMode] = useState<MaterialMode>("original");
   const [loaded, setLoaded] = useState(false);
