@@ -9,7 +9,7 @@ export default function GlbDiagnostic() {
   const viewerRef = useRef<HTMLElement | null>(null);
   const urlRef = useRef<string | null>(null);
   const [src, setSrc] = useState("/explorer-female-github.glb");
-  const [character, setCharacter] = useState<"female" | "male" | "local">("female");
+  const [character, setCharacter] = useState<"female" | "male" | "male-v2" | "local">("female");
   const [filename, setFilename] = useState("explorer-female-github.glb");
   const [status, setStatus] = useState("Loading Explorer from RoamLab...");
   const [view, setView] = useState<View>("front");
@@ -81,6 +81,14 @@ export default function GlbDiagnostic() {
     setSrc(`/explorer-${gender}-github.glb`);
   };
 
+  const chooseMaleV2Online = () => {
+    setLoaded(false); setMode("original"); setView("front"); setSpin(false);
+    setCharacter("male-v2");
+    setFilename("explorer-male-v2.glb");
+    setStatus("Loading Male V2 online from /explorer-male-v2.glb...");
+    setSrc("/explorer-male-v2.glb");
+  };
+
   const buttonStyle = (active: boolean): React.CSSProperties => ({
     padding: "10px 14px", borderRadius: 9, border: "1px solid " + (active ? "#e8a15e" : "#625448"),
     background: active ? "#6c4327" : "#282622", color: "#f5ede0", cursor: "pointer", fontSize: 14
@@ -92,7 +100,7 @@ export default function GlbDiagnostic() {
         <a href="/explorer" style={{ color: "#d4ad82", textDecoration: "none", fontSize: 13 }}>← Explorer</a>
         <h1 style={{ fontSize: 25, margin: "15px 0 6px" }}>RoamLab · GLB Diagnostic</h1>
         <p style={{ color: "#bdb3a7", lineHeight: 1.6, marginTop: 0 }}>Models load automatically from RoamLab. You can also inspect a local GLB file without uploading it.</p>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 9, marginBottom: 14 }}><button onClick={() => chooseCharacter("female")} style={buttonStyle(character === "female")}>Female Explorer</button><button onClick={() => chooseCharacter("male")} style={buttonStyle(character === "male")}>Male Explorer</button></div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 9, marginBottom: 14 }}><button onClick={() => chooseCharacter("female")} style={buttonStyle(character === "female")}>Female Explorer</button><button onClick={() => chooseCharacter("male")} style={buttonStyle(character === "male")}>Male Explorer</button><button onClick={chooseMaleV2Online} style={buttonStyle(character === "male-v2")}>Male V2 (Online)</button></div>
         <label style={{ display: "inline-block", padding: "12px 17px", background: "#ae7545", borderRadius: 9, cursor: "pointer", fontWeight: 650, color: "#181714" }}>
           Choose local GLB (optional)
           <input type="file" accept=".glb,model/gltf-binary" onChange={(e) => pickFile(e.target.files?.[0])} style={{ display: "none" }} />
