@@ -25,53 +25,53 @@ export default function GlbDiagnostic() {
 
   useEffect(() => {
     if (!src.startsWith("/")) {
-      setNetworkReport("Local file: network test not applicable.");
+      setNetworkReport("Local GLB: no network request required.");
       return;
     }
-    const controller = new AbortController();
     let active = true;
-    const started = Date.now();
-    const timeout = setTimeout(() => controller.abort(), 20000);
-    setNetworkReport("Checking " + src + "...");
+    const controller = new AbortController();
+    const start = Date.now();
+    let last = "Starting request...";
+    let timedOut = false;
+    const update = (message: string) => { last = message; if (active) setNetworkReport(message); };
+    const timer = setTimeout(() => { timedOut = true; controller.abort(); }, 60000);
+    update("Requesting " + src + "...");
     (async () => {
       try {
         const response = await fetch(src, { cache: "no-store", signal: controller.signal });
         const type = response.headers.get("content-type") || "(missing)";
-        const declared = response.headers.get("content-length") || "(missing)";
-        if (!response.ok) {
-          if (active) setNetworkReport("HTTP " + response.status + " | Type: " + type + " | Length: " + declared);
-          return;
-        }
+        const length = response.headers.get("content-length") || "(missing)";
+        const prefix = "HTTP " + response.status + " | Type: " + type + " | Content-Length: " + length;
+        update(prefix + " | Response received in " + (Date.now() - start) + " ms");
+        if (!response.ok) return;
         const reader = response.body?.getReader();
-        let bytes = 0;
+        if (!reader) { update(prefix + " | Streaming unsupported"); return; }
+        let received = 0;
         let header = new Uint8Array(0);
-        if (reader) {
-          while (true) {
-            const result = await reader.read();
-            if (result.done) break;
-            bytes += result.value.byteLength;
-            if (header.length < 12) {
-              const needed = 12 - header.length;
-              const next = new Uint8Array(header.length + Math.min(needed, result.value.length));
-              next.set(header);
-              next.set(result.value.subarray(0, needed), header.length);
-              header = next;
-            }
-            if (active) setNetworkReport("HTTP " + response.status + " | Downloaded " + bytes + " bytes | Type: " + type);
+        let lastUpdate = 0;
+        while (true) {
+          const part = await reader.read();
+          if (part.done) break;
+          received += part.value.byteLength;
+          if (header.length < 12) {
+            const n = Math.min(12 - header.length, part.value.length);
+            const next = new Uint8Array(header.length + n);
+            next.set(header); next.set(part.value.subarray(0, n), header.length);
+            header = next;
           }
-        } else {
-          const buffer = await response.arrayBuffer();
-          bytes = buffer.byteLength;
-          header = new Uint8Array(buffer.slice(0, 12));
+          if (Date.now() - lastUpdate > 400) {
+            update(prefix + " | Received " + received + " bytes | " + (Date.now() - start) + " ms");
+            lastUpdate = Date.now();
+          }
         }
-        const magic = header.length >= 4 ? String.fromCharCode(...header.slice(0, 4)) : "(short)";
-        const declaredGLB = header.length >= 12 ? new DataView(header.buffer, header.byteOffset, header.byteLength).getUint32(8, true) : 0;
-        if (active) setNetworkReport("HTTP " + response.status + " | Type: " + type + " | Header length: " + declared + " | Received: " + bytes + " bytes | GLB magic: " + magic + " | GLB declared bytes: " + declaredGLB + " | " + (Date.now()-started) + " ms");
-      } catch (err) {
-        if (active) setNetworkReport("Network test error: " + String(err));
-      } finally { clearTimeout(timeout); }
+        const magic = header.length >= 4 ? String.fromCharCode(...header.subarray(0, 4)) : "(short)";
+        const glbLength = header.length >= 12 ? new DataView(header.buffer).getUint32(8, true) : 0;
+        update(prefix + " | Complete: " + received + " bytes | GLB: " + magic + " | Declared: " + glbLength + " | " + (Date.now() - start) + " ms");
+      } catch (error) {
+        update(last + " | " + (timedOut ? "TIMEOUT after 60s" : "Interrupted") + ": " + String(error));
+      } finally { clearTimeout(timer); }
     })();
-    return () => { active = false; clearTimeout(timeout); controller.abort(); };
+    return () => { active = false; clearTimeout(timer); controller.abort(); };
   }, [src]);
 
   useEffect(() => {
