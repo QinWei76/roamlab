@@ -16,7 +16,8 @@ export default function GlbDiagnostic() {
   const [mode, setMode] = useState<MaterialMode>("original");
   const [loaded, setLoaded] = useState(false);
   const [spin, setSpin] = useState(false);
-  const [networkReport, setNetworkReport] = useState("Select an online model to inspect its network response.");
+  const [networkReport, setNetworkReport] = useState("Network test is paused to avoid competing with the 3D model download.");
+  const [networkTest, setNetworkTest] = useState(0);
 
   useEffect(() => {
     import("@google/model-viewer").catch((err) => setStatus("Viewer initialization failed: " + String(err)));
@@ -24,6 +25,7 @@ export default function GlbDiagnostic() {
   }, []);
 
   useEffect(() => {
+    if (networkTest === 0) return;
     if (!src.startsWith("/")) {
       setNetworkReport("Local GLB: no network request required.");
       return;
@@ -72,7 +74,7 @@ export default function GlbDiagnostic() {
       } finally { clearTimeout(timer); }
     })();
     return () => { active = false; clearTimeout(timer); controller.abort(); };
-  }, [src]);
+  }, [src, networkTest]);
 
   useEffect(() => {
     const el = viewerRef.current;
@@ -121,12 +123,14 @@ export default function GlbDiagnostic() {
     if (urlRef.current) URL.revokeObjectURL(urlRef.current);
     const url = URL.createObjectURL(file);
     urlRef.current = url;
+    setNetworkTest(0); setNetworkReport("Local model selected; no network request.");
     setLoaded(false); setMode("original"); setView("front"); setCharacter("local"); setSrc(url);
     setFilename(file.name);
     setStatus("Loading " + file.name + " (" + (file.size / 1048576).toFixed(1) + " MB)...");
   };
 
   const chooseCharacter = (gender: "female" | "male") => {
+    setNetworkTest(0); setNetworkReport("Network test paused; only the model viewer is downloading.");
     setLoaded(false); setMode("original"); setView("front"); setSpin(false); setCharacter(gender);
     setFilename(`explorer-${gender}-github.glb`);
     setStatus(`Loading ${gender} Explorer from RoamLab...`);
@@ -134,6 +138,7 @@ export default function GlbDiagnostic() {
   };
 
   const chooseMaleV2Online = () => {
+    setNetworkTest(0); setNetworkReport("Network test paused; only the model viewer is downloading.");
     setLoaded(false); setMode("original"); setView("front"); setSpin(false);
     setCharacter("male-v2");
     setFilename("explorer-male-v2.glb");
@@ -158,7 +163,7 @@ export default function GlbDiagnostic() {
           <input type="file" accept=".glb,model/gltf-binary" onChange={(e) => pickFile(e.target.files?.[0])} style={{ display: "none" }} />
         </label>
         <p role="status" style={{ color: "#d3c3ad", fontSize: 13, minHeight: 20 }}>{status}</p>
-        <div style={{ border: "1px solid #75604c", borderRadius: 9, padding: 12, marginBottom: 14, fontSize: 13, lineHeight: 1.6, overflowWrap: "anywhere" }}><strong>Online GLB network diagnostic</strong><p style={{ margin: "6px 0 0" }}>{networkReport}</p></div>
+        <div style={{ border: "1px solid #75604c", borderRadius: 9, padding: 12, marginBottom: 14, fontSize: 13, lineHeight: 1.6, overflowWrap: "anywhere" }}><strong>Online GLB network diagnostic</strong><p style={{ margin: "6px 0 0" }}>{networkReport}</p><button onClick={() => { setNetworkReport("Starting separate network test..."); setNetworkTest(n => n + 1); }} disabled={!src.startsWith("/")} style={{ marginTop: 10, padding: "9px 12px", background: "#6c4327", color: "#fff", border: "1px solid #ae7545", borderRadius: 8 }}>Run network test (downloads model again)</button></div>
         <div style={{ position: "relative", width: "100%", height: "min(64vh, 650px)", minHeight: 360, border: "1px solid #514a40", borderRadius: 14, overflow: "hidden", background: "radial-gradient(circle at 50% 42%, #6b665d 0%, #353733 52%, #1c211f 100%)" }}>
           {src ? createElement("model-viewer", {
             key: src, ref: viewerRef, src, alt: filename || "GLB character model",
