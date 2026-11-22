@@ -6,17 +6,17 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 type Rig = { shoulder: THREE.Bone; forearm: THREE.Bone | null; original: Map<string, THREE.Quaternion> };
-type Pose = "original" | "raise" | "bend";
+type Angles = { forward: number; side: number; elbow: number };
 const button: React.CSSProperties = { padding: "13px 16px", borderRadius: 10, background: "#805334", color: "#fff5e9", border: "1px solid #c18b56", fontSize: 15, fontWeight: 600, touchAction: "manipulation" };
 
 export default function RigTest() {
   const stage = useRef<HTMLDivElement>(null);
   const rigRef = useRef<Rig | null>(null);
-  const poseRef = useRef<(pose: Pose) => void>(() => {});
+  const applyRef = useRef<(angles: Angles) => void>(() => {});
   const [status, setStatus] = useState("Preparing 3D engine...");
   const [bones, setBones] = useState<string[]>([]);
   const [ready, setReady] = useState(false);
-  const [pose, setPose] = useState<Pose>("original");
+  const [angles, setAngles] = useState<Angles>({ forward: 0, side: 0, elbow: 0 });
 
   useEffect(() => {
     const host = stage.current;
@@ -89,18 +89,20 @@ export default function RigTest() {
       }
       const original = new Map(found.map(b => [b.uuid, b.quaternion.clone()]));
       rigRef.current = { shoulder: rightArm, forearm: rightForearm, original };
-      poseRef.current = (next: Pose) => {
+      applyRef.current = (next: Angles) => {
         const rig = rigRef.current;
         if (!rig) return;
         for (const bone of found) {
           const q = rig.original.get(bone.uuid);
           if (q) bone.quaternion.copy(q);
         }
-        if (next !== "original") {
-          // Local Z rotation is intentionally small for the first deformation test.
-          rig.shoulder.rotateZ(-0.45);
-          if (next === "bend" && rig.forearm) rig.forearm.rotateZ(-0.5);
-        }
+        const radians = Math.PI / 180;
+        // Forward uses the previously verified local Z direction.
+        rig.shoulder.rotateZ(-next.forward * radians);
+        // Side is a separate experimental local-axis calibration.
+        rig.shoulder.rotateX(next.side * radians);
+        if (rig.forearm) rig.forearm.rotateZ(-next.elbow * radians);
+        rig.shoulder.updateWorldMatrix(true, true);
       };
       setReady(true);
       setStatus("Loaded " + found.length + " bones. Right arm: " + rightArm.name + ". Test a pose below.");
@@ -124,7 +126,28 @@ export default function RigTest() {
     };
   }, []);
 
-  const changePose = (next: Pose) => { poseRef.current(next); setPose(next); };
+  const changeAngle = (key: keyof Angles, value: number) => {
+    setAngles(previous => {
+      const next = { ...previous, [key]: value };
+      applyRef.current(next);
+      return next;
+    });
+  };
+  const reset = () => {
+    const next = { forward: 0, side: 0, elbow: 0 };
+    applyRef.current(next);
+    setAngles(next);
+  };
+  const slider = (key: keyof Angles, label: string, max: number, note: string) =>
+    <label key={key} style={{ display: "block", padding: "12px 0", borderBottom: "1px solid #49453e" }}>
+      <span style={{ display: "flex", justifyContent: "space-between", gap: 12, fontWeight: 600 }}>
+        <span>{label}</span><span style={{ color: "#f1bc84", fontVariantNumeric: "tabular-nums" }}>{angles[key]}°</span>
+      </span>
+      <input type="range" min={0} max={max} step={5} value={angles[key]} disabled={!ready}
+        onChange={event => changeAngle(key, Number(event.target.value))}
+        style={{ width: "100%", height: 36, accentColor: "#c18b56", touchAction: "pan-x" }} />
+      <span style={{ fontSize: 12, color: "#c3b7a8" }}>{note}</span>
+    </label>;
   return <main style={{ minHeight: "100dvh", background: "#171b1a", color: "#f5ede0", padding: "18px 14px", fontFamily: "system-ui,sans-serif" }}>
     <div style={{ maxWidth: 960, margin: "0 auto" }}>
       <a href="/explorer/glb-diagnostic" style={{ color: "#d7aa7d" }}>← Working GLB Diagnostic</a>
@@ -132,12 +155,18 @@ export default function RigTest() {
       <p style={{ color: "#c8b7a5", lineHeight: 1.6 }}>Male V2 · Three.js skeleton control · drag to rotate · pinch to zoom</p>
       <p role="status" style={{ color: ready ? "#b9dfa7" : "#eac08e", minHeight: 44, lineHeight: 1.5, overflowWrap: "anywhere" }}>{status}</p>
       <div ref={stage} style={{ height: "min(62dvh,600px)", minHeight: 340, border: "1px solid #64584a", borderRadius: 14, overflow: "hidden", touchAction: "none" }} />
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 16 }}>
-        <button disabled={!ready} onClick={() => changePose("original")} style={{ ...button, opacity: ready ? 1 : 0.45, background: pose === "original" ? "#ae7545" : "#805334" }}>Original Pose</button>
-        <button disabled={!ready} onClick={() => changePose("raise")} style={{ ...button, opacity: ready ? 1 : 0.45, background: pose === "raise" ? "#ae7545" : "#805334" }}>Raise Right Arm</button>
-        <button disabled={!ready} onClick={() => changePose("bend")} style={{ ...button, opacity: ready ? 1 : 0.45, background: pose === "bend" ? "#ae7545" : "#805334" }}>Bend Right Elbow</button>
-      </div>
-      <p style={{ fontSize: 13, lineHeight: 1.7, color: "#c3b7a8" }}>Experimental local bone rotations, not a finished animation. Check the shoulder, sleeve and elbow for distortion. The direction of rotation may need calibration.</p>
+      <section style={{ marginTop: 16, padding: "14px 16px", border: "1px solid #64584a", borderRadius: 14 }}>
+        <h2 style={{ fontSize: 19, margin: "0 0 8px" }}>Right Arm · Angle Calibration</h2>
+        {slider("forward", "Forward Raise · 前举", 120, "Verified forward direction; increase gradually and check the shoulder.")}
+        {slider("side", "Side Raise · 侧举", 90, "Experimental axis; check from front and side.")}
+        {slider("elbow", "Elbow Bend · 屈肘", 135, rigRef.current?.forearm ? "Check sleeve and elbow deformation." : "Waiting for forearm bone.")}
+        <button type="button" disabled={!ready} onClick={reset}
+          style={{ ...button, marginTop: 14, opacity: ready ? 1 : 0.45 }}>Reset All · 恢复初始姿势</button>
+        <p style={{ fontSize: 13, lineHeight: 1.7, color: "#c3b7a8" }}>
+          Adjust slowly. These are experimental local-bone angles, not anatomical measurements.
+          If the arm twists unnaturally, reset and report the angle. No animation or GLB changes are saved.
+        </p>
+      </section>
       <details style={{ fontSize: 12, color: "#bdb2a4", overflowWrap: "anywhere" }}><summary>Detected bone names ({bones.length})</summary><p>{bones.join(", ") || "Waiting for model..."}</p></details>
     </div>
   </main>;
