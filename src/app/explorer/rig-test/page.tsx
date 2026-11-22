@@ -7,16 +7,24 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 type Rig = { shoulder: THREE.Bone; forearm: THREE.Bone | null; original: Map<string, THREE.Quaternion> };
 type Angles = { forward: number; side: number; elbow: number };
+type Axis = "X" | "Y" | "Z";
+type Joint = "shoulder" | "forearm";
 const button: React.CSSProperties = { padding: "13px 16px", borderRadius: 10, background: "#805334", color: "#fff5e9", border: "1px solid #c18b56", fontSize: 15, fontWeight: 600, touchAction: "manipulation" };
 
 export default function RigTest() {
   const stage = useRef<HTMLDivElement>(null);
   const rigRef = useRef<Rig | null>(null);
   const applyRef = useRef<(angles: Angles) => void>(() => {});
+  const testRef = useRef<(joint: Joint, axis: Axis, degrees: number) => void>(() => {});
   const [status, setStatus] = useState("Preparing 3D engine...");
   const [bones, setBones] = useState<string[]>([]);
   const [ready, setReady] = useState(false);
   const [angles, setAngles] = useState<Angles>({ forward: 0, side: 0, elbow: 0 });
+  const [mode, setMode] = useState<"isolated" | "combined">("isolated");
+  const [joint, setJoint] = useState<Joint>("shoulder");
+  const [axis, setAxis] = useState<Axis>("X");
+  const [degrees, setDegrees] = useState(0);
+  const [hasForearm, setHasForearm] = useState(false);
 
   useEffect(() => {
     const host = stage.current;
@@ -89,6 +97,21 @@ export default function RigTest() {
       }
       const original = new Map(found.map(b => [b.uuid, b.quaternion.clone()]));
       rigRef.current = { shoulder: rightArm, forearm: rightForearm, original };
+      setHasForearm(Boolean(rightForearm));
+      const restore = () => {
+        for (const bone of found) {
+          const q = original.get(bone.uuid);
+          if (q) bone.quaternion.copy(q);
+        }
+      };
+      testRef.current = (joint, axis, degrees) => {
+        restore();
+        const bone = joint === "shoulder" ? rightArm : rightForearm;
+        if (!bone) return;
+        const direction = new THREE.Vector3(axis === "X" ? 1 : 0, axis === "Y" ? 1 : 0, axis === "Z" ? 1 : 0);
+        bone.rotateOnAxis(direction, degrees * Math.PI / 180);
+        bone.updateWorldMatrix(true, true);
+      };
       applyRef.current = (next: Angles) => {
         const rig = rigRef.current;
         if (!rig) return;
@@ -127,6 +150,7 @@ export default function RigTest() {
   }, []);
 
   const changeAngle = (key: keyof Angles, value: number) => {
+    setMode("combined");
     setAngles(previous => {
       const next = { ...previous, [key]: value };
       applyRef.current(next);
@@ -137,6 +161,14 @@ export default function RigTest() {
     const next = { forward: 0, side: 0, elbow: 0 };
     applyRef.current(next);
     setAngles(next);
+    setDegrees(0);
+    testRef.current(joint, axis, 0);
+  };
+  const setIsolated = (nextJoint: Joint, nextAxis: Axis, nextDegrees: number) => {
+    setJoint(nextJoint);
+    setAxis(nextAxis);
+    setDegrees(nextDegrees);
+    testRef.current(nextJoint, nextAxis, nextDegrees);
   };
   const slider = (key: keyof Angles, label: string, max: number, note: string) =>
     <label key={key} style={{ display: "block", padding: "12px 0", borderBottom: "1px solid #49453e" }}>
@@ -156,7 +188,33 @@ export default function RigTest() {
       <p role="status" style={{ color: ready ? "#b9dfa7" : "#eac08e", minHeight: 44, lineHeight: 1.5, overflowWrap: "anywhere" }}>{status}</p>
       <div ref={stage} style={{ height: "min(62dvh,600px)", minHeight: 340, border: "1px solid #64584a", borderRadius: 14, overflow: "hidden", touchAction: "none" }} />
       <section style={{ marginTop: 16, padding: "14px 16px", border: "1px solid #64584a", borderRadius: 14 }}>
-        <h2 style={{ fontSize: 19, margin: "0 0 8px" }}>Right Arm · Angle Calibration</h2>
+        <h2 style={{ fontSize: 19, margin: "0 0 8px" }}>Single-Axis Diagnostic · 单轴校准</h2>
+        <p style={{ fontSize: 13, lineHeight: 1.6, color: "#c3b7a8" }}>Only one bone and one local axis move at a time. Negative and positive values reveal direction. Reset between tests.</p>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12 }}>
+          {(["shoulder", "forearm"] as const).map(item =>
+            <button type="button" key={item} disabled={!ready || (item === "forearm" && !hasForearm)}
+              onClick={() => { setMode("isolated"); setIsolated(item, axis, 0); }}
+              style={{ ...button, background: joint === item && mode === "isolated" ? "#ae7545" : "#805334", opacity: ready && (item !== "forearm" || hasForearm) ? 1 : 0.45 }}>{item === "shoulder" ? "Shoulder · 肩" : "Elbow · 肘"}</button>)}
+        </div>
+        <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+          {(["X", "Y", "Z"] as const).map(item =>
+            <button type="button" key={item} disabled={!ready}
+              onClick={() => { setMode("isolated"); setIsolated(joint, item, 0); }}
+              style={{ ...button, flex: 1, background: axis === item && mode === "isolated" ? "#ae7545" : "#805334", opacity: ready ? 1 : 0.45 }}>Axis {item}</button>)}
+        </div>
+        <label style={{ display: "block", fontWeight: 600 }}>
+          <span style={{ display: "flex", justifyContent: "space-between" }}><span>Local rotation · 局部旋转</span><span style={{ color: "#f1bc84" }}>{mode === "isolated" ? degrees : 0}°</span></span>
+          <input type="range" min={-120} max={120} step={5} value={mode === "isolated" ? degrees : 0} disabled={!ready}
+            onChange={event => { setMode("isolated"); setIsolated(joint, axis, Number(event.target.value)); }}
+            style={{ width: "100%", height: 40, accentColor: "#c18b56", touchAction: "pan-x" }} />
+        </label>
+        <button type="button" disabled={!ready} onClick={() => { setMode("isolated"); setIsolated(joint, axis, 0); }}
+          style={{ ...button, marginTop: 8, opacity: ready ? 1 : 0.45 }}>Reset Single Axis · 单轴复位</button>
+        <p style={{ fontSize: 12, lineHeight: 1.6, color: "#c3b7a8" }}>Test +30° and -30° for each axis first. Stop if the arm enters the torso. This tool does not prevent intersections.</p>
+      </section>
+      <section style={{ marginTop: 16, padding: "14px 16px", border: "1px solid #64584a", borderRadius: 14 }}>
+        <h2 style={{ fontSize: 19, margin: "0 0 8px" }}>Combined Angles · 组合动作（实验）</h2>
+        <p style={{ fontSize: 12, color: "#eac08e" }}>Combined controls may cause torso clipping. Prefer the single-axis diagnostic above.</p>
         {slider("forward", "Forward Raise · 前举", 120, "Verified forward direction; increase gradually and check the shoulder.")}
         {slider("side", "Side Raise · 侧举", 90, "Experimental axis; check from front and side.")}
         {slider("elbow", "Elbow Bend · 屈肘", 135, rigRef.current?.forearm ? "Check sleeve and elbow deformation." : "Waiting for forearm bone.")}
