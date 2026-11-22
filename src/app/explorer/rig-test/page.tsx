@@ -1,122 +1,144 @@
 "use client";
 
-import { createElement, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
-type View = "front" | "right" | "back" | "left";
-type MaterialMode = "original" | "clay";
+type Rig = { shoulder: THREE.Bone; forearm: THREE.Bone | null; original: Map<string, THREE.Quaternion> };
+type Pose = "original" | "raise" | "bend";
+const button: React.CSSProperties = { padding: "13px 16px", borderRadius: 10, background: "#805334", color: "#fff5e9", border: "1px solid #c18b56", fontSize: 15, fontWeight: 600, touchAction: "manipulation" };
 
-export default function GlbDiagnostic() {
-  const viewerRef = useRef<HTMLElement | null>(null);
-  const urlRef = useRef<string | null>(null);
-  const [src, setSrc] = useState("/explorer-male-v2.glb");
-  const [character, setCharacter] = useState<"female" | "male" | "local">("local");
-  const [filename, setFilename] = useState("explorer-male-v2.glb");
-  const [status, setStatus] = useState("Loading Explorer V2 from RoamLab...");
-  const [view, setView] = useState<View>("front");
-  const [mode, setMode] = useState<MaterialMode>("original");
-  const [loaded, setLoaded] = useState(false);
-  const [spin, setSpin] = useState(false);
+export default function RigTest() {
+  const stage = useRef<HTMLDivElement>(null);
+  const rigRef = useRef<Rig | null>(null);
+  const poseRef = useRef<(pose: Pose) => void>(() => {});
+  const [status, setStatus] = useState("Preparing 3D engine...");
+  const [bones, setBones] = useState<string[]>([]);
+  const [ready, setReady] = useState(false);
+  const [pose, setPose] = useState<Pose>("original");
 
   useEffect(() => {
-    import("@google/model-viewer").catch((err) => setStatus("Viewer initialization failed: " + String(err)));
-    return () => { if (urlRef.current) URL.revokeObjectURL(urlRef.current); };
+    const host = stage.current;
+    if (!host) return;
+    let disposed = false;
+    let frame = 0;
+    let controls: OrbitControls | undefined;
+    let renderer: THREE.WebGLRenderer | undefined;
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color("#333a35");
+    const camera = new THREE.PerspectiveCamera(35, 1, 0.01, 1000);
+    camera.position.set(0, 1.4, 4);
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x62605c, 2.5));
+    const sun = new THREE.DirectionalLight(0xffffff, 3);
+    sun.position.set(3, 6, 5);
+    scene.add(sun);
+    const updateSize = () => {
+      if (!renderer) return;
+      const w = Math.max(host.clientWidth, 1), h = Math.max(host.clientHeight, 1);
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    };
+    const observer = new ResizeObserver(updateSize);
+    try {
+      renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "low-power" });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      host.appendChild(renderer.domElement);
+      controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.minDistance = 0.5;
+      controls.maxDistance = 25;
+      observer.observe(host);
+      updateSize();
+      const draw = () => {
+        if (disposed) return;
+        frame = requestAnimationFrame(draw);
+        controls?.update();
+        renderer?.render(scene, camera);
+      };
+      draw();
+    } catch (error) {
+      setStatus("3D engine failed: " + String(error));
+      return () => { observer.disconnect(); renderer?.dispose(); };
+    }
+    setStatus("Downloading Male V2 (5.2 MB) — one model request only...");
+    new GLTFLoader().load("/explorer-male-v2.glb", gltf => {
+      if (disposed) return;
+      scene.add(gltf.scene);
+      const bounds = new THREE.Box3().setFromObject(gltf.scene);
+      const center = bounds.getCenter(new THREE.Vector3());
+      const size = bounds.getSize(new THREE.Vector3());
+      controls!.target.copy(center);
+      camera.position.set(center.x, center.y + size.y * 0.08, center.z + Math.max(size.y * 1.6, 2));
+      camera.lookAt(center);
+      controls!.update();
+      const found: THREE.Bone[] = [];
+      gltf.scene.traverse(node => { if ((node as THREE.Bone).isBone) found.push(node as THREE.Bone); });
+      const normalized = (name: string) => name.toLowerCase().replace(/[^a-z0-9]/g, "");
+      const right = found.filter(b => /right|mixamorigr/.test(normalized(b.name)));
+      const rightArm = right.find(b => /rightarm$|rightupperarm$/.test(normalized(b.name)))
+        || right.find(b => /rightarm/.test(normalized(b.name)) && !/fore|lower|twist|hand/.test(normalized(b.name)));
+      const rightForearm = right.find(b => /rightforearm|rightlowerarm/.test(normalized(b.name))) || null;
+      setBones(found.map(b => b.name));
+      if (!rightArm) {
+        setStatus("Model loaded (" + found.length + " bones), but right upper-arm bone was not recognized. See bone names below.");
+        return;
+      }
+      const original = new Map(found.map(b => [b.uuid, b.quaternion.clone()]));
+      rigRef.current = { shoulder: rightArm, forearm: rightForearm, original };
+      poseRef.current = (next: Pose) => {
+        const rig = rigRef.current;
+        if (!rig) return;
+        for (const bone of found) {
+          const q = rig.original.get(bone.uuid);
+          if (q) bone.quaternion.copy(q);
+        }
+        if (next !== "original") {
+          // Local Z rotation is intentionally small for the first deformation test.
+          rig.shoulder.rotateZ(-0.45);
+          if (next === "bend" && rig.forearm) rig.forearm.rotateZ(-0.5);
+        }
+      };
+      setReady(true);
+      setStatus("Loaded " + found.length + " bones. Right arm: " + rightArm.name + ". Test a pose below.");
+    }, undefined, error => {
+      if (!disposed) setStatus("Model download or parse failed: " + String(error));
+    });
+    return () => {
+      disposed = true;
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+      controls?.dispose();
+      rigRef.current = null;
+      scene.traverse(object => {
+        const mesh = object as THREE.Mesh;
+        mesh.geometry?.dispose?.();
+        const materials = mesh.material ? (Array.isArray(mesh.material) ? mesh.material : [mesh.material]) : [];
+        materials.forEach(material => material.dispose());
+      });
+      renderer?.dispose();
+      renderer?.domElement.remove();
+    };
   }, []);
 
-  useEffect(() => {
-    const el = viewerRef.current;
-    if (!el) return;
-    const onLoad = () => { setLoaded(true); setStatus("Loaded. Compare original and clay views."); };
-    const onError = () => { setLoaded(false); setStatus("Could not load this model. Check whether the matching GLB has been uploaded to GitHub public."); };
-    el.addEventListener("load", onLoad);
-    el.addEventListener("error", onError);
-    return () => { el.removeEventListener("load", onLoad); el.removeEventListener("error", onError); };
-  }, [src]);
-
-  useEffect(() => {
-    const el = viewerRef.current as (HTMLElement & { cameraOrbit?: string; jumpCameraToGoal?: () => void }) | null;
-    if (!el || !loaded) return;
-    const azimuth: Record<View, string> = { front: "0deg", right: "90deg", back: "180deg", left: "270deg" };
-    el.cameraOrbit = azimuth[view] + " 80deg auto";
-    el.jumpCameraToGoal?.();
-  }, [view, loaded]);
-
-  useEffect(() => {
-    const el = viewerRef.current as (HTMLElement & { model?: { materials?: Array<{ pbrMetallicRoughness?: { baseColorTexture?: { texture?: unknown; setTexture?: (texture: unknown) => void }; setBaseColorFactor?: (factor: number[] | string) => void } }> } }) | null;
-    if (!el?.model?.materials || !loaded) return;
-    try {
-      for (const material of el.model.materials) {
-        const pbr = material.pbrMetallicRoughness;
-        if (!pbr) continue;
-        const tex = pbr.baseColorTexture;
-        if (tex && !(tex as any).__roamlabOriginalCaptured) {
-          (tex as any).__roamlabOriginalCaptured = true;
-          (tex as any).__roamlabOriginalTexture = tex.texture ?? null;
-        }
-        if (mode === "clay") {
-          tex?.setTexture?.(null);
-          pbr.setBaseColorFactor?.([0.78, 0.78, 0.76, 1]);
-        } else {
-          tex?.setTexture?.((tex as any)?.__roamlabOriginalTexture ?? null);
-          pbr.setBaseColorFactor?.([1, 1, 1, 1]);
-        }
-      }
-    } catch (error) { setStatus("Material switch unavailable for this model: " + String(error)); }
-  }, [mode, loaded]);
-
-  const pickFile = (file?: File) => {
-    if (!file) return;
-    if (!file.name.toLowerCase().endsWith(".glb")) { setStatus("Please choose a .glb file."); return; }
-    if (urlRef.current) URL.revokeObjectURL(urlRef.current);
-    const url = URL.createObjectURL(file);
-    urlRef.current = url;
-    setLoaded(false); setMode("original"); setView("front"); setCharacter("local"); setSrc(url);
-    setFilename(file.name);
-    setStatus("Loading " + file.name + " (" + (file.size / 1048576).toFixed(1) + " MB)...");
-  };
-
-  const chooseCharacter = (gender: "female" | "male") => {
-    setLoaded(false); setMode("original"); setView("front"); setSpin(false); setCharacter(gender);
-    setFilename(`explorer-${gender}-github.glb`);
-    setStatus(`Loading ${gender} Explorer from RoamLab...`);
-    setSrc(`/explorer-${gender}-github.glb`);
-  };
-
-  const buttonStyle = (active: boolean): React.CSSProperties => ({
-    padding: "10px 14px", borderRadius: 9, border: "1px solid " + (active ? "#e8a15e" : "#625448"),
-    background: active ? "#6c4327" : "#282622", color: "#f5ede0", cursor: "pointer", fontSize: 14
-  });
-
-  return (
-    <main style={{ minHeight: "100dvh", background: "#171b1a", color: "#f5ede0", padding: "24px 16px", fontFamily: "system-ui, sans-serif" }}>
-      <div style={{ maxWidth: 1000, margin: "0 auto" }}>
-        <a href="/explorer" style={{ color: "#d4ad82", textDecoration: "none", fontSize: 13 }}>← Explorer</a>
-        <h1 style={{ fontSize: 25, margin: "15px 0 6px" }}>RoamLab · Explorer V2 Diagnostic</h1>
-        <p style={{ color: "#bdb3a7", lineHeight: 1.6, marginTop: 0 }}>Models load automatically from RoamLab. You can also inspect a local GLB file without uploading it.</p>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 9, marginBottom: 14 }}><button onClick={() => chooseCharacter("female")} style={buttonStyle(character === "female")}>Female Explorer</button><button onClick={() => chooseCharacter("male")} style={buttonStyle(character === "male")}>Male Explorer</button></div>
-        <label style={{ display: "inline-block", padding: "12px 17px", background: "#ae7545", borderRadius: 9, cursor: "pointer", fontWeight: 650, color: "#181714" }}>
-          Choose local GLB (optional)
-          <input type="file" accept=".glb,model/gltf-binary" onChange={(e) => pickFile(e.target.files?.[0])} style={{ display: "none" }} />
-        </label>
-        <p role="status" style={{ color: "#d3c3ad", fontSize: 13, minHeight: 20 }}>{status}</p>
-        <div style={{ position: "relative", width: "100%", height: "min(64vh, 650px)", minHeight: 360, border: "1px solid #514a40", borderRadius: 14, overflow: "hidden", background: "radial-gradient(circle at 50% 42%, #6b665d 0%, #353733 52%, #1c211f 100%)" }}>
-          {src ? createElement("model-viewer", {
-            key: src, ref: viewerRef, src, alt: filename || "GLB character model",
-            "camera-controls": "", "auto-rotate": spin ? "" : undefined,
-            "auto-rotate-delay": "0", "environment-image": "neutral",
-            "shadow-intensity": "1", "camera-orbit": "0deg 80deg auto",
-            "field-of-view": "30deg", style: { width: "100%", height: "100%", display: "block" }
-          }) : <div style={{ height: "100%", display: "grid", placeItems: "center", color: "#bdb3a7", textAlign: "center", padding: 24 }}>Choose your male or female GLB above to inspect it here.</div>}
-        </div>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 14 }}>
-          {(["front", "right", "back", "left"] as View[]).map((v) => <button key={v} disabled={!loaded} onClick={() => { setSpin(false); setView(v); }} style={buttonStyle(view === v)}>{v[0].toUpperCase() + v.slice(1)}</button>)}
-          <button disabled={!loaded} onClick={() => setSpin((s) => !s)} style={buttonStyle(spin)}>{spin ? "Stop rotation" : "Auto rotate"}</button>
-        </div>
-        <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
-          <button disabled={!loaded} onClick={() => setMode("original")} style={buttonStyle(mode === "original")}>Original texture</button>
-          <button disabled={!loaded} onClick={() => setMode("clay")} style={buttonStyle(mode === "clay")}>Clay / no color texture</button>
-        </div>
-        <p style={{ fontSize: 13, color: "#bdb3a7", lineHeight: 1.7, marginTop: 18 }}>Test: inspect the face and jacket with Original texture, then switch to Clay. If defects remain in Clay, geometry may be damaged. If they disappear, texture mapping is a likely cause. Clay mode removes base-color texture only; normal/other material maps may remain. The front view is relative to the GLB coordinate system and may not match the character's actual face direction.</p>
+  const changePose = (next: Pose) => { poseRef.current(next); setPose(next); };
+  return <main style={{ minHeight: "100dvh", background: "#171b1a", color: "#f5ede0", padding: "18px 14px", fontFamily: "system-ui,sans-serif" }}>
+    <div style={{ maxWidth: 960, margin: "0 auto" }}>
+      <a href="/explorer/glb-diagnostic" style={{ color: "#d7aa7d" }}>← Working GLB Diagnostic</a>
+      <h1 style={{ fontSize: 25, margin: "18px 0 8px" }}>Explorer V2 · Bone Motion Test</h1>
+      <p style={{ color: "#c8b7a5", lineHeight: 1.6 }}>Male V2 · Three.js skeleton control · drag to rotate · pinch to zoom</p>
+      <p role="status" style={{ color: ready ? "#b9dfa7" : "#eac08e", minHeight: 44, lineHeight: 1.5, overflowWrap: "anywhere" }}>{status}</p>
+      <div ref={stage} style={{ height: "min(62dvh,600px)", minHeight: 340, border: "1px solid #64584a", borderRadius: 14, overflow: "hidden", touchAction: "none" }} />
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 16 }}>
+        <button disabled={!ready} onClick={() => changePose("original")} style={{ ...button, opacity: ready ? 1 : 0.45, background: pose === "original" ? "#ae7545" : "#805334" }}>Original Pose</button>
+        <button disabled={!ready} onClick={() => changePose("raise")} style={{ ...button, opacity: ready ? 1 : 0.45, background: pose === "raise" ? "#ae7545" : "#805334" }}>Raise Right Arm</button>
+        <button disabled={!ready} onClick={() => changePose("bend")} style={{ ...button, opacity: ready ? 1 : 0.45, background: pose === "bend" ? "#ae7545" : "#805334" }}>Bend Right Elbow</button>
       </div>
-    </main>
-  );
+      <p style={{ fontSize: 13, lineHeight: 1.7, color: "#c3b7a8" }}>Experimental local bone rotations, not a finished animation. Check the shoulder, sleeve and elbow for distortion. The direction of rotation may need calibration.</p>
+      <details style={{ fontSize: 12, color: "#bdb2a4", overflowWrap: "anywhere" }}><summary>Detected bone names ({bones.length})</summary><p>{bones.join(", ") || "Waiting for model..."}</p></details>
+    </div>
+  </main>;
 }
