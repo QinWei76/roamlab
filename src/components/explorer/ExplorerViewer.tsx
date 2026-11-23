@@ -206,11 +206,6 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
       fitModel();
       setLoaded(true);
       setStatus("");
-      } catch (error) {
-        console.error("Explorer initialization failed:", error);
-        setStatus("Explorer setup failed: " + String(error));
-        setLoaded(false);
-      }
       // Attachment interface is intentionally separate from body posing.
       // A GLB attachment must be authored to fit the target bone.
       for (const item of attachmentsRef.current) {
@@ -226,6 +221,11 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
           assets.push(object);
           track(object);
         }, undefined, error => console.warn("Explorer attachment failed:", item.id, error));
+      }
+      } catch (error) {
+        console.error("Explorer initialization failed:", error);
+        setStatus("Explorer setup failed: " + String(error));
+        setLoaded(false);
       }
     }, progress => {
       if (!disposed && progress.total > 0) setStatus("Loading Explorer... " + Math.round(progress.loaded / progress.total * 100) + "%");
