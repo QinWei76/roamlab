@@ -23,12 +23,18 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
   const [backpackReady, setBackpackReady] = useState(false);
   const [status, setStatus] = useState("Loading Explorer...");
   const [loaded, setLoaded] = useState(false);
+  const [loadAttempt, setLoadAttempt] = useState(0);
+  const [loadFailed, setLoadFailed] = useState(false);
   const attachmentsRef = useRef(attachments);
   attachmentsRef.current = attachments;
   useEffect(() => {
     const host = hostRef.current;
     if (!host) return;
     let disposed = false;
+    setLoaded(false);
+    setBackpackReady(false);
+    setLoadFailed(false);
+    setStatus("Loading Explorer...");
     let raf = 0;
     let renderer: THREE.WebGLRenderer | null = null;
     let controls: OrbitControls | null = null;
@@ -107,7 +113,7 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
       return () => { observer.disconnect(); renderer?.dispose(); renderer?.domElement.remove(); };
     }
     const loadingWatchdog = window.setTimeout(() => {
-      if (!disposed && !idleModel) setStatus("Explorer is still loading after 60 seconds. Check connection or reload.");
+      if (!disposed && !idleModel) setStatus("Still downloading Explorer. Slow connections can take over a minute...");
     }, 60000);
     loader.load(modelUrl, gltf => {
       if (disposed) return;
@@ -233,7 +239,10 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
         : "Loading Explorer... " + (progress.loaded / 1048576).toFixed(1) + " MB received");
     }, error => {
       window.clearTimeout(loadingWatchdog);
-      if (!disposed) setStatus("Could not load Explorer: " + String(error));
+      if (!disposed) {
+        setStatus("Could not load Explorer: " + String(error));
+        setLoadFailed(true);
+      }
     });
     return () => {
       disposed = true;
@@ -250,7 +259,7 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
       renderer?.dispose();
       renderer?.domElement.remove();
     };
-  }, [modelUrl]);
+  }, [modelUrl, loadAttempt]);
   return <div className={className} style={{ position: "relative", width: "100%", height: "100%", minHeight: 320, touchAction: "none" }}>
     <div ref={hostRef} style={{ width: "100%", height: "100%" }} aria-label="Interactive 3D Explorer" />
     {loaded && backpackReady && <button type="button"
@@ -262,6 +271,7 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
       style={{ position: "absolute", right: 12, bottom: 12, zIndex: 2, border: "1px solid #b99a73", background: "#241d18e8", color: "#f3dfc3", padding: "10px 14px", borderRadius: 10, font: "600 13px system-ui", cursor: "pointer" }}>
       Reset View · 居中
     </button>}
+    {!loaded && loadFailed && <button type="button" onClick={() => setLoadAttempt(value => value + 1)} style={{ position: "absolute", right: 12, bottom: 60, zIndex: 2, border: "1px solid #b99a73", background: "#241d18e8", color: "#f3dfc3", padding: "10px 14px", borderRadius: 10, font: "600 13px system-ui", cursor: "pointer" }}>Retry Explorer · 重试加载</button>}
     {!loaded && <div role="status" style={{ position: "absolute", left: 16, bottom: 16, color: "#ead8c0", fontSize: 13 }}>{status}</div>}
   </div>;
 }
