@@ -107,8 +107,8 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
       return () => { observer.disconnect(); renderer?.dispose(); renderer?.domElement.remove(); };
     }
     const loadingWatchdog = window.setTimeout(() => {
-      if (!disposed && !idleModel) setStatus("Explorer is taking too long to load. Check connection or reload.");
-    }, 15000);
+      if (!disposed && !idleModel) setStatus("Explorer is still loading after 60 seconds. Check connection or reload.");
+    }, 60000);
     loader.load(modelUrl, gltf => {
       if (disposed) return;
       window.clearTimeout(loadingWatchdog);
@@ -228,7 +228,9 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
         setLoaded(false);
       }
     }, progress => {
-      if (!disposed && progress.total > 0) setStatus("Loading Explorer... " + Math.round(progress.loaded / progress.total * 100) + "%");
+      if (!disposed) setStatus(progress.total > 0
+        ? "Loading Explorer... " + Math.round(progress.loaded / progress.total * 100) + "%"
+        : "Loading Explorer... " + (progress.loaded / 1048576).toFixed(1) + " MB received");
     }, error => {
       window.clearTimeout(loadingWatchdog);
       if (!disposed) setStatus("Could not load Explorer: " + String(error));
