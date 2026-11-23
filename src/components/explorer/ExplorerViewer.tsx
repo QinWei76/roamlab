@@ -40,7 +40,7 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
     let idleBaseY = 0;
     let idleBaseScaleY = 1;
     const clock = new THREE.Clock();
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)");
     scene.add(new THREE.HemisphereLight(0xffffff, 0x65615b, 2.3));
     const key = new THREE.DirectionalLight(0xffeed7, 2.8);
     key.position.set(3, 5, 5);
@@ -92,7 +92,7 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
       const animate = () => {
         if (disposed) return;
         raf = requestAnimationFrame(animate);
-        if (idleModel && !reducedMotion.matches && !document.hidden) {
+        if (idleModel && !reducedMotion?.matches && !document.hidden) {
           const t = clock.getElapsedTime();
           // Conservative root-level idle: no bone rotations or sleeve clipping.
           idleModel.position.y = idleBaseY + Math.sin(t * 1.15) * 0.004;
@@ -106,8 +106,13 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
       setStatus("3D unavailable: " + String(error));
       return () => { observer.disconnect(); renderer?.dispose(); renderer?.domElement.remove(); };
     }
+    const loadingWatchdog = window.setTimeout(() => {
+      if (!disposed && !idleModel) setStatus("Explorer is taking too long to load. Check connection or reload.");
+    }, 15000);
     loader.load(modelUrl, gltf => {
       if (disposed) return;
+      window.clearTimeout(loadingWatchdog);
+      try {
       const model = gltf.scene;
       assets.push(model);
       track(model);
@@ -136,6 +141,7 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
         }
       });
       if (bounds.isEmpty()) bounds.setFromObject(model);
+      // Backpack loading is independent from the main character readiness.
       // Load the actual Tripo backpack; size and place it relative to the body.
       const spine = model.getObjectByName("mixamorigSpine2") ??
         model.getObjectByName("mixamorigSpine1") ??
@@ -200,6 +206,11 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
       fitModel();
       setLoaded(true);
       setStatus("");
+      } catch (error) {
+        console.error("Explorer initialization failed:", error);
+        setStatus("Explorer setup failed: " + String(error));
+        setLoaded(false);
+      }
       // Attachment interface is intentionally separate from body posing.
       // A GLB attachment must be authored to fit the target bone.
       for (const item of attachmentsRef.current) {
@@ -216,9 +227,15 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
           track(object);
         }, undefined, error => console.warn("Explorer attachment failed:", item.id, error));
       }
-    }, undefined, error => { if (!disposed) setStatus("Could not load Explorer: " + String(error)); });
+    }, progress => {
+      if (!disposed && progress.total > 0) setStatus("Loading Explorer... " + Math.round(progress.loaded / progress.total * 100) + "%");
+    }, error => {
+      window.clearTimeout(loadingWatchdog);
+      if (!disposed) setStatus("Could not load Explorer: " + String(error));
+    });
     return () => {
       disposed = true;
+      window.clearTimeout(loadingWatchdog);
       recenterRef.current = () => {};
       backpackRef.current = null;
       cancelAnimationFrame(raf);
