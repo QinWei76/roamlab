@@ -93,7 +93,27 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
       assets.push(model);
       track(model);
       scene.add(model);
-      const bounds = new THREE.Box3().setFromObject(model);
+      // Compute framing from rendered meshes only. Skeleton helpers and GLB
+      // hierarchy transforms can make a whole-scene box badly off-center.
+      model.updateMatrixWorld(true);
+      const bounds = new THREE.Box3();
+      model.traverse(node => {
+        const mesh = node as THREE.Mesh;
+        if (!mesh.isMesh || !mesh.visible) return;
+        if ((mesh as THREE.SkinnedMesh).isSkinnedMesh) {
+          const skinned = mesh as THREE.SkinnedMesh;
+          skinned.computeBoundingBox();
+          if (skinned.boundingBox) {
+            bounds.union(skinned.boundingBox.clone().applyMatrix4(skinned.matrixWorld));
+          }
+        } else if (mesh.geometry) {
+          mesh.geometry.computeBoundingBox();
+          if (mesh.geometry.boundingBox) {
+            bounds.union(mesh.geometry.boundingBox.clone().applyMatrix4(mesh.matrixWorld));
+          }
+        }
+      });
+      if (bounds.isEmpty()) bounds.setFromObject(model);
       const center = bounds.getCenter(new THREE.Vector3());
       const size = bounds.getSize(new THREE.Vector3());
       fitModel = () => {
@@ -101,9 +121,9 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
         const horizontalFov = 2 * Math.atan(Math.tan(verticalFov / 2) * camera.aspect);
         const heightDistance = size.y / (2 * Math.tan(verticalFov / 2));
         const widthDistance = Math.max(size.x, size.z) / (2 * Math.tan(horizontalFov / 2));
-        const distance = Math.max(4, size.y * 1.8, Math.max(heightDistance, widthDistance) * 1.35 + size.z / 2);
+        const distance = Math.max(2, size.y * 1.8, Math.max(heightDistance, widthDistance) * 1.3 + size.z / 2);
         controls!.target.copy(center);
-        camera.position.set(center.x, center.y + size.y * 0.04, center.z + distance);
+        camera.position.set(center.x, center.y, center.z + distance);
         camera.lookAt(center);
         controls!.minDistance = Math.max(0.1, distance * 0.35);
         controls!.maxDistance = Math.max(12, distance * 3);
