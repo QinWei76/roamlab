@@ -136,38 +136,49 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
         }
       });
       if (bounds.isEmpty()) bounds.setFromObject(model);
-      // Temporary procedural backpack for fitting, not a finished 3D asset.
+      // Load the actual Tripo backpack; size and place it relative to the body.
       const spine = model.getObjectByName("mixamorigSpine2") ??
         model.getObjectByName("mixamorigSpine1") ??
         model.getObjectByName("mixamorigSpine");
       if (spine) {
-        const body = bounds.getSize(new THREE.Vector3());
-        const pack = new THREE.Group();
-        const fabric = new THREE.MeshStandardMaterial({ color: 0x66734a, roughness: 0.95 });
-        const trim = new THREE.MeshStandardMaterial({ color: 0x302d24, roughness: 0.9 });
-        const addBox = (w: number, h: number, d: number, x: number, y: number, z: number, material: THREE.Material) => {
-          const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), material);
-          mesh.position.set(x, y, z);
-          pack.add(mesh);
-        };
-        const w = body.x * 0.45, h = body.y * 0.26, d = body.y * 0.12;
-        addBox(w, h, d, 0, 0, 0, fabric);
-        addBox(w * 0.9, h * 0.23, d * 0.75, 0, -h * 0.29, d * 0.38, fabric);
-        addBox(w * 0.95, h * 0.1, d * 1.04, 0, h * 0.42, 0, trim);
-        for (const x of [-w * 0.37, w * 0.37]) {
-          addBox(w * 0.11, h * 0.88, d * 0.1, x, 0, -d * 0.54, trim);
-        }
-        const desiredWorld = bounds.getCenter(new THREE.Vector3());
-        desiredWorld.y += body.y * 0.12;
-        desiredWorld.z -= body.y * 0.10;
-        pack.position.copy(spine.worldToLocal(desiredWorld));
-        spine.add(pack);
-        pack.visible = false;
-        backpackRef.current = pack;
-        setBackpackReady(true);
-        track(pack);
+        loader.load("/explorer-backpack-v1.glb", part => {
+          if (disposed) return;
+          const pack = new THREE.Group();
+          const object = part.scene;
+          object.updateMatrixWorld(true);
+          const rawBox = new THREE.Box3().setFromObject(object);
+          const rawSize = rawBox.getSize(new THREE.Vector3());
+          if (rawBox.isEmpty() || rawSize.y <= 0) {
+            setStatus("Backpack model has no usable geometry");
+            return;
+          }
+          const bodySize = bounds.getSize(new THREE.Vector3());
+          const desiredHeight = bodySize.y * 0.29;
+          const scale = desiredHeight / rawSize.y;
+          object.scale.setScalar(scale);
+          // Center the imported mesh at the attachment pivot.
+          const rawCenter = rawBox.getCenter(new THREE.Vector3());
+          object.position.copy(rawCenter.multiplyScalar(-scale));
+          pack.add(object);
+          // Position the pack behind the upper torso. Orientation can be
+          // fine-tuned after checking the real asset from side/rear views.
+          model.updateMatrixWorld(true);
+          const target = bounds.getCenter(new THREE.Vector3());
+          target.y += bodySize.y * 0.14;
+          target.z -= bodySize.y * 0.12;
+          pack.position.copy(spine.worldToLocal(target));
+          spine.add(pack);
+          pack.visible = backpackRef.current?.visible ?? false;
+          backpackRef.current = pack;
+          assets.push(pack);
+          track(pack);
+          setBackpackReady(true);
+        }, undefined, error => {
+          if (!disposed) setStatus("Could not load backpack: " + String(error));
+        });
       } else {
         setBackpackReady(false);
+        console.warn("Explorer spine bone not found for backpack attachment");
       }
       const center = bounds.getCenter(new THREE.Vector3());
       const size = bounds.getSize(new THREE.Vector3());
