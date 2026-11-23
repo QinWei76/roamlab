@@ -18,6 +18,9 @@ type Props = { modelUrl?: string; attachments?: ExplorerAttachment[]; className?
 export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", attachments = [], className }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
   const recenterRef = useRef<() => void>(() => {});
+  const backpackRef = useRef<THREE.Group | null>(null);
+  const [backpackOn, setBackpackOn] = useState(false);
+  const [backpackReady, setBackpackReady] = useState(false);
   const [status, setStatus] = useState("Loading Explorer...");
   const [loaded, setLoaded] = useState(false);
   const attachmentsRef = useRef(attachments);
@@ -133,6 +136,39 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
         }
       });
       if (bounds.isEmpty()) bounds.setFromObject(model);
+      // Temporary procedural backpack for fitting, not a finished 3D asset.
+      const spine = model.getObjectByName("mixamorigSpine2") ??
+        model.getObjectByName("mixamorigSpine1") ??
+        model.getObjectByName("mixamorigSpine");
+      if (spine) {
+        const body = bounds.getSize(new THREE.Vector3());
+        const pack = new THREE.Group();
+        const fabric = new THREE.MeshStandardMaterial({ color: 0x66734a, roughness: 0.95 });
+        const trim = new THREE.MeshStandardMaterial({ color: 0x302d24, roughness: 0.9 });
+        const addBox = (w: number, h: number, d: number, x: number, y: number, z: number, material: THREE.Material) => {
+          const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), material);
+          mesh.position.set(x, y, z);
+          pack.add(mesh);
+        };
+        const w = body.x * 0.45, h = body.y * 0.26, d = body.y * 0.12;
+        addBox(w, h, d, 0, 0, 0, fabric);
+        addBox(w * 0.9, h * 0.23, d * 0.75, 0, -h * 0.29, d * 0.38, fabric);
+        addBox(w * 0.95, h * 0.1, d * 1.04, 0, h * 0.42, 0, trim);
+        for (const x of [-w * 0.37, w * 0.37]) {
+          addBox(w * 0.11, h * 0.88, d * 0.1, x, 0, -d * 0.54, trim);
+        }
+        const desiredWorld = bounds.getCenter(new THREE.Vector3());
+        desiredWorld.y += body.y * 0.12;
+        desiredWorld.z -= body.y * 0.10;
+        pack.position.copy(spine.worldToLocal(desiredWorld));
+        spine.add(pack);
+        pack.visible = false;
+        backpackRef.current = pack;
+        setBackpackReady(true);
+        track(pack);
+      } else {
+        setBackpackReady(false);
+      }
       const center = bounds.getCenter(new THREE.Vector3());
       const size = bounds.getSize(new THREE.Vector3());
       fitModel = () => {
@@ -173,6 +209,7 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
     return () => {
       disposed = true;
       recenterRef.current = () => {};
+      backpackRef.current = null;
       cancelAnimationFrame(raf);
       observer.disconnect();
       controls?.dispose();
@@ -186,6 +223,11 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
   }, [modelUrl]);
   return <div className={className} style={{ position: "relative", width: "100%", height: "100%", minHeight: 320, touchAction: "none" }}>
     <div ref={hostRef} style={{ width: "100%", height: "100%" }} aria-label="Interactive 3D Explorer" />
+    {loaded && backpackReady && <button type="button"
+      onClick={() => { const next = !backpackOn; setBackpackOn(next); if (backpackRef.current) backpackRef.current.visible = next; }}
+      style={{ position: "absolute", left: 12, bottom: 12, zIndex: 2, border: "1px solid #b99a73", background: "#241d18e8", color: "#f3dfc3", padding: "10px 12px", borderRadius: 10, font: "600 12px system-ui", cursor: "pointer" }}>
+      {backpackOn ? "Remove Pack · 卸下" : "Wear Pack · 背包"}
+    </button>}
     {loaded && <button type="button" onClick={() => recenterRef.current()}
       style={{ position: "absolute", right: 12, bottom: 12, zIndex: 2, border: "1px solid #b99a73", background: "#241d18e8", color: "#f3dfc3", padding: "10px 14px", borderRadius: 10, font: "600 13px system-ui", cursor: "pointer" }}>
       Reset View · 居中
