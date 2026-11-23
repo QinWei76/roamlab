@@ -33,6 +33,11 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
     scene.background = null;
     const camera = new THREE.PerspectiveCamera(35, 1, 0.01, 100);
     let fitModel: (() => void) | null = null;
+    let idleModel: THREE.Object3D | null = null;
+    let idleBaseY = 0;
+    let idleBaseScaleY = 1;
+    const clock = new THREE.Clock();
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     scene.add(new THREE.HemisphereLight(0xffffff, 0x65615b, 2.3));
     const key = new THREE.DirectionalLight(0xffeed7, 2.8);
     key.position.set(3, 5, 5);
@@ -84,6 +89,12 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
       const animate = () => {
         if (disposed) return;
         raf = requestAnimationFrame(animate);
+        if (idleModel && !reducedMotion.matches && !document.hidden) {
+          const t = clock.getElapsedTime();
+          // Conservative root-level idle: no bone rotations or sleeve clipping.
+          idleModel.position.y = idleBaseY + Math.sin(t * 1.15) * 0.004;
+          idleModel.scale.y = idleBaseScaleY * (1 + Math.sin(t * 1.15) * 0.0015);
+        }
         controls?.update();
         renderer?.render(scene, camera);
       };
@@ -98,6 +109,9 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
       assets.push(model);
       track(model);
       scene.add(model);
+      idleModel = model;
+      idleBaseY = model.position.y;
+      idleBaseScaleY = model.scale.y;
       // Compute framing from rendered meshes only. Skeleton helpers and GLB
       // hierarchy transforms can make a whole-scene box badly off-center.
       model.updateMatrixWorld(true);
