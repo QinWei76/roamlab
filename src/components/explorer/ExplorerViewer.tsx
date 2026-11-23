@@ -65,6 +65,11 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      // setSize(..., false) updates drawing-buffer dimensions only. Without
+      // explicit CSS sizing the canvas overflows its mobile viewport.
+      renderer.domElement.style.width = "100%";
+      renderer.domElement.style.height = "100%";
+      renderer.domElement.style.display = "block";
       host.appendChild(renderer.domElement);
       controls = new OrbitControls(camera, renderer.domElement);
       controls.enableDamping = true;
