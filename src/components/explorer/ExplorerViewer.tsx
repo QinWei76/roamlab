@@ -142,6 +142,8 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
     scene.background = null;
     const camera = new THREE.PerspectiveCamera(35, 1, 0.01, 100);
     let fitModel: (() => void) | null = null;
+    let idle: { update: () => void; reset: () => void } | null = null;
+    let idleTimer = 0;
     scene.add(new THREE.HemisphereLight(0xffffff, 0x65615b, 2.3));
     const key = new THREE.DirectionalLight(0xffeed7, 2.8);
     key.position.set(3, 5, 5);
@@ -193,6 +195,13 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
       const animate = () => {
         if (disposed) return;
         raf = requestAnimationFrame(animate);
+        if (idle) {
+          try { idle.update(); } catch (error) {
+            try { idle.reset(); } catch { /* keep renderer alive */ }
+            idle = null;
+            console.warn("Optional Explorer idle disabled", error);
+          }
+        }
         controls?.update();
         renderer?.render(scene, camera);
       };
@@ -254,6 +263,13 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
       setSlow(false);
       setLoaded(true);
       setStatus("");
+      // Optional animation starts after the static model has had time to render.
+      idleTimer = window.setTimeout(() => {
+        if (disposed) return;
+        void import("./ExplorerIdle").then(module => {
+          if (!disposed) idle = module.createExplorerIdle(model);
+        }).catch(error => console.warn("Optional Explorer idle unavailable", error));
+      }, 800);
       // Attachment interface is intentionally separate from body posing.
       // A GLB attachment must be authored to fit the target bone.
       for (const item of attachmentsRef.current) {
@@ -274,6 +290,8 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
     return () => {
       disposed = true;
       downloadController.abort();
+      window.clearTimeout(idleTimer);
+      idle = null;
       window.clearTimeout(slowTimer);
       recenterRef.current = () => {};
       cancelAnimationFrame(raf);
