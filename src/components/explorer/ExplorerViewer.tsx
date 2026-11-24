@@ -74,8 +74,6 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
     scene.background = null;
     const camera = new THREE.PerspectiveCamera(35, 1, 0.01, 100);
     let fitModel: (() => void) | null = null;
-    let updateIdle: ((time: number) => void) | null = null;
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     scene.add(new THREE.HemisphereLight(0xffffff, 0x65615b, 2.3));
     const key = new THREE.DirectionalLight(0xffeed7, 2.8);
     key.position.set(3, 5, 5);
@@ -127,7 +125,6 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
       const animate = () => {
         if (disposed) return;
         raf = requestAnimationFrame(animate);
-        updateIdle?.(performance.now() / 1000);
         controls?.update();
         renderer?.render(scene, camera);
       };
@@ -181,31 +178,6 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
       };
       recenterRef.current = () => fitModel?.();
       fitModel();
-      // Preserve the authored rest pose and apply tiny local offsets only.
-      const idleBones: { bone: THREE.Bone; rest: THREE.Quaternion; axis: THREE.Vector3; amplitude: number; frequency: number; phase: number }[] = [];
-      const addIdle = (name: string, axis: THREE.Vector3, amplitude: number, frequency: number, phase: number) => {
-        model.traverse(node => {
-          if (!(node instanceof THREE.Bone)) return;
-          const normalized = node.name.toLowerCase().replace(/[^a-z0-9]/g, "").replace(/^mixamorig[0-9]*/, "");
-          if (normalized === name) idleBones.push({ bone: node, rest: node.quaternion.clone(), axis, amplitude, frequency, phase });
-        });
-      };
-      addIdle("spine", new THREE.Vector3(1, 0, 0), 0.012, 1.5, 0);
-      addIdle("spine1", new THREE.Vector3(1, 0, 0), 0.009, 1.5, 0.3);
-      addIdle("spine2", new THREE.Vector3(0, 0, 1), 0.012, 0.65, 0);
-      addIdle("head", new THREE.Vector3(0, 1, 0), 0.025, 0.48, 0);
-      addIdle("leftshoulder", new THREE.Vector3(0, 0, 1), 0.008, 1.5, 0.4);
-      addIdle("rightshoulder", new THREE.Vector3(0, 0, 1), -0.008, 1.5, 0.4);
-      const delta = new THREE.Quaternion();
-      const idleStart = performance.now() / 1000;
-      updateIdle = time => {
-        const elapsed = time - idleStart;
-        const fade = Math.min(1, Math.max(0, elapsed / 1.5));
-        for (const item of idleBones) {
-          const angle = reduceMotion.matches ? 0 : Math.sin(elapsed * item.frequency + item.phase) * item.amplitude * fade;
-          item.bone.quaternion.copy(item.rest).multiply(delta.setFromAxisAngle(item.axis, angle));
-        }
-      };
       window.clearTimeout(slowTimer);
       setSlow(false);
       setLoaded(true);
