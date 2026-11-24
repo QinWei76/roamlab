@@ -8,7 +8,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 // Fetch small byte ranges; retry only the failed segment. Fall back to a
 // normal response if the host ignores Range on the initial request.
-async function downloadExplorer(url: string, signal: AbortSignal): Promise<ArrayBuffer> {
+async function downloadExplorer(url: string, signal: AbortSignal, onProgress: (message: string) => void): Promise<ArrayBuffer> {
   const chunkSize = 256 * 1024;
   let offset = 0;
   let total = 0;
@@ -18,10 +18,18 @@ async function downloadExplorer(url: string, signal: AbortSignal): Promise<Array
     let lastError: unknown;
     for (let retry = 0; retry < 3; retry++) {
       if (signal.aborted) throw new Error("Download cancelled");
+      const request = new AbortController();
+      const cancel = () => request.abort();
+      signal.addEventListener("abort", cancel, { once: true });
+      const timer = window.setTimeout(cancel, 12000);
       try {
+        onProgress(`Downloading ${Math.round(offset / 1024)} KB${total ? " / " + Math.round(total / 1024) + " KB" : ""} · attempt ${retry + 1}/3`);
         const end = total ? Math.min(total - 1, offset + chunkSize - 1) : offset + chunkSize - 1;
-        const response = await fetch(url, { signal, headers: { Range: `bytes=${offset}-${end}` } });
-        if (response.status === 200 && offset === 0) return await response.arrayBuffer();
+        const response = await fetch(url, { signal: request.signal, headers: { Range: `bytes=${offset}-${end}` } });
+        if (response.status === 200 && offset === 0) {
+          onProgress("Server returned full model · downloading");
+          return await response.arrayBuffer();
+        }
         if (response.status !== 206) throw new Error("Unexpected model response: " + response.status);
         const range = /^bytes (\d+)-(\d+)\/(\d+)$/.exec(response.headers.get("Content-Range") || "");
         if (!range || Number(range[1]) !== offset || Number(range[2]) !== end && Number(range[2]) !== Number(range[3]) - 1) throw new Error("Invalid model range");
@@ -35,7 +43,12 @@ async function downloadExplorer(url: string, signal: AbortSignal): Promise<Array
         offset += bytes.length;
         success = true;
         break;
-      } catch (error) { lastError = error; }
+      } catch (error) {
+        lastError = request.signal.aborted && !signal.aborted ? new Error("Model request timed out") : error;
+      } finally {
+        window.clearTimeout(timer);
+        signal.removeEventListener("abort", cancel);
+      }
     }
     if (!success) throw lastError;
   } while (offset < total);
@@ -133,7 +146,11 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
       setStatus("3D unavailable: " + String(error));
       return () => { observer.disconnect(); renderer?.dispose(); renderer?.domElement.remove(); };
     }
-    downloadExplorer(modelUrl, downloadController.signal).then(buffer => loader.parseAsync(buffer, new URL(".", new URL(modelUrl, window.location.href)).href)).then(gltf => {
+    downloadExplorer(modelUrl, downloadController.signal, message => { if (!disposed) setStatus(message); }).then(buffer => {
+      if (disposed) throw new Error("Download cancelled");
+      setStatus("Download complete · parsing 3D");
+      return loader.parseAsync(buffer, new URL(".", new URL(modelUrl, window.location.href)).href);
+    }).then(gltf => {
       if (disposed) return;
       const model = gltf.scene;
       assets.push(model);
