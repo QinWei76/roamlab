@@ -5,6 +5,43 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
+
+// Fetch small byte ranges; retry only the failed segment. Fall back to a
+// normal response if the host ignores Range on the initial request.
+async function downloadExplorer(url: string, signal: AbortSignal): Promise<ArrayBuffer> {
+  const chunkSize = 256 * 1024;
+  let offset = 0;
+  let total = 0;
+  let output: Uint8Array | undefined;
+  do {
+    let success = false;
+    let lastError: unknown;
+    for (let retry = 0; retry < 3; retry++) {
+      if (signal.aborted) throw new Error("Download cancelled");
+      try {
+        const end = total ? Math.min(total - 1, offset + chunkSize - 1) : offset + chunkSize - 1;
+        const response = await fetch(url, { signal, headers: { Range: `bytes=${offset}-${end}` } });
+        if (response.status === 200 && offset === 0) return await response.arrayBuffer();
+        if (response.status !== 206) throw new Error("Unexpected model response: " + response.status);
+        const range = /^bytes (\d+)-(\d+)\/(\d+)$/.exec(response.headers.get("Content-Range") || "");
+        if (!range || Number(range[1]) !== offset || Number(range[2]) !== end && Number(range[2]) !== Number(range[3]) - 1) throw new Error("Invalid model range");
+        const size = Number(range[3]);
+        if (size < 12 || size > 100 * 1024 * 1024 || (total && total !== size)) throw new Error("Invalid model size");
+        const bytes = new Uint8Array(await response.arrayBuffer());
+        if (bytes.length !== Number(range[2]) - offset + 1) throw new Error("Incomplete model segment");
+        total = size;
+        output ??= new Uint8Array(total);
+        output.set(bytes, offset);
+        offset += bytes.length;
+        success = true;
+        break;
+      } catch (error) { lastError = error; }
+    }
+    if (!success) throw lastError;
+  } while (offset < total);
+  return output!.buffer as ArrayBuffer;
+}
+
 export type ExplorerAttachment = {
   id: string;
   url: string;
@@ -28,6 +65,7 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
     const host = hostRef.current;
     if (!host) return;
     let disposed = false;
+    const downloadController = new AbortController();
     const slowTimer = window.setTimeout(() => { if (!disposed) setSlow(true); }, 12000);
     let raf = 0;
     let renderer: THREE.WebGLRenderer | null = null;
@@ -95,7 +133,7 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
       setStatus("3D unavailable: " + String(error));
       return () => { observer.disconnect(); renderer?.dispose(); renderer?.domElement.remove(); };
     }
-    loader.load(modelUrl, gltf => {
+    downloadExplorer(modelUrl, downloadController.signal).then(buffer => loader.parseAsync(buffer, new URL(".", new URL(modelUrl, window.location.href)).href)).then(gltf => {
       if (disposed) return;
       const model = gltf.scene;
       assets.push(model);
@@ -160,9 +198,10 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
           track(object);
         }, undefined, error => console.warn("Explorer attachment failed:", item.id, error));
       }
-    }, undefined, error => { if (!disposed) { window.clearTimeout(slowTimer); setSlow(true); setStatus("3D model unavailable: " + String(error)); } });
+    }).catch(error => { if (!disposed) { window.clearTimeout(slowTimer); setSlow(true); setStatus("3D model unavailable: " + String(error)); } });
     return () => {
       disposed = true;
+      downloadController.abort();
       window.clearTimeout(slowTimer);
       recenterRef.current = () => {};
       cancelAnimationFrame(raf);
