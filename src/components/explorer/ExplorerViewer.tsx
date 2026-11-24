@@ -55,6 +55,61 @@ async function downloadExplorer(url: string, signal: AbortSignal, onProgress: (m
   return output!.buffer as ArrayBuffer;
 }
 
+async function downloadStaticParts(signal: AbortSignal, onProgress: (message: string) => void): Promise<ArrayBuffer> {
+  const group = new AbortController();
+  const cancel = () => group.abort();
+  signal.addEventListener("abort", cancel, { once: true });
+  if (signal.aborted) cancel();
+  async function get(url: string, expected?: number): Promise<ArrayBuffer> {
+    let error: unknown;
+    for (let i = 0; i < 3; i++) {
+      if (group.signal.aborted) throw new Error("Download cancelled");
+      const request = new AbortController();
+      const stop = () => request.abort();
+      group.signal.addEventListener("abort", stop, { once: true });
+      const timer = window.setTimeout(stop, 15000);
+      try {
+        const response = await fetch(url, { signal: request.signal, cache: i ? "reload" : "default" });
+        if (!response.ok) throw new Error("HTTP " + response.status);
+        const bytes = await response.arrayBuffer();
+        if (expected !== undefined && bytes.byteLength !== expected) throw new Error("Incomplete chunk");
+        return bytes;
+      } catch (e) { error = e; }
+      finally { window.clearTimeout(timer); group.signal.removeEventListener("abort", stop); }
+    }
+    throw error;
+  }
+  try {
+    onProgress("Preparing model parts");
+    const manifest = JSON.parse(new TextDecoder().decode(await get("/explorer-parts/manifest.json"))) as { size: number; parts: { url: string; offset: number; size: number }[] };
+    if (!Number.isSafeInteger(manifest.size) || manifest.size < 12 || manifest.size > 100 * 1024 * 1024 || !Array.isArray(manifest.parts)) throw new Error("Invalid model manifest");
+    let end = 0;
+    for (const part of manifest.parts) {
+      if (part.offset !== end || !Number.isSafeInteger(part.size) || part.size <= 0 || !/^\/explorer-parts\/[a-f0-9]{16}\/\d+\.bin$/.test(part.url)) throw new Error("Invalid model part");
+      end += part.size;
+    }
+    if (end !== manifest.size) throw new Error("Invalid model length");
+    const output = new Uint8Array(manifest.size);
+    let next = 0, received = 0;
+    async function worker() {
+      while (next < manifest.parts.length) {
+        const part = manifest.parts[next++];
+        const bytes = await get(part.url, part.size);
+        output.set(new Uint8Array(bytes), part.offset);
+        received += part.size;
+        onProgress(`Downloading model · ${Math.round(received / manifest.size * 100)}% · ${Math.round(received / 1024)} KB`);
+      }
+    }
+    await Promise.all(Array.from({ length: 3 }, () => worker()));
+    const header = new DataView(output.buffer);
+    if (header.getUint32(0, true) !== 0x46546c67 || header.getUint32(8, true) !== manifest.size) throw new Error("Invalid reconstructed GLB");
+    return output.buffer;
+  } finally {
+    group.abort();
+    signal.removeEventListener("abort", cancel);
+  }
+}
+
 export type ExplorerAttachment = {
   id: string;
   url: string;
@@ -146,7 +201,7 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
       setStatus("3D unavailable: " + String(error));
       return () => { observer.disconnect(); renderer?.dispose(); renderer?.domElement.remove(); };
     }
-    downloadExplorer(modelUrl, downloadController.signal, message => { if (!disposed) setStatus(message); }).then(buffer => {
+    (modelUrl === "/explorer-male-v2.glb" ? downloadStaticParts(downloadController.signal, message => { if (!disposed) setStatus(message); }) : downloadExplorer(modelUrl, downloadController.signal, message => { if (!disposed) setStatus(message); })).then(buffer => {
       if (disposed) throw new Error("Download cancelled");
       setStatus("Download complete · parsing 3D");
       return loader.parseAsync(buffer, new URL(".", new URL(modelUrl, window.location.href)).href);
