@@ -1,6 +1,7 @@
 
 import Link from "next/link";
 import "./mobile-home.css";
+import { navigation as n } from "../config/navigation";
 
 function DesktopHome() {
   return (
@@ -41,18 +42,8 @@ function DesktopHome() {
 }
 
 const asset = "/roamlab-mobile-v3-assets/";
-const primary = [
-  ["create-explorer", "Create Your Explorer", "/explorer/create"],
-  ["build-adventure", "Build Your Adventure", "/adventure/create"],
-  ["explore-together", "Explore Together", ""],
-];
-const tabs = [
-  ["nav-home", "Home", "/"],
-  ["nav-adventures", "My Adventures", "/wild-plan"],
-  ["nav-gear", "Gear Lab", "/gear"],
-  ["nav-stories", "My Stories", "/journal"],
-  ["nav-me", "Me", "/start-here"],
-];
+const primary = [["create-explorer", n.createExplorer], ["build-adventure", n.buildAdventure], ["explore-together", n.exploreTogether]] as const;
+const tabs = [["nav-home", n.home], ["nav-adventures", n.myAdventures], ["nav-gear", n.gearLab], ["nav-stories", n.myStories], ["nav-me", n.me]] as const;
 function MobileHome() {
   return (
     <main className="mobile-v3">
@@ -69,19 +60,19 @@ function MobileHome() {
       `}</style>
       <header className="mobile-v3-hero">
         <img src={asset+"hero.webp"} width={873} height={784} alt="RoamLab DigiReal Adventure — Create Your Own Adventure. From Imagination to Reality." fetchPriority="high" />
-        <Link className="mobile-v3-hot" style={{left:"78%",top:"2%",width:"11%",height:"12%"}} href="/start-here" aria-label="Account" />
-        <Link className="mobile-v3-hot" style={{left:"89%",top:"2%",width:"11%",height:"12%"}} href="/start-here" aria-label="Menu" />
+        <Link className="mobile-v3-hot" style={{left:"78%",top:"2%",width:"11%",height:"12%"}} href={n.me.href} aria-label="Account" />
+        <Link className="mobile-v3-hot" style={{left:"89%",top:"2%",width:"11%",height:"12%"}} href="/menu" aria-label="Menu" />
       </header>
       <nav className="mobile-v3-primary" aria-label="Adventure tools">
-        {primary.map(([file,label,href]) => href ? <Link key={file} href={href}><img src={asset+file+".webp"} alt={label}/></Link> : <span key={file} aria-disabled="true"><img src={asset+file+".webp"} alt={label+" — coming soon"}/></span>)}
+        {primary.map(([file,item]) => <Link key={file} href={item.href}><img src={asset+file+".webp"} alt={item.label}/></Link>)}
       </nav>
       <section className="mobile-v3-band" aria-label="Real adventures and stories">
         <img src={asset+"story-and-real-band.webp"} width={873} height={348} alt="" />
-        <Link className="mobile-v3-hot" style={{inset:"0 0 54% 0"}} href="/ways-in" aria-label="Bring It to Life"/>
-        <Link className="mobile-v3-hot" style={{inset:"46% 0 0 0"}} href="/journal" aria-label="Share Your Story"/>
+        <Link className="mobile-v3-hot" style={{inset:"0 0 54% 0"}} href={n.bringToLife.href} aria-label={n.bringToLife.label}/>
+        <Link className="mobile-v3-hot" style={{inset:"46% 0 0 0"}} href={n.shareStory.href} aria-label={n.shareStory.label}/>
       </section>
       <nav className="mobile-v3-tabs" aria-label="Main navigation">
-        {tabs.map(([file,label,href]) => <Link key={file} href={href} aria-current={file==="nav-home"?"page":undefined}><img src={asset+file+".webp"} alt={label}/></Link>)}
+        {tabs.map(([file,item]) => <Link key={file} href={item.href} aria-current={file==="nav-home"?"page":undefined}><img src={asset+file+".webp"} alt={item.label}/></Link>)}
       </nav>
     </main>
   );
