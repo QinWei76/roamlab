@@ -54,14 +54,25 @@ function MobileHome() {
         .mobile-v3-hero,.mobile-v3-band {position:relative;}
         .mobile-v3-primary {display:grid;grid-template-columns:298fr 288fr 287fr;}
         .mobile-v3-tabs {display:grid;grid-template-columns:190fr 174fr 176fr 174fr 159fr;padding-bottom:env(safe-area-inset-bottom);}
-        .mobile-v3-hot {position:absolute;display:block;}
+        .mobile-v3-hot {position:absolute;display:block;z-index:2;}
+        .mobile-v3-menu {position:absolute;left:89%;top:2%;width:11%;height:12%;z-index:5;}
+        .mobile-v3-menu summary {display:block;width:100%;height:100%;cursor:pointer;list-style:none;}
+        .mobile-v3-menu summary::-webkit-details-marker {display:none;}
+        .mobile-v3-menu nav {position:absolute;right:0;top:100%;width:min(78vw,320px);background:#21170e;color:#fff0d9;padding:12px;line-height:1.4;border:1px solid #a68b65;}
+        .mobile-v3-menu nav a {color:inherit;padding:10px;text-decoration:none;}
+        .mobile-v3-primary {position:relative;z-index:1;}
+        .mobile-v3-primary a {position:relative;}
+        .mobile-v3-hero {z-index:3;}
         .mobile-v3 a:focus-visible {outline:2px solid white;outline-offset:-3px;}
         .mobile-v3 a:active {filter:brightness(.9);}
       `}</style>
       <header className="mobile-v3-hero">
         <img src={asset+"hero.webp"} width={873} height={784} alt="RoamLab DigiReal Adventure — Create Your Own Adventure. From Imagination to Reality." fetchPriority="high" />
         <Link className="mobile-v3-hot" style={{left:"78%",top:"2%",width:"11%",height:"12%"}} href={n.me.href} aria-label="Account" />
-        <Link className="mobile-v3-hot" style={{left:"89%",top:"2%",width:"11%",height:"12%"}} href="/menu" aria-label="Menu" />
+        <details className="mobile-v3-menu">
+          <summary aria-label="Toggle navigation menu" />
+          <nav aria-label="Site navigation">{Object.values(n).map(item => <Link key={item.id} href={item.href}>{item.label}</Link>)}</nav>
+        </details>
       </header>
       <nav className="mobile-v3-primary" aria-label="Adventure tools">
         {primary.map(([file,item]) => <Link key={file} href={item.href}><img src={asset+file+".webp"} alt={item.label}/></Link>)}
