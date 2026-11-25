@@ -1,0 +1,83 @@
+{
+  "source_size": [
+    941,
+    1672
+  ],
+  "crop_origin": [
+    34,
+    80
+  ],
+  "content_size": [
+    873,
+    1508
+  ],
+  "boxes": {
+    "hero": [
+      34,
+      80,
+      907,
+      864
+    ],
+    "create-explorer": [
+      34,
+      864,
+      332,
+      1120
+    ],
+    "build-adventure": [
+      332,
+      864,
+      620,
+      1120
+    ],
+    "explore-together": [
+      620,
+      864,
+      907,
+      1120
+    ],
+    "bring-to-life": [
+      34,
+      1120,
+      907,
+      1280
+    ],
+    "share-story": [
+      34,
+      1280,
+      907,
+      1468
+    ],
+    "nav-home": [
+      34,
+      1468,
+      224,
+      1588
+    ],
+    "nav-adventures": [
+      224,
+      1468,
+      398,
+      1588
+    ],
+    "nav-gear": [
+      398,
+      1468,
+      574,
+      1588
+    ],
+    "nav-stories": [
+      574,
+      1468,
+      748,
+      1588
+    ],
+    "nav-me": [
+      748,
+      1468,
+      907,
+      1588
+    ]
+  },
+  "note": "Original pixel crops, no scaling. Hero contains logo, headline and account/menu artwork. Horizontal cards have overlapping photo artwork; combined band preserves it."
+}
