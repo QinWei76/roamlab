@@ -40,205 +40,49 @@ function DesktopHome() {
   );
 }
 
-type IconName =
-  | "search"
-  | "menu"
-  | "map"
-  | "image"
-  | "tent"
-  | "book";
-
-function PocketIcon({
-  name,
-  size = 26,
-}: {
-  name: IconName;
-  size?: number;
-}) {
-  const paths: Record<IconName, React.ReactNode> = {
-    search: (
-      <>
-        <circle cx="10.5" cy="10.5" r="6.5" />
-        <path d="m16 16 5 5" />
-      </>
-    ),
-    menu: <path d="M4 6h16M4 12h16M4 18h16" />,
-    map: (
-      <>
-        <path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3V6Z" />
-        <path d="M9 3v15M15 6v15" />
-      </>
-    ),
-    image: (
-      <>
-        <rect x="3" y="3" width="18" height="18" rx="2" />
-        <circle cx="8" cy="8" r="1.5" />
-        <path d="m3 18 6-7 4 4 3-3 5 6" />
-      </>
-    ),
-    tent: (
-      <>
-        <path d="M12 3 2 21h20L12 3Z" />
-        <path d="m12 3 4 18M12 13l-4 8" />
-      </>
-    ),
-    book: (
-      <>
-        <path d="M12 6C9 4 6 4 2 5v14c4-1 7-1 10 1 3-2 6-2 10-1V5c-4-1-7-1-10 1Z" />
-        <path d="M12 6v14" />
-      </>
-    ),
-  };
-
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      {paths[name]}
-    </svg>
-  );
-}
-
-
-const services = [
-  {
-    title: "Plan Your Wild",
-    image: "/card-plan.png",
-    href: "/wild-plan",
-  },
-  {
-    title: "Share Your Wild",
-    image: "/card-share.png",
-    href: null,
-  },
-  {
-    title: "Gear Lab",
-    image: "/card-gear.png",
-    href: "/gear",
-  },
-  {
-    title: "My Wild Stories",
-    image: "/card-stories.png",
-    href: "/journal",
-  },
+const asset = "/roamlab-mobile-v3-assets/";
+const primary = [
+  ["create-explorer", "Create Your Explorer", "/explorer/create"],
+  ["build-adventure", "Build Your Adventure", "/adventure/create"],
+  ["explore-together", "Explore Together", ""],
 ];
-
-
+const tabs = [
+  ["nav-home", "Home", "/"],
+  ["nav-adventures", "My Adventures", "/wild-plan"],
+  ["nav-gear", "Gear Lab", "/gear"],
+  ["nav-stories", "My Stories", "/journal"],
+  ["nav-me", "Me", "/start-here"],
+];
 function MobileHome() {
   return (
-    <main className="pocket-v2">
-      <header className="pocket-v2-header">
-        <Link
-          href="/"
-          className="pocket-v2-brand"
-          aria-label="RoamLab Home"
-        >
-          <img
-            src="/roamlab-logo-header.png"
-            alt="RoamLab"
-            className="pocket-v2-logo"
-          />
-        </Link>
-
-        <nav
-          className="pocket-v2-header-actions"
-          aria-label="Quick links"
-        >
-          <Link
-            href="/start-here/discover"
-            aria-label="Explore"
-          >
-            <PocketIcon name="search" />
-          </Link>
-          <Link
-            href="/start-here"
-            aria-label="Get started"
-          >
-            <PocketIcon name="menu" />
-          </Link>
-        </nav>
+    <main className="mobile-v3">
+      <style>{`
+        .mobile-v3 {width:100%;margin:0;padding:0;background:#21170e;min-height:100svh;line-height:0;}
+        .mobile-v3 img {display:block;width:100%;height:auto;margin:0;padding:0;}
+        .mobile-v3 a,.mobile-v3 span {display:block;min-width:0;}
+        .mobile-v3-hero,.mobile-v3-band {position:relative;}
+        .mobile-v3-primary {display:grid;grid-template-columns:298fr 288fr 287fr;}
+        .mobile-v3-tabs {display:grid;grid-template-columns:190fr 174fr 176fr 174fr 159fr;padding-bottom:env(safe-area-inset-bottom);}
+        .mobile-v3-hot {position:absolute;display:block;}
+        .mobile-v3 a:focus-visible {outline:2px solid white;outline-offset:-3px;}
+        .mobile-v3 a:active {filter:brightness(.9);}
+      `}</style>
+      <header className="mobile-v3-hero">
+        <img src={asset+"hero.webp"} width={873} height={784} alt="RoamLab DigiReal Adventure — Create Your Own Adventure. From Imagination to Reality." fetchPriority="high" />
+        <Link className="mobile-v3-hot" style={{left:"78%",top:"2%",width:"11%",height:"12%"}} href="/start-here" aria-label="Account" />
+        <Link className="mobile-v3-hot" style={{left:"89%",top:"2%",width:"11%",height:"12%"}} href="/start-here" aria-label="Menu" />
       </header>
-
-      <section
-        className="pocket-v2-scene"
-        aria-label="RoamLab adventure"
-      >
-        <div className="pocket-v2-hero">
-          <h1 className="pocket-v2-hero-title">
-            <img
-              src="/roamlab-script.png"
-              alt="RoamLab"
-              className="pocket-v2-script-image"
-            />
-          </h1>
-
-          <p className="pocket-v2-slogan">
-            <img
-              src="/roamlab-slogan.png"
-              alt="Plan Your Wild. Live Your Stories."
-              className="pocket-v2-slogan-image"
-            />
-          </p>
-        </div>
+      <nav className="mobile-v3-primary" aria-label="Adventure tools">
+        {primary.map(([file,label,href]) => href ? <Link key={file} href={href}><img src={asset+file+".webp"} alt={label}/></Link> : <span key={file} aria-disabled="true"><img src={asset+file+".webp"} alt={label+" — coming soon"}/></span>)}
+      </nav>
+      <section className="mobile-v3-band" aria-label="Real adventures and stories">
+        <img src={asset+"story-and-real-band.webp"} width={873} height={348} alt="" />
+        <Link className="mobile-v3-hot" style={{inset:"0 0 54% 0"}} href="/ways-in" aria-label="Bring It to Life"/>
+        <Link className="mobile-v3-hot" style={{inset:"46% 0 0 0"}} href="/journal" aria-label="Share Your Story"/>
       </section>
-
-      <section
-        className="pocket-v2-services"
-        aria-label="Choose a service"
-      >
-        
-<nav className="pocket-v2-grid">
-  {services.map((service) => {
-    const content = (
-      <>
-        <img
-          src={service.image}
-          alt=""
-          className="pocket-v25-art"
-          draggable={false}
-        />
-
-        <span className="pocket-v25-title">
-          {service.title}
-        </span>
-
-        {!service.href && (
-          <span className="pocket-v25-stamp">
-            COMING SOON
-          </span>
-        )}
-      </>
-    );
-
-    return service.href ? (
-      <Link
-        key={service.title}
-        href={service.href}
-        className="pocket-v2-card pocket-v25-card"
-        aria-label={service.title}
-      >
-        {content}
-      </Link>
-    ) : (
-      <div
-        key={service.title}
-        className="pocket-v2-card pocket-v25-card pocket-v2-disabled"
-        aria-label={`${service.title} coming soon`}
-      >
-        {content}
-      </div>
-    );
-  })}
-</nav>
-      </section>
+      <nav className="mobile-v3-tabs" aria-label="Main navigation">
+        {tabs.map(([file,label,href]) => <Link key={file} href={href} aria-current={file==="nav-home"?"page":undefined}><img src={asset+file+".webp"} alt={label}/></Link>)}
+      </nav>
     </main>
   );
 }
