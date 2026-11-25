@@ -317,9 +317,9 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
           object.position.sub(midpoint);
           // Turn the pack so its harness faces the character's back.
           group.rotation.y = Math.PI;
-          group.scale.setScalar(size.y * 0.30 / dimensions.y);
+          group.scale.setScalar(size.y * 0.36 / dimensions.y);
           scene.add(group);
-          group.position.set(center.x, bounds.min.y + size.y * 0.68, center.z - size.z * 0.40 - dimensions.z * group.scale.z * 0.35 + size.y * 0.065);
+          group.position.set(center.x, bounds.min.y + size.y * 0.68, center.z - size.z * 0.40 - dimensions.z * group.scale.z * 0.35 + size.y * 0.045);
           group.updateMatrixWorld(true);
           (spine as THREE.Object3D).attach(group);
           pack = group;
