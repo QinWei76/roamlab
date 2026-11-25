@@ -28,7 +28,7 @@ export const navigation = {
   "bringToLife": {
     "id": "bringToLife",
     "label": "Bring It to Life",
-    "href": "/wild-plan",
+    "href": "/ways-in",
     "description": "Plan a real outdoor adventure",
     "status": "existing",
     "requiresAuth": false
@@ -36,9 +36,9 @@ export const navigation = {
   "shareStory": {
     "id": "shareStory",
     "label": "Share Your Story",
-    "href": "/stories/create",
+    "href": "/journal",
     "description": "Create photos, posts and travel stories",
-    "status": "planned",
+    "status": "existing",
     "requiresAuth": false
   },
   "home": {
