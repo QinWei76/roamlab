@@ -55,7 +55,7 @@ async function downloadExplorer(url: string, signal: AbortSignal, onProgress: (m
   return output!.buffer as ArrayBuffer;
 }
 
-async function downloadStaticParts(signal: AbortSignal, onProgress: (message: string) => void): Promise<ArrayBuffer> {
+async function downloadStaticParts(signal: AbortSignal, onProgress: (message: string) => void, manifestUrl = "/explorer-parts/manifest.json"): Promise<ArrayBuffer> {
   const group = new AbortController();
   const cancel = () => group.abort();
   signal.addEventListener("abort", cancel, { once: true });
@@ -81,7 +81,7 @@ async function downloadStaticParts(signal: AbortSignal, onProgress: (message: st
   }
   try {
     onProgress("Preparing model parts");
-    const manifest = JSON.parse(new TextDecoder().decode(await get("/explorer-parts/manifest.json"))) as { size: number; parts: { url: string; offset: number; size: number }[] };
+    const manifest = JSON.parse(new TextDecoder().decode(await get(manifestUrl))) as { size: number; parts: { url: string; offset: number; size: number }[] };
     if (!Number.isSafeInteger(manifest.size) || manifest.size < 12 || manifest.size > 100 * 1024 * 1024 || !Array.isArray(manifest.parts)) throw new Error("Invalid model manifest");
     let end = 0;
     for (const part of manifest.parts) {
@@ -121,6 +121,8 @@ export type ExplorerAttachment = {
 
 type Props = { modelUrl?: string; attachments?: ExplorerAttachment[]; className?: string };
 export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", attachments = [], className }: Props) {
+  const packAction = useRef<() => void>(() => {});
+  const [packState, setPackState] = useState("Wear Pack");
   const hostRef = useRef<HTMLDivElement>(null);
   const recenterRef = useRef<() => void>(() => {});
   const [status, setStatus] = useState("Loading Explorer...");
@@ -144,6 +146,10 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
     let fitModel: (() => void) | null = null;
     let idle: { update: () => void; reset: () => void } | null = null;
     let idleTimer = 0;
+    let pack: THREE.Object3D | null = null;
+    let packBusy = false;
+    let packWorn = false;
+    setPackState("Wear Pack");
     scene.add(new THREE.HemisphereLight(0xffffff, 0x65615b, 2.3));
     const key = new THREE.DirectionalLight(0xffeed7, 2.8);
     key.position.set(3, 5, 5);
@@ -270,6 +276,59 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
           if (!disposed) idle = module.createExplorerIdle(model);
         }).catch(error => console.warn("Optional Explorer idle unavailable", error));
       }, 800);
+      packAction.current = () => {
+        if (disposed || packBusy) return;
+        if (pack) {
+          packWorn = !packWorn;
+          pack.visible = packWorn;
+          setPackState(packWorn ? "Remove Pack" : "Wear Pack");
+          return;
+        }
+        packBusy = true;
+        setPackState("Loading Pack…");
+        void (async () => {
+          const buffer = await downloadStaticParts(downloadController.signal, message => {
+            if (!disposed) setPackState(message.replace("Downloading model", "Loading pack"));
+          }, "/explorer-parts/backpack.json");
+          if (disposed) return;
+          const result = await loader.parseAsync(buffer, new URL(".", window.location.href).origin + "/");
+          const object = result.scene;
+          track(object);
+          if (disposed) {
+            object.traverse(node => {
+              const mesh = node as THREE.Mesh;
+              mesh.geometry?.dispose();
+              const mats = mesh.material ? (Array.isArray(mesh.material) ? mesh.material : [mesh.material]) : [];
+              for (const mat of mats) { for (const value of Object.values(mat)) if (value instanceof THREE.Texture) value.dispose(); mat.dispose(); }
+            });
+            return;
+          }
+          let spine: THREE.Object3D | undefined;
+          model.traverse(node => {
+            if (node instanceof THREE.Bone && node.name.toLowerCase().replace(/[^a-z0-9]/g, "").replace(/^mixamorig[0-9]*/, "") === "spine2") spine = node;
+          });
+          if (!spine) throw new Error("Upper spine bone not found");
+          const group = new THREE.Group();
+          group.add(object);
+          const box = new THREE.Box3().setFromObject(object);
+          const dimensions = box.getSize(new THREE.Vector3());
+          if (box.isEmpty() || dimensions.y <= 0) throw new Error("Invalid backpack bounds");
+          const midpoint = box.getCenter(new THREE.Vector3());
+          object.position.sub(midpoint);
+          group.scale.setScalar(size.y * 0.30 / dimensions.y);
+          scene.add(group);
+          group.position.set(center.x, bounds.min.y + size.y * 0.68, center.z - size.z * 0.40 - dimensions.z * group.scale.z * 0.35);
+          group.updateMatrixWorld(true);
+          (spine as THREE.Object3D).attach(group);
+          pack = group;
+          assets.push(group);
+          packWorn = true;
+          setPackState("Remove Pack");
+        })().catch(error => {
+          if (!disposed) setPackState("Retry Pack");
+          console.warn("Optional backpack unavailable", error);
+        }).finally(() => { packBusy = false; });
+      };
       // Attachment interface is intentionally separate from body posing.
       // A GLB attachment must be authored to fit the target bone.
       for (const item of attachmentsRef.current) {
@@ -290,6 +349,7 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
     return () => {
       disposed = true;
       downloadController.abort();
+      packAction.current = () => {};
       window.clearTimeout(idleTimer);
       idle = null;
       window.clearTimeout(slowTimer);
@@ -317,6 +377,7 @@ export default function ExplorerViewer({ modelUrl = "/explorer-male-v2.glb", att
       <span style={{ font: "12px system-ui", opacity: 0.8 }}>{slow ? "3D is taking longer than expected" : "Preparing interactive 3D…"}</span>
     </div>}
     {!loaded && slow && <button type="button" onClick={() => { setLoaded(false); setSlow(false); setStatus("Retrying 3D…"); setAttempt(v => v + 1); }} style={{ position: "absolute", right: 12, top: 12, zIndex: 3, border: "1px solid #b99a73", background: "#241d18e8", color: "#f3dfc3", padding: "10px 14px", borderRadius: 10, cursor: "pointer" }}>Retry 3D</button>}
+    {loaded && <button type="button" onClick={() => packAction.current()} disabled={packState.startsWith("Loading")} style={{ position: "absolute", left: 12, top: 12, zIndex: 3, border: "1px solid #b99a73", background: "#241d18e8", color: "#f3dfc3", padding: "10px 14px", borderRadius: 10 }}>{packState}</button>}
     {loaded && <button type="button" onClick={() => recenterRef.current()}
       style={{ position: "absolute", right: 12, bottom: 12, zIndex: 2, border: "1px solid #b99a73", background: "#241d18e8", color: "#f3dfc3", padding: "10px 14px", borderRadius: 10, font: "600 13px system-ui", cursor: "pointer" }}>
       Reset View · 居中
