@@ -60,7 +60,7 @@ export const navigation = {
   "gearLab": {
     "id": "gearLab",
     "label": "Gear Lab",
-    "href": "/gear",
+    "href": "/gear-room",
     "description": "Enter Gear Room",
     "status": "existing",
     "requiresAuth": false
