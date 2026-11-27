@@ -31,7 +31,7 @@ export default function GearRoomPage() {
         <img src="/gear-room-mobile.webp" width={941} height={1671} alt="RoamLab Gear Room — My Gear, Gear Loadout, Gear Tips, Gear Exchange" fetchPriority="high" />
         <Link className="gear-room-hot" style={{left:"3%",top:"1%",width:"35%",height:"9%"}} href={n.home.href} aria-label="Home"/>
         <Link className="gear-room-hot" style={{left:"74%",top:"2%",width:"13%",height:"8%"}} href={n.me.href} aria-label="Account"/>
-        <Link className={`gear-room-hot gear-room-feedback${pressed ? " is-pressed" : ""}`} style={{left:"4.5%",top:"49.4%",width:"91.5%",height:"10.2%"}} href="/gear-room/my-gear" onClick={(event) => { if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return; event.preventDefault(); if (timer.current !== null) return; setPressed(true); timer.current = setTimeout(() => { timer.current = null; setPressed(false); router.push("/gear-room/my-gear"); }, 150); }} aria-label="My Gear"/>
+        <Link className={`gear-room-hot gear-room-feedback${pressed ? " is-pressed" : ""}`} style={{left:"4.6%",top:"48.1%",width:"91.1%",height:"9.8%"}} href="/gear-room/my-gear" onClick={(event) => { if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return; event.preventDefault(); if (timer.current !== null) return; setPressed(true); timer.current = setTimeout(() => { timer.current = null; setPressed(false); router.push("/gear-room/my-gear"); }, 150); }} aria-label="My Gear"/>
         <details className="gear-room-menu">
           <summary aria-label="Toggle navigation menu"/>
           <nav aria-label="Site navigation">{Object.values(n).map(item => <Link key={item.id} href={item.href}>{item.label}</Link>)}</nav>
