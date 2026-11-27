@@ -18,7 +18,9 @@ export default function GearRoomPage() {
         .gear-room-art img {display:block;width:100%;height:auto;}
         .gear-room-hot {position:absolute;display:block;}
         .gear-room-feedback {border-radius:12px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:background-color 100ms ease,box-shadow 100ms ease;}
-        .gear-room-feedback:active,.gear-room-feedback.is-pressed {transition:none;background-color:rgba(0,0,0,.28);box-shadow:inset 0 0 0 3px #ff952d,inset 0 0 22px rgba(255,149,45,.35);cursor:pointer;}
+        .gear-room-feedback:active,.gear-room-feedback.is-pressed {transition:none;background-color:transparent;box-shadow:none;cursor:pointer;}
+        .gear-room-feedback::after {content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,rgba(255,169,72,.26),rgba(255,169,72,0) 68%);opacity:0;transition:opacity 100ms ease;}
+        .gear-room-feedback:active::after,.gear-room-feedback.is-pressed::after {opacity:1;}
         @media (prefers-reduced-motion:reduce) {.gear-room-feedback {transition:none;}}
         .gear-room-hot:focus-visible,.gear-room-menu summary:focus-visible {outline:2px solid #fff0d9;outline-offset:-3px;}
         .gear-room-menu {position:absolute;left:87%;top:2%;width:13%;height:8%;z-index:5;}
