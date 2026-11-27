@@ -16,8 +16,8 @@ export default function GearRoomPage() {
       <style>{`
         .gear-room-mobile {margin:0 auto;width:100%;max-width:600px;min-height:100svh;background:#21170e;position:relative;}
         .gear-room-art {position:relative;width:100%;line-height:0;}
-        .gear-room-art img {display:block;width:100%;height:auto;}
-        .gear-room-hot {position:absolute;display:block;}
+        .gear-room-art img {display:block;width:100%;height:auto;pointer-events:none;}
+        .gear-room-hot {position:absolute;display:block;z-index:4;pointer-events:auto;}
         .gear-room-feedback {border-radius:12px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:background-color 100ms ease,box-shadow 100ms ease;}
         .gear-room-feedback:active,.gear-room-feedback.is-pressed {transition:none;background-color:transparent;box-shadow:none;cursor:pointer;}
         .gear-room-feedback::after {content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,rgba(255,169,72,.26),rgba(255,169,72,0) 68%);opacity:0;transition:opacity 100ms ease;}
@@ -31,8 +31,8 @@ export default function GearRoomPage() {
         .gear-room-menu nav a {display:block;color:inherit;padding:10px;text-decoration:none;}
         .gear-room-extra-feedback {touch-action:manipulation;-webkit-tap-highlight-color:transparent;cursor:pointer;}
         .gear-room-menu summary.gear-room-extra-feedback,.gear-room-menu nav a.gear-room-extra-feedback {position:relative;}
-        .gear-room-extra-feedback::after {content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,rgba(255,169,72,.26),rgba(255,169,72,0) 68%);opacity:0;transition:opacity 100ms ease;}
-        .gear-room-extra-feedback:active::after,.gear-room-extra-feedback.is-pressed::after {opacity:1;}
+        .gear-room-extra-feedback::after {content:'';position:absolute;inset:0;pointer-events:none;z-index:2;background:radial-gradient(ellipse at center,rgba(255,169,72,.55),rgba(255,169,72,0) 80%);opacity:0;}
+        .gear-room-extra-feedback:active::after,.gear-room-extra-feedback.is-pressed::after,.gear-room-menu[open] summary::after {opacity:1;}
         @media (prefers-reduced-motion:reduce) { .gear-room-extra-feedback::after {transition:none;} }
       `}</style>
       <div className="gear-room-art">
