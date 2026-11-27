@@ -17,7 +17,7 @@ export default function MyGearPage() {
         .my-gear-menu nav a {display:block;color:inherit;padding:10px;text-decoration:none;}
       `}</style>
       <div className="my-gear-art">
-        <img src="/my-gear-mobile.webp" width={941} height={1672} alt="RoamLab My Gear — Real Gear, Virtual Gear, Gear Market" fetchPriority="high" />
+        <img src="/my-gear-mobile.webp?v=2" width={941} height={1672} alt="RoamLab My Gear — Real Gear, Virtual Gear, Gear Market" fetchPriority="high" />
         <Link className="my-gear-hot" style={{left:"3%",top:"1%",width:"35%",height:"9%"}} href={n.home.href} aria-label="Home"/>
         <Link className="my-gear-hot" style={{left:"74%",top:"2%",width:"13%",height:"8%"}} href={n.me.href} aria-label="Account"/>
         <details className="my-gear-menu">
