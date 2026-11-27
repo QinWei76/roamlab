@@ -1,7 +1,15 @@
+"use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState, useRef, useEffect } from "react";
 import { navigation as n } from "../../config/navigation";
 
 export default function GearRoomPage() {
+  const router = useRouter();
+  const [pressed, setPressed] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => { if (timer.current !== null) clearTimeout(timer.current); }, []);
   return (
     <main className="gear-room-mobile">
       <style>{`
@@ -10,7 +18,7 @@ export default function GearRoomPage() {
         .gear-room-art img {display:block;width:100%;height:auto;}
         .gear-room-hot {position:absolute;display:block;}
         .gear-room-feedback {border-radius:12px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:background-color 100ms ease,box-shadow 100ms ease;}
-        .gear-room-feedback:active {background-color:rgba(0,0,0,.20);box-shadow:inset 0 0 0 2px rgba(255,149,45,.85),inset 0 0 18px rgba(255,149,45,.18);}
+        .gear-room-feedback:active,.gear-room-feedback.is-pressed {transition:none;background-color:rgba(0,0,0,.28);box-shadow:inset 0 0 0 3px #ff952d,inset 0 0 22px rgba(255,149,45,.35);cursor:pointer;}
         @media (prefers-reduced-motion:reduce) {.gear-room-feedback {transition:none;}}
         .gear-room-hot:focus-visible,.gear-room-menu summary:focus-visible {outline:2px solid #fff0d9;outline-offset:-3px;}
         .gear-room-menu {position:absolute;left:87%;top:2%;width:13%;height:8%;z-index:5;}
@@ -23,7 +31,7 @@ export default function GearRoomPage() {
         <img src="/gear-room-mobile.webp" width={941} height={1671} alt="RoamLab Gear Room — My Gear, Gear Loadout, Gear Tips, Gear Exchange" fetchPriority="high" />
         <Link className="gear-room-hot" style={{left:"3%",top:"1%",width:"35%",height:"9%"}} href={n.home.href} aria-label="Home"/>
         <Link className="gear-room-hot" style={{left:"74%",top:"2%",width:"13%",height:"8%"}} href={n.me.href} aria-label="Account"/>
-        <Link className="gear-room-hot gear-room-feedback" style={{left:"4.5%",top:"49.4%",width:"91.5%",height:"10.2%"}} href="/gear-room/my-gear" aria-label="My Gear"/>
+        <Link className={`gear-room-hot gear-room-feedback${pressed ? " is-pressed" : ""}`} style={{left:"4.5%",top:"49.4%",width:"91.5%",height:"10.2%"}} href="/gear-room/my-gear" onClick={(event) => { if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return; event.preventDefault(); if (timer.current !== null) return; setPressed(true); timer.current = setTimeout(() => { timer.current = null; setPressed(false); router.push("/gear-room/my-gear"); }, 150); }} aria-label="My Gear"/>
         <details className="gear-room-menu">
           <summary aria-label="Toggle navigation menu"/>
           <nav aria-label="Site navigation">{Object.values(n).map(item => <Link key={item.id} href={item.href}>{item.label}</Link>)}</nav>
