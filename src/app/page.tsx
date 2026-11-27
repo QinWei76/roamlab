@@ -1,5 +1,16 @@
+"use client";
 
-import Link from "next/link";
+import NextLink from "next/link";
+import { useRouter } from "next/navigation";
+import { useRef, useEffect, useState, type ComponentProps } from "react";
+
+function Link(props: ComponentProps<typeof NextLink>) {
+  const router = useRouter();
+  const [pressed, setPressed] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => { if (timer.current !== null) clearTimeout(timer.current); }, []);
+  return <NextLink {...props} className={`${props.className ?? ""} roam-press${pressed ? " is-pressed" : ""}`} onClick={event => { if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0 || typeof props.href !== "string") return; event.preventDefault(); if (timer.current !== null) return; const href = props.href; setPressed(true); timer.current = setTimeout(() => { timer.current = null; setPressed(false); router.push(href); }, 150); }} />;
+}
 import "./mobile-home.css";
 import { navigation as n } from "../config/navigation";
 
@@ -64,7 +75,13 @@ function MobileHome() {
         .mobile-v3-primary a {position:relative;}
         .mobile-v3-hero {z-index:3;}
         .mobile-v3 a:focus-visible {outline:2px solid white;outline-offset:-3px;}
-        .mobile-v3 a:active {filter:brightness(.9);}
+        .mobile-v3-tabs a,.mobile-v3-menu nav a,.mobile-v3-menu summary {position:relative;}
+        .mobile-v3-hot {z-index:4;pointer-events:auto;}
+        .mobile-v3-hero > img,.mobile-v3-band > img {pointer-events:none;}
+        .mobile-v3-menu summary {touch-action:manipulation;}
+        .roam-press,.mobile-v3-menu summary { -webkit-tap-highlight-color:transparent;cursor:pointer;touch-action:manipulation;}
+        .roam-press::after,.mobile-v3-menu summary::after {content:'';position:absolute;inset:0;pointer-events:none;z-index:2;background:radial-gradient(ellipse at center,rgba(255,169,72,.48),rgba(255,169,72,0) 75%);opacity:0;}
+        .roam-press:active::after,.roam-press.is-pressed::after,.mobile-v3-menu summary:active::after,.mobile-v3-menu[open] summary::after {opacity:1;}
       `}</style>
       <header className="mobile-v3-hero">
         <img src={asset+"hero.webp"} width={873} height={784} alt="RoamLab DigiReal Adventure — Create Your Own Adventure. From Imagination to Reality." fetchPriority="high" />
