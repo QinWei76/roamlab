@@ -16,8 +16,8 @@ export default function MyGearPage() {
       <style>{`
         .my-gear-mobile {margin:0 auto;width:100%;max-width:600px;min-height:100svh;background:#21170e;position:relative;}
         .my-gear-art {position:relative;width:100%;line-height:0;}
-        .my-gear-art img {display:block;width:100%;height:auto;}
-        .my-gear-hot {position:absolute;display:block;}
+        .my-gear-art img {display:block;width:100%;height:auto;pointer-events:none;}
+        .my-gear-hot {position:absolute;display:block;z-index:4;pointer-events:auto;}
         .my-gear-hot:focus-visible,.my-gear-menu summary:focus-visible {outline:2px solid #fff0d9;outline-offset:-3px;}
         .my-gear-menu {position:absolute;left:87%;top:2%;width:13%;height:8%;z-index:5;}
         .my-gear-menu summary {display:block;width:100%;height:100%;cursor:pointer;list-style:none;}
@@ -26,8 +26,8 @@ export default function MyGearPage() {
         .my-gear-menu nav a {display:block;color:inherit;padding:10px;text-decoration:none;}
         .my-gear-extra-feedback {touch-action:manipulation;-webkit-tap-highlight-color:transparent;cursor:pointer;}
         .my-gear-menu summary.my-gear-extra-feedback,.my-gear-menu nav a.my-gear-extra-feedback {position:relative;}
-        .my-gear-extra-feedback::after {content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,rgba(255,169,72,.26),rgba(255,169,72,0) 68%);opacity:0;transition:opacity 100ms ease;}
-        .my-gear-extra-feedback:active::after,.my-gear-extra-feedback.is-pressed::after {opacity:1;}
+        .my-gear-extra-feedback::after {content:'';position:absolute;inset:0;pointer-events:none;z-index:2;background:radial-gradient(ellipse at center,rgba(255,169,72,.55),rgba(255,169,72,0) 80%);opacity:0;}
+        .my-gear-extra-feedback:active::after,.my-gear-extra-feedback.is-pressed::after,.my-gear-menu[open] summary::after {opacity:1;}
         @media (prefers-reduced-motion:reduce) { .my-gear-extra-feedback::after {transition:none;} }
       `}</style>
       <div className="my-gear-art">
